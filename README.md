@@ -4,6 +4,15 @@ Square integration with laravel 5.
 
 ## Installation guide
 
+Open `app.php` file and add:
+```javascript
+//providers
+Nikolag\Square\Providers\SquareServiceProvider::class
+
+//aliases
+'Square' => Nikolag\Square\Facades\Square::class
+```
+
 Open `services.php` file and add the following code at the bottom of the file:
 ```javascript
 'square' => [
@@ -46,3 +55,5 @@ $customer = new SquareCustomer();
 //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
 $transaction = $customer->charge($amount, $nonce);
 ```
+
+## Still in development, a lot more features yet to be built...
