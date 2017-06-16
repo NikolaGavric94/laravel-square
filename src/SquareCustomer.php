@@ -152,7 +152,7 @@ class SquareCustomer implements SquareContract {
      */
     public function setFirstName($firstName)
     {
-        $this->firstName = $fistName;
+        $this->firstName = $firstName;
 
         return $this;
     }
