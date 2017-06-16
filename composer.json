@@ -1,7 +1,7 @@
 {
     "name": "nikolag/square",
     "description": "Square API integration with Laravel",
-    "keywords": ["package", "laravel", "square laravel integration", "square", "laravel square", "square connect", "square api", "square connect v2", "square api v2"],
+    "keywords": ["square", "laravel"],
     "license": "MIT",
     "type": "package",
     "authors": [{
