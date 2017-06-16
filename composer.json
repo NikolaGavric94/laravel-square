@@ -21,5 +21,6 @@
         "psr-4": {
             "Nikolag\\Square\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev-master"
 }
