@@ -6,5 +6,5 @@ interface SquareContract
 {
     public function locations();
     public function save();
-    public function charge(int $amount, string $nonce);
+    public function charge(float $amount, string $nonce);
 }
