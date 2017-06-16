@@ -3,6 +3,7 @@ Square integration with laravel 5.
 
 
 ## Installation guide
+`composer require nikolag/square`
 
 Open `app.php` file and add:
 ```javascript
