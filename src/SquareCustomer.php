@@ -416,7 +416,7 @@ class SquareCustomer implements SquareContract {
      *
      */
     function charge(float $amount, string $cardNonce) {
-        $transaction = $this->transactionsAPI->charge('CBASEAlGfN9WwI-nfc2FByucZ0sgAQ', array(
+        $transaction = $this->transactionsAPI->charge($this->config->location_id, array(
             'idempotency_key' => uniqid(),
               'amount_money' => array(
                 'amount' => $amount,
