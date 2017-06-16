@@ -1,0 +1,28 @@
+{
+    "name": "nikolag/square",
+    "description": "Square API integration with Laravel",
+    "keywords": ["package", "laravel", "square laravel integration"],
+    "license": "MIT",
+    "type": "package",
+    "authors": [{
+        "name": "Nikola Gavric",
+        "email": "nikola.gavric94@gmail.com",
+        "role": "Developer"
+    }],
+    "require": {
+        "php": ">=5.6.4",
+        "laravel/framework": "5.4.*",
+        "laravel/tinker": "~1.0"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "~1.4",
+        "mockery/mockery": "0.9.*",
+        "phpunit/phpunit": "~5.7",
+        "square/connect": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nikolag\\Square\\": "src/"
+        }
+    }
+}
