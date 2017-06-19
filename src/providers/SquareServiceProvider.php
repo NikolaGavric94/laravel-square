@@ -4,7 +4,7 @@ namespace Nikolag\Square\Providers;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-use Nikolag\Square\Square;
+use Nikolag\Square\SquareConfig;
 
 class SquareServiceProvider extends ServiceProvider
 {
@@ -15,7 +15,11 @@ class SquareServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // $this->publishes([
+        //     __DIR__.'/../database/migrations/' => database_path('migrations')
+        // ], 'nikolag-migrations');
+        
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**
@@ -25,14 +29,14 @@ class SquareServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(Square::class, function($app) {
-            return new Square(config('services.square'));
+        $this->app->singleton(SquareConfig::class, function($app) {
+            return new SquareConfig(config('services.square'));
         });
 
-        $this->app->alias(Square::class, 'square');
+        $this->app->alias(SquareConfig::class, 'square');
 
-        $this->app->resolving(Square::class, function ($api, $app) {
-            Log::info('Nikolag\Square\Square Resolved!');
-        });
+        //$this->app->resolving(SquareConfig::class, function ($api, $app) {
+            //Log::info('Nikolag\Square\Square Resolved!');
+        //});
     }
 }

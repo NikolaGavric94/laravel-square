@@ -42,7 +42,7 @@ class SquareCustomer implements SquareContract {
 	/**
 	 * @var int
 	 */
-	private $reference_id;
+	private $referenceId;
 	/**
 	 * @var string
 	 */
@@ -58,15 +58,15 @@ class SquareCustomer implements SquareContract {
     /**
      * @var LocationsApi
      */
-    private $locationsAPI;
+    private $locationsApi;
     /**
      * @var CustomersApi
      */
-    private $customersAPI;
+    private $customersApi;
     /**
      * @var TransactionsApi
      */
-    private $transactionsAPI;
+    private $transactionsApi;
 
 	function __construct($data = null)
     {

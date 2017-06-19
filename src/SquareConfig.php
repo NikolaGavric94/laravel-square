@@ -9,7 +9,7 @@ use SquareConnect\Api\LocationsApi;
 use SquareConnect\Api\TransactionsApi;
 use SquareConnect\Configuration;
 
-class Square {
+class SquareConfig {
 	private $config;
 	public $locationsAPI;
 	public $customersAPI;
