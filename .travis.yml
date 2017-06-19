@@ -5,7 +5,7 @@ php:
 
 before_script:
   - cp .env.travis .env
-  - mysql -e 'create database square-test;'
+  - mysql -e 'create database square_test;'
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
 
