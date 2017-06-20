@@ -21,8 +21,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Nikolag\\Square\\": "src/"
+            "Nikolag\\Square\\": "src/",
+            "Nikolag\\Square\\Tests\\": "tests/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
