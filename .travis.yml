@@ -3,6 +3,11 @@ language: php
 php:
   - 7.1
 
+cache:
+  directories:
+    - node_modules
+    - vendor
+
 before_script:
   - cp .env.travis .env
   - mysql -e 'create database square_test;'
