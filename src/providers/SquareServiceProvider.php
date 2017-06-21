@@ -19,7 +19,7 @@ class SquareServiceProvider extends ServiceProvider
         // $this->publishes([
         //     __DIR__.'/../database/migrations/' => database_path('migrations')
         // ], 'nikolag-migrations');
-        Schema::defaultStringLength(191);
+        //Schema::defaultStringLength(191);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
@@ -31,7 +31,7 @@ class SquareServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(SquareConfig::class, function($app) {
-            return new SquareConfig(config('services.square'));
+            return new SquareConfig();
         });
 
         $this->app->alias(SquareConfig::class, 'square');

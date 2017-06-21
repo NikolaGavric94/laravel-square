@@ -16,11 +16,15 @@ class SquareConfig {
 	public $transactionsAPI;
 
 	function __construct($config) {
-		$this->config = $config;
-		Configuration::getDefaultConfiguration()->setAccessToken($config['access_token']);
+		$this->config = config('services.square');
+		$this->setAccessToken($this->config->access_token);
 		$this->locationsAPI = new LocationsApi();
 		$this->customersAPI = new CustomersApi();
 		$this->transactionsAPI = new TransactionsApi();
+	}
+
+	function setAccessToken(string $accessToken) {
+		Configuration::getDefaultConfiguration()->setAccessToken($accessToken);
 	}
 
 	function locationsAPI() {
