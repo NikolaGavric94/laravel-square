@@ -21,12 +21,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Nikolag\\Square\\": "src/"
+            "Nikolag\\Square\\": "src/",
+            "Nikolag\\Square\\Providers\\": "src/providers/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "Nikolag\\Square\\": "src/",
+            "Nikolag\\Square\\Providers\\": "src/providers/",
             "Nikolag\\Square\\Tests\\": "tests/"
         }
     }
