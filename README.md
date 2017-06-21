@@ -1,3 +1,7 @@
+[![Latest Stable Version](https://poser.pugx.org/nikolag/square/v/stable)](https://packagist.org/packages/nikolag/square)
+[![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square)
+[![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square)
+[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=develop)](https://travis-ci.org/NikolaGavric94/laravel-square)
 # laravel-square
 Square integration with laravel 5.
 
