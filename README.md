@@ -1,3 +1,4 @@
+[![Latest Unstable Version](https://poser.pugx.org/nikolag/square/v/unstable)](https://packagist.org/packages/nikolag/square)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/square/v/stable)](https://packagist.org/packages/nikolag/square)
 [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square)
 [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square)

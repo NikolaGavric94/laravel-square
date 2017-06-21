@@ -32,7 +32,8 @@ class Customer extends Model
     	'nickname',
     	'email',
     	'nickname',
-    	'phone'
+    	'phone',
+        'note'
     ];
 
     /**
