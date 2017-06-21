@@ -47,19 +47,22 @@ class TestCase extends BaseTestCase {
     protected function getEnvironmentSetUp($app)
     {
         // Setup default database to use sqlite :memory:
+        // 'driver' => 'mysql',
+        // 'host' => '127.0.0.1',
+        // 'port' => '3306',
+        // 'database' => 'square_test',
+        // 'username' => 'root',
+        // 'password' => '',
+        // 'charset' => 'utf8mb4',
+        // 'collation' => 'utf8mb4_unicode_ci',
+        // 'prefix' => '',
+        // 'strict' => true,
+        // 'engine' => null,
         $app['config']->set('database.default', 'square_test');
         $app['config']->set('database.connections.square_test', [
-            'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'port' => '3306',
-            'database' => 'square_test',
-            'username' => 'root',
-            'password' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => ''
         ]);
     }
 }

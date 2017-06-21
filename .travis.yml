@@ -1,11 +1,8 @@
 language: php
-sudo: true
+sudo: false
 php:
   - 5.6
   - 7.1
-
-addons:
-  mysql: 5.7
 
 cache:
   directories:
@@ -14,7 +11,6 @@ cache:
 
 before_script:
   - cp .env.travis .env
-  - mysql -e 'create database square_test;'
   - composer self-update
   - composer update
 
