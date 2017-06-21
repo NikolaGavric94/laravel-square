@@ -3,6 +3,7 @@
 namespace Nikolag\Square\Providers;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Nikolag\Square\SquareConfig;
 
@@ -18,7 +19,7 @@ class SquareServiceProvider extends ServiceProvider
         // $this->publishes([
         //     __DIR__.'/../database/migrations/' => database_path('migrations')
         // ], 'nikolag-migrations');
-        
+        Schema::defaultStringLength(191);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
