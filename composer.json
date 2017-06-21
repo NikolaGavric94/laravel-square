@@ -19,9 +19,13 @@
         "square/connect": "^2.1",
         "orchestra/testbench": "~3.4"
     },
+    "autoload": {
+        "psr-4": {
+            "Nikolag\\Square\\": "src/"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
-            "Nikolag\\Square\\": "src/",
             "Nikolag\\Square\\Tests\\": "tests/"
         }
     }
