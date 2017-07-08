@@ -3,7 +3,10 @@
 namespace Nikolag\Square;
 
 use Nikolag\Square\Contracts\SquareContract;
+use Nikolag\Square\Event\SquareExceptionEvent;
+use Nikolag\Square\Exception;
 use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Utils\Constants;
 use SquareConnect\Model\CreateCustomerRequest;
 
 class SquareCustomer implements SquareContract {
@@ -71,14 +74,22 @@ class SquareCustomer implements SquareContract {
 	function __construct($data = null)
     {
         if($data) {
-    		$this->setFirstName($data['firstName']);
-    		$this->setLastName($data['lastName']);
-    		$this->setCompanyName($data['companyName']);
-    		$this->setNickname($data['nickname']);
-    		$this->setEmail($data['email']);
-    		$this->setPhone($data['phone']);
-    		$this->setReferenceId($data['reference_id']);
-    		$this->setNote($data['note']);
+            if(isset($data['first_name']))
+    		  $this->setFirstName($data['first_name']);
+            if(isset($data['last_name']))
+    		  $this->setLastName($data['last_name']);
+            if(isset($data['company_name']))
+    		  $this->setCompanyName($data['company_name']);
+            if(isset($data['nickname']))
+    		  $this->setNickname($data['nickname']);
+            if(isset($data['email']))
+    		  $this->setEmail($data['email']);
+            if(isset($data['phone']))
+    		  $this->setPhone($data['phone']);
+            if(isset($data['reference_id']))
+    		  $this->setReferenceId($data['reference_id']);
+            if(isset($data['note']))
+    		  $this->setNote($data['note']);
         }
         $this->locationsAPI = Square::locationsAPI();
         $this->customersAPI = Square::customersAPI();
@@ -374,7 +385,9 @@ class SquareCustomer implements SquareContract {
     }
 
     /**
-     *
+     * Create customer request.
+     * 
+     * @return void
      */
     private function buildCustomerRequest()
     {
@@ -393,7 +406,9 @@ class SquareCustomer implements SquareContract {
     }
 
     /**
-     *
+     * List locations.
+     * 
+     * @return \SquareConnect\Model\ListLocationsResponse
      */
     function locations()
     {
@@ -401,7 +416,9 @@ class SquareCustomer implements SquareContract {
     }
 
     /**
-     *
+     * Save customer.
+     * 
+     * @return void
      */
     function save()
     {
@@ -413,17 +430,43 @@ class SquareCustomer implements SquareContract {
     }
 
     /**
-     *
+     * Charge a customer.
+     * 
+     * @param float $amount 
+     * @param string $card_nonce 
+     * @param string|null $location_id 
+     * @return \SquareConnect\Model\ChargeResponse
+     * @throws \SquareConnect\ApiException on non-2xx response
      */
-    function charge(float $amount, string $cardNonce) {
-        $transaction = $this->transactionsAPI->charge($this->config->location_id, array(
-            'idempotency_key' => uniqid(),
-              'amount_money' => array(
-                'amount' => $amount,
-                'currency' => 'USD'
-              ),
-              'card_nonce' => $cardNonce,
-        ));
-        return $transaction;
+    function charge(float $amount, string $card_nonce, string $location_id = null)
+    {
+        try {
+            return $this->transactionsAPI->charge($location_id, array(
+                'idempotency_key' => uniqid(),
+                  'amount_money' => array(
+                    'amount' => $amount,
+                    'currency' => 'USD'
+                  ),
+                  'card_nonce' => $card_nonce,
+            ));
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * List transactions.
+     * 
+     * @param int $locationId 
+     * @param type|null $begin_time 
+     * @param type|null $end_time 
+     * @param type|null $cursor 
+     * @param type|string $sort_order 
+     * @return \SquareConnect\Model\ListTransactionsResponse
+     */
+    function transactions(int $locationId, $begin_time = null, $end_time = null, $cursor = null, $sort_order = 'desc')
+    {
+        $transactions = $this->transactionsAPI->listTransactions($location_id, $begin_time, $end_time, $sort_order, $cursor);
+        return $transactions;
     }
 }

@@ -3,6 +3,7 @@
 namespace Nikolag\Square;
 
 use Nikolag\Square\Contracts\SquareContract;
+use Nikolag\Square\Exceptions\InvalidConfigurationException;
 use Nikolag\Square\SquareCustomer;
 use SquareConnect\Api\CustomersApi;
 use SquareConnect\Api\LocationsApi;
@@ -15,27 +16,58 @@ class SquareConfig {
 	public $customersAPI;
 	public $transactionsAPI;
 
-	function __construct($config) {
-		$this->config = config('services.square');
-		$this->setAccessToken($this->config->access_token);
+	function __construct()
+	{
+		$this->config = config('nikolag');
+		if(empty($this->config) || !isset($this->config)) {
+			throw new InvalidConfigurationException(
+				"Missing required configuration for nikolag\laravel-square.", 500
+			);
+		}
+		$this->setAccessToken($this->config['square']['access_token']);
 		$this->locationsAPI = new LocationsApi();
 		$this->customersAPI = new CustomersApi();
 		$this->transactionsAPI = new TransactionsApi();
 	}
 
-	function setAccessToken(string $accessToken) {
+	/**
+	 * Access token for square.
+	 * 
+	 * @param string $accessToken 
+	 * @return void
+	 */
+	public function setAccessToken(string $accessToken)
+	{
 		Configuration::getDefaultConfiguration()->setAccessToken($accessToken);
 	}
 
-	function locationsAPI() {
+	/**
+	 * Api for locations.
+	 * 
+	 * @return \SquareConnect\Api\LocationsApi
+	 */
+	public function locationsAPI()
+	{
 		return $this->locationsAPI;
 	}
 
-	function customersAPI() {
+	/**
+	 * Api for customers.
+	 * 
+	 * @return \SquareConnect\Api\CustomersApi
+	 */
+	public function customersAPI()
+	{
 		return $this->customersAPI;
 	}
 
-	function transactionsAPI() {
+	/**
+	 * Api for transactions.
+	 * 
+	 * @return \SquareConnect\Api\TransactionsApi
+	 */
+	public function transactionsAPI()
+	{
 		return $this->transactionsAPI;
 	}
 }

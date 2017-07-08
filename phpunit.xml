@@ -10,8 +10,8 @@
          syntaxCheck="false"
          bootstrap="vendor/autoload.php">
     <testsuites>
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
+        <testsuite name="Integration">
+            <directory suffix="Test.php">./tests/Integration</directory>
         </testsuite>
 
         <testsuite name="Unit">
@@ -24,9 +24,17 @@
         </whitelist>
     </filter>
     <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="QUEUE_DRIVER" value="sync"/>
+        <env name="APP_ENV" value="testing" />
+
+        <env name="CACHE_DRIVER" value="array" />
+        <env name="SESSION_DRIVER" value="array" />
+        <env name="QUEUE_DRIVER" value="sync" />
+
+        <env name="SQUARE_APPLICATION_ID" value="sandbox-sq0idp-W0dzzI3cmKEZ_sdzB9AuiA"></env>
+        <env name="SQUARE_TOKEN" value="sandbox-sq0atb-PKpGF2gJ9VMXba9krg_ynA"></env>
+        <env name="SQUARE_LOCATION" value="CBASEAlGfN9WwI-nfc2FByucZ0sgAQ"></env>
+
+        <env name="SQUARE_USER_NAMESPACE" value="Nikolag\Square\Tests\Models\User"></env>
+        <env name="SQUARE_ORDER_NAMESPACE" value="Nikolag\Square\Tests\Models\Order"></env>
     </php>
 </phpunit>

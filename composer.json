@@ -1,7 +1,7 @@
 {
     "name": "nikolag/square",
     "description": "Square API integration with Laravel",
-    "keywords": ["square", "laravel"],
+    "keywords": ["square", "laravel", "square laravel integration"],
     "license": "MIT",
     "type": "package",
     "authors": [{
@@ -22,14 +22,21 @@
     "autoload": {
         "psr-4": {
             "Nikolag\\Square\\": "src/",
-            "Nikolag\\Square\\Providers\\": "src/providers/"
+            "Nikolag\\Square\\Providers\\": "src/providers",
+            "Nikolag\\Square\\Exceptions\\": "src/exceptions",
+            "Nikolag\\Square\\Models\\": "src/models",
+            "Nikolag\\Square\\Utils\\": "src/utils"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "Nikolag\\Square\\": "src/",
-            "Nikolag\\Square\\Providers\\": "src/providers/",
-            "Nikolag\\Square\\Tests\\": "tests/"
+            "Nikolag\\Square\\Providers\\": "src/providers",
+            "Nikolag\\Square\\Exceptions\\": "src/exceptions",
+            "Nikolag\\Square\\Models\\": "src/models",
+            "Nikolag\\Square\\Utils\\": "src/utils",
+            "Nikolag\\Square\\Tests\\": "tests/",
+            "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
     }
 }

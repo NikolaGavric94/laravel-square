@@ -1,5 +1,10 @@
 <?php
 
+use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Utils\Constants;
+
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -12,8 +17,8 @@
 */
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(Nikolag\Square\Customer::class, function (Faker\Generator $faker) {
-
+$factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker)
+{
     return [
     	'square_id' => $faker->unique()->randomNumber,
         'first_name' => $faker->unique()->firstNameMale,
@@ -22,6 +27,28 @@ $factory->define(Nikolag\Square\Customer::class, function (Faker\Generator $fake
         'nickname' => $faker->unique()->firstNameFemale,
         'email' => $faker->unique()->companyEmail,
         'phone' => $faker->unique()->tollFreePhoneNumber,
-        'note' => $faker->unique()->paragraph(5)
+        'note' => $faker->unique()->paragraph(5),
+    ];
+});
+
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $faker)
+{
+    return [
+        'status' => Constants::TRANSACTION_STATUS_OPENED,
+        'amount' => $faker->numberBetween(5000, 500000)
+    ];
+});
+
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(config('nikolag.user.namespace'), function (Faker\Generator $faker)
+{
+    static $password;
+
+    return [
+        'name' => $faker->name,
+        'email' => $faker->unique()->safeEmail,
+        'password' => $password ?: $password = bcrypt('secret'),
+        'remember_token' => str_random(10),
     ];
 });
