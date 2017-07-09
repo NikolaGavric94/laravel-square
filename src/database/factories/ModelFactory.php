@@ -41,7 +41,7 @@ $factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $fa
 });
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(config('nikolag.user.namespace'), function (Faker\Generator $faker)
+$factory->define(User::class, function (Faker\Generator $faker)
 {
     static $password;
 

@@ -14,12 +14,12 @@ class CreateNikolagCustomerUserTable extends Migration
     public function up()
     {
         Schema::create('nikolag_customer_user', function(Blueprint $table) {
-            $table->string('reference_id');
+            $table->string('owner_id');
             $table->integer('customer_id')->unsigned();
         });
 
         Schema::table('nikolag_customer_user', function(Blueprint $table) {
-            $table->unique(['reference_id', 'customer_id']);
+            $table->unique(['owner_id', 'customer_id']);
         });
     }
 

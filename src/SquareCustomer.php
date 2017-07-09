@@ -3,406 +3,55 @@
 namespace Nikolag\Square;
 
 use Nikolag\Square\Contracts\SquareContract;
-use Nikolag\Square\Event\SquareExceptionEvent;
 use Nikolag\Square\Exception;
-use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\SquareConfig;
 use Nikolag\Square\Utils\Constants;
 use SquareConnect\Model\CreateCustomerRequest;
 
 class SquareCustomer implements SquareContract {
     /**
-     * @var int
-     */
-    private $id;
-    /**
-     * @var int
-     */
-    private $squareId;
-	/**
-	 * @var string
-	 */
-	private $firstName;
-	/**
-	 * @var string
-	 */
-	private $lastName;
-	/**
-	 * @var string
-	 */
-	private $companyName;
-	/**
-	 * @var string
-	 */
-	private $nickname;
-	/**
-	 * @var string
-	 */
-	private $email;
-	/**
-	 * @var string
-	 */
-	private $phone;
-	/**
-	 * @var int
-	 */
-	private $referenceId;
-	/**
-	 * @var string
-	 */
-	private $note;
-    /**
      * @var CreateCustomerRequest
      */
     private $squareCustomerRequest;
     /**
-     * @var array
+     * @var Customer|null
      */
-    private $cards;
+    private $customer;
     /**
-     * @var LocationsApi
+     * @var any
      */
-    private $locationsApi;
+    private $merchant;
     /**
-     * @var CustomersApi
+     * @var SquareConfig
      */
-    private $customersApi;
-    /**
-     * @var TransactionsApi
-     */
-    private $transactionsApi;
+    private $squareConfig;
 
-	function __construct($data = null)
-    {
-        if($data) {
-            if(isset($data['first_name']))
-    		  $this->setFirstName($data['first_name']);
-            if(isset($data['last_name']))
-    		  $this->setLastName($data['last_name']);
-            if(isset($data['company_name']))
-    		  $this->setCompanyName($data['company_name']);
-            if(isset($data['nickname']))
-    		  $this->setNickname($data['nickname']);
-            if(isset($data['email']))
-    		  $this->setEmail($data['email']);
-            if(isset($data['phone']))
-    		  $this->setPhone($data['phone']);
-            if(isset($data['reference_id']))
-    		  $this->setReferenceId($data['reference_id']);
-            if(isset($data['note']))
-    		  $this->setNote($data['note']);
-        }
-        $this->locationsAPI = Square::locationsAPI();
-        $this->customersAPI = Square::customersAPI();
-        $this->transactionsAPI = Square::transactionsAPI();
-	}
-
-    /**
-     * Gets the value of id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Sets the value of id.
-     *
-     * @param int $id the id
-     *
-     * @return self
-     */
-    private function _setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of squareId.
-     *
-     * @return int
-     */
-    public function getSquareId()
-    {
-        return $this->squareId;
-    }
-
-    /**
-     * Sets the value of squareId.
-     *
-     * @param int $squareId the square id
-     *
-     * @return self
-     */
-    private function _setSquareId($squareId)
-    {
-        $this->squareId = $squareId;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of firstName.
-     *
-     * @return string
-     */
-    public function getFirstName()
-    {
-        return $this->firstName;
-    }
-
-    /**
-     * Sets the value of firstName.
-     *
-     * @param string $firstName the first name
-     *
-     * @return self
-     */
-    public function setFirstName($firstName)
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of lastName.
-     *
-     * @return string
-     */
-    public function getLastName()
-    {
-        return $this->lastName;
-    }
-
-    /**
-     * Sets the value of lastName.
-     *
-     * @param string $lastName the last name
-     *
-     * @return self
-     */
-    public function setLastName($lastName)
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of companyName.
-     *
-     * @return string
-     */
-    public function getCompanyName()
-    {
-        return $this->companyName;
-    }
-
-    /**
-     * Sets the value of companyName.
-     *
-     * @param string $companyName the company name
-     *
-     * @return self
-     */
-    public function setCompanyName($companyName)
-    {
-        $this->companyName = $companyName;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of nickname.
-     *
-     * @return string
-     */
-    public function getNickname()
-    {
-        return $this->nickname;
-    }
-
-    /**
-     * Sets the value of nickname.
-     *
-     * @param string $nickname the nickname
-     *
-     * @return self
-     */
-    public function setNickname($nickname)
-    {
-        $this->nickname = $nickname;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of email.
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * Sets the value of email.
-     *
-     * @param string $email the email
-     *
-     * @return self
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of phone.
-     *
-     * @return string
-     */
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    /**
-     * Sets the value of phone.
-     *
-     * @param string $phone the phone
-     *
-     * @return self
-     */
-    public function setPhone($phone)
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of reference_id.
-     *
-     * @return int
-     */
-    public function getReferenceId()
-    {
-        return $this->reference_id;
-    }
-
-    /**
-     * Sets the value of reference_id.
-     *
-     * @param int $reference_id the reference id
-     *
-     * @return self
-     */
-    public function setReferenceId($reference_id)
-    {
-        $this->reference_id = $reference_id;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of note.
-     *
-     * @return string
-     */
-    public function getNote()
-    {
-        return $this->note;
-    }
-
-    /**
-     * Sets the value of note.
-     *
-     * @param string $note the note
-     *
-     * @return self
-     */
-    public function setNote($note)
-    {
-        $this->note = $note;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of squareCustomerRequest.
-     *
-     * @return CreateCustomerRequest
-     */
-    public function getSquareCustomerRequest()
-    {
-        return $this->squareCustomerRequest;
-    }
-
-    /**
-     * Sets the value of squareCustomerRequest.
-     *
-     * @param CreateCustomerRequest $squareCustomerRequest the square customer request
-     *
-     * @return self
-     */
-    private function _setSquareCustomerRequest(CreateCustomerRequest $squareCustomerRequest)
-    {
-        $this->squareCustomerRequest = $squareCustomerRequest;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of cards.
-     *
-     * @return SquareCard[]
-     */
-    public function getCards()
-    {
-        return $this->cards;
-    }
-
-    /**
-     * Sets the value of cards.
-     *
-     * @param SquareCard[] $cards the cards
-     *
-     * @return self
-     */
-    private function _setCards(array $cards)
-    {
-        $this->cards = $cards;
-
-        return $this;
+	function __construct(SquareConfig $squareConfig) {
+        $this->squareConfig = $squareConfig;
     }
 
     /**
      * Create customer request.
      * 
+     * @param any  $customer the customer
      * @return void
      */
-    private function buildCustomerRequest()
+    private function buildCustomerRequest($customer)
     {
         $data = array(
-            'given_name' => $this->getFirstName(),
-            'family_name' => $this->getLastName(),
-            'company_name' => $this->getCompanyName(),
-            'nickname' => $this->getNickname(),
-            'email_address' => $this->getEmail(),
-            'phone_number' => $this->getPhone(),
-            'reference_id' => $this->getReferenceId(),
-            'note' => $this->getNote()
+            'given_name' => $customer->first_name,
+            'family_name' => $customer->last_name,
+            'company_name' => $customer->company_name,
+            'nickname' => $customer->nickname,
+            'email_address' => $customer->email,
+            'phone_number' => $customer->phone,
+            'reference_id' => $customer->owner_id,
+            'note' => $customer->note
         );
-        $customer = new CreateCustomerRequest($data);
-        $this->setSquareCustomerRequest($customer);
+        $customerRequest = new CreateCustomerRequest($data);
+        $this->setSquareCustomerRequest($customerRequest);
     }
 
     /**
@@ -410,9 +59,9 @@ class SquareCustomer implements SquareContract {
      * 
      * @return \SquareConnect\Model\ListLocationsResponse
      */
-    function locations()
+    public function locations()
     {
-        return $this->locationsAPI->listLocations();
+        return $this->squareConfig->locationsAPI->listLocations();
     }
 
     /**
@@ -420,12 +69,32 @@ class SquareCustomer implements SquareContract {
      * 
      * @return void
      */
-    function save()
+    public function save()
     {
-        if(!$this->squareId) {
-            $this->customersAPI->createCustomer($this->getSquareCustomerRequest());
-        } else {
-            $this->customersAPI->updateCustomer($this->squareId, $this->getSquareCustomerRequest());
+        try {
+            if($this->getCustomer())
+            {
+                if(!$this->getCustomer()->square_id)
+                {
+                    $response = $this->squareConfig->customersAPI->createCustomer($this->getSquareCustomerRequest());
+                    $this->getCustomer()->square_id = $response->getCustomer()->getId();
+                    $this->getCustomer()->save();
+
+                    if($this->getMerchant())
+                    {
+                        $this->getCustomer()->merchants()->attach($this->getMerchant()->id);
+                    }
+                }
+                else
+                {
+                    $this->squareConfig->customersAPI->updateCustomer($this->getCustomer()->square_id, $this->getSquareCustomerRequest());
+                }
+            } else
+            {
+
+            }
+        } catch(Exception $e) {
+            throw $e;
         }
     }
 
@@ -434,39 +103,142 @@ class SquareCustomer implements SquareContract {
      * 
      * @param float $amount 
      * @param string $card_nonce 
-     * @param string|null $location_id 
-     * @return \SquareConnect\Model\ChargeResponse
-     * @throws \SquareConnect\ApiException on non-2xx response
+     * @param string $location_id 
+     * @return \Nikolag\Square\Models\Transaction
+     * @throws \Nikolag\Square\Exception on non-2xx response
      */
-    function charge(float $amount, string $card_nonce, string $location_id = null)
+    public function charge(float $amount, string $card_nonce, string $location_id)
     {
+        $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $amount]);
+        if($this->getMerchant())
+        {
+            $transaction->merchant()->associate($this->getMerchant());
+        }
+        if($this->getCustomer())
+        {
+            $transaction->customer()->associate($this->getCustomer());
+        }
+        $transaction->save();
+
         try {
-            return $this->transactionsAPI->charge($location_id, array(
+            $response = $this->squareConfig->transactionsAPI->charge($location_id, array(
                 'idempotency_key' => uniqid(),
                   'amount_money' => array(
                     'amount' => $amount,
                     'currency' => 'USD'
                   ),
                   'card_nonce' => $card_nonce,
-            ));
+            ))->getTransaction();
+
+            $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
+            $transaction->save();
+
         } catch (Exception $e) {
+            $transaction->status = Constants::TRANSACTION_STATUS_FAILED;
+            $transaction->save();
+
             throw $e;
         }
+
+        return $transaction;
     }
 
     /**
      * List transactions.
      * 
-     * @param int $locationId 
+     * @param string $locationId 
      * @param type|null $begin_time 
      * @param type|null $end_time 
      * @param type|null $cursor 
      * @param type|string $sort_order 
      * @return \SquareConnect\Model\ListTransactionsResponse
      */
-    function transactions(int $locationId, $begin_time = null, $end_time = null, $cursor = null, $sort_order = 'desc')
+    public function transactions(string $locationId, $begin_time = null, $end_time = null, $cursor = null, $sort_order = 'desc')
     {
-        $transactions = $this->transactionsAPI->listTransactions($location_id, $begin_time, $end_time, $sort_order, $cursor);
+        $transactions = $this->squareConfig->transactionsAPI->listTransactions($location_id, $begin_time, $end_time, $sort_order, $cursor);
         return $transactions;
+    }
+
+    /**
+     * @return CreateCustomerRequest
+     */
+    public function getSquareCustomerRequest()
+    {
+        return $this->squareCustomerRequest;
+    }
+
+    /**
+     * @param CreateCustomerRequest $squareCustomerRequest
+     *
+     * @return self
+     */
+    public function setSquareCustomerRequest(CreateCustomerRequest $squareCustomerRequest)
+    {
+        $this->squareCustomerRequest = $squareCustomerRequest;
+
+        return $this;
+    }
+
+    /**
+     * @return Customer|null
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
+    }
+
+    /**
+     * @param Customer|null $customer
+     *
+     * @return self
+     */
+    public function setCustomer($customer)
+    {
+        if($customer instanceof Customer) $this->customer = $customer;
+        else if(is_array($customer)) $this->customer = new Customer($customer);
+
+        if($customer) $this->buildCustomerRequest($this->customer);
+
+        return $this;
+    }
+
+    /**
+     * @return any
+     */
+    public function getMerchant()
+    {
+        return $this->merchant;
+    }
+
+    /**
+     * @param any $merchant
+     *
+     * @return self
+     */
+    public function setMerchant($merchant)
+    {
+        $this->merchant = $merchant;
+
+        return $this;
+    }
+
+    /**
+     * @return SquareConfig
+     */
+    public function getSquareConfig()
+    {
+        return $this->squareConfig;
+    }
+
+    /**
+     * @param SquareConfig $squareConfig
+     *
+     * @return self
+     */
+    public function setSquareConfig(SquareConfig $squareConfig)
+    {
+        $this->squareConfig = $squareConfig;
+
+        return $this;
     }
 }

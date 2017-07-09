@@ -43,6 +43,16 @@ class Transaction extends Model
     ];
 
     /**
+     * Seller from this transaction.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    function merchant()
+    {
+        return $this->belongsTo(config('nikolag.user.namespace'), config('nikolag.user.identifier'), 'merchant_id');
+    }
+
+    /**
      * Buyer from this transaction.
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

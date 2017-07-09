@@ -2,7 +2,6 @@
 namespace Nikolag\Square;
 
 use Illuminate\Queue\SerializesModels;
-use SquareConnect\ApiException;
 use \Exception as BaseException;
 
 class Exception extends BaseException {

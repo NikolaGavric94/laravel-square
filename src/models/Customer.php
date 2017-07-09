@@ -3,6 +3,7 @@
 namespace Nikolag\Square\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Facades\Square;
 use Nikolag\Square\SquareCustomer;
 use Nikolag\Square\Utils\Constants;
 
@@ -33,7 +34,6 @@ class Customer extends Model
     	'company_name',
     	'nickname',
     	'email',
-    	'nickname',
     	'phone',
         'note'
     ];
@@ -46,8 +46,7 @@ class Customer extends Model
     protected $guarded = [
     	'id',
     	'square_id',
-    	'reference_id',
-    	'reference_type'
+        'owner_id'
     ];
 
     /**
@@ -57,22 +56,7 @@ class Customer extends Model
      */
     public function merchants()
     {
-        return $this->belongsToMany(config('nikolag.user.namespace'), 'nikolag_customer_user', 'reference_id', 'customer_id');
-    }
-
-    /**
-     * Charge customer.
-     * 
-     * @param float $amount 
-     * @param string $card_nonce 
-     * @param string $location_id 
-     * @return \Nikolag\Square\Model\Transaction
-     */
-    public function charge(float $amount, string $card_nonce, string $location_id)
-    {
-        $customer = new SquareCustomer($this->attributes);
-        //TO-DO
-        return $customer->charge($amount, $card_nonce, $location_id);
+        return $this->belongsToMany(config('nikolag.user.namespace'), 'nikolag_customer_user', 'customer_id', 'owner_id');
     }
 
     /**

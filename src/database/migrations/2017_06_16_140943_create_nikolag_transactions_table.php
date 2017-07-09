@@ -22,9 +22,9 @@ class CreateNikolagTransactionsTable extends Migration
                 Constants::TRANSACTION_STATUS_FAILED
             ]);
             $table->string('amount');
-            $table->integer('customer_id')->unsigned();
-            $table->string('reference_id')->nullable()->default(null);
-            $table->string('reference_type')->nullable()->default(null);
+            $table->integer('customer_id')->unsigned()->nullable()->default(null);
+            $table->string('merchant_id')->nullable()->default(null);
+            $table->string('order_id')->nullable()->default(null);
             $table->timestamps();
         });
 
