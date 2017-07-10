@@ -23,9 +23,10 @@
         "psr-4": {
             "Nikolag\\Square\\": "src/",
             "Nikolag\\Square\\Contracts\\": "src/contracts",
-            "Nikolag\\Square\\Providers\\": "src/providers",
             "Nikolag\\Square\\Exceptions\\": "src/exceptions",
             "Nikolag\\Square\\Models\\": "src/models",
+            "Nikolag\\Square\\Providers\\": "src/providers",
+            "Nikolag\\Square\\Traits\\": "src/traits",
             "Nikolag\\Square\\Utils\\": "src/utils"
         }
     },
@@ -33,9 +34,10 @@
         "psr-4": {
             "Nikolag\\Square\\": "src/",
             "Nikolag\\Square\\Contracts\\": "src/contracts",
-            "Nikolag\\Square\\Providers\\": "src/providers",
             "Nikolag\\Square\\Exceptions\\": "src/exceptions",
             "Nikolag\\Square\\Models\\": "src/models",
+            "Nikolag\\Square\\Providers\\": "src/providers",
+            "Nikolag\\Square\\Traits\\": "src/traits",
             "Nikolag\\Square\\Utils\\": "src/utils",
             "Nikolag\\Square\\Tests\\": "tests/",
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
