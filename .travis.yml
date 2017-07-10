@@ -1,22 +1,32 @@
 language: php
-
+sudo: false
 php:
+  - 7.0
   - 7.1
+
+addons:
+  code_climate:
+    repo_token: d8dbf08fa72a7fbc4e18e4ccd6257a93f21865db05706321b7776e91720fc809
+
+cache:
+  directories:
+    - node_modules
+    - vendor
 
 before_script:
   - cp .env.travis .env
-  - mysql -e 'create database square_test;'
   - composer self-update
-  - composer install --prefer-source --no-interaction --dev
+  - composer update
 
 script:
   - vendor/bin/phpunit
 
+after_success:
+  - vendor/bin/test-reporter
+
 # allow_failures: Allow this build to fail under the specified environments.
 # fast_finish: If your build fails do not continue trying to build, just stop.
 matrix:
-  allow_failures:
-    - php: 7.1
   fast_finish: true
 
 # Customize when the notification emails are sent.

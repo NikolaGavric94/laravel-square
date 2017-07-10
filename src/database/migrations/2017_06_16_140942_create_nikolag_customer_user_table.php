@@ -13,13 +13,13 @@ class CreateNikolagCustomerUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('customer_user', function(Blueprint $table) {
-            $table->integer('user_id')->unsigned();
+        Schema::create('nikolag_customer_user', function(Blueprint $table) {
+            $table->string('owner_id');
             $table->integer('customer_id')->unsigned();
         });
 
-        Schema::table('customer_user', function(Blueprint $table) {
-            $table->unique(['user_id', 'customer_id']);
+        Schema::table('nikolag_customer_user', function(Blueprint $table) {
+            $table->unique(['owner_id', 'customer_id']);
         });
     }
 
@@ -30,6 +30,6 @@ class CreateNikolagCustomerUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('customer_user');
+        Schema::dropIfExists('nikolag_customer_user');
     }
 }

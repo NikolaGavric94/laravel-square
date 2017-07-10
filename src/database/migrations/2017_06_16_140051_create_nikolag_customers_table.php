@@ -22,8 +22,8 @@ class CreateNikolagCustomersTable extends Migration
             $table->string('nickname')->nullable()->default(null);
             $table->string('email')->unique();
             $table->string('phone')->nullable()->default(null);
-            $table->string('reference_id')->nullable()->default(null);
-            $table->string('reference_type')->nullable()->default(null);
+            $table->longText('note')->nullable()->default(null);
+            $table->string('owner_id')->nullable()->default(null);
             $table->timestamps();
         });
 
