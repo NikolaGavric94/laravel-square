@@ -107,7 +107,7 @@ class SquareCustomer implements SquareContract {
      * @return \Nikolag\Square\Models\Transaction
      * @throws \Nikolag\Square\Exception on non-2xx response
      */
-    public function charge(float $amount, string $card_nonce, string $location_id)
+    public function charge(float $amount, string $currency, string $card_nonce, string $location_id)
     {
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $amount]);
         if($this->getMerchant())
@@ -125,7 +125,7 @@ class SquareCustomer implements SquareContract {
                 'idempotency_key' => uniqid(),
                   'amount_money' => array(
                     'amount' => $amount,
-                    'currency' => 'USD'
+                    'currency' => $currency
                   ),
                   'card_nonce' => $card_nonce,
             ))->getTransaction();
