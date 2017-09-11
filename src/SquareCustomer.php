@@ -68,6 +68,7 @@ class SquareCustomer implements SquareContract {
      * Save customer.
      * 
      * @return void
+     * @throws \Nikolag\Square\Exception on failed save
      */
     public function save()
     {
