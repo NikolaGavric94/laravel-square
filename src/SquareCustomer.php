@@ -126,7 +126,7 @@ class SquareCustomer implements SquareContract {
                 'idempotency_key' => uniqid(),
                   'amount_money' => array(
                     'amount' => $amount,
-                    'currency' => 'USD'
+                    'currency' => $currency
                   ),
                   'card_nonce' => $card_nonce,
             ))->getTransaction();
