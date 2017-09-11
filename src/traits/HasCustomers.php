@@ -85,12 +85,13 @@ trait HasCustomers {
      * @param float $amount 
      * @param string $nonce 
      * @param string $location_id 
+     * @param string|'USD' $currency 
      * @param any $customer
      * @return \Nikolag\Square\Models\Transaction
      */
-    public function charge(float $amount, string $nonce, string $location_id, $customer = null)
+    public function charge(float $amount, string $nonce, string $location_id, string $currency = 'USD', $customer = null)
     {
-        return Square::setMerchant($this)->setCustomer($customer)->charge($amount, $nonce, $location_id, $this->attributes[config('nikolag.user.identifier')]);
+        return Square::setMerchant($this)->setCustomer($customer)->charge($amount, $nonce, $location_id, $currency, $this->attributes[config('nikolag.user.identifier')]);
     }
 
     /**

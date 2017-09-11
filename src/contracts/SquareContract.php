@@ -6,6 +6,6 @@ interface SquareContract
 {
     public function locations();
     public function save();
-    public function charge(float $amount, string $nonce, string $location_id);
+    public function charge(float $amount, string $nonce, string $location_id, string $currency = 'USD');
     public function transactions(string $location_id, $begin_time = null, $end_time = null, $cursor = null, $sort_order = 'desc');
 }
