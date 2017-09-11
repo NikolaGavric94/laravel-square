@@ -10,7 +10,7 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase {
 
-	use DatabaseMigrations, DatabaseTransactions, WithoutMiddleware;
+	use DatabaseMigrations, WithoutMiddleware;
 
     /**
      * @var Faker\Factory
