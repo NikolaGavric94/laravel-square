@@ -4,7 +4,7 @@ nikolag/square
 [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) 
 [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) 
 =========
-Square integration with laravel 5.4.x
+Square integration with laravel 5.5.x
 
 ## Installation guide
 `composer require nikolag/square --dev`
