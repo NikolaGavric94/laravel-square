@@ -25,5 +25,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed charge method in HasCustomer, had some redundant code
 - Changed credentials for square api
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.1...HEAD
-[1.0.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.0.1
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
