@@ -115,4 +115,19 @@ class SquareCustomerTest extends TestCase
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(400);
     }
+
+    /**
+     * Charge with non-existant currency.
+     * 
+     * @expectedException \SquareConnect\ApiException
+     * @expectedExceptionCode 400
+     * @return void
+     */
+    public function test_square_charge_non_existant_currency()
+    {
+        $response = Square::charge(5000, 'fake-card-nonce-ok', env('SQUARE_LOCATION'), 'XXX');
+        
+        $this->expectException(ApiException::class);
+        $this->expectExceptionCode(400);
+    }
 }

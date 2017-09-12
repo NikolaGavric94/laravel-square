@@ -30,9 +30,9 @@
         <env name="SESSION_DRIVER" value="array" />
         <env name="QUEUE_DRIVER" value="sync" />
 
-        <env name="SQUARE_APPLICATION_ID" value="sandbox-sq0idp-W0dzzI3cmKEZ_sdzB9AuiA"></env>
-        <env name="SQUARE_TOKEN" value="sandbox-sq0atb-PKpGF2gJ9VMXba9krg_ynA"></env>
-        <env name="SQUARE_LOCATION" value="CBASEAlGfN9WwI-nfc2FByucZ0sgAQ"></env>
+        <env name="SQUARE_APPLICATION_ID" value="sandbox-sq0idp-nB9Ibfa7igiJqQl734Ouog"></env>
+        <env name="SQUARE_TOKEN" value="sandbox-sq0atb-BcNqcG205jTiy3txUic2pA"></env>
+        <env name="SQUARE_LOCATION" value="CBASEP2UlDG1Zy4RJBW46Q_S1AcgAQ"></env>
 
         <env name="SQUARE_USER_NAMESPACE" value="Nikolag\Square\Tests\Models\User"></env>
         <env name="SQUARE_ORDER_NAMESPACE" value="Nikolag\Square\Tests\Models\Order"></env>

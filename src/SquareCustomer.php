@@ -105,11 +105,11 @@ class SquareCustomer implements SquareContract {
      * @param float $amount 
      * @param string $card_nonce 
      * @param string $location_id 
-     * @param string|'USD' $currency 
+     * @param string $currency 
      * @return \Nikolag\Square\Models\Transaction
      * @throws \Nikolag\Square\Exception on non-2xx response
      */
-    public function charge(float $amount, string $card_nonce, string $location_id, string $currency = 'USD')
+    public function charge(float $amount, string $card_nonce, string $location_id, string $currency = "USD")
     {
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $amount]);
         if($this->getMerchant())
@@ -152,10 +152,10 @@ class SquareCustomer implements SquareContract {
      * @param type|null $begin_time 
      * @param type|null $end_time 
      * @param type|null $cursor 
-     * @param type|string $sort_order 
+     * @param string $sort_order 
      * @return \SquareConnect\Model\ListTransactionsResponse
      */
-    public function transactions(string $locationId, $begin_time = null, $end_time = null, $cursor = null, $sort_order = 'desc')
+    public function transactions(string $locationId, $begin_time = null, $end_time = null, $cursor = null, string $sort_order = "desc")
     {
         $transactions = $this->squareConfig->transactionsAPI->listTransactions($location_id, $begin_time, $end_time, $sort_order, $cursor);
         return $transactions;

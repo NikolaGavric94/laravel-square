@@ -55,6 +55,14 @@ public function charge() {
   //$location_id is id of a location from Square
   $location_id = 'some location id';
   Square::charge($amount, $formNonce, $location_id);
+  //available currencies => https://docs.connect.squareup.com/api/connect/v2/?q=currency#type-currency
+  $currency = 'RSD';
+  //Default currency is USD, if u wish to change that
+  //pass currency as a fourth parameter
+  //IMPORTANT NOTE: Your location might not allow some currencies
+  //example: when your location is in USA you can't use RSD currency
+  //This is a restriction from Square.
+  Square::charge($amount, $formNonce, $location_id, $currency);
 
   $customer = array(
     'first_name' => $request->first_name,
@@ -69,6 +77,8 @@ public function charge() {
   $customer = $merchant->hasCustomer($request->email);
 
   Square::setMerchant($merchant)->setCustomer($customer)->charge($amount, $formNonce, $location_id);
+  //or with currency other than USD
+  Square::setMerchant($merchant)->setCustomer($customer)->charge($amount, $formNonce, $location_id, $currency);
 }
 ```
 
@@ -199,15 +209,16 @@ public function scopeOpenedTransactions($query) {}
 public function scopeFailedTransactions($query) {}
 
 /**
- * Charge a customer.
- * 
- * @param float $amount 
- * @param string $nonce 
- * @param string $location_id 
- * @param \Nikolag\Square\Models\Customer|array $customer
- * @return \Nikolag\Square\Models\Transaction
- */
-public function charge(float $amount, string $nonce, string $location_id, $customer = null) {}
+* Charge a customer.
+* 
+* @param float $amount 
+* @param string $nonce 
+* @param string $location_id 
+* @param mixed $customer 
+* @param string $currency 
+* @return \Nikolag\Square\Models\Transaction
+*/
+public function charge(float $amount, string $nonce, string $location_id, mixed $customer = null, string $currency = "USD") {}
 
 /**
  * Save a customer.
@@ -220,15 +231,16 @@ public function saveCustomer(array $customer) {}
 ### Facade
 ```javascript
 /**
- * Charge a customer.
- * 
- * @param float $amount 
- * @param string $card_nonce 
- * @param string $location_id 
- * @return \Nikolag\Square\Models\Transaction
- * @throws \Nikolag\Square\Exception on non-2xx response
- */
-public function charge(float $amount, string $card_nonce, string $location_id) {}
+* Charge a customer.
+* 
+* @param float $amount 
+* @param string $card_nonce 
+* @param string $location_id 
+* @param string $currency 
+* @return \Nikolag\Square\Models\Transaction
+* @throws \Nikolag\Square\Exception on non-2xx response
+*/
+public function charge(float $amount, string $card_nonce, string $location_id, string $currency = "USD")
 
 /**
  * @param \Nikolag\Square\Models\Customer|null $customer
@@ -249,6 +261,11 @@ public function setMerchant($merchant) {}
 Everyone is welcome to contribute to this repository, simply open up an issue
 and label the request, whether it is an issue, bug or a feature. For any other
 enquiries send an email to nikola.gavric94@gmail.com
+
+### Contributors
+| Name                                               | Changes                                                                                                                       | Date       |
+| -------------------------------------------------- |:-----------------------------------------------------------------------------------------------------------------------------:|:----------:|
+| [@Godlikehobbit](https://github.com/Godlikehobbit) | Add optional currency parameter to charge function [pull request #6](https://github.com/NikolaGavric94/laravel-square/pull/6) | 2017-09-12 |
 
 ## License
 MIT License
