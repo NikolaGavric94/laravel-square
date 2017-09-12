@@ -1,4 +1,8 @@
-nikolag/square [![Latest Unstable Version](https://poser.pugx.org/nikolag/square/v/unstable)](https://packagist.org/packages/nikolag/square) [![Latest Stable Version](https://poser.pugx.org/nikolag/square/v/stable)](https://packagist.org/packages/nikolag/square) [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) [![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=develop)](https://travis-ci.org/NikolaGavric94/laravel-square)
+nikolag/square 
+[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=develop)](https://travis-ci.org/NikolaGavric94/laravel-square)
+[![Latest Stable Version](https://poser.pugx.org/nikolag/square/v/stable)](https://packagist.org/packages/nikolag/square) 
+[![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) 
+[![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) 
 =========
 Square integration with laravel 5.4.x
 
@@ -96,7 +100,7 @@ $merchant->openedTransactions();
 #### Charge customers with merchant as a seller
 Charging a customer that doesn't exist and connecting it with a merchant and a transaction.
 ```javascript
-public function chargeCustomerAsArray(Request $request) {
+public function charge(Request $request) {
   //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
   $amount = 5000;
   //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
@@ -118,7 +122,7 @@ public function chargeCustomerAsArray(Request $request) {
 ```
 Charging already existing customer and connecting both transaction and merchant with it
 ```javascript
-public function chargeCustomerAsArray(Request $request) {
+public function charge(Request $request) {
   //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
   $amount = 5000;
   //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
@@ -133,7 +137,7 @@ public function chargeCustomerAsArray(Request $request) {
 ```
 Charging a customer without saving the customer, but connecting the transaction with the merchant.
 ```javascript
-public function chargeCustomerAsArray(Request $request) {
+public function charge(Request $request) {
   //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
   $amount = 5000;
   //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
