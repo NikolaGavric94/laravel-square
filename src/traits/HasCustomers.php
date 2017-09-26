@@ -43,40 +43,31 @@ trait HasCustomers {
     /**
      * Paid transactions.
      * 
-     * @param \Illuminate\Database\Eloquent\Builder $query 
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function scopePassedTransactions($query)
+    public function passedTransactions()
     {
-        return $query->with('transactions', function($q) {
-            $q->where('status', '=', Constants::TRANSACTION_STATUS_PASSED);
-        });
+        return $this->_byTransactionStatus(Constants::TRANSACTION_STATUS_PASSED);
     }
 
     /**
      * Pending transactions.
      * 
-     * @param \Illuminate\Database\Eloquent\Builder $query 
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function scopeOpenedTransactions($query)
+    public function openedTransactions()
     {
-        return $query->with('transactions', function($q) {
-            $q->where('status', '=', Constants::TRANSACTION_STATUS_OPENED);
-        });
+        return $this->_byTransactionStatus(Constants::TRANSACTION_STATUS_OPENED);
     }
 
     /**
      * Failed transactions.
      * 
-     * @param \Illuminate\Database\Eloquent\Builder $query 
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function scopeFailedTransactions($query)
+    public function failedTransactions()
     {
-        return $query->with('transactions', function($q) {
-            $q->where('status', '=', Constants::TRANSACTION_STATUS_FAILED);
-        });
+        return $this->_byTransactionStatus(Constants::TRANSACTION_STATUS_FAILED);
     }
 
     /**
@@ -103,5 +94,18 @@ trait HasCustomers {
     public function saveCustomer(array $customer)
     {
         Square::setMerchant($this)->setCustomer($customer)->save();
+    }
+
+    /**
+     * Model function, return all transactions by status.
+     * 
+     * @param string $status 
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    private function _byTransactionStatus(string $status) {
+        return $this->transactions()->where(function($query) use ($status) {
+            $query->where('merchant_id', '=', $this->attributes[config('nikolag.user.identifier')])
+                ->where('status', '=', $status);
+        });
     }
 }

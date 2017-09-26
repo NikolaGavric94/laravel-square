@@ -78,4 +78,87 @@ class CustomerTest extends TestCase
         $this->assertEmpty($collection, 'List of customers is not empty.');
         $this->assertTrue($collection->isEmpty(), 'List of customers is not empty.');
     }
+
+    /**
+     * Count passed transactions.
+     * 
+     * @return void
+     */
+    public function test_customer_passed_transactions()
+    {
+        $user = factory(User::class)->create();
+        $passedTransactions = factory(Transaction::class, 10)->states('PASSED')->create();
+        $failedTransactions = factory(Transaction::class, 2)->states('FAILED')->create();
+        $openedTransactions = factory(Transaction::class, 2)->states('OPENED')->create();
+
+        $user->transactions()->saveMany($openedTransactions);
+        $user->transactions()->saveMany($failedTransactions);
+        $user->transactions()->saveMany($passedTransactions);
+
+        $this->assertCount(10, $user->passedTransactions, 'Passed transactions count tied with User is not 10.');
+        $this->assertCount(14, $user->transactions, 'Transactions count tied with User is not 14.');
+    }
+
+    /**
+     * Count failed transactions.
+     * 
+     * @return void
+     */
+    public function test_customer_failed_transactions()
+    {
+        $user = factory(User::class)->create();
+        $failedTransactions = factory(Transaction::class, 2)->states('FAILED')->create();
+        $openedTransactions = factory(Transaction::class)->states('OPENED')->create();
+        $passedTransactions = factory(Transaction::class)->states('PASSED')->create();
+
+        $user->transactions()->save($openedTransactions);
+        $user->transactions()->saveMany($failedTransactions);
+        $user->transactions()->save($passedTransactions);
+
+        $this->assertCount(2, $user->failedTransactions, 'Failed transactions count tied with User is not 2.');
+        $this->assertCount(4, $user->transactions, 'Transactions count tied with User is not 4.');
+    }
+
+    /**
+     * Count opened transactions.
+     * 
+     * @return void
+     */
+    public function test_customer_opened_transactions()
+    {
+        $user = factory(User::class)->create();
+        $openedTransactions = factory(Transaction::class, 5)->states('OPENED')->create();
+        $failedTransactions = factory(Transaction::class, 2)->states('FAILED')->create();
+        $passedTransactions = factory(Transaction::class)->states('PASSED')->create();
+
+        $user->transactions()->saveMany($openedTransactions);
+        $user->transactions()->saveMany($failedTransactions);
+        $user->transactions()->save($passedTransactions);
+
+        $this->assertCount(5, $user->openedTransactions, 'Opened transactions count tied with User is not 5.');
+        $this->assertCount(8, $user->transactions, 'Transactions count tied with User is not 8.');
+    }
+
+    /**
+     * Count scoped queries for different 
+     * transaction statuses.
+     * 
+     * @return void
+     */
+    public function test_customer_transactions_statuses()
+    {
+        $user = factory(User::class)->create();
+        $openedTransactions = factory(Transaction::class, 5)->states('OPENED')->create();
+        $failedTransactions = factory(Transaction::class, 2)->states('FAILED')->create();
+        $passedTransactions = factory(Transaction::class)->states('PASSED')->create();
+
+        $user->transactions()->saveMany($openedTransactions);
+        $user->transactions()->saveMany($failedTransactions);
+        $user->transactions()->save($passedTransactions);
+
+        $this->assertCount(5, $user->openedTransactions, 'Opened transactions count tied with User is not 5.');
+        $this->assertCount(2, $user->failedTransactions, 'Failed transactions count tied with User is not 2.');
+        $this->assertCount(1, $user->passedTransactions, 'Passed transactions count tied with User is not 1.');
+        $this->assertCount(8, $user->transactions, 'Transactions count tied with User is not 8.');
+    }
 }

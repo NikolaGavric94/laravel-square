@@ -1,9 +1,9 @@
 {
     "name": "nikolag/square",
     "description": "Square API integration with Laravel",
-    "keywords": ["square", "laravel", "square laravel integration"],
+    "keywords": ["square", "laravel", "square laravel integration", "square-laravel"],
     "license": "MIT",
-    "type": "package",
+    "type": "laravel-package",
     "authors": [{
         "name": "Nikola Gavric",
         "email": "nikola.gavric94@gmail.com",
@@ -53,7 +53,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Nikolag\\Square\\Providers\\SquareServiceProvider"
+                "Nikolag\\Square\\Providers\\SquareServiceProvider",
+                "Nikolag\\Square\\Providers\\ExceptionServiceProvider"
             ],
             "aliases": {
                 "Square": "Nikolag\\Square\\Facades\\Square"

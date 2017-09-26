@@ -35,10 +35,22 @@ $factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker
 $factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $faker)
 {
     return [
-        'status' => Constants::TRANSACTION_STATUS_OPENED,
+        'status' => array_rand([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
         'amount' => $faker->numberBetween(5000, 500000)
     ];
 });
+/** PENDING TRANSACTION */
+$factory->state(Constants::TRANSACTION_NAMESPACE, 'OPENED', [
+    'status' => Constants::TRANSACTION_STATUS_OPENED,
+]);
+/** PAID TRANSACTION */
+$factory->state(Constants::TRANSACTION_NAMESPACE, 'PASSED', [
+    'status' => Constants::TRANSACTION_STATUS_PASSED,
+]);
+/** FAILED TRANSACTION */
+$factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
+    'status' => Constants::TRANSACTION_STATUS_FAILED,
+]);
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(User::class, function (Faker\Generator $faker)
