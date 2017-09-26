@@ -25,5 +25,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed charge method in HasCustomer, had some redundant code
 - Changed credentials for square api
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...HEAD
+## [1.0.2] - 2017-09-25
+### Changed
+- Upgraded to work with Laravel 5.5.x
+
+### Fixed
+- Resolved [#7](https://github.com/NikolaGavric94/laravel-square/issues/7)
+
+## [1.0.3] - 2017-09-26
+### Added
+- Automatic registration of package service providers and facades
+
+### Fixed
+- Resolved [#8](https://github.com/NikolaGavric94/laravel-square/issues/8)
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
+[1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
+[1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3

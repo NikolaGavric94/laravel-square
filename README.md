@@ -7,23 +7,26 @@ nikolag/square
 Square integration with laravel 5.5.x
 
 ## Installation guide
-`composer require nikolag/square --dev`
+`composer require nikolag/square`
 
-Open `app.php` file and add:
-```javascript
-//providers
-Nikolag\Square\Providers\SquareServiceProvider::class
+##### Due to Laravel [Package Discovery](https://laravel.com/docs/5.5/packages#package-discovery), registering service providers and facades manually for this project as of Laravel 5.5 is deprecated and no longer required since the package is adapted to automatically register these stuff for you.
+But there are still couple of steps to do in order to use this package.
 
-//aliases
-'Square' => Nikolag\Square\Facades\Square::class
-```
+---
 
 Publish the configuration file needed for library to work with the following command:
 ```javascript
 php artisan vendor:publish --tag=nikolag_config
 ```
 
-After that also add your credentials for Square API inside of `.env` and also add fully qualified name for your classes.
+and run migrations too:
+```javascript
+php artisan migrate
+```
+
+---
+
+After that add your credentials for Square API inside of `.env` and also add fully qualified name for your classes.
 ```javascript
 SQUARE_APPLICATION_ID=<YOUR_APPLICATION_ID>
 SQUARE_TOKEN=<YOUR_ACCESS_TOKEN>
