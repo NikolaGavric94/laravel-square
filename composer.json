@@ -12,11 +12,11 @@
     "require": {
         "php": ">=7.0.0",
         "laravel/framework": "5.5.*",
-        "laravel/tinker": "~1.0"
+        "laravel/tinker": "~1.0",
+        "square/connect": "^2.2"
     },
     "require-dev": {
         "phpunit/phpunit": "~6.0",
-        "square/connect": "^2.2",
         "orchestra/testbench": "3.5.*"
     },
     "autoload": {
@@ -44,6 +44,11 @@
             "Nikolag\\Square\\Tests\\": "tests/",
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php artisan vendor:publish --tag=nikolag_config"
+        ]
     },
     "minimum-stability": "dev",
     "prefer-stable": true
