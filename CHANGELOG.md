@@ -39,7 +39,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Resolved [#8](https://github.com/NikolaGavric94/laravel-square/issues/8)
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...HEAD
+## [1.0.4] - 2017-09-26
+### Added
+- Missing methods for getting transactions by status
+
+### Changed
+- Removed local scope methods for getting transactions by status
+- Updated project documentation
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.4...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
+[1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...v1.0.4
