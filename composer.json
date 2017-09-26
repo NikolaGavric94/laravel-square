@@ -51,7 +51,7 @@
         ]
     },
     "extra": {
-        "nikolag": {
+        "laravel": {
             "providers": [
                 "Nikolag\\Square\\Providers\\ServiceProvider"
             ],
