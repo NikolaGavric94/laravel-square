@@ -103,11 +103,11 @@ $merchant->transactions;
 #### Retrieve all transactions by status
 ```javascript
 //Transactions that passed
-$merchant->passedTransactions();
+$merchant->passedTransactions;
 //Transactions that failed
-$merchant->failedTransactions();
+$merchant->failedTransactions;
 //Transactions that are pending
-$merchant->openedTransactions();
+$merchant->openedTransactions;
 ```
 
 #### Charge customers with merchant as a seller
@@ -190,26 +190,23 @@ public function transactions() {}
 /**
  * Paid transactions.
  * 
- * @param \Illuminate\Database\Eloquent\Builder $query 
- * @return \Illuminate\Database\Eloquent\Builder
+ * @return \Illuminate\Database\Eloquent\Collection
  */
-public function scopePassedTransactions($query) {}
+public function passedTransactions() {}
 
 /**
  * Pending transactions.
  * 
- * @param \Illuminate\Database\Eloquent\Builder $query 
- * @return \Illuminate\Database\Eloquent\Builder
+ * @return \Illuminate\Database\Eloquent\Collection
  */
-public function scopeOpenedTransactions($query) {}
+public function openedTransactions() {}
 
 /**
  * Failed transactions.
  * 
- * @param \Illuminate\Database\Eloquent\Builder $query 
- * @return \Illuminate\Database\Eloquent\Builder
+ * @return \Illuminate\Database\Eloquent\Collection
  */
-public function scopeFailedTransactions($query) {}
+public function failedTransactions() {}
 
 /**
 * Charge a customer.
