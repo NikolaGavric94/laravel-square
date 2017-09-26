@@ -46,9 +46,19 @@
         }
     },
     "scripts": {
-        "post-install-cmd": [
+        "post-package-install": [
             "php artisan vendor:publish --tag=nikolag_config"
         ]
+    },
+    "extra": {
+        "nikolag": {
+            "providers": [
+                "Nikolag\\Square\\Providers\\ServiceProvider"
+            ],
+            "aliases": {
+                "Square": "Nikolag\\Square\\Facades\\Square"
+            }
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
