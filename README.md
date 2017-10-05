@@ -240,7 +240,7 @@ public function saveCustomer(array $customer) {}
  * @return \Nikolag\Square\Models\Transaction
  * @throws \Nikolag\Square\Exception on non-2xx response
  */
-public function charge(array $options);
+public function charge(array $options) {}
 
 /**
  * Transactions directly from Square API.
@@ -249,14 +249,14 @@ public function charge(array $options);
  * @return \SquareConnect\Model\ListLocationsResponse
  * @throws \Nikolag\Square\Exception on non-2xx response
  */
-public function transactions(array $options);
+public function transactions(array $options) {}
 
 /**
  * Getter for customer.
  * 
  * @return mixed
  */
-public function getCustomer();
+public function getCustomer() {}
 
 /**
  * Setter for customer.
@@ -264,14 +264,14 @@ public function getCustomer();
  * @param mixed $customer 
  * @return void
  */
-public function setCustomer($customer);
+public function setCustomer($customer) {}
 
 /**
  * Getter for customer.
  * 
  * @return mixed
  */
-public function getMerchant();
+public function getMerchant() {}
 
 /**
  * Setter for merchant.
@@ -279,7 +279,7 @@ public function getMerchant();
  * @param mixed $merchant 
  * @return mixed
  */
-public function setMerchant($merchant)
+public function setMerchant($merchant) {}
 ```
 ### Core Service
 ```javascript
@@ -289,14 +289,14 @@ public function setMerchant($merchant)
  * @param string $driver 
  * @return CorePaymentService
  */
-public function use(string $driver);
+public function use(string $driver) {}
 
 /**
  * Returns the default main service
  * 
  * @return CorePaymentService
  */
-public function default();
+public function default() {}
 
 /**
  * Returns all available drivers
@@ -304,7 +304,7 @@ public function default();
  * 
  * @return array
  */
-public function availableDrivers();
+public function availableDrivers() {}
 ```
 
 ## Contributing
