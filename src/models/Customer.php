@@ -18,7 +18,7 @@ class Customer extends CoreCustomer
 
     /**
      * List of users this customer bought from.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function merchants()
@@ -28,7 +28,7 @@ class Customer extends CoreCustomer
 
     /**
      * List of previous transactions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function transactions()

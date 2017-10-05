@@ -4,11 +4,12 @@ namespace Nikolag\Square\Traits;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Utils\Constants;
 
-trait HasCustomers {
+trait HasCustomers
+{
 
     /**
      * Retrieve merchant customers.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function customers()
@@ -18,20 +19,20 @@ trait HasCustomers {
 
     /**
      * Retrieve customer if he exists, otherwise return false.
-     * 
-     * @param string $email 
+     *
+     * @param string $email
      * @return \Nikolag\Square\Model\Customer|false
      */
     public function hasCustomer(string $email)
     {
         $query = $this->customers()->where('email', '=', $email);
-        return $query->exists() ? 
-                $query->first() : FALSE;
+        return $query->exists() ?
+                $query->first() : false;
     }
 
     /**
      * All transactions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function transactions()
@@ -41,7 +42,7 @@ trait HasCustomers {
 
     /**
      * Paid transactions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function passedTransactions()
@@ -51,7 +52,7 @@ trait HasCustomers {
 
     /**
      * Pending transactions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function openedTransactions()
@@ -61,7 +62,7 @@ trait HasCustomers {
 
     /**
      * Failed transactions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function failedTransactions()
@@ -71,12 +72,12 @@ trait HasCustomers {
 
     /**
      * Charge a customer.
-     * 
-     * @param float $amount 
-     * @param string $nonce 
-     * @param string $location_id 
-     * @param mixed $customer 
-     * @param string $currency 
+     *
+     * @param float $amount
+     * @param string $nonce
+     * @param string $location_id
+     * @param mixed $customer
+     * @param string $currency
      * @return \Nikolag\Square\Models\Transaction
      */
     public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = 'USD')
@@ -88,8 +89,8 @@ trait HasCustomers {
 
     /**
      * Save a customer.
-     * 
-     * @param array $customer 
+     *
+     * @param array $customer
      * @return void
      */
     public function saveCustomer(array $customer)
@@ -99,12 +100,13 @@ trait HasCustomers {
 
     /**
      * Model function, return all transactions by status.
-     * 
-     * @param string $status 
+     *
+     * @param string $status
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function _byTransactionStatus(string $status) {
-        return $this->transactions()->where(function($query) use ($status) {
+    private function _byTransactionStatus(string $status)
+    {
+        return $this->transactions()->where(function ($query) use ($status) {
             $query->where('merchant_id', '=', $this->attributes[config('nikolag.connections.square.user.identifier')])
                 ->where('status', '=', $status);
         });

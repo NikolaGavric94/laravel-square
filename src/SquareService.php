@@ -9,6 +9,7 @@ use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareConfig;
 use Nikolag\Square\Utils\Constants;
+use SquareConnect\ApiException;
 use SquareConnect\Model\CreateCustomerRequest;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -78,8 +79,22 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 }
             } else {
             }
-        } catch (Exception $e) {
-            throw $e;
+        } catch (ApiException $e) {
+            if ($exception->getCategory() == Constants::INVALID_REQUEST_ERROR) {
+                if ($exception->getCode() == Constants::NOT_FOUND) {
+                    $exception = InvalidSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+                } elseif ($exception->getCode() == Constants::NONCE_USED) {
+                    $exception = new UsedSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+                }
+            } elseif ($exception->getCategory() == Constants::PAYMENT_METHOD_ERROR) {
+                if ($exception->getCode() == Constants::INVALID_EXPIRATION) {
+                    $exception = new InvalidSquareExpirationDateException($exception->getMessage(), $exception->getCode(), $exception);
+                } elseif ($exception->getCode() == Constants::VERIFY_POSTAL_CODE) {
+                    $exception = new InvalidSquareZipcodeException($exception->getMessage(), $exception->getCode(), $exception);
+                } elseif ($exception->getCode() == Constants::VERIFY_CVV) {
+                    $exception = new InvalidSquareCvvException($exception->getMessage(), $exception->getCode(), $exception);
+                }
+            }
         }
     }
 
@@ -90,7 +105,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @return \Nikolag\Square\Models\Transaction
      * @throws \Nikolag\Square\Exception on non-2xx response
      */
-    public function charge(array $data) {
+    public function charge(array $data)
+    {
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount']]);
         if ($this->getMerchant()) {
             $transaction->merchant()->associate($this->getMerchant());
@@ -112,11 +128,25 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
             $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
             $transaction->save();
-        } catch (Exception $e) {
+        } catch (ApiException $e) {
             $transaction->status = Constants::TRANSACTION_STATUS_FAILED;
             $transaction->save();
 
-            throw $e;
+            if ($exception->getCategory() == Constants::INVALID_REQUEST_ERROR) {
+                if ($exception->getCode() == Constants::NOT_FOUND) {
+                    $exception = InvalidSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+                } elseif ($exception->getCode() == Constants::NONCE_USED) {
+                    $exception = new UsedSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+                }
+            } elseif ($exception->getCategory() == Constants::PAYMENT_METHOD_ERROR) {
+                if ($exception->getCode() == Constants::INVALID_EXPIRATION) {
+                    $exception = new InvalidSquareExpirationDateException($exception->getMessage(), $exception->getCode(), $exception);
+                } elseif ($exception->getCode() == Constants::VERIFY_POSTAL_CODE) {
+                    $exception = new InvalidSquareZipcodeException($exception->getMessage(), $exception->getCode(), $exception);
+                } elseif ($exception->getCode() == Constants::VERIFY_CVV) {
+                    $exception = new InvalidSquareCvvException($exception->getMessage(), $exception->getCode(), $exception);
+                }
+            }
         }
 
         return $transaction;
@@ -128,7 +158,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param array $data
      * @return \SquareConnect\Model\ListTransactionsResponse
      */
-    public function transactions(array $data) {
+    public function transactions(array $data)
+    {
         $transactions = $this->config->transactionsAPI->listTransactions($data['location_id'], $data['begin_time'], $data['end_time'], $data['sort_order'], $data['cursor']);
         return $transactions;
     }

@@ -33,7 +33,7 @@ class SquareServiceProvider extends ServiceProvider
         //Config
         $this->mergeConfigFrom(__DIR__.'/../config/nikolag.php', 'nikolag');
 
-        $this->app->singleton(SquareConfig::class, function($app) {
+        $this->app->singleton(SquareConfig::class, function ($app) {
             return new SquareConfig();
         });
 

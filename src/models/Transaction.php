@@ -18,30 +18,30 @@ class Transaction extends CoreTransaction
 
     /**
      * Seller from this transaction.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    function merchant()
+    public function merchant()
     {
         return $this->belongsTo(config('nikolag.connections.square.user.namespace'), config('nikolag.connections.square.user.identifier'), 'merchant_id');
     }
 
     /**
      * Buyer from this transaction.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    function customer()
+    public function customer()
     {
         return $this->belongsTo(Constants::CUSTOMER_NAMESPACE, Constants::CUSTOMER_IDENTIFIER, 'customer_id');
     }
 
     /**
      * Description
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    function order()
+    public function order()
     {
         return $this->belongsTo(config('nikolag.connections.square.order.namespace'), Constants::ORDER_IDENTIFIER, Constants::TRANSACTION_IDENTIFIER);
     }

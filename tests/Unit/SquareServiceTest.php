@@ -10,7 +10,6 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
 use SquareConnect\ApiException;
 
-
 class SquareServiceTest extends TestCase
 {
     /**
@@ -28,7 +27,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge with non existing nonce.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 404
      * @return void
@@ -43,7 +42,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge with wrong CVV.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 402
      * @return void
@@ -58,7 +57,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge with wrong Postal Code.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 402
      * @return void
@@ -73,7 +72,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge with wrong Expiration date.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 400
      * @return void
@@ -88,7 +87,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge declined.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 400
      * @return void
@@ -103,7 +102,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge with already used nonce.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 400
      * @return void
@@ -118,7 +117,7 @@ class SquareServiceTest extends TestCase
 
     /**
      * Charge with non-existant currency.
-     * 
+     *
      * @expectedException \SquareConnect\ApiException
      * @expectedExceptionCode 400
      * @return void

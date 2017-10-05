@@ -54,8 +54,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Nikolag\\Square\\Providers\\SquareServiceProvider",
-                "Nikolag\\Square\\Providers\\ExceptionServiceProvider"
+                "Nikolag\\Square\\Providers\\SquareServiceProvider"
             ],
             "aliases": {
                 "Square": "Nikolag\\Square\\Facades\\Square"

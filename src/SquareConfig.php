@@ -26,7 +26,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
 
     public function __construct()
     {
-    	parent::__construct();
+        parent::__construct();
         $this->config['connections']['square'] = config('nikolag.connections.square');
         $this->checkConfigValidity($this->config);
         $this->setAccessToken($this->config['connections']['square']['access_token']);

@@ -11,13 +11,12 @@ use Nikolag\Square\Tests\TestCase;
 use SquareConnect\ApiException;
 use SquareConnect\Model\ChargeResponse;
 
-
 class CustomerTest extends TestCase
 {
 
     /**
      * Customer creation.
-     * 
+     *
      * @return void
      */
     public function test_customer_make()
@@ -29,7 +28,7 @@ class CustomerTest extends TestCase
 
     /**
      * Customer persisting.
-     * 
+     *
      * @return void
      */
     public function test_customer_create()
@@ -47,7 +46,7 @@ class CustomerTest extends TestCase
 
     /**
      * Listing transcations for customers.
-     * 
+     *
      * @return void
      */
     public function test_customers_have_transactions()
@@ -67,7 +66,7 @@ class CustomerTest extends TestCase
 
     /**
      * List transactions.
-     * 
+     *
      * @return void
      */
     public function test_customer_transaction_list()
@@ -81,7 +80,7 @@ class CustomerTest extends TestCase
 
     /**
      * Count passed transactions.
-     * 
+     *
      * @return void
      */
     public function test_customer_passed_transactions()
@@ -101,7 +100,7 @@ class CustomerTest extends TestCase
 
     /**
      * Count failed transactions.
-     * 
+     *
      * @return void
      */
     public function test_customer_failed_transactions()
@@ -121,7 +120,7 @@ class CustomerTest extends TestCase
 
     /**
      * Count opened transactions.
-     * 
+     *
      * @return void
      */
     public function test_customer_opened_transactions()
@@ -140,9 +139,9 @@ class CustomerTest extends TestCase
     }
 
     /**
-     * Count scoped queries for different 
+     * Count scoped queries for different
      * transaction statuses.
-     * 
+     *
      * @return void
      */
     public function test_customer_transactions_statuses()
