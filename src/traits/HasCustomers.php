@@ -2,7 +2,6 @@
 namespace Nikolag\Square\Traits;
 
 use Nikolag\Square\Facades\Square;
-use Nikolag\Square\SquareCustomer;
 use Nikolag\Square\Utils\Constants;
 
 trait HasCustomers {
@@ -37,7 +36,7 @@ trait HasCustomers {
      */
     public function transactions()
     {
-        return $this->hasMany(Constants::TRANSACTION_NAMESPACE, 'merchant_id', config('nikolag.user.identifier'));
+        return $this->hasMany(Constants::TRANSACTION_NAMESPACE, 'merchant_id', config('nikolag.connections.square.user.identifier'));
     }
 
     /**
@@ -80,9 +79,11 @@ trait HasCustomers {
      * @param string $currency 
      * @return \Nikolag\Square\Models\Transaction
      */
-    public function charge(float $amount, string $nonce, string $location_id, mixed $customer = null, string $currency = 'USD')
+    public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = 'USD')
     {
-        return Square::setMerchant($this)->setCustomer($customer)->charge($amount, $nonce, $location_id, $currency);
+        return Square::setMerchant($this)->setCustomer($customer)->charge(
+            ['amount' => $amount, 'card_nonce' => $nonce, 'location_id' => $location_id, 'currency' => $currency]
+        );
     }
 
     /**
@@ -104,7 +105,7 @@ trait HasCustomers {
      */
     private function _byTransactionStatus(string $status) {
         return $this->transactions()->where(function($query) use ($status) {
-            $query->where('merchant_id', '=', $this->attributes[config('nikolag.user.identifier')])
+            $query->where('merchant_id', '=', $this->attributes[config('nikolag.connections.square.user.identifier')])
                 ->where('status', '=', $status);
         });
     }

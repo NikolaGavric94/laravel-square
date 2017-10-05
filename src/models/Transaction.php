@@ -2,44 +2,18 @@
 
 namespace Nikolag\Square\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\SquareCustomer;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Core\Models\Transaction as CoreTransaction;
 
-class Transaction extends Model
+class Transaction extends CoreTransaction
 {
-	/**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = "nikolag_transactions";
-
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
-
-    /**
-     * The attributes that are mass assignable.
+     * The model's attributes.
      *
      * @var array
      */
-    protected $fillable = [
-    	'status', 'amount'
-    ];
-
-    /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [
-        'id',
-        'reference_id',
-        'reference_type'
+    protected $attributes = [
+        'payment_service_type' => 'square'
     ];
 
     /**
@@ -49,7 +23,7 @@ class Transaction extends Model
      */
     function merchant()
     {
-        return $this->belongsTo(config('nikolag.user.namespace'), config('nikolag.user.identifier'), 'merchant_id');
+        return $this->belongsTo(config('nikolag.connections.square.user.namespace'), config('nikolag.connections.square.user.identifier'), 'merchant_id');
     }
 
     /**
@@ -69,6 +43,6 @@ class Transaction extends Model
      */
     function order()
     {
-        return $this->belongsTo(config('nikolag.order_namespace'), Constants::ORDER_IDENTIFIER, Constants::TRANSACTION_IDENTIFIER);
+        return $this->belongsTo(config('nikolag.connections.square.order.namespace'), Constants::ORDER_IDENTIFIER, Constants::TRANSACTION_IDENTIFIER);
     }
 }

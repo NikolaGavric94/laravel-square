@@ -20,7 +20,7 @@ use Nikolag\Square\Utils\Constants;
 $factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker)
 {
     return [
-    	'square_id' => $faker->unique()->randomNumber,
+    	'payment_service_id' => $faker->unique()->randomNumber,
         'first_name' => $faker->unique()->firstNameMale,
         'last_name' => $faker->unique()->lastName,
         'company_name' => $faker->unique()->address,

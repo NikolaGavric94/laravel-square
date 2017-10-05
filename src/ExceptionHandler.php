@@ -2,10 +2,16 @@
 
 namespace Nikolag\Square;
 
-use \Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler;
+use Nikolag\Square\Exceptions\InvalidSquareCvvException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
+use Nikolag\Square\Exceptions\InvalidSquareNonceException;
+use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
+use Nikolag\Square\Exceptions\UsedSquareNonceException;
+use Nikolag\Square\Utils\Constants;
 use SquareConnect\ApiException;
+use \Exception;
 
 class ExceptionHandler extends Handler
 {
@@ -33,7 +39,7 @@ class ExceptionHandler extends Handler
 	        {
 	            if($exception->getCode() == Constants::NOT_FOUND)
 	            {
-	                $exception = InvalidSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+	                $exception = new InvalidSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
 	            } 
 	            else if($exception->getCode() == Constants::NONCE_USED)
 	            {

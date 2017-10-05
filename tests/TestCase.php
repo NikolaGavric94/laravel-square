@@ -34,7 +34,10 @@ class TestCase extends BaseTestCase {
      */
     protected function getPackageProviders($app)
     {
-        return ['Nikolag\Square\Providers\SquareServiceProvider'];
+        return [
+            'Nikolag\Square\Providers\SquareServiceProvider',
+            'Nikolag\Core\Providers\MigrationServiceProvider'
+        ];
     }
 
     /**

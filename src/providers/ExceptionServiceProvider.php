@@ -3,7 +3,8 @@
 namespace Nikolag\Square\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Nikolag\Square\SquareConfig;
+use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
+use Nikolag\Square\ExceptionHandler;
 
 class ExceptionServiceProvider extends ServiceProvider
 {
@@ -14,10 +15,7 @@ class ExceptionServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->bind(
-            'Illuminate\Contracts\Debug\ExceptionHandler',
-            'Nikolag\Square\ExceptionHandler'
-        );
+        //
     }
 
     /**
@@ -27,6 +25,9 @@ class ExceptionServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(
+            ExceptionHandlerContract::class,
+            ExceptionHandler::class
+        );
     }
 }

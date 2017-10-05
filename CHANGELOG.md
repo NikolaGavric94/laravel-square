@@ -47,8 +47,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Removed local scope methods for getting transactions by status
 - Updated project documentation
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.4...HEAD
+## [1.1.0] - 2017-10-05
+### Added
+- Support for [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/) package
+
+### Changed
+- Structure of `nikolag.php` configuration file
+- Removed migration files, they are now in core package
+- Renamed `SquareCustomer` to `SquareService`
+- Renamed `SquareContract` to `SquareServiceContract`
+- Changed input parameters for `charge()` and `transactions()` functions on `SquareServiceContract`
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.1.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
-[1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...v1.0.4
+[1.0.4]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...v1.0.4
+[1.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.4...v1.1.0

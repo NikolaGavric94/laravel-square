@@ -4,7 +4,7 @@ nikolag/square
 [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) 
 [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) 
 =========
-Square integration with laravel 5.5.x
+Square integration with Laravel 5.5.x built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 ## Installation guide
 `composer require nikolag/square`
@@ -14,19 +14,16 @@ But there are still couple of steps to do in order to use this package.
 
 ---
 
-Publish the configuration file needed for library to work with the following command:
-```javascript
-php artisan vendor:publish --tag=nikolag_config
-```
+Configuration files will automatically be published for you and you should check it out at `config/nikolag.php` before continuing.
 
-and run migrations too:
+After changing the configuration files or not, you should run migrations with the following command
 ```javascript
 php artisan migrate
 ```
 
 ---
 
-After that add your credentials for Square API inside of `.env` and also add fully qualified name for your classes.
+Then add your credentials for Square API inside of `.env` and also add fully qualified name (namespace) for your classes.
 ```javascript
 SQUARE_APPLICATION_ID=<YOUR_APPLICATION_ID>
 SQUARE_TOKEN=<YOUR_ACCESS_TOKEN>
@@ -65,7 +62,13 @@ public function charge() {
   //IMPORTANT NOTE: Your location might not allow some currencies
   //example: when your location is in USA you can't use RSD currency
   //This is a restriction from Square.
-  Square::charge($amount, $formNonce, $location_id, $currency);
+  $options = [
+    'amount' => $amount,
+    'card_nonce' => $formNonce,
+    'location_id' => $locationd_id,
+    'currency' => $currency
+  ];
+  Square::charge($options);
 
   $customer = array(
     'first_name' => $request->first_name,
@@ -79,9 +82,9 @@ public function charge() {
   //or
   $customer = $merchant->hasCustomer($request->email);
 
-  Square::setMerchant($merchant)->setCustomer($customer)->charge($amount, $formNonce, $location_id);
+  Square::setMerchant($merchant)->setCustomer($customer)->charge($options);
   //or with currency other than USD
-  Square::setMerchant($merchant)->setCustomer($customer)->charge($amount, $formNonce, $location_id, $currency);
+  Square::setMerchant($merchant)->setCustomer($customer)->charge($options);
 }
 ```
 
@@ -209,16 +212,16 @@ public function openedTransactions() {}
 public function failedTransactions() {}
 
 /**
-* Charge a customer.
-* 
-* @param float $amount 
-* @param string $nonce 
-* @param string $location_id 
-* @param mixed $customer 
-* @param string $currency 
-* @return \Nikolag\Square\Models\Transaction
-*/
-public function charge(float $amount, string $nonce, string $location_id, mixed $customer = null, string $currency = "USD") {}
+ * Charge a customer.
+ * 
+ * @param float $amount 
+ * @param string $nonce 
+ * @param string $location_id 
+ * @param mixed $customer 
+ * @param string $currency 
+ * @return \Nikolag\Square\Models\Transaction
+ */
+public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = "USD") {}
 
 /**
  * Save a customer.
@@ -231,30 +234,76 @@ public function saveCustomer(array $customer) {}
 ### Facade
 ```javascript
 /**
-* Charge a customer.
-* 
-* @param float $amount 
-* @param string $card_nonce 
-* @param string $location_id 
-* @param string $currency 
-* @return \Nikolag\Square\Models\Transaction
-* @throws \Nikolag\Square\Exception on non-2xx response
-*/
-public function charge(float $amount, string $card_nonce, string $location_id, string $currency = "USD")
+ * Charge a customer.
+ * 
+ * @param array $options 
+ * @return \Nikolag\Square\Models\Transaction
+ * @throws \Nikolag\Square\Exception on non-2xx response
+ */
+public function charge(array $options);
 
 /**
- * @param \Nikolag\Square\Models\Customer|null $customer
- *
- * @return self
+ * Transactions directly from Square API.
+ * 
+ * @param array $options 
+ * @return \SquareConnect\Model\ListLocationsResponse
+ * @throws \Nikolag\Square\Exception on non-2xx response
  */
-public function setCustomer($customer) {}
+public function transactions(array $options);
 
 /**
- * @param any $merchant
- *
- * @return self
+ * Getter for customer.
+ * 
+ * @return mixed
  */
-public function setMerchant($merchant) {}
+public function getCustomer();
+
+/**
+ * Setter for customer.
+ * 
+ * @param mixed $customer 
+ * @return void
+ */
+public function setCustomer($customer);
+
+/**
+ * Getter for customer.
+ * 
+ * @return mixed
+ */
+public function getMerchant();
+
+/**
+ * Setter for merchant.
+ * 
+ * @param mixed $merchant 
+ * @return mixed
+ */
+public function setMerchant($merchant)
+
+### Core Service
+/**
+ * Returns the specified service
+ * 
+ * @param string $driver 
+ * @return CorePaymentService
+ */
+public function use(string $driver);
+
+/**
+ * Returns the default main service
+ * 
+ * @return CorePaymentService
+ */
+public function default();
+
+/**
+ * Returns all available drivers
+ * which u have installed.
+ * 
+ * @return array
+ */
+public function availableDrivers();
 ```
 
 ## Contributing

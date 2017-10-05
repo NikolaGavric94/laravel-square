@@ -2,51 +2,18 @@
 
 namespace Nikolag\Square\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Facades\Square;
-use Nikolag\Square\SquareCustomer;
+use Nikolag\Core\Models\Customer as CoreCustomer;
 use Nikolag\Square\Utils\Constants;
 
-class Customer extends Model
+class Customer extends CoreCustomer
 {
-	/**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = "nikolag_customers";
-
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
-
-    /**
-     * The attributes that are mass assignable.
+     * The model's attributes.
      *
      * @var array
      */
-    protected $fillable = [
-    	'first_name',
-    	'last_name',
-    	'company_name',
-    	'nickname',
-    	'email',
-    	'phone',
-        'note'
-    ];
-
-    /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [
-    	'id',
-    	'square_id',
-        'owner_id'
+    protected $attributes = [
+        'payment_service_type' => 'square'
     ];
 
     /**
@@ -56,7 +23,7 @@ class Customer extends Model
      */
     public function merchants()
     {
-        return $this->belongsToMany(config('nikolag.user.namespace'), 'nikolag_customer_user', 'customer_id', 'owner_id');
+        return $this->belongsToMany(config('nikolag.connections.square.user.namespace'), 'nikolag_customer_user', 'customer_id', 'owner_id');
     }
 
     /**

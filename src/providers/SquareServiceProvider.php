@@ -3,8 +3,9 @@
 namespace Nikolag\Square\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\SquareConfig;
-use Nikolag\Square\SquareCustomer;
+use Nikolag\Square\SquareService;
 
 class SquareServiceProvider extends ServiceProvider
 {
@@ -32,13 +33,17 @@ class SquareServiceProvider extends ServiceProvider
         //Config
         $this->mergeConfigFrom(__DIR__.'/../config/nikolag.php', 'nikolag');
 
-        //Exception Service Provider
-        $this->app->bind('Nikolag\Square\Providers\ExceptionServiceProvider');
-
         $this->app->singleton(SquareConfig::class, function($app) {
             return new SquareConfig();
         });
 
-        $this->app->alias(SquareCustomer::class, 'square');
+        //DI
+        $this->app->bind(
+            SquareServiceContract::class,
+            SquareService::class
+        );
+        
+        //Facades
+        $this->app->alias(SquareService::class, 'square');
     }
 }

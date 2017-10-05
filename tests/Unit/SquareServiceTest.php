@@ -11,7 +11,7 @@ use Nikolag\Square\Utils\Constants;
 use SquareConnect\ApiException;
 
 
-class SquareCustomerTest extends TestCase
+class SquareServiceTest extends TestCase
 {
     /**
      * Charge OK.
@@ -19,7 +19,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_ok()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-ok', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]);
 
         $this->assertTrue($response instanceof Transaction, 'Response is not of type Transaction.');
         $this->assertEquals($response->amount, 5000, 'Transaction amount is not 5000.');
@@ -35,7 +35,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_wrong_nonce()
     {
-        $response = Square::charge(5000, 'not-existant-nonce', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'not-existant-nonce', 'location_id' => env('SQUARE_LOCATION')]);
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(404);
@@ -50,7 +50,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_wrong_cvv()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
 
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(402);
@@ -65,7 +65,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_wrong_postal()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(402);
@@ -80,7 +80,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_wrong_expiration_date()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(400);
@@ -95,7 +95,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_declined()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(400);
@@ -110,7 +110,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_used_nonce()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-already-used', env('SQUARE_LOCATION'));
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-already-used', 'location_id' => env('SQUARE_LOCATION')]);
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(400);
@@ -125,7 +125,7 @@ class SquareCustomerTest extends TestCase
      */
     public function test_square_charge_non_existant_currency()
     {
-        $response = Square::charge(5000, 'fake-card-nonce-ok', env('SQUARE_LOCATION'), 'XXX');
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(400);

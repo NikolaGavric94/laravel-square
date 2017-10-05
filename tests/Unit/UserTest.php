@@ -24,7 +24,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $customer = array(
-            'square_id' => null,
+            'payment_service_id' => null,
             'first_name' => $this->faker->unique()->firstNameMale,
             'last_name' => $this->faker->unique()->lastName,
             'company_name' => $this->faker->unique()->address,
@@ -118,8 +118,6 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
-
-        
         
         $this->expectException(ApiException::class);
         $this->expectExceptionCode(402);
