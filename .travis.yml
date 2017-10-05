@@ -16,7 +16,7 @@ cache:
 before_script:
   - cp .env.travis .env
   - composer self-update
-  - composer update
+  - composer update --no-scripts
 
 script:
   - vendor/bin/phpunit
