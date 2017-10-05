@@ -280,8 +280,9 @@ public function getMerchant();
  * @return mixed
  */
 public function setMerchant($merchant)
-
+```
 ### Core Service
+```javascript
 /**
  * Returns the specified service
  * 
