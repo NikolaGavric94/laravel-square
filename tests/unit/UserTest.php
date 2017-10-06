@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Illuminate\Support\Facades\DB;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Transaction;
@@ -10,7 +9,6 @@ use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
 use SquareConnect\ApiException;
-use SquareConnect\Model\ChargeResponse;
 
 class UserTest extends TestCase
 {

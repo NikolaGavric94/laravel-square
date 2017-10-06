@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Illuminate\Support\Facades\DB;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Transaction;
