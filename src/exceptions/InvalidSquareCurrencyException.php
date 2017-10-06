@@ -5,7 +5,7 @@ namespace Nikolag\Square\Exceptions;
 use Nikolag\Square\Exception;
 use \Exception as PhpException;
 
-class InvalidSquareCvvException extends Exception
+class InvalidSquareCurrencyException extends Exception
 {
     public function __construct($message = null, $code = 0, PhpException $previous = null)
     {

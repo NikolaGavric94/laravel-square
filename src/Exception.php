@@ -3,6 +3,7 @@ namespace Nikolag\Square;
 
 use Illuminate\Queue\SerializesModels;
 use Nikolag\Core\Exceptions\Exception as BaseException;
+use \Exception as PhpException;
 
 class Exception extends BaseException
 {
@@ -16,7 +17,7 @@ class Exception extends BaseException
      * @param BaseException $previous
      * @return void
      */
-    public function __construct($message = null, $code = 0, Exception $previous = null)
+    public function __construct($message = null, $code = 0, PhpException $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

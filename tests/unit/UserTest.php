@@ -3,6 +3,12 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exception;
+use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
+use Nikolag\Square\Exceptions\InvalidSquareCvvException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
+use Nikolag\Square\Exceptions\InvalidSquareNonceException;
+use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
+use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\User;
@@ -75,7 +81,7 @@ class UserTest extends TestCase
     /**
      * Charge with non existing nonce.
      *
-     * @expectedException \SquareConnect\ApiException
+     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareNonceException
      * @expectedExceptionCode 404
      * @return void
      */
@@ -84,14 +90,14 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'not-existant-nonce', env('SQUARE_LOCATION'));
         
-        $this->expectException(ApiException::class);
+        $this->expectException(InvalidSquareNonceException::class);
         $this->expectExceptionCode(404);
     }
 
     /**
      * Charge with wrong CVV.
      *
-     * @expectedException \SquareConnect\ApiException
+     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareCvvException
      * @expectedExceptionCode 402
      * @return void
      */
@@ -100,14 +106,14 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
 
-        $this->expectException(ApiException::class);
+        $this->expectException(InvalidSquareCvvException::class);
         $this->expectExceptionCode(402);
     }
 
     /**
      * Charge with wrong Postal Code.
      *
-     * @expectedException \SquareConnect\ApiException
+     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareZipcodeException
      * @expectedExceptionCode 402
      * @return void
      */
@@ -116,14 +122,14 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
         
-        $this->expectException(ApiException::class);
+        $this->expectException(InvalidSquareZipcodeException::class);
         $this->expectExceptionCode(402);
     }
 
     /**
      * Charge with wrong Expiration date.
      *
-     * @expectedException \SquareConnect\ApiException
+     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareExpirationDateException
      * @expectedExceptionCode 400
      * @return void
      */
@@ -132,14 +138,14 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
         
-        $this->expectException(ApiException::class);
+        $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
     }
 
     /**
      * Charge declined.
      *
-     * @expectedException \SquareConnect\ApiException
+     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareExpirationDateException
      * @expectedExceptionCode 400
      * @return void
      */
@@ -148,14 +154,14 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
         
-        $this->expectException(ApiException::class);
+        $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
     }
 
     /**
      * Charge with already used nonce.
      *
-     * @expectedException \SquareConnect\ApiException
+     * @expectedException \Nikolag\Square\Exceptions\UsedSquareNonceException
      * @expectedExceptionCode 400
      * @return void
      */
@@ -164,7 +170,23 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-already-used', env('SQUARE_LOCATION'));
         
-        $this->expectException(ApiException::class);
+        $this->expectException(UsedSquareNonceException::class);
+        $this->expectExceptionCode(400);
+    }
+
+    /**
+     * Charge with non-existant currency.
+     *
+     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareCurrencyException
+     * @expectedExceptionCode 400
+     * @return void
+     */
+    public function test_user_charge_non_existant_currency()
+    {
+        $user = factory(User::class)->create();
+        $response = $user->charge(5000, 'fake-card-nonce-already-used', env('SQUARE_LOCATION'), null, 'XXX');
+        
+        $this->expectException(InvalidSquareCurrencyException::class);
         $this->expectExceptionCode(400);
     }
 }

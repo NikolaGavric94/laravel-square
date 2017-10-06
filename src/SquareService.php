@@ -4,7 +4,12 @@ namespace Nikolag\Square;
 
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Contracts\SquareServiceContract;
-use Nikolag\Square\Exception;
+use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
+use Nikolag\Square\Exceptions\InvalidSquareCvvException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
+use Nikolag\Square\Exceptions\InvalidSquareNonceException;
+use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
+use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareConfig;
@@ -79,22 +84,29 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 }
             } else {
             }
-        } catch (ApiException $e) {
-            if ($exception->getCategory() == Constants::INVALID_REQUEST_ERROR) {
-                if ($exception->getCode() == Constants::NOT_FOUND) {
-                    $exception = InvalidSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
-                } elseif ($exception->getCode() == Constants::NONCE_USED) {
-                    $exception = new UsedSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+        } catch (ApiException $exception) {
+            //Set exception to be first in array of errors
+            $exception = $exceptionJSON->getResponseBody()->errors[0];
+
+            if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
+                if ($exceptionJSON->code == Constants::NOT_FOUND) {
+                    $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
+                } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
+                    $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
+                } elseif ($exceptionJSON->code == Constants::NONCE_USED) {
+                    $exception = new UsedSquareNonceException($exceptionJSON->detail, 400, $exception);
                 }
-            } elseif ($exception->getCategory() == Constants::PAYMENT_METHOD_ERROR) {
-                if ($exception->getCode() == Constants::INVALID_EXPIRATION) {
-                    $exception = new InvalidSquareExpirationDateException($exception->getMessage(), $exception->getCode(), $exception);
-                } elseif ($exception->getCode() == Constants::VERIFY_POSTAL_CODE) {
-                    $exception = new InvalidSquareZipcodeException($exception->getMessage(), $exception->getCode(), $exception);
-                } elseif ($exception->getCode() == Constants::VERIFY_CVV) {
-                    $exception = new InvalidSquareCvvException($exception->getMessage(), $exception->getCode(), $exception);
+            } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
+                if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
+                    $exception = new InvalidSquareExpirationDateException($exceptionJSON->detail, 400, $exception);
+                } elseif ($exceptionJSON->code == Constants::VERIFY_POSTAL_CODE) {
+                    $exception = new InvalidSquareZipcodeException($exceptionJSON->detail, 402, $exception);
+                } elseif ($exceptionJSON->code == Constants::VERIFY_CVV) {
+                    $exception = new InvalidSquareCvvException($exceptionJSON->detail, 402, $exception);
                 }
             }
+
+            throw $exception;
         }
     }
 
@@ -128,25 +140,31 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
             $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
             $transaction->save();
-        } catch (ApiException $e) {
+        } catch (ApiException $exception) {
             $transaction->status = Constants::TRANSACTION_STATUS_FAILED;
             $transaction->save();
+            //Set exception to be first in array of errors
+            $exceptionJSON = $exception->getResponseBody()->errors[0];
 
-            if ($exception->getCategory() == Constants::INVALID_REQUEST_ERROR) {
-                if ($exception->getCode() == Constants::NOT_FOUND) {
-                    $exception = InvalidSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
-                } elseif ($exception->getCode() == Constants::NONCE_USED) {
-                    $exception = new UsedSquareNonceException($exception->getMessage(), $exception->getCode(), $exception);
+            if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
+                if ($exceptionJSON->code == Constants::NOT_FOUND) {
+                    $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
+                } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
+                    $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
+                } elseif ($exceptionJSON->code == Constants::NONCE_USED) {
+                    $exception = new UsedSquareNonceException($exceptionJSON->detail, 400, $exception);
                 }
-            } elseif ($exception->getCategory() == Constants::PAYMENT_METHOD_ERROR) {
-                if ($exception->getCode() == Constants::INVALID_EXPIRATION) {
-                    $exception = new InvalidSquareExpirationDateException($exception->getMessage(), $exception->getCode(), $exception);
-                } elseif ($exception->getCode() == Constants::VERIFY_POSTAL_CODE) {
-                    $exception = new InvalidSquareZipcodeException($exception->getMessage(), $exception->getCode(), $exception);
-                } elseif ($exception->getCode() == Constants::VERIFY_CVV) {
-                    $exception = new InvalidSquareCvvException($exception->getMessage(), $exception->getCode(), $exception);
+            } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
+                if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
+                    $exception = new InvalidSquareExpirationDateException($exceptionJSON->detail, 400, $exception);
+                } elseif ($exceptionJSON->code == Constants::VERIFY_POSTAL_CODE) {
+                    $exception = new InvalidSquareZipcodeException($exceptionJSON->detail, 402, $exception);
+                } elseif ($exceptionJSON->code == Constants::VERIFY_CVV) {
+                    $exception = new InvalidSquareCvvException($exceptionJSON->detail, 402, $exception);
                 }
             }
+
+            throw $exception;
         }
 
         return $transaction;
