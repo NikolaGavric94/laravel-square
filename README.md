@@ -1,5 +1,5 @@
 nikolag/square 
-[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=develop)](https://travis-ci.org/NikolaGavric94/laravel-square)
+[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/laravel-square)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/square/v/stable)](https://packagist.org/packages/nikolag/square) 
 [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) 
 [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) 
@@ -7,7 +7,7 @@ nikolag/square
 Square integration with Laravel 5.5.x built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 ## Installation guide
-`composer require nikolag/square`
+`composer require nikolag/square --dev`
 
 ##### Due to Laravel [Package Discovery](https://laravel.com/docs/5.5/packages#package-discovery), registering service providers and facades manually for this project as of Laravel 5.5 is deprecated and no longer required since the package is adapted to automatically register these stuff for you.
 But there are still couple of steps to do in order to use this package.
@@ -15,6 +15,8 @@ But there are still couple of steps to do in order to use this package.
 ---
 
 Configuration files will automatically be published for you and you should check it out at `config/nikolag.php` before continuing.
+
+**If for some reason you can't see `square` driver inside of `connections` array, you'll have to add it manually. You can find configuration file here under [src/config/nikolag.php](https://github.com/NikolaGavric94/nikolag-square/blob/master/src/config/nikolag.php) and copy everything from inside `connections` array and append to your `connections` array inside of your `app/config/nikolag.php` file.**
 
 After changing the configuration files or not, you should run migrations with the following command
 ```javascript
@@ -280,31 +282,6 @@ public function getMerchant() {}
  * @return mixed
  */
 public function setMerchant($merchant) {}
-```
-### Core Service
-```javascript
-/**
- * Returns the specified service
- * 
- * @param string $driver 
- * @return CorePaymentService
- */
-public function use(string $driver) {}
-
-/**
- * Returns the default main service
- * 
- * @return CorePaymentService
- */
-public function default() {}
-
-/**
- * Returns all available drivers
- * which u have installed.
- * 
- * @return array
- */
-public function availableDrivers() {}
 ```
 
 ## Contributing
