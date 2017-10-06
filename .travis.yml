@@ -8,10 +8,10 @@ addons:
   code_climate:
     repo_token: d8dbf08fa72a7fbc4e18e4ccd6257a93f21865db05706321b7776e91720fc809
 
-cache:
-  directories:
-    - node_modules
-    - vendor
+#cache:
+#  directories:
+#    - node_modules
+#    - vendor
 
 before_script:
   - cp .env.travis .env
