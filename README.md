@@ -1,5 +1,5 @@
 nikolag/square 
-[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/nikolag-square)
+[![Build Status](https://travis-ci.org/NikolaGavric94/nikolag-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/nikolag-square)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/square/v/stable)](https://packagist.org/packages/nikolag/square) 
 [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) 
 [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) 
