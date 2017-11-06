@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.1] - 2017-09-12
 ### Added
-- Ability to change currencies thanks to [pull request #6](https://github.com/NikolaGavric94/laravel-square/pull/6) by [@Godlikehobbit](https://github.com/Godlikehobbit)
+- Ability to change currencies thanks to [pull request #6](https://github.com/NikolaGavric94/nikolag-square/pull/6) by [@Godlikehobbit](https://github.com/Godlikehobbit)
 - Tests for changing currency
 
 ### Changed
@@ -30,14 +30,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Upgraded to work with Laravel 5.5.x
 
 ### Fixed
-- Resolved [#7](https://github.com/NikolaGavric94/laravel-square/issues/7)
+- Resolved [#7](https://github.com/NikolaGavric94/nikolag-square/issues/7)
 
 ## [1.0.3] - 2017-09-26
 ### Added
 - Automatic registration of package service providers and facades
 
 ### Fixed
-- Resolved [#8](https://github.com/NikolaGavric94/laravel-square/issues/8)
+- Resolved [#8](https://github.com/NikolaGavric94/nikolag-square/issues/8)
 
 ## [1.0.4] - 2017-09-26
 ### Added
@@ -62,9 +62,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Problem with custom exception handler
 
+## [1.1.1] - 2017-11-06
+### Fixed
+- Resolved [#12](https://github.com/NikolaGavric94/nikolag-square/issues/12)
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v1.1.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
 [1.0.4]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...v1.0.4
 [1.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.4...v1.1.0
+[1.1.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.1.1
