@@ -4,12 +4,13 @@ namespace Nikolag\Square\Tests;
 
 use Faker\Factory as Faker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
 {
-    use WithoutMiddleware;
+    use RefreshDatabase, DatabaseMigrations, WithoutMiddleware;
 
     /**
      * @var Faker\Factory
