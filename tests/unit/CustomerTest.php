@@ -2,16 +2,13 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Exception;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
-use SquareConnect\ApiException;
 
 class CustomerTest extends TestCase
 {
-
     /**
      * Customer creation.
      *
@@ -34,11 +31,11 @@ class CustomerTest extends TestCase
         $email = $this->faker->email;
 
         $customer = factory(Customer::class)->create([
-            'email' => $email
+            'email' => $email,
         ]);
 
         $this->assertDatabaseHas('nikolag_customers', [
-            'email' => $email
+            'email' => $email,
         ]);
     }
 

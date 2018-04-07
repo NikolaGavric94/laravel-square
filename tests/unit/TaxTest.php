@@ -7,7 +7,6 @@ use Nikolag\Square\Tests\TestCase;
 
 class TaxTest extends TestCase
 {
-
     /**
      * Tax creation.
      *
@@ -30,11 +29,11 @@ class TaxTest extends TestCase
         $name = $this->faker->name;
 
         $tax = factory(Tax::class)->create([
-            'name' => $name
+            'name' => $name,
         ]);
 
         $this->assertDatabaseHas('nikolag_taxes', [
-            'name' => $name
+            'name' => $name,
         ]);
     }
 }

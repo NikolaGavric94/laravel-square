@@ -45,7 +45,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      * Access token for square.
      *
      * @param string $accessToken
-     * 
+     *
      * @return void
      */
     public function setAccessToken(string $accessToken)
@@ -94,11 +94,12 @@ class SquareConfig extends CoreConfig implements ConfigContract
     }
 
     /**
-     * Getter for config
-     * 
+     * Getter for config.
+     *
      * @return array
      */
-    public function getConfig() {
+    public function getConfig()
+    {
         return $this->config;
     }
 }

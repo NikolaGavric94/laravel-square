@@ -7,11 +7,11 @@ use Illuminate\Support\Collection;
 class Util
 {
     /**
-     * Check if source has product
+     * Check if source has product.
      *
      * @param Collection $source
-     * @param mixed $product
-     * 
+     * @param mixed      $product
+     *
      * @return bool
      */
     public static function hasProduct(Collection $source, $product)

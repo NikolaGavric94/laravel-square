@@ -3,12 +3,9 @@
 namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Builders\DiscountBuilder;
-use Nikolag\Square\Builders\ProductBuilder;
-use Nikolag\Square\Builders\TaxesBuilder;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Utils\Constants;
-use \stdClass;
+use stdClass;
 
 class OrderBuilder
 {
@@ -26,10 +23,10 @@ class OrderBuilder
     /**
      * Build order from order copy
      * and save to database simultaneously.
-     * 
-     * @param Model $order 
-     * @param stdClass $orderCopy 
-     * 
+     *
+     * @param Model    $order
+     * @param stdClass $orderCopy
+     *
      * @return Model
      */
     public function buildOrderFromOrderCopy(Model $order, stdClass $orderCopy)
@@ -94,7 +91,7 @@ class OrderBuilder
                             $productPivot->discounts()->attach($discount->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
                         }
                     });
-                    
+
                     // For each tax in product
                     $productClass->taxes->each(function ($tax) use ($productPivot) {
                         // Save tax
@@ -114,16 +111,16 @@ class OrderBuilder
     }
 
     /**
-     * Build order copy from model
-     * 
-     * @param Model $order 
-     * 
+     * Build order copy from model.
+     *
+     * @param Model $order
+     *
      * @return stdClass
      */
     public function buildOrderCopyFromModel(Model $order)
     {
         try {
-            $orderCopy = new stdClass;
+            $orderCopy = new stdClass();
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
             if ($order->taxes->isNotEmpty()) {
@@ -157,7 +154,7 @@ class OrderBuilder
                     $orderCopy->products->push($productTemp);
                 }
             }
-            
+
             return $orderCopy;
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
@@ -165,31 +162,31 @@ class OrderBuilder
     }
 
     /**
-     * Build order copy from array
-     * 
-     * @param array $order 
-     * 
+     * Build order copy from array.
+     *
+     * @param array $order
+     *
      * @return stdClass
      */
     public function buildOrderCopyFromArray(array $order)
     {
         try {
-            $orderCopy = new stdClass;
+            $orderCopy = new stdClass();
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
-            if (array_has($order, 'taxes') && $order['taxes']!=null) {
+            if (array_has($order, 'taxes') && $order['taxes'] != null) {
                 $orderCopy->taxes = $this->taxesBuilder->createTaxes($order['taxes']);
             }
             // Create discounts Collection
             $orderCopy->discounts = collect([]);
             //Order Discounts
-            if (array_has($order, 'discounts') && $order['discounts']!=null) {
+            if (array_has($order, 'discounts') && $order['discounts'] != null) {
                 $orderCopy->discounts = $this->discountBuilder->createDiscounts($order['discounts']);
             }
             // Create products Collection
             $orderCopy->products = collect([]);
             //Products
-            if (array_has($order, 'products') && $order['products']!=null) {
+            if (array_has($order, 'products') && $order['products'] != null) {
                 foreach ($order['products'] as $product) {
                     // Create product
                     $productTemp = $this->productBuilder->createProductFromArray($product);
@@ -208,7 +205,7 @@ class OrderBuilder
                     $orderCopy->products->push($productTemp);
                 }
             }
-            
+
             return $orderCopy;
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);

@@ -7,7 +7,6 @@ use Nikolag\Square\Tests\TestCase;
 
 class DiscountTest extends TestCase
 {
-
     /**
      * Discount creation.
      *
@@ -30,11 +29,11 @@ class DiscountTest extends TestCase
         $name = $this->faker->name;
 
         $tax = factory(Discount::class)->create([
-            'name' => $name
+            'name' => $name,
         ]);
 
         $this->assertDatabaseHas('nikolag_discounts', [
-            'name' => $name
+            'name' => $name,
         ]);
     }
 }

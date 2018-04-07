@@ -3,7 +3,6 @@
 namespace Nikolag\Square\Tests\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Hash;
 use Nikolag\Square\Traits\HasCustomers;
 
 class User extends Authenticatable
@@ -16,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'email', 'name'
+        'email', 'name',
     ];
 
     /**

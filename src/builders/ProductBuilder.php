@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Models\Product;
-use \stdClass;
+use stdClass;
 
 class ProductBuilder
 {
-	private $discountBuilder;
+    private $discountBuilder;
     private $taxesBuilder;
 
     public function __construct()
@@ -23,16 +23,17 @@ class ProductBuilder
     /**
      * Add a product to the order from model as source.
      *
-     * @param Model $order 
-     * @param Model $product 
-     * @param string $currency 
+     * @param Model  $order
+     * @param Model  $product
+     * @param string $currency
+     *
      * @return stdClass
      */
-    public function addProductFromModel(Model $order, Model $product, int $quantity, string $currency = "USD")
+    public function addProductFromModel(Model $order, Model $product, int $quantity, string $currency = 'USD')
     {
         try {
             // Create product placeholder
-        	$productCopy = new stdClass;
+            $productCopy = new stdClass();
 
             // If quantity is null or 0
             if ($quantity == null || $quantity == 0) {
@@ -65,26 +66,27 @@ class ProductBuilder
     /**
      * Add a product to the order from array as source.
      *
-     * @param Model $order 
-     * @param array $product 
-     * @param string $currency 
+     * @param Model  $order
+     * @param array  $product
+     * @param string $currency
+     *
      * @return stdClass
      */
-    public function addProductFromArray(Model $order, array $product, int $quantity, string $currency = "USD")
+    public function addProductFromArray(Model $order, array $product, int $quantity, string $currency = 'USD')
     {
         try {
             // Create product placeholder
-        	$productCopy = new stdClass;
+            $productCopy = new stdClass();
             // Get quantity
             $tempQuantity = null;
 
             // If $product has quantity
-            if(array_has($product, 'quantity')) {
+            if (array_has($product, 'quantity')) {
                 $tempQuantity = $product['quantity'];
             }
 
             // If quantity is null or 0
-            if($tempQuantity == null || $tempQuantity == 0) {
+            if ($tempQuantity == null || $tempQuantity == 0) {
                 // Set new quantity for checks
                 $tempQuantity = $quantity;
                 // Update quantity for product
@@ -118,18 +120,19 @@ class ProductBuilder
     }
 
     /**
-     * Create product from array
+     * Create product from array.
      *
      * @param array $products
+     *
      * @return Nikolag\Square\Models\Product
      */
     public function createProductFromArray(array $product, Model $order = null)
     {
-        $productObj = new stdClass;
+        $productObj = new stdClass();
         //If product doesn't have quantity in pivot table
         //throw new exception because every product should
         //have at least 1 quantity
-        if (!array_has($product, 'quantity') || $product['quantity']==null || $product['quantity']==0) {
+        if (!array_has($product, 'quantity') || $product['quantity'] == null || $product['quantity'] == 0) {
             throw new MissingPropertyException('$quantity property for object Product is missing', 500);
         }
         //Check if order is present and if already has this product
@@ -152,19 +155,20 @@ class ProductBuilder
     }
 
     /**
-     * Create product from model
+     * Create product from model.
      *
      * @param Model $products
+     *
      * @return Nikolag\Square\Models\Product
      */
     public function createProductFromModel(Model $product, Model $order = null, int $quantity = null)
     {
-        $productObj = new stdClass;
+        $productObj = new stdClass();
         //If product doesn't have quantity in pivot table
         //throw new exception because every product should
         //have at least 1 quantity
-        if(!$quantity) {
-            if(!$product->pivot->quantity || $product->pivot->quantity == null || $product->pivot->quantity == 0) {
+        if (!$quantity) {
+            if (!$product->pivot->quantity || $product->pivot->quantity == null || $product->pivot->quantity == 0) {
                 throw new MissingPropertyException('$quantity property for object Product is missing', 500);
             } else {
                 $quantity = $product->pivot->quantity;

@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
@@ -14,7 +13,6 @@ use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
-use SquareConnect\ApiException;
 
 class UserTest extends TestCase
 {
@@ -26,17 +24,17 @@ class UserTest extends TestCase
     public function test_user_save_customer()
     {
         $user = factory(User::class)->create();
-        $customer = array(
+        $customer = [
             'payment_service_id' => null,
-            'first_name' => $this->faker->unique()->firstNameMale,
-            'last_name' => $this->faker->unique()->lastName,
-            'company_name' => $this->faker->unique()->address,
-            'nickname' => $this->faker->unique()->firstNameFemale,
-            'email' => $this->faker->unique()->companyEmail,
-            'phone' => $this->faker->unique()->tollFreePhoneNumber,
-            'note' => $this->faker->unique()->paragraph(5),
-            'owner_id' => null
-        );
+            'first_name'         => $this->faker->unique()->firstNameMale,
+            'last_name'          => $this->faker->unique()->lastName,
+            'company_name'       => $this->faker->unique()->address,
+            'nickname'           => $this->faker->unique()->firstNameFemale,
+            'email'              => $this->faker->unique()->companyEmail,
+            'phone'              => $this->faker->unique()->tollFreePhoneNumber,
+            'note'               => $this->faker->unique()->paragraph(5),
+            'owner_id'           => null,
+        ];
 
         $user->saveCustomer($customer);
 
@@ -53,7 +51,7 @@ class UserTest extends TestCase
     public function test_user_saves_multiple_customers()
     {
         $user = factory(User::class)->create();
-        
+
         $customers = factory(Customer::class, 25)
             ->create()
             ->each(function ($customer) {
@@ -93,7 +91,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'not-existant-nonce', env('SQUARE_LOCATION'));
-        
+
         $this->expectException(InvalidSquareNonceException::class);
         $this->expectExceptionCode(404);
     }
@@ -127,7 +125,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
-        
+
         $this->expectException(InvalidSquareZipcodeException::class);
         $this->expectExceptionCode(402);
     }
@@ -144,7 +142,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
-        
+
         $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
     }
@@ -161,7 +159,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
-        
+
         $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
     }
@@ -178,7 +176,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-already-used', env('SQUARE_LOCATION'));
-        
+
         $this->expectException(UsedSquareNonceException::class);
         $this->expectExceptionCode(400);
     }
@@ -195,7 +193,7 @@ class UserTest extends TestCase
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'fake-card-nonce-already-used', env('SQUARE_LOCATION'), null, 'XXX');
-        
+
         $this->expectException(InvalidSquareCurrencyException::class);
         $this->expectExceptionCode(400);
     }

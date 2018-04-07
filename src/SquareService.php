@@ -7,7 +7,6 @@ use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
-use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
@@ -19,13 +18,12 @@ use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Models\Transaction;
-use Nikolag\Square\SquareConfig;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use SquareConnect\ApiException;
 use SquareConnect\Model\CreateCustomerRequest;
 use SquareConnect\Model\CreateOrderRequest;
-use \stdClass;
+use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
 {
@@ -53,14 +51,14 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function __construct(SquareConfig $squareConfig)
     {
         $this->config = $squareConfig;
-        $this->orderCopy = new stdClass;
+        $this->orderCopy = new stdClass();
         $this->orderBuilder = new OrderBuilder();
         $this->squareBuilder = new SquareRequestBuilder();
         $this->productBuilder = new ProductBuilder();
     }
 
     /**
-     * Calculates order total
+     * Calculates order total.
      *
      * @return float
      */
@@ -71,7 +69,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         foreach ($this->orderCopy->products as $product) {
             $productPivot = $product->productPivot;
             $product = $product->product;
-            
+
             $totalPrice = $productPivot->quantity * $product->price;
             $currentPrice = $totalPrice;
             $noDeductiblesCost += $currentPrice;
@@ -95,12 +93,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                         $currentProductPrice -= $discount->amount;
                     }
                     if ($discount->percentage && !$discount->amount) {
-                        $noDeductiblesCost -= $totalProductPrice * $discount->percentage/100;
-                        $currentProductPrice -= $totalProductPrice * $discount->percentage/100;
+                        $noDeductiblesCost -= $totalProductPrice * $discount->percentage / 100;
+                        $currentProductPrice -= $totalProductPrice * $discount->percentage / 100;
                     }
                 }
                 //Algorithm based off of https://docs.connect.squareup.com/articles/orders-api-overview
-                $discountAmount = ($orderDiscount->percentage)?$currentOrderPrice*$orderDiscount->percentage/100:$orderDiscount->amount;
+                $discountAmount = ($orderDiscount->percentage) ? $currentOrderPrice * $orderDiscount->percentage / 100 : $orderDiscount->amount;
                 $noDeductiblesCost -= $discountAmount;
             }
         }
@@ -121,19 +119,19 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                         $currentProductPrice -= $discount->amount;
                     }
                     if ($discount->percentage && !$discount->amount) {
-                        $currentProductPrice -= $totalProductPrice * $discount->percentage/100;
+                        $currentProductPrice -= $totalProductPrice * $discount->percentage / 100;
                     }
                 }
 
                 // Calculate product taxes
                 foreach ($currProduct->taxes as $tax) {
                     if ($tax->type === Constants::TAX_ADDITIVE) {
-                        $noDeductiblesCost += $currentProductPrice * $tax->percentage/100;
+                        $noDeductiblesCost += $currentProductPrice * $tax->percentage / 100;
                     }
                 }
                 // Calculate order taxes
                 if ($orderTax->type === Constants::TAX_ADDITIVE) {
-                    $taxAmount = $currentOrderPrice * $orderTax->percentage/100;
+                    $taxAmount = $currentOrderPrice * $orderTax->percentage / 100;
                     $noDeductiblesCost += $taxAmount;
                 }
             }
@@ -211,10 +209,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Save collected data
+     * Save collected data.
+     *
+     * @throws \Nikolag\Square\Exception on non-2xx response
      *
      * @return self
-     * @throws \Nikolag\Square\Exception on non-2xx response
      */
     public function save()
     {
@@ -262,20 +261,21 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @param array $data
      *
-     * @return \Nikolag\Square\Models\Transaction
      * @throws \Nikolag\Square\Exception on non-2xx response
+     *
+     * @return \Nikolag\Square\Models\Transaction
      */
     public function charge(array $data)
     {
-        $currency = array_key_exists('currency', $data)?$data['currency']:'USD';
-        $prepData = array(
+        $currency = array_key_exists('currency', $data) ? $data['currency'] : 'USD';
+        $prepData = [
             'idempotency_key' => uniqid(),
-            'amount_money' => [
-                'amount' => $data['amount'],
-                'currency' => $currency
+            'amount_money'    => [
+                'amount'   => $data['amount'],
+                'currency' => $currency,
             ],
             'card_nonce' => $data['card_nonce'],
-        );
+        ];
 
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount']]);
         // Save and attach merchant
@@ -298,7 +298,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $calculatedCost = $this->_calculateTotalOrderCost();
                 // If order total does not match charge amount, throw error
                 if ($calculatedCost != $data['amount']) {
-                    throw new InvalidSquareAmountException("The charge amount does not match the order total.", 500);
+                    throw new InvalidSquareAmountException('The charge amount does not match the order total.', 500);
                 }
                 // Save order
                 $this->_saveOrder();
@@ -356,28 +356,31 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @param array $options
      *
-     * @return \SquareConnect\Model\ListLocationsResponse
      * @throws \Nikolag\Square\Exception on non-2xx response
+     *
+     * @return \SquareConnect\Model\ListLocationsResponse
      */
     public function transactions(array $options)
     {
         $transactions = $this->config->transactionsAPI->listTransactions($options['location_id'], $options['begin_time'], $options['end_time'], $options['sort_order'], $options['cursor']);
+
         return $transactions;
     }
 
     /**
      * Add a product to the order.
      *
-     * @param mixed $product
-     * @param int $quantity
+     * @param mixed  $product
+     * @param int    $quantity
      * @param string $currency
      *
      * @return self
      */
-    public function addProduct($product, int $quantity = 1, string $currency = "USD")
+    public function addProduct($product, int $quantity = 1, string $currency = 'USD')
     {
         //Product class
         $productClass = Constants::PRODUCT_NAMESPACE;
+
         try {
             if (is_a($product, $productClass)) {
                 $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity, $currency);
@@ -461,15 +464,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Setter for order
-     * 
-     * @param mixed $order
+     * Setter for order.
+     *
+     * @param mixed  $order
      * @param string $locationId
      * @param string $currency
      *
      * @return self
      */
-    public function setOrder($order, string $locationId, string $currency = "USD")
+    public function setOrder($order, string $locationId, string $currency = 'USD')
     {
         //Order class
         $orderClass = config('nikolag.connections.square.order.namespace');
@@ -491,6 +494,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $this->order = new $orderClass($order);
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
         }
+
         return $this;
     }
 }

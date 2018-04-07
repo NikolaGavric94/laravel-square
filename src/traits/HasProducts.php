@@ -1,4 +1,5 @@
 <?php
+
 namespace Nikolag\Square\Traits;
 
 use Illuminate\Support\Facades\Schema;
@@ -13,13 +14,13 @@ trait HasProducts
     /**
      * Charge an order.
      *
-     * @param float $amount
+     * @param float  $amount
      * @param string $nonce
      * @param string $location_id
-     * @param mixed $merchant
-     * @param mixed $customer
+     * @param mixed  $merchant
+     * @param mixed  $customer
      * @param string $currency
-     * 
+     *
      * @return \Nikolag\Square\Models\Transaction
      */
     public function charge(float $amount, string $nonce, string $location_id, $merchant, $customer = null, string $currency = 'USD')
@@ -28,12 +29,12 @@ trait HasProducts
             ['amount' => $amount, 'card_nonce' => $nonce, 'location_id' => $location_id, 'currency' => $currency]
         );
     }
-    
+
     /**
-     * Check existence of an attribute in model
+     * Check existence of an attribute in model.
      *
      * @param string $attribute
-     * 
+     *
      * @return bool
      */
     public function hasAttribute(string $attribute)
@@ -42,41 +43,44 @@ trait HasProducts
     }
 
     /**
-     * Does an order have a discount
+     * Does an order have a discount.
      *
      * @param mixed $discount
-     * 
+     *
      * @return bool
      */
     public function hasDiscount($discount)
     {
         $val = is_array($discount) ? array_key_exists('id', $discount) ? Discount::find($discount['id']) : $discount : $discount;
+
         return $this->discounts()->get()->contains($val);
     }
 
     /**
-     * Does an order have a tax
+     * Does an order have a tax.
      *
      * @param mixed $tax
-     * 
+     *
      * @return bool
      */
     public function hasTax($tax)
     {
         $val = is_array($tax) ? array_key_exists('id', $tax) ? Tax::find($tax['id']) : $tax : $tax;
+
         return $this->taxes()->get()->contains($val);
     }
 
     /**
-     * Does an order have a product
+     * Does an order have a product.
      *
      * @param mixed $product
-     * 
+     *
      * @return bool
      */
     public function hasProduct($product)
     {
         $val = is_array($product) ? array_key_exists('id', $product) ? Product::find($product['id']) : $product : $product;
+
         return $this->products()->get()->contains($val);
     }
 

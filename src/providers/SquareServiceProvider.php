@@ -17,9 +17,9 @@ class SquareServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/nikolag.php' => config_path('nikolag.php')
+            __DIR__.'/../config/nikolag.php' => config_path('nikolag.php'),
         ], 'nikolag_config');
-        
+
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
@@ -42,7 +42,7 @@ class SquareServiceProvider extends ServiceProvider
             SquareServiceContract::class,
             SquareService::class
         );
-        
+
         //Facades
         $this->app->alias(SquareService::class, 'square');
     }

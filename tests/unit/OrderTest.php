@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Illuminate\Support\Facades\DB;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
@@ -14,7 +13,7 @@ use Nikolag\Square\Utils\Constants;
 class OrderTest extends TestCase
 {
     /**
-     * Order creation with relationships
+     * Order creation with relationships.
      *
      * @return void
      */
@@ -23,10 +22,10 @@ class OrderTest extends TestCase
         $discounts = factory(Discount::class, 5)->create();
         $taxes = factory(Tax::class, 3)->create();
         $order = factory(Order::class)->create();
-        
+
         $order->discounts()->attach($discounts, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
         $order->taxes()->attach($taxes, ['deductible_type' => Constants::TAX_NAMESPACE]);
-        
+
         $this->assertNotNull($order->discounts, 'Discounts are empty.');
         $this->assertCount(5, $order->discounts, 'Discounts count doesn\'t match');
         $this->assertNotNull($order->taxes, 'Taxes are empty.');
@@ -34,7 +33,7 @@ class OrderTest extends TestCase
     }
 
     /**
-     * Charge with order
+     * Charge with order.
      *
      * @return void
      */
@@ -42,31 +41,31 @@ class OrderTest extends TestCase
     {
         $orderClass = config('nikolag.connections.square.order.namespace');
 
-        $discountOne = factory(Discount::class)->states('AMOUNT_ONLY')->make(array(
-            'amount' => 50
-        ));
-        $discountTwo = factory(Discount::class)->states('PERCENTAGE_ONLY')->create(array(
-            'percentage' => 10.0
-        ));
-        $tax = factory(Tax::class)->states('INCLUSIVE')->create(array(
-            'percentage' => 10.0
-        ));
+        $discountOne = factory(Discount::class)->states('AMOUNT_ONLY')->make([
+            'amount' => 50,
+        ]);
+        $discountTwo = factory(Discount::class)->states('PERCENTAGE_ONLY')->create([
+            'percentage' => 10.0,
+        ]);
+        $tax = factory(Tax::class)->states('INCLUSIVE')->create([
+            'percentage' => 10.0,
+        ]);
         $order = factory(Order::class)->create();
-        $product = factory(Product::class)->make(array(
-            'price' => 110
-        ))->toArray();
+        $product = factory(Product::class)->make([
+            'price' => 110,
+        ])->toArray();
 
         $product['quantity'] = 5;
-        $product['discounts'] = array($discountOne->toArray());
+        $product['discounts'] = [$discountOne->toArray()];
 
         $order->discounts()->attach($discountTwo->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
         $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE]);
 
-        $data = array(
+        $data = [
             'location_id' => env('SQUARE_LOCATION'),
-            'amount' => 445,
-            'card_nonce' => 'fake-card-nonce-ok'
-        );
+            'amount'      => 445,
+            'card_nonce'  => 'fake-card-nonce-ok',
+        ];
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'));
         $square = $square->addProduct($product);
