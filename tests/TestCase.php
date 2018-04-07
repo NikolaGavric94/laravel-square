@@ -22,8 +22,8 @@ class TestCase extends BaseTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->artisan('migrate:fresh', ['--database' => 'square_test']);
         $this->loadLaravelMigrations(['--database' => 'square_test']);
+        $this->artisan('migrate', ['--database' => 'square_test']);
         $this->withFactories(__DIR__.'/../src/database/factories');
         $this->faker = Faker::create();
     }
