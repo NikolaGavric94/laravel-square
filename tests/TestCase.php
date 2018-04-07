@@ -1,9 +1,9 @@
 <?php
+
 namespace Nikolag\Square\Tests;
 
 use Faker\Factory as Faker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -15,7 +15,7 @@ class TestCase extends BaseTestCase
      * @var Faker\Factory
      */
     protected $faker;
-    
+
     /**
      * Setup the test environment.
      */
@@ -35,7 +35,7 @@ class TestCase extends BaseTestCase
     {
         return [
             'Nikolag\Square\Providers\SquareServiceProvider',
-            'Nikolag\Core\Providers\MigrationServiceProvider'
+            'Nikolag\Core\Providers\MigrationServiceProvider',
         ];
     }
 
@@ -45,24 +45,40 @@ class TestCase extends BaseTestCase
     protected function getPackageAliases($app)
     {
         return [
-            'Square' => 'Nikolag\Square\Facades\Square'
+            'Square' => 'Nikolag\Square\Facades\Square',
         ];
     }
 
     /**
      * Define environment setup.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param \Illuminate\Foundation\Application $app
+     *
      * @return void
-    */
+     */
     protected function getEnvironmentSetUp($app)
     {
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'square_test');
         $app['config']->set('database.connections.square_test', [
-            'driver' => 'sqlite',
+            'driver'   => 'sqlite',
             'database' => ':memory:',
-            'prefix' => ''
+            'prefix'   => '',
         ]);
+        // $app['config']->set('database.default', 'square_test');
+        // $app['config']->set('database.connections.square_test', [
+        //     'driver' => 'mysql',
+        //     'host' => '127.0.0.1',
+        //     'port' => '3306',
+        //     'database' => 'square_test',
+        //     'username' => 'root',
+        //     'password' => '',
+        //     'unix_socket' => '',
+        //     'charset' => 'utf8mb4',
+        //     'collation' => 'utf8mb4_unicode_ci',
+        //     'prefix' => '',
+        //     'strict' => true,
+        //     'engine' => null
+        // ]);
     }
 }

@@ -6,6 +6,7 @@ use Nikolag\Core\Contracts\ConfigContract;
 use Nikolag\Core\CoreConfig;
 use SquareConnect\Api\CustomersApi;
 use SquareConnect\Api\LocationsApi;
+use SquareConnect\Api\OrdersApi;
 use SquareConnect\Api\TransactionsApi;
 use SquareConnect\Configuration;
 
@@ -23,22 +24,28 @@ class SquareConfig extends CoreConfig implements ConfigContract
      * @var SquareConnect\Api\TransactionsApi
      */
     public $transactionsAPI;
+    /**
+     * @var SquareConnect\Api\OrdersApi
+     */
+    public $ordersAPI;
 
     public function __construct()
     {
         parent::__construct();
-        $this->config['connections']['square'] = config('nikolag.connections.square');
+        $this->config = config('nikolag.connections.square');
         $this->checkConfigValidity($this->config);
-        $this->setAccessToken($this->config['connections']['square']['access_token']);
+        $this->setAccessToken($this->config['access_token']);
         $this->locationsAPI = new LocationsApi();
         $this->customersAPI = new CustomersApi();
         $this->transactionsAPI = new TransactionsApi();
+        $this->ordersAPI = new OrdersApi();
     }
 
     /**
      * Access token for square.
      *
      * @param string $accessToken
+     *
      * @return void
      */
     public function setAccessToken(string $accessToken)
@@ -74,5 +81,25 @@ class SquareConfig extends CoreConfig implements ConfigContract
     public function transactionsAPI()
     {
         return $this->transactionsAPI;
+    }
+
+    /**
+     * Api for orders.
+     *
+     * @return \SquareConnect\Api\ordersApi
+     */
+    public function ordersAPI()
+    {
+        return $this->ordersAPI;
+    }
+
+    /**
+     * Getter for config.
+     *
+     * @return array
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 }

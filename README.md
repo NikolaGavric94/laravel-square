@@ -4,21 +4,27 @@ nikolag/square
 [![Total Downloads](https://poser.pugx.org/nikolag/square/downloads)](https://packagist.org/packages/nikolag/square) 
 [![License](https://poser.pugx.org/nikolag/square/license)](https://packagist.org/packages/nikolag/square) 
 =========
-Square integration with Laravel 5.5.x built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
+Square integration with Laravel 5.6.x built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 ## Installation guide
-`composer require nikolag/square --dev`
+`composer require nikolag/square`
 
-##### Due to Laravel [Package Discovery](https://laravel.com/docs/5.5/packages#package-discovery), registering service providers and facades manually for this project as of Laravel 5.5 is deprecated and no longer required since the package is adapted to automatically register these stuff for you.
+**Note:** Due to Laravel [Package Discovery](https://laravel.com/docs/5.6/packages#package-discovery), registering service providers and facades manually for this project as of Laravel 5.5 is deprecated and no longer required since the package is adapted to automatically register these stuff for you.
 But there are still couple of steps to do in order to use this package.
 
 ---
 
 Configuration files will automatically be published for you and you should check it out at `config/nikolag.php` before continuing.
 
-**If for some reason you can't see `square` driver inside of `connections` array, you'll have to add it manually. You can find configuration file here under [src/config/nikolag.php](https://github.com/NikolaGavric94/nikolag-square/blob/master/src/config/nikolag.php) and copy everything from inside `connections` array and append to your `connections` array inside of your `app/config/nikolag.php` file.**
+**Important:** If for some reason you can't see `square` driver inside of `connections` array, you'll have to add it manually. You can find configuration file [here](https://github.com/NikolaGavric94/nikolag-square/blob/master/src/config/nikolag.php) and copy everything from inside `connections` array and **append** to your `connections` array inside of published config file (`config/nikolag.php`)
 
-After changing the configuration files or not, you should run migrations with the following command
+<p align="center" style="text-align: center;">
+  <img src="https://preview.ibb.co/ddoUGS/nikolag_config.png" alt="nikolag configuration" title="Nikolag Configuration File" />
+  <br>
+  <i>Figure 1. Config file</i>
+</p>
+
+After finishing with configuration files, you should run migrations with the following command
 ```javascript
 php artisan migrate
 ```
@@ -29,12 +35,10 @@ Then add your credentials for Square API inside of `.env` and also add fully qua
 ```javascript
 SQUARE_APPLICATION_ID=<YOUR_APPLICATION_ID>
 SQUARE_TOKEN=<YOUR_ACCESS_TOKEN>
-
-SQUARE_USER_NAMESPACE=<USER_NAMESPACE>
-SQUARE_ORDER_NAMESPACE=<ORDER_NAMESPACE>
 ```
 
-To be able to utilize the customers system for Users, your User class must use HasCustomers trait.
+### Customers system
+To be able to utilize the customers system for Users, your User class must use `HasCustomers` trait.
 ```javascript
 <?php
 ...
@@ -46,189 +50,189 @@ class User extends Model {
 }
 ```
 
-## Examples
-#### Simple usages
+You also need to define user namespace
 ```javascript
-public function charge() {
-  //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
-  $amount = 5000;
-  //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
-  $formNonce = 'some nonce';
-  //$location_id is id of a location from Square
-  $location_id = 'some location id';
-  Square::charge($amount, $formNonce, $location_id);
-  //available currencies => https://docs.connect.squareup.com/api/connect/v2/?q=currency#type-currency
-  $currency = 'RSD';
-  //Default currency is USD, if u wish to change that
-  //pass currency as a fourth parameter
-  //IMPORTANT NOTE: Your location might not allow some currencies
-  //example: when your location is in USA you can't use RSD currency
-  //This is a restriction from Square.
-  $options = [
-    'amount' => $amount,
-    'card_nonce' => $formNonce,
-    'location_id' => $locationd_id,
-    'currency' => $currency
+// .env file
+SQUARE_USER_NAMESPACE=<USER_NAMESPACE>
+```
+
+### Orders system
+To be able to utilize the order system for Users, your Order class must use `HasProducts` trait. You will also have to create a column named `payment_service_type` in your `orders` table and add the below code from `attributes` array
+```javascript
+<?php
+...
+use Nikolag\Square\Traits\HasProducts;
+
+class Order extends Model {
+  use HasProducts;
+
+  /**
+   * The model's attributes.
+   *
+   * @var array
+   */
+  protected $attributes = [
+    'payment_service_type' => 'square'
   ];
-  Square::charge($options);
-
-  $customer = array(
-    'first_name' => $request->first_name,
-    'last_name' => $request->last_name,
-    'company_name' => $request->company_name,
-    'nickname' => $request->nickname,
-    'email' => $request->email,
-    'phone' => $request->phone,
-    'note' => $request->note,
-  );
-  //or
-  $customer = $merchant->hasCustomer($request->email);
-
-  Square::setMerchant($merchant)->setCustomer($customer)->charge($options);
-  //or with currency other than USD
-  Square::setMerchant($merchant)->setCustomer($customer)->charge($options);
+  ...
 }
 ```
-
-#### Retrieve all customers for a merchant
+You also need to define couple of environment variables
 ```javascript
-$merchant->customers;
+// .env file
+SQUARE_ORDER_NAMESPACE=<ORDER_NAMESPACE>
+SQUARE_ORDER_IDENTIFIER=<ORDER_IDENTIFIER>
+SQUARE_PAYMENT_IDENTIFIER=<ORDER_SQUARE_ID_COLUMN>
 ```
+**Important:** `SQUARE_PAYMENT_IDENTIFIER` represents name of the column where we will keep unique ID that Square generates once it saves an Order. This means that you will need to add new column to your Orders table which will hold that value.
 
-#### Retrieve a customer by email
-```javascript
-$merchant->hasCustomer('tester@gmail.com');
-```
+## Examples
 
-#### Retrieve all transactions for a merchant
-```javascript
-$merchant->transactions;
-```
+##### Examples with customers
+Examples with customers are moved to [wiki](https://github.com/NikolaGavric94/nikolag-square/wiki/Customer%20Examples) pages to avoid unnecessary scrolling of `README.md`.
 
-#### Retrieve all transactions by status
-```javascript
-//Transactions that passed
-$merchant->passedTransactions;
-//Transactions that failed
-$merchant->failedTransactions;
-//Transactions that are pending
-$merchant->openedTransactions;
-```
-
-#### Charge customers with merchant as a seller
-Charging a customer that doesn't exist and connecting it with a merchant and a transaction.
-```javascript
-public function charge(Request $request) {
-  //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
-  $amount = 5000;
-  //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
-  $formNonce = 'some nonce';
-  //$location_id is id of a location from Square
-  $location_id = 'some location id';
-  $customer = array(
-      'first_name' => $request->first_name,
-      'last_name' => $request->last_name,
-      'company_name' => $request->company_name,
-      'nickname' => $request->nickname,
-      'email' => $request->email,
-      'phone' => $request->phone,
-      'note' => $request->note
-  );
-
-  $merchant->charge($amount, $formNonce, $location_id, $customer);
-}
-```
-Charging already existing customer and connecting both transaction and merchant with it
-```javascript
-public function charge(Request $request) {
-  //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
-  $amount = 5000;
-  //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
-  $formNonce = 'some nonce';
-  //$location_id is id of a location from Square
-  $location_id = 'some location id';
-  $customer = $merchant->hasCustomer($request->email);
-  if(!$customer) $customer = null;
-
-  $merchant->charge($amount, $formNonce, $location_id, $customer);
-}
-```
-Charging a customer without saving the customer, but connecting the transaction with the merchant.
-```javascript
-public function charge(Request $request) {
-  //$amount is in USD currency and is in cents. ($amount = 200 == 2 Dollars)
-  $amount = 5000;
-  //nonce reference => https://docs.connect.squareup.com/articles/adding-payment-form
-  $formNonce = 'some nonce';
-  //$location_id is id of a location from Square
-  $location_id = 'some location id';
-
-  $merchant->charge($amount, $formNonce, $location_id);
-}
-```
+##### Examples with order
+Examples with orders are moved to the [wiki](https://github.com/NikolaGavric94/nikolag-square/wiki/Order%20Examples) pages to avoid unnecessary scrolling of `README.md`.
 
 ## All available methods
-### Trait
+#### HasProducts Trait
+```javascript
+/**
+ * Charge an order.
+ *
+ * @param float $amount
+ * @param string $nonce
+ * @param string $location_id
+ * @param mixed $merchant
+ * @param mixed $customer
+ * @param string $currency
+ * 
+ * @return \Nikolag\Square\Models\Transaction
+ */
+public function charge(float $amount, string $nonce, string $location_id, $merchant, $customer = null, string $currency = 'USD') {}
+
+/**
+ * Check existence of an attribute in model
+ *
+ * @param string $attribute
+ * 
+ * @return bool
+ */
+public function hasAttribute(string $attribute) {}
+
+/**
+ * Does an order have a discount
+ *
+ * @param mixed $discount
+ * 
+ * @return bool
+ */
+public function hasDiscount($discount) {}
+
+/**
+ * Does an order have a tax
+ *
+ * @param mixed $tax
+ * 
+ * @return bool
+ */
+public function hasTax($tax) {}
+
+/**
+ * Does an order have a product
+ *
+ * @param mixed $product
+ * 
+ * @return bool
+ */
+public function hasProduct($product) {}
+
+/**
+ * Return a list of products which are included in this order.
+ *
+ * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+ */
+public function products() {}
+
+/**
+ * Return a list of taxes which are in included in this order.
+ *
+ * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+ */
+public function taxes() {}
+
+/**
+ * Return a list of discounts which are in included in this order.
+ *
+ * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+ */
+public function discounts() {}
+```
+
+#### HasCustomers Trait
 ```javascript
 /**
  * Retrieve merchant customers.
- * 
+ *
  * @return \Illuminate\Database\Eloquent\Relations\HasMany
  */
 public function customers() {}
 
 /**
  * Retrieve customer if he exists, otherwise return false.
- * 
- * @param string $email 
- * @return \Nikolag\Square\Model\Customer|false
+ *
+ * @param string $email
+ *
+ * @return mixed
  */
 public function hasCustomer(string $email) {}
 
 /**
  * All transactions.
- * 
+ *
  * @return \Illuminate\Database\Eloquent\Relations\HasMany
  */
 public function transactions() {}
 
 /**
  * Paid transactions.
- * 
+ *
  * @return \Illuminate\Database\Eloquent\Collection
  */
 public function passedTransactions() {}
 
 /**
  * Pending transactions.
- * 
+ *
  * @return \Illuminate\Database\Eloquent\Collection
  */
 public function openedTransactions() {}
 
 /**
  * Failed transactions.
- * 
+ *
  * @return \Illuminate\Database\Eloquent\Collection
  */
 public function failedTransactions() {}
 
 /**
  * Charge a customer.
+ *
+ * @param float $amount
+ * @param string $nonce
+ * @param string $location_id
+ * @param mixed $customer
+ * @param string $currency
  * 
- * @param float $amount 
- * @param string $nonce 
- * @param string $location_id 
- * @param mixed $customer 
- * @param string $currency 
  * @return \Nikolag\Square\Models\Transaction
  */
-public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = "USD") {}
+public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = 'USD') {}
 
 /**
  * Save a customer.
+ *
+ * @param array $customer
  * 
- * @param array $customer 
  * @return void
  */
 public function saveCustomer(array $customer) {}
@@ -237,21 +241,53 @@ public function saveCustomer(array $customer) {}
 ```javascript
 /**
  * Charge a customer.
- * 
- * @param array $options 
+ *
+ * @param array $data
+ *
  * @return \Nikolag\Square\Models\Transaction
  * @throws \Nikolag\Square\Exception on non-2xx response
  */
-public function charge(array $options) {}
+public function charge(array $data) {}
+
+/**
+ * Save collected data
+ *
+ * @return self
+ * @throws \Nikolag\Square\Exception on non-2xx response
+ */
+public function save() {}
 
 /**
  * Transactions directly from Square API.
- * 
- * @param array $options 
+ *
+ * @param array $options
+ *
  * @return \SquareConnect\Model\ListLocationsResponse
  * @throws \Nikolag\Square\Exception on non-2xx response
  */
 public function transactions(array $options) {}
+
+/**
+ * Add a product to the order.
+ *
+ * @param mixed $product
+ * @param int $quantity
+ * @param string $currency
+ *
+ * @return self
+ */
+public function addProduct($product, int $quantity = 1, string $currency = "USD") {}
+
+/**
+ * Setter for order
+ *
+ * @param mixed $order
+ * @param string $locationId
+ * @param string $currency
+ *
+ * @return self
+ */
+public function setOrder($order, string $locationId, string $currency = "USD") {}
 
 /**
  * Getter for customer.
@@ -264,7 +300,7 @@ public function getCustomer() {}
  * Setter for customer.
  * 
  * @param mixed $customer 
- * @return void
+ * @return self
  */
 public function setCustomer($customer) {}
 
@@ -279,7 +315,8 @@ public function getMerchant() {}
  * Setter for merchant.
  * 
  * @param mixed $merchant 
- * @return mixed
+
+ * @return self
  */
 public function setMerchant($merchant) {}
 ```
@@ -297,7 +334,7 @@ enquiries send an email to nikola.gavric94@gmail.com
 ## License
 MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

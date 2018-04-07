@@ -4,3 +4,4 @@ vendor/
 composer.lock
 .env
 *.cache
+nikolag-square.wiki/
