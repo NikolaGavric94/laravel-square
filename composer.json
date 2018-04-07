@@ -35,7 +35,8 @@
             "Nikolag\\Square\\Models\\": "src/models",
             "Nikolag\\Square\\Providers\\": "src/providers",
             "Nikolag\\Square\\Traits\\": "src/traits",
-            "Nikolag\\Square\\Utils\\": "src/utils"
+            "Nikolag\\Square\\Utils\\": "src/utils",
+            "Nikolag\\Square\\Builders": "src/builders"
         }
     },
     "autoload-dev": {
@@ -48,6 +49,7 @@
             "Nikolag\\Square\\Providers\\": "src/providers",
             "Nikolag\\Square\\Traits\\": "src/traits",
             "Nikolag\\Square\\Utils\\": "src/utils",
+            "Nikolag\\Square\\Builders": "src/builders",
             "Nikolag\\Square\\Tests\\": "tests/",
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
