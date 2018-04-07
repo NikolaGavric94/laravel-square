@@ -24,7 +24,7 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
         $this->loadLaravelMigrations(['--database' => 'square_test']);
-        $this->artisan('migrate', ['--database' => 'square_test']);
+        $this->artisan('migrate:fresh', ['--database' => 'square_test']);
         $this->withFactories(__DIR__.'/../src/database/factories');
         $this->faker = Faker::create();
     }
