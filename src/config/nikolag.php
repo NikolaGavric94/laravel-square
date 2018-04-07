@@ -70,7 +70,8 @@ return [
             */
             'order' => [
                 'namespace' => env('SQUARE_ORDER_NAMESPACE', '\App\Order'),
-                'identifier' => env('SQUARE_ORDER_IDENTIFIER', 'id')
+                'identifier' => env('SQUARE_ORDER_IDENTIFIER', 'id'),
+                'service_identifier' => env('SQUARE_PAYMENT_IDENTIFIER', 'payment_service_id')
             ]
     	],
     ]

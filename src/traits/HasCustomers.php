@@ -6,7 +6,6 @@ use Nikolag\Square\Utils\Constants;
 
 trait HasCustomers
 {
-
     /**
      * Retrieve merchant customers.
      *
@@ -14,14 +13,15 @@ trait HasCustomers
      */
     public function customers()
     {
-        return $this->belongsToMany(Constants::CUSTOMER_NAMESPACE, 'nikolag_customer_user', 'customer_id', 'owner_id');
+        return $this->belongsToMany(Constants::CUSTOMER_NAMESPACE, 'nikolag_customer_user', 'owner_id', 'customer_id');
     }
 
     /**
      * Retrieve customer if he exists, otherwise return false.
      *
      * @param string $email
-     * @return \Nikolag\Square\Model\Customer|false
+     *
+     * @return mixed
      */
     public function hasCustomer(string $email)
     {
@@ -78,6 +78,7 @@ trait HasCustomers
      * @param string $location_id
      * @param mixed $customer
      * @param string $currency
+     * 
      * @return \Nikolag\Square\Models\Transaction
      */
     public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = 'USD')
@@ -91,6 +92,7 @@ trait HasCustomers
      * Save a customer.
      *
      * @param array $customer
+     * 
      * @return void
      */
     public function saveCustomer(array $customer)
@@ -102,6 +104,7 @@ trait HasCustomers
      * Model function, return all transactions by status.
      *
      * @param string $status
+     * 
      * @return \Illuminate\Database\Eloquent\Collection
      */
     private function _byTransactionStatus(string $status)

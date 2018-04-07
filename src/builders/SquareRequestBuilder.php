@@ -1,0 +1,178 @@
+<?php
+
+namespace Nikolag\Square\Builders;
+
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use SquareConnect\Model\CreateCustomerRequest;
+use SquareConnect\Model\CreateOrderRequest;
+use SquareConnect\Model\CreateOrderRequestDiscount;
+use SquareConnect\Model\CreateOrderRequestLineItem;
+use SquareConnect\Model\CreateOrderRequestTax;
+
+class SquareRequestBuilder
+{
+    /**
+     * Create and return customer request.
+     *
+     * @param Model $customer 
+     * 
+     * @return \SquareConnect\Model\CreateCustomerRequest
+     */
+    public function buildCustomerRequest(Model $customer)
+    {
+        $data = array(
+            'given_name' => $customer->first_name,
+            'family_name' => $customer->last_name,
+            'company_name' => $customer->company_name,
+            'nickname' => $customer->nickname,
+            'email_address' => $customer->email,
+            'phone_number' => $customer->phone,
+            'reference_id' => $customer->owner_id,
+            'note' => $customer->note
+        );
+        return new CreateCustomerRequest($data);
+    }
+
+    /**
+     * Create and return order request.
+     *
+     * @param Model $order
+     * @param string $currency
+     * 
+     * @return \SquareConnect\Model\CreateOrderRequest
+     */
+    public function buildOrderRequest(Model $order, string $currency)
+    {
+        $data = array(
+            'idempotency_key' => uniqid(),
+            'reference_id' => (string) $order->id,
+            'line_items' => $this->buildProducts($order->products, $currency),
+            'discounts' => $this->buildDiscounts($order->discounts, $currency),
+            'taxes' => $this->buildTaxes($order->taxes)
+        );
+        
+        return new CreateOrderRequest($data);
+    }
+
+    /**
+     * Builds and returns array of discounts for a \SquareConnect\Model\CreateOrderRequestDiscount
+     * 
+     * @param Collection $taxes
+     * @param string $currency
+     * @param string $class 
+     * 
+     * @return array
+     */
+    public function buildDiscounts(Collection $discounts, string $currency, string $class = CreateOrderRequestDiscount::class)
+    {
+        $temp = array();
+        if ($discounts->isNotEmpty()) {
+            $discounts->each(function ($discount) use (&$temp, $currency, $class) {
+                //If discount doesn't have amount OR percentage in discount table
+                //throw new exception because it should have at least 1
+                $amount = $discount->amount;
+                $percentage = $discount->percentage;
+                if (($amount==null || $amount==0) && ($percentage==null || $percentage==0.0)) {
+                    throw new MissingPropertyException('Both $amount and $percentage property for object Discount are missing, 1 is required', 500);
+                }
+                //If discount have amount AND percentage in discount table
+                //throw new exception because it should only 1
+                if (($amount!=null || $amount!=0) && ($percentage!=null || $percentage!=0.0)) {
+                    throw new InvalidSquareOrderException('Both $amount and $percentage exist for object Discount, only 1 is allowed', 500);
+                }
+                $data = array(
+                    'name' => $discount->name
+                );
+                //If percentage exists append it
+                if ($percentage && $percentage!=0.0) {
+                    $data['percentage'] = (string) $percentage;
+                }
+                //If amount exists append it
+                if ($amount && $amount!=0) {
+                    $money = array(
+                        'amount' => $amount,
+                        'currency' => $currency
+                    );
+                    $data['amount_money'] = $money;
+                }
+                array_push($temp, new $class($data));
+            });
+        }
+        return $temp;
+    }
+
+    /**
+     * Builds and returns array of taxes for a \SquareConnect\Model\CreateOrderRequestTax.
+     * 
+     * @param Collection $taxes
+     * @param string $class
+     * 
+     * @return array
+     */
+    public function buildTaxes(Collection $taxes, string $class = CreateOrderRequestTax::class)
+    {
+        $temp = array();
+        if ($taxes->isNotEmpty()) {
+            $taxes->each(function ($tax) use (&$temp, $class) {
+                //If percentage doesn't exist tax table
+                //throw new exception because it should exist
+                $percentage = $tax->percentage;
+                if ($percentage==null || $percentage==0.0) {
+                    throw new MissingPropertyException('$percentage property for object Tax is missing or is invalid', 500);
+                }
+                $data = array(
+                    'name' => $tax->name,
+                    'type' => $tax->type,
+                    'percentage' => (string) $percentage
+                );
+                array_push($temp, new $class($data));
+            });
+        }
+        return $temp;
+    }
+
+    /**
+     * Builds and returns array of \SquareConnect\Model\CreateOrderRequestLineItem for order.
+     * 
+     * @param Collection $products
+     * @param string $currency
+     * 
+     * @return array
+     */
+    public function buildProducts(Collection $products, string $currency)
+    {
+        $temp = array();
+        if ($products->isNotEmpty()) {
+            $products->each(function ($product) use (&$temp, $currency) {
+                // Get product from pivot model
+                $pivotProduct = $product->pivot;
+                //If product doesn't have quantity
+                //throw new exception because every product should
+                //have at least 1 quantity
+                $quantity = $pivotProduct->quantity;
+                if ($quantity==null || $quantity==0) {
+                    throw new MissingPropertyException('$quantity property for object Product is missing', 500);
+                }
+                $money = array(
+                    'amount' => $product->price,
+                    'currency' => $currency
+                );
+
+                $data = array(
+                    'name' => $product->name,
+                    'quantity' => (string) $quantity,
+                    'base_price_money' => $money,
+                    'variation_name' => $product->variation_name,
+                    'note' => $product->note,
+                    'taxes' => $this->buildTaxes($pivotProduct->taxes),
+                    'discounts' => $this->buildDiscounts($pivotProduct->discounts, $currency)
+                );
+                array_push($temp, new CreateOrderRequestLineItem($data));
+            });
+        }
+        return $temp;
+    }
+}

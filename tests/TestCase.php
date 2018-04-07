@@ -4,6 +4,7 @@ namespace Nikolag\Square\Tests;
 use Faker\Factory as Faker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -64,5 +65,20 @@ class TestCase extends BaseTestCase
             'database' => ':memory:',
             'prefix' => ''
         ]);
+        // $app['config']->set('database.default', 'square_test');
+        // $app['config']->set('database.connections.square_test', [
+        //     'driver' => 'mysql',
+        //     'host' => '127.0.0.1',
+        //     'port' => '3306',
+        //     'database' => 'square_test',
+        //     'username' => 'root',
+        //     'password' => '',
+        //     'unix_socket' => '',
+        //     'charset' => 'utf8mb4',
+        //     'collation' => 'utf8mb4_unicode_ci',
+        //     'prefix' => '',
+        //     'strict' => true,
+        //     'engine' => null
+        // ]);
     }
 }

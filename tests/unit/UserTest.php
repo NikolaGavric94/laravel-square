@@ -19,7 +19,7 @@ use SquareConnect\ApiException;
 class UserTest extends TestCase
 {
     /**
-     * Multiple customers saved.
+     * Save customer and relate it to user.
      *
      * @return void
      */
@@ -37,10 +37,12 @@ class UserTest extends TestCase
             'note' => $this->faker->unique()->paragraph(5),
             'owner_id' => null
         );
+
         $user->saveCustomer($customer);
 
-        $this->assertNotEmpty($user->customers, 'List of customers tied with owner is not empty.');
+        $this->assertNotEmpty($user->customers, 'List of customers tied with owner is empty.');
         $this->assertCount(1, $user->customers, 'Number of customers in the list is not 1.');
+        $this->assertEquals($customer['email'], $user->customers->get(0)->email, 'Customer email doesn\'t match');
     }
 
     /**
@@ -58,14 +60,15 @@ class UserTest extends TestCase
                 $customer->transactions()->save(factory(Transaction::class)->make());
             });
 
-        $user->customers()->saveMany($customers);
+        $user->customers()->saveMany($customers->take(11));
 
         $this->assertNotEmpty($user->customers, 'List of customers tied with owner is not empty.');
-        $this->assertCount(25, $user->customers, 'Number of customers in the list is not 25.');
+        $this->assertCount(11, $user->customers, 'Number of customers in the list is not 25.');
     }
 
     /**
      * Charge OK.
+     *
      * @return void
      */
     public function test_user_charge_ok()
@@ -83,6 +86,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\InvalidSquareNonceException
      * @expectedExceptionCode 404
+     *
      * @return void
      */
     public function test_user_charge_wrong_nonce()
@@ -99,6 +103,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\InvalidSquareCvvException
      * @expectedExceptionCode 402
+     *
      * @return void
      */
     public function test_user_charge_wrong_cvv()
@@ -115,6 +120,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\InvalidSquareZipcodeException
      * @expectedExceptionCode 402
+     *
      * @return void
      */
     public function test_user_charge_wrong_postal()
@@ -131,6 +137,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\InvalidSquareExpirationDateException
      * @expectedExceptionCode 400
+     *
      * @return void
      */
     public function test_user_charge_wrong_expiration_date()
@@ -147,6 +154,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\InvalidSquareExpirationDateException
      * @expectedExceptionCode 400
+     *
      * @return void
      */
     public function test_user_charge_declined()
@@ -163,6 +171,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\UsedSquareNonceException
      * @expectedExceptionCode 400
+     *
      * @return void
      */
     public function test_user_charge_used_nonce()
@@ -179,6 +188,7 @@ class UserTest extends TestCase
      *
      * @expectedException \Nikolag\Square\Exceptions\InvalidSquareCurrencyException
      * @expectedExceptionCode 400
+     *
      * @return void
      */
     public function test_user_charge_non_existant_currency()

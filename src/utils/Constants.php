@@ -7,7 +7,7 @@ use Nikolag\Core\Utils\Constants as CoreConstants;
 class Constants extends CoreConstants
 {
     //Transaction info
-    const TRANSACTION_NAMESPACE    = 'Nikolag\Square\Models\Transaction';
+    const TRANSACTION_NAMESPACE     = 'Nikolag\Square\Models\Transaction';
     const TRANSACTION_IDENTIFIER    = 'id';
     //Transaction statuses
     const TRANSACTION_STATUS_OPENED = 'PENDING';
@@ -15,13 +15,23 @@ class Constants extends CoreConstants
     const TRANSACTION_STATUS_FAILED = 'FAILED';
     //Customer info
     const CUSTOMER_NAMESPACE        = 'Nikolag\Square\Models\Customer';
-    const CUSTOMER_IDENTIFIER        = 'id';
+    const CUSTOMER_IDENTIFIER       = 'id';
+    //Product info
+    const ORDER_PRODUCT_NAMESPACE   = 'Nikolag\Square\Models\OrderProductPivot';
+    const PRODUCT_NAMESPACE         = 'Nikolag\Square\Models\Product';
+    const PRODUCT_IDENTIFIER        = 'id';
+    //Discount info
+    const DISCOUNT_NAMESPACE        = 'Nikolag\Square\Models\Discount';
+    const DISCOUNT_IDENTIFIER       = 'id';
+    //Tax info
+    const TAX_NAMESPACE             = 'Nikolag\Square\Models\Tax';
+    const TAX_IDENTIFIER            = 'id';
 
     //Exceptions
     //INVALID_REQUEST_ERROR
-    const INVALID_REQUEST_ERROR    = 'INVALID_REQUEST_ERROR';
-    const INVALID_VALUE            = 'INVALID_VALUE';
-    const NOT_FOUND                = 'NOT_FOUND';
+    const INVALID_REQUEST_ERROR     = 'INVALID_REQUEST_ERROR';
+    const INVALID_VALUE             = 'INVALID_VALUE';
+    const NOT_FOUND                 = 'NOT_FOUND';
     //PAYMENT_METHOD_ERROR
     const PAYMENT_METHOD_ERROR      = 'PAYMENT_METHOD_ERROR';
     const NONCE_USED				= 'CARD_TOKEN_USED';
