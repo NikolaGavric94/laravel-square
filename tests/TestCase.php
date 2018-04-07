@@ -4,7 +4,6 @@ namespace Nikolag\Square\Tests;
 
 use Faker\Factory as Faker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -23,8 +22,8 @@ class TestCase extends BaseTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->loadLaravelMigrations(['--database' => 'square_test']);
         $this->artisan('migrate:fresh', ['--database' => 'square_test']);
+        $this->loadLaravelMigrations(['--database' => 'square_test']);
         $this->withFactories(__DIR__.'/../src/database/factories');
         $this->faker = Faker::create();
     }
