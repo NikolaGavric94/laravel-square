@@ -6,9 +6,17 @@ nikolag/square
 =========
 Square integration with Laravel 5.6.x built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
-## Donate [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)
+1.  [Installation guide](#installation-guide) 
+2.  [Customers System](#customers-system) 
+3.  [Order System](#order-system) 
+4.  [Examples](#examples) 
+5.  [Available methods](#all-available-methods) 
+6.  [Contributing](#contributing) 
+7.  [License](#license)
 
-Donating is stricly **OPTIONAL**. Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
+## Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)
+
+Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
 
 ## Installation guide
 `composer require nikolag/square`
@@ -91,6 +99,9 @@ SQUARE_PAYMENT_IDENTIFIER=<ORDER_SQUARE_ID_COLUMN>
 **Important:** `SQUARE_PAYMENT_IDENTIFIER` represents name of the column where we will keep unique ID that Square generates once it saves an Order. This means that you will need to add new column to your Orders table which will hold that value.
 
 ## Examples
+
+##### Simple examples
+Simple examples are moved to [wiki](https://github.com/NikolaGavric94/nikolag-square/wiki/Simple%20Examples) pages to avoid unnecessary scrolling of `README.md`.
 
 ##### Examples with customers
 Examples with customers are moved to [wiki](https://github.com/NikolaGavric94/nikolag-square/wiki/Customer%20Examples) pages to avoid unnecessary scrolling of `README.md`.
