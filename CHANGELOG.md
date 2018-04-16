@@ -80,7 +80,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Code cleanup
 - Migrations
 
-[Unreleased]: https://github.com/NikolaGavric94/nikolag-square/compare/v2.0.0...HEAD
+## [2.0.1] - 2018-04-16
+### Added
+- [Simple Examples](https://github.com/NikolaGavric94/nikolag-square/wiki/Simple%20Examples)
+
+### Changed
+- README.md
+
+### Fixed
+- Fixed issue #16 
+
+[Unreleased]: https://github.com/NikolaGavric94/nikolag-square/compare/v2.0.1...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.2...v1.0.3
@@ -88,3 +98,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [1.1.0]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.4...v1.1.0
 [1.1.1]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.0...v1.1.1
 [2.0.0]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.1.1...v2.0.0
+[2.0.1]: https://github.com/NikolaGavric94/nikolag-square/compare/v2.0.0...v2.0.1
