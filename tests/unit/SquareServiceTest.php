@@ -202,7 +202,8 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($order, env('SQUARE_LOCATION'))->save();
 
         $this->assertCount(1, Order::all(), 'There is not enough orders');
-        $this->assertNotNull($square->getOrder()->payment_service_id, 'Payment service identifier is null');
+        $this->assertEquals($square->getOrder()->id, Order::find(1)->id, 'Order is not the same as in charge');
+        $this->assertNull($square->getOrder()->payment_service_id, 'Payment service identifier is null');
     }
 
     /**

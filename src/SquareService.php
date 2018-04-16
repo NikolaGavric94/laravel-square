@@ -200,7 +200,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->currency);
         $this->setCreateOrderRequest($orderRequest);
         // If want to save to square, make a request
-        if (!$saveToSquare) {
+        if ($saveToSquare) {
             $response = $this->config->ordersAPI->createOrder($this->locationId, $this->getCreateOrderRequest());
             //Save id of a real order inside of Square to our local model for future use
             $this->getOrder()->{$property} = $response->getOrder()->getId();
@@ -300,8 +300,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 if ($calculatedCost != $data['amount']) {
                     throw new InvalidSquareAmountException('The charge amount does not match the order total.', 500);
                 }
-                // Save order
-                $this->_saveOrder();
+                // Save order to both database and square
+                $this->_saveOrder(true);
                 // Connect order with transaction
                 $transaction->order()->associate($this->getOrder());
                 // Get table column name for square id property
