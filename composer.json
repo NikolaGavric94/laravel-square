@@ -1,7 +1,7 @@
 {
     "name": "laravel-square",
     "description": "Square API integration with Laravel built on nikolag/core",
-    "keywords": ["square", "laravel", "square laravel integration", "square-laravel", "library", "package", "nikolag", "nikolag/square", "nikolag-square"],
+    "keywords": ["square", "laravel", "square laravel integration", "square-laravel", "library", "package", "nikolag", "nikolag square", "nikolag-square"],
     "license": "MIT",
     "type": "laravel-package",
     "support": {
