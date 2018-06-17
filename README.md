@@ -7,8 +7,8 @@ laravel-square
 Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 1.  [Installation guide](#installation-guide) 
-2.  [Customers System](#customers-system) 
-3.  [Order System](#order-system) 
+2.  [Customer System](#customers-system) 
+3.  [Order System](#orders-system) 
 4.  [Examples](#examples) 
 5.  [Available methods](#all-available-methods) 
 6.  [Contributing](#contributing) 
