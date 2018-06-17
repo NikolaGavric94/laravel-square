@@ -19,7 +19,7 @@ Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com
 Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
 
 ## Installation guide
-`composer require laravel-square`
+`composer require nikolag/laravel-square`
 
 **Note:** Due to Laravel [Package Discovery](https://laravel.com/docs/5.6/packages#package-discovery), registering service providers and facades manually for this project as of Laravel 5.5 is deprecated and no longer required since the package is adapted to automatically register these stuff for you.
 But there are still couple of steps to do in order to use this package.
