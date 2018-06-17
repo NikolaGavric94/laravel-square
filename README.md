@@ -1,10 +1,10 @@
-# laravel-square 
+laravel-square 
+[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/laravel-square) 
+[![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
+[![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
+==========
 
-[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/laravel-square)
-<!--[![Latest Stable Version](https://poser.pugx.org/laravel-square/v/stable)](https://packagist.org/packages/laravel-square) 
-[![Total Downloads](https://poser.pugx.org/laravel-square/downloads)](https://packagist.org/packages/laravel-square) 
-[![License](https://poser.pugx.org/laravel-square/license)](https://packagist.org/packages/laravel-square) -->
-<!--=========-->
+<!-- [![Total Downloads](https://poser.pugx.org/laravel-square/downloads)](https://packagist.org/packages/laravel-square) -->
 
 Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
@@ -12,7 +12,7 @@ Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com
 2.  [Customer System](#customers-system) 
 3.  [Order System](#orders-system) 
 4.  [Examples](#examples) 
-5.  [Available methods](#all-available-methods) 
+5.  [Available methods](#all-traits-and-their-methods) 
 6.  [Contributing](#contributing) 
 7.  [License](#license)
 
