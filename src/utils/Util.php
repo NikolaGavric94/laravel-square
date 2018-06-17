@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Utils;
 
-use Illuminate\Support\Collection;
 use stdClass;
+use Illuminate\Support\Collection;
 
 class Util
 {
@@ -40,11 +40,11 @@ class Util
 
                 // Calculate product discounts
                 foreach ($currProduct->discounts as $discount) {
-                    if ($discount->amount && !$discount->percentage) {
+                    if ($discount->amount && ! $discount->percentage) {
                         $noDeductiblesCost -= $discount->amount;
                         $currentProductPrice -= $discount->amount;
                     }
-                    if ($discount->percentage && !$discount->amount) {
+                    if ($discount->percentage && ! $discount->amount) {
                         $noDeductiblesCost -= $totalProductPrice * $discount->percentage / 100;
                         $currentProductPrice -= $totalProductPrice * $discount->percentage / 100;
                     }
@@ -67,10 +67,10 @@ class Util
 
                 // Calculate product discounts
                 foreach ($currProduct->discounts as $discount) {
-                    if ($discount->amount && !$discount->percentage) {
+                    if ($discount->amount && ! $discount->percentage) {
                         $currentProductPrice -= $discount->amount;
                     }
-                    if ($discount->percentage && !$discount->amount) {
+                    if ($discount->percentage && ! $discount->amount) {
                         $currentProductPrice -= $totalProductPrice * $discount->percentage / 100;
                     }
                 }

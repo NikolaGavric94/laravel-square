@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Core\Models\Product as CoreProduct;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Core\Models\Product as CoreProduct;
 
 class Product extends CoreProduct
 {

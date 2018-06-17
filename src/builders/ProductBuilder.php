@@ -2,12 +2,12 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Models\OrderProductPivot;
-use Nikolag\Square\Models\Product;
 use stdClass;
+use Nikolag\Square\Models\Product;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
+use Nikolag\Square\Models\OrderProductPivot;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 
 class ProductBuilder
 {
@@ -136,18 +136,18 @@ class ProductBuilder
         //If product doesn't have quantity in pivot table
         //throw new exception because every product should
         //have at least 1 quantity
-        if (!array_has($product, 'quantity') || $product['quantity'] == null || $product['quantity'] == 0) {
+        if (! array_has($product, 'quantity') || $product['quantity'] == null || $product['quantity'] == 0) {
             throw new MissingPropertyException('$quantity property for object Product is missing', 500);
         }
         //Check if order is present and if already has this product
         //or if product doesn't have property $id then create new Product object
-        if (($order && !$order->hasProduct($product)) || !array_has($product, 'id')) {
+        if (($order && ! $order->hasProduct($product)) || ! array_has($product, 'id')) {
             $tempProduct = new Product($product);
             $productPivot = new OrderProductPivot($product);
         } else {
             $tempProduct = Product::find($product['id']);
             $productPivot = OrderProductPivot::where('order_id', $order->id)->where('product_id', $tempProduct->id)->first();
-            if (!$productPivot) {
+            if (! $productPivot) {
                 $productPivot = new OrderProductPivot($product);
             }
         }
@@ -174,8 +174,8 @@ class ProductBuilder
         //If product doesn't have quantity in pivot table
         //throw new exception because every product should
         //have at least 1 quantity
-        if (!$quantity) {
-            if (!$product->pivot->quantity || $product->pivot->quantity == null || $product->pivot->quantity == 0) {
+        if (! $quantity) {
+            if (! $product->pivot->quantity || $product->pivot->quantity == null || $product->pivot->quantity == 0) {
                 throw new MissingPropertyException('$quantity property for object Product is missing', 500);
             } else {
                 $quantity = $product->pivot->quantity;
@@ -183,13 +183,13 @@ class ProductBuilder
         }
         // Check if order is present and if already has this product
         // or if product doesn't have property $id then create new Product object
-        if (($order && !$order->hasProduct($product)) && !array_has($product->toArray(), 'id')) {
+        if (($order && ! $order->hasProduct($product)) && ! array_has($product->toArray(), 'id')) {
             $tempProduct = new Product($product->toArray());
             $productPivot = new OrderProductPivot($product->toArray());
         } else {
             $tempProduct = Product::find($product->id);
             $productPivot = OrderProductPivot::where('order_id', $order->id)->where('product_id', $tempProduct->id)->first();
-            if (!$productPivot) {
+            if (! $productPivot) {
                 $productPivot = new OrderProductPivot($product->toArray());
             }
         }

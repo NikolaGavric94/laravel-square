@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Builders;
 
+use Nikolag\Square\Models\Tax;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Models\Tax;
 
 class TaxesBuilder
 {
@@ -29,7 +29,7 @@ class TaxesBuilder
             }
             //Check if parent is present or parent already has this tax or if tax
             //doesn't have property $id then create new Tax object
-            if (($parent && !$parent->hasTax($tax)) || !array_has($tax, 'id')) {
+            if (($parent && ! $parent->hasTax($tax)) || ! array_has($tax, 'id')) {
                 $tempTax = new Tax($tax);
             } else {
                 $tempTax = Tax::find($tax['id']);

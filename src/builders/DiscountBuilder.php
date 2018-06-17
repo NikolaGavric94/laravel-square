@@ -2,10 +2,10 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Exceptions\InvalidSquareOrderException;
-use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
+use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 
 class DiscountBuilder
 {
@@ -36,7 +36,7 @@ class DiscountBuilder
             }
             //Check if parent is present or parent already has this discount or if discount
             //doesn't have property $id then create new Discount object
-            if (($parent && !$parent->hasDiscount($discount)) || !array_has($discount, 'id')) {
+            if (($parent && ! $parent->hasDiscount($discount)) || ! array_has($discount, 'id')) {
                 $tempDiscount = new Discount($discount);
             } else {
                 $tempDiscount = Discount::find($discount['id']);

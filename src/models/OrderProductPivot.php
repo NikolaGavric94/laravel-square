@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Core\Models\OrderProductPivot as IntermediateTable;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Core\Models\OrderProductPivot as IntermediateTable;
 
 class OrderProductPivot extends IntermediateTable
 {

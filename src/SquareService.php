@@ -2,28 +2,28 @@
 
 namespace Nikolag\Square;
 
-use Nikolag\Core\Abstracts\CorePaymentService;
-use Nikolag\Square\Builders\OrderBuilder;
-use Nikolag\Square\Builders\ProductBuilder;
-use Nikolag\Square\Builders\SquareRequestBuilder;
-use Nikolag\Square\Contracts\SquareServiceContract;
-use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
-use Nikolag\Square\Exceptions\InvalidSquareAmountException;
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
-use Nikolag\Square\Exceptions\InvalidSquareCvvException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
-use Nikolag\Square\Exceptions\InvalidSquareNonceException;
-use Nikolag\Square\Exceptions\InvalidSquareOrderException;
-use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
-use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Exceptions\UsedSquareNonceException;
-use Nikolag\Square\Models\Transaction;
-use Nikolag\Square\Utils\Constants;
+use stdClass;
 use Nikolag\Square\Utils\Util;
 use SquareConnect\ApiException;
-use SquareConnect\Model\CreateCustomerRequest;
+use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Builders\OrderBuilder;
+use Nikolag\Square\Builders\ProductBuilder;
 use SquareConnect\Model\CreateOrderRequest;
-use stdClass;
+use Nikolag\Core\Abstracts\CorePaymentService;
+use SquareConnect\Model\CreateCustomerRequest;
+use Nikolag\Square\Builders\SquareRequestBuilder;
+use Nikolag\Square\Contracts\SquareServiceContract;
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Exceptions\UsedSquareNonceException;
+use Nikolag\Square\Exceptions\InvalidSquareCvvException;
+use Nikolag\Square\Exceptions\InvalidSquareNonceException;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use Nikolag\Square\Exceptions\InvalidSquareAmountException;
+use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
+use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
+use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
 {
@@ -60,7 +60,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private $createCustomerRequest;
 
-
     public function __construct(SquareConfig $squareConfig)
     {
         $this->config = $squareConfig;
@@ -89,7 +88,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private function _saveCustomer()
     {
-        if (!$this->getCustomer()->payment_service_id) {
+        if (! $this->getCustomer()->payment_service_id) {
             $response = $this->config->customersAPI->createCustomer($this->getCreateCustomerRequest());
             $this->getCustomer()->payment_service_id = $response->getCustomer()->getId();
         } else {
@@ -98,7 +97,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         $this->getCustomer()->save();
         // If merchant exists and if merchant doesn't have customer
-        if ($this->getMerchant() && !$this->getMerchant()->hasCustomer($this->getCustomer()->email)) {
+        if ($this->getMerchant() && ! $this->getMerchant()->hasCustomer($this->getCustomer()->email)) {
             // Attach seller to the buyer
             $this->getCustomer()->merchants()->attach($this->getMerchant()->id);
         }
@@ -119,7 +118,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         $this->order = $this->orderBuilder->buildOrderFromOrderCopy($this->getOrder(), $this->orderCopy);
         //If property locationId doesn't exist throw error
-        if (!$this->locationId) {
+        if (! $this->locationId) {
             throw new MissingPropertyException('$locationId property is missing', 500);
         }
         //If order doesn't have any products throw error
@@ -129,7 +128,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         //If local order doesn't have square order identifier to which to relate
         //local order
         $property = config('nikolag.connections.square.order.service_identifier');
-        if (!$this->getOrder()->hasAttribute($property)) {
+        if (! $this->getOrder()->hasAttribute($property)) {
             throw new InvalidSquareOrderException('Table orders is missing a required column: '.$property, 500);
         }
         $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->currency);
@@ -148,7 +147,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @return Exception
      */
-    private function _handleChargeOrSaveException(ApiException $exception) {
+    private function _handleChargeOrSaveException(ApiException $exception)
+    {
         //Set exception to be first in array of errors
         $exceptionJSON = $exception->getResponseBody()->errors[0];
 
@@ -322,7 +322,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $productPivot = $this->productBuilder->addProductFromArray($this->getOrder(), $product, $quantity, $currency);
             }
             // Check if order already has this product
-            if (!Util::hasProduct($this->orderCopy->products, $productPivot->product)) {
+            if (! Util::hasProduct($this->orderCopy->products, $productPivot->product)) {
                 $this->orderCopy->products->push($productPivot);
             } else {
                 throw new AlreadyUsedSquareProductException('Product is already part of the order', 500);
@@ -412,10 +412,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         //Order class
         $orderClass = config('nikolag.connections.square.order.namespace');
 
-        if (!$order) {
+        if (! $order) {
             throw new MissingPropertyException('$order property is missing', 500);
         }
-        if (!$locationId) {
+        if (! $locationId) {
             throw new MissingPropertyException('$locationId property is missing', 500);
         }
 
