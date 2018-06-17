@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Tests\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Traits\HasProducts;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {

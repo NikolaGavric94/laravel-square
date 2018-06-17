@@ -2,13 +2,13 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Models\Discount;
-use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
-use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Models\Product;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Tests\Models\Order;
 
 class OrderTest extends TestCase
 {

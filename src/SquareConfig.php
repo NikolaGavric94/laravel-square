@@ -2,13 +2,13 @@
 
 namespace Nikolag\Square;
 
-use Nikolag\Core\Contracts\ConfigContract;
 use Nikolag\Core\CoreConfig;
+use SquareConnect\Api\OrdersApi;
+use SquareConnect\Configuration;
 use SquareConnect\Api\CustomersApi;
 use SquareConnect\Api\LocationsApi;
-use SquareConnect\Api\OrdersApi;
 use SquareConnect\Api\TransactionsApi;
-use SquareConnect\Configuration;
+use Nikolag\Core\Contracts\ConfigContract;
 
 class SquareConfig extends CoreConfig implements ConfigContract
 {

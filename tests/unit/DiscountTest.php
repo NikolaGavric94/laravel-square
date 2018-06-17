@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Models\Discount;
 
 class DiscountTest extends TestCase
 {

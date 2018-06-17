@@ -2,17 +2,17 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
+use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
-use Nikolag\Square\Exceptions\UsedSquareNonceException;
-use Nikolag\Square\Models\Customer;
-use Nikolag\Square\Models\Transaction;
-use Nikolag\Square\Tests\Models\User;
-use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
 
 class UserTest extends TestCase
 {

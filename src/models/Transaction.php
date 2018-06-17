@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Core\Models\Transaction as CoreTransaction;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Core\Models\Transaction as CoreTransaction;
 
 class Transaction extends CoreTransaction
 {
@@ -13,7 +13,7 @@ class Transaction extends CoreTransaction
      * @var array
      */
     protected $attributes = [
-        'payment_service_type' => 'square'
+        'payment_service_type' => 'square',
     ];
 
     /**

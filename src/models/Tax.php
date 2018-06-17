@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Core\Models\Tax as CoreTax;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Core\Models\Tax as CoreTax;
 
 class Tax extends CoreTax
 {

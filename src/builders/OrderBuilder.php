@@ -2,10 +2,10 @@
 
 namespace Nikolag\Square\Builders;
 
+use stdClass;
+use Nikolag\Square\Utils\Constants;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Utils\Constants;
-use stdClass;
 
 class OrderBuilder
 {
@@ -34,7 +34,7 @@ class OrderBuilder
         // Order namespace
         $orderClass = config('nikolag.connections.square.order.namespace');
         // Set payment type to square
-        $order->payment_service_type = "square";
+        $order->payment_service_type = 'square';
         // Save order first
         $order->save();
 
@@ -45,7 +45,7 @@ class OrderBuilder
                 // Save discount
                 $discount->save();
                 // If order doesn't have discount, add it
-                if (!$order->hasDiscount($discount)) {
+                if (! $order->hasDiscount($discount)) {
                     $order->discounts()->attach($discount->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
                 }
             });
@@ -58,7 +58,7 @@ class OrderBuilder
                 // Save tax
                 $tax->save();
                 // If order doesn't have tax, add it
-                if (!$order->hasTax($tax)) {
+                if (! $order->hasTax($tax)) {
                     $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE]);
                 }
             });
@@ -71,7 +71,7 @@ class OrderBuilder
                 // Assign product model
                 $product = $productClass->product;
                 // If order doesn't have product
-                if (!$order->hasProduct($product)) {
+                if (! $order->hasProduct($product)) {
                     // Save product
                     $product->save();
 
@@ -89,7 +89,7 @@ class OrderBuilder
                         // Save discount
                         $discount->save();
                         // If product doesn't have discount, add it
-                        if (!$productPivot->hasDiscount($discount)) {
+                        if (! $productPivot->hasDiscount($discount)) {
                             $productPivot->discounts()->attach($discount->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
                         }
                     });
@@ -99,7 +99,7 @@ class OrderBuilder
                         // Save tax
                         $tax->save();
                         // If product doesn't have tax, add it
-                        if (!$productPivot->hasTax($tax)) {
+                        if (! $productPivot->hasTax($tax)) {
                             $productPivot->taxes()->attach($tax->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE]);
                         }
                     });

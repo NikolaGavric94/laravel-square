@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Exceptions;
 
-use Exception as PhpException;
 use Nikolag\Square\Exception;
+use Exception as PhpException;
 
 class InvalidSquareCvvException extends Exception
 {

@@ -1,8 +1,8 @@
 <?php
 
-use Nikolag\Square\Tests\Models\Order;
-use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Tests\Models\Order;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ $factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $fa
     return [
         'status'   => array_random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
         'amount'   => $faker->numberBetween(5000, 500000),
-        'currency' => 'USD'
+        'currency' => 'USD',
     ];
 });
 /* PENDING TRANSACTION */
@@ -114,7 +114,7 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Order::class, function (Faker\Generator $faker) {
     return [
-        'payment_service_type' => 'square'
+        'payment_service_type' => 'square',
     ];
 });
 

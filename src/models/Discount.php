@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Core\Models\Discount as CoreDiscount;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Core\Models\Discount as CoreDiscount;
 
 class Discount extends CoreDiscount
 {
