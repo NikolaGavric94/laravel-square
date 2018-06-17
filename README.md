@@ -1,7 +1,7 @@
 # laravel-square 
 
-<!--[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/laravel-square)
-[![Latest Stable Version](https://poser.pugx.org/laravel-square/v/stable)](https://packagist.org/packages/laravel-square) 
+[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=master)](https://travis-ci.org/NikolaGavric94/laravel-square)
+<!--[![Latest Stable Version](https://poser.pugx.org/laravel-square/v/stable)](https://packagist.org/packages/laravel-square) 
 [![Total Downloads](https://poser.pugx.org/laravel-square/downloads)](https://packagist.org/packages/laravel-square) 
 [![License](https://poser.pugx.org/laravel-square/license)](https://packagist.org/packages/laravel-square) -->
 <!--=========-->
