@@ -107,7 +107,7 @@ Transaction fields:
 - README.md
 - Wiki pages
 - Code cleanup
-- Renamed the project to `laravel-square`
+- Renamed the project to `nikolag/laravel-square`
 
 ### Fixed
 - Order no longer requires `payment_service_type` to be added inside `attributes`

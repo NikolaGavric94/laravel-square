@@ -1,8 +1,7 @@
 laravel-square 
-[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=develop)](https://travis-ci.org/NikolaGavric94/laravel-square)
-[![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square)  
+[![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg?branch=develop)](https://travis-ci.org/NikolaGavric94/laravel-square) 
+[![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
- 
 =========
 
 <!-- [![Total Downloads](https://poser.pugx.org/laravel-square/downloads)](https://packagist.org/packages/laravel-square) -->
@@ -13,7 +12,7 @@ Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com
 2.  [Customer System](#customers-system) 
 3.  [Order System](#orders-system) 
 4.  [Examples](#examples) 
-5.  [Available methods](#all-available-methods) 
+5.  [Available methods](#all-traits-and-their-methods) 
 6.  [Contributing](#contributing) 
 7.  [License](#license)
 
@@ -22,7 +21,7 @@ Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com
 Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
 
 ## Installation guide
-`composer require laravel-square`
+`composer require nikolag/laravel-square`
 
 **Note:** Due to Laravel [Package Discovery](https://laravel.com/docs/5.6/packages#package-discovery), registering service providers and facades manually for this project as of Laravel 5.5 is deprecated and no longer required since the package is adapted to automatically register these stuff for you.
 But there are still couple of steps to do in order to use this package.
