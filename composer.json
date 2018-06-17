@@ -1,13 +1,13 @@
 {
-    "name": "nikolag/square",
+    "name": "laravel-square",
     "description": "Square API integration with Laravel built on nikolag/core",
-    "keywords": ["square", "laravel", "square laravel integration", "square-laravel", "library", "package"],
+    "keywords": ["square", "laravel", "square laravel integration", "square-laravel", "library", "package", "nikolag", "nikolag/square", "nikolag-square"],
     "license": "MIT",
     "type": "laravel-package",
     "support": {
-        "issues": "https://github.com/NikolaGavric94/nikolag-square/issues",
-        "source": "https://github.com/NikolaGavric94/nikolag-square",
-        "wiki": "https://github.com/NikolaGavric94/nikolag-square/wiki",
+        "issues": "https://github.com/NikolaGavric94/laravel-square/issues",
+        "source": "https://github.com/NikolaGavric94/laravel-square",
+        "wiki": "https://github.com/NikolaGavric94/laravel-square/wiki",
         "email": "nikola.gavric94@gmail.com"
     },
     "authors": [{
@@ -16,11 +16,11 @@
         "role": "Developer"
     }],
     "require": {
-        "php": ">=7.1.3",
-        "laravel/framework": "5.6.*",
+        "php": ">=7.0.0",
+        "laravel/framework": "^5.5",
         "laravel/tinker": "~1.0",
         "square/connect": "2.5.*",
-        "nikolag/core": "2.0.*"
+        "nikolag/core": "2.1.*"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0",
@@ -61,7 +61,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "2.1.x-dev"
         },
         "laravel": {
             "providers": [

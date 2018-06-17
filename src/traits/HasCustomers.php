@@ -107,7 +107,7 @@ trait HasCustomers
      *
      * @param string $status
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     private function _byTransactionStatus(string $status)
     {

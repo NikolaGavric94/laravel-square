@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use SquareConnect\Model\ChargeRequest;
 use SquareConnect\Model\CreateCustomerRequest;
 use SquareConnect\Model\CreateOrderRequest;
 use SquareConnect\Model\CreateOrderRequestDiscount;
@@ -14,6 +15,17 @@ use SquareConnect\Model\CreateOrderRequestTax;
 
 class SquareRequestBuilder
 {
+    /**
+     * Create and return charge request.
+     *
+     * @param array $prepData
+     *
+     * @return \SquareConnect\Model\ChargeRequest
+     */
+    public function buildChargeRequest(array $prepData) {
+        return new ChargeRequest($prepData);
+    }
+
     /**
      * Create and return customer request.
      *
@@ -61,9 +73,9 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of discounts for a \SquareConnect\Model\CreateOrderRequestDiscount.
      *
-     * @param Collection $taxes
-     * @param string     $currency
-     * @param string     $class
+     * @param Collection $discounts
+     * @param string $currency
+     * @param string $class
      *
      * @return array
      */

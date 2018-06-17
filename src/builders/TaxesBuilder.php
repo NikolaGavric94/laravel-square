@@ -16,6 +16,7 @@ class TaxesBuilder
      * @param Model $parent
      *
      * @return \Illuminate\Support\Collection
+     * @throws MissingPropertyException
      */
     public function createTaxes(array $taxes, Model $parent = null)
     {

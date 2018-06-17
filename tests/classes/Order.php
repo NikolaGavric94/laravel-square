@@ -10,15 +10,6 @@ class Order extends Model
     use HasProducts;
 
     /**
-     * The model's attributes.
-     *
-     * @var array
-     */
-    protected $attributes = [
-        'payment_service_type' => 'square',
-    ];
-
-    /**
      * The table associated with the model.
      *
      * @var string

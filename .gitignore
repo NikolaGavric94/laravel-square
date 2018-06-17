@@ -4,4 +4,5 @@ vendor/
 composer.lock
 .env
 *.cache
-nikolag-square.wiki/
+laravel-square.wiki/
+.idea/

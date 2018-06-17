@@ -33,6 +33,8 @@ class OrderBuilder
     {
         // Order namespace
         $orderClass = config('nikolag.connections.square.order.namespace');
+        // Set payment type to square
+        $order->payment_service_type = "square";
         // Save order first
         $order->save();
 

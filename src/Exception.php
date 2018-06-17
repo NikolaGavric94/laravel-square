@@ -13,11 +13,9 @@ class Exception extends BaseException
     /**
      * Constructor.
      *
-     * @param mixed         $message
-     * @param mixed         $code
-     * @param BaseException $previous
-     *
-     * @return void
+     * @param mixed $message
+     * @param mixed $code
+     * @param PhpException $previous
      */
     public function __construct($message = null, $code = 0, PhpException $previous = null)
     {

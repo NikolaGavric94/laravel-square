@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.1] - 2017-09-12
 ### Added
-- Ability to change currencies thanks to [pull request #6](https://github.com/NikolaGavric94/nikolag-square/pull/6) by [@Godlikehobbit](https://github.com/Godlikehobbit)
+- Ability to change currencies thanks to [pull request #6](https://github.com/NikolaGavric94/laravel-square/pull/6) by [@Godlikehobbit](https://github.com/Godlikehobbit)
 - Tests for changing currency
 
 ### Changed
@@ -30,14 +30,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Upgraded to work with Laravel 5.5.x
 
 ### Fixed
-- Resolved [#7](https://github.com/NikolaGavric94/nikolag-square/issues/7)
+- Resolved [#7](https://github.com/NikolaGavric94/laravel-square/issues/7)
 
 ## [1.0.3] - 2017-09-26
 ### Added
 - Automatic registration of package service providers and facades
 
 ### Fixed
-- Resolved [#8](https://github.com/NikolaGavric94/nikolag-square/issues/8)
+- Resolved [#8](https://github.com/NikolaGavric94/laravel-square/issues/8)
 
 ## [1.0.4] - 2017-09-26
 ### Added
@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.1] - 2017-11-06
 ### Fixed
-- Resolved [#12](https://github.com/NikolaGavric94/nikolag-square/issues/12)
+- Resolved [#12](https://github.com/NikolaGavric94/laravel-square/issues/12)
 
 ## [2.0.0] - 2018-04-07
 ### Added
@@ -82,7 +82,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.1] - 2018-04-16
 ### Added
-- [Simple Examples](https://github.com/NikolaGavric94/nikolag-square/wiki/Simple%20Examples)
+- [Simple Examples](https://github.com/NikolaGavric94/laravel-square/wiki/Simple%20Examples)
 
 ### Changed
 - README.md
@@ -90,12 +90,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed issue #16 
 
-[Unreleased]: https://github.com/NikolaGavric94/nikolag-square/compare/v2.0.1...HEAD
-[1.0.1]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.0...v1.0.1
-[1.0.2]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.1...v1.0.2
-[1.0.3]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.2...v1.0.3
-[1.0.4]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.3...v1.0.4
-[1.1.0]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.4...v1.1.0
-[1.1.1]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.0.0...v1.1.1
-[2.0.0]: https://github.com/NikolaGavric94/nikolag-square/compare/v1.1.1...v2.0.0
-[2.0.1]: https://github.com/NikolaGavric94/nikolag-square/compare/v2.0.0...v2.0.1
+## [2.1.0] - 2018-06-17
+### Added
+Wiki pages:
+- [Installation guide](https://github.com/NikolaGavric94/laravel-square/wiki/Installation%20guide)
+- [Square Facade](https://github.com/NikolaGavric94/laravel-square/wiki/Square%20Facade)
+- [Transaction](https://github.com/NikolaGavric94/laravel-square/wiki/Transactions)
+- [HasProducts Trait](https://github.com/NikolaGavric94/laravel-square/wiki/HasProducts%20Trait)
+- [HasCustomers Trait](https://github.com/NikolaGavric94/laravel-square/wiki/HasCustomers%20Trait)
+
+Transaction fields:
+- currency
+- payment_service_id
+
+### Changed
+- README.md
+- Wiki pages
+- Code cleanup
+- Renamed the project to `laravel-square`
+
+### Fixed
+- Order no longer requires `payment_service_type` to be added inside `attributes`
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.0...HEAD
+[1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
+[1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
+[1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
+[1.0.4]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.3...v1.0.4
+[1.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.4...v1.1.0
+[1.1.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.1.1
+[2.0.0]: https://github.com/NikolaGavric94/laravel-square/compare/v1.1.1...v2.0.0
+[2.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.0...v2.0.1
+[2.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.1...v2.1.0

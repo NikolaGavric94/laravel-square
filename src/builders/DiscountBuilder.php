@@ -17,6 +17,8 @@ class DiscountBuilder
      * @param Model $parent
      *
      * @return \Illuminate\Support\Collection
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
      */
     public function createDiscounts(array $discounts, Model $parent = null)
     {

@@ -13,22 +13,27 @@ use SquareConnect\Configuration;
 class SquareConfig extends CoreConfig implements ConfigContract
 {
     /**
-     * @var SquareConnect\Api\LocationsApi
+     * @var \SquareConnect\Api\LocationsApi
      */
     public $locationsAPI;
     /**
-     * @var SquareConnect\Api\CustomersApi
+     * @var \SquareConnect\Api\CustomersApi
      */
     public $customersAPI;
     /**
-     * @var SquareConnect\Api\TransactionsApi
+     * @var \SquareConnect\Api\TransactionsApi
      */
     public $transactionsAPI;
     /**
-     * @var SquareConnect\Api\OrdersApi
+     * @var \SquareConnect\Api\OrdersApi
      */
     public $ordersAPI;
 
+    /**
+     * SquareConfig constructor.
+     *
+     * @throws \Nikolag\Core\Exceptions\InvalidConfigurationException
+     */
     public function __construct()
     {
         parent::__construct();

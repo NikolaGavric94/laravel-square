@@ -93,8 +93,9 @@ $factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'status' => array_random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
-        'amount' => $faker->numberBetween(5000, 500000),
+        'status'   => array_random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
+        'amount'   => $faker->numberBetween(5000, 500000),
+        'currency' => 'USD'
     ];
 });
 /* PENDING TRANSACTION */
@@ -113,7 +114,7 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Order::class, function (Faker\Generator $faker) {
     return [
-
+        'payment_service_type' => 'square'
     ];
 });
 

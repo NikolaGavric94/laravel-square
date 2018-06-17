@@ -23,11 +23,14 @@ class ProductBuilder
     /**
      * Add a product to the order from model as source.
      *
-     * @param Model  $order
-     * @param Model  $product
+     * @param Model $order
+     * @param Model $product
+     * @param int $quantity
      * @param string $currency
      *
      * @return stdClass
+     * @throws MissingPropertyException
+     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
     public function addProductFromModel(Model $order, Model $product, int $quantity, string $currency = 'USD')
     {
@@ -59,18 +62,19 @@ class ProductBuilder
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
         }
-
-        return $this;
     }
 
     /**
      * Add a product to the order from array as source.
      *
-     * @param Model  $order
-     * @param array  $product
+     * @param Model $order
+     * @param array $product
+     * @param int $quantity
      * @param string $currency
      *
      * @return stdClass
+     * @throws MissingPropertyException
+     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
     public function addProductFromArray(Model $order, array $product, int $quantity, string $currency = 'USD')
     {
@@ -115,16 +119,16 @@ class ProductBuilder
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
         }
-
-        return $this;
     }
 
     /**
      * Create product from array.
      *
-     * @param array $products
+     * @param array $product
+     * @param Model|null $order
      *
-     * @return Nikolag\Square\Models\Product
+     * @return stdClass
+     * @throws MissingPropertyException
      */
     public function createProductFromArray(array $product, Model $order = null)
     {
@@ -157,9 +161,12 @@ class ProductBuilder
     /**
      * Create product from model.
      *
-     * @param Model $products
+     * @param Model $product
+     * @param Model|null $order
+     * @param int|null $quantity
      *
-     * @return Nikolag\Square\Models\Product
+     * @return stdClass
+     * @throws MissingPropertyException
      */
     public function createProductFromModel(Model $product, Model $order = null, int $quantity = null)
     {

@@ -40,6 +40,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private $squareBuilder;
     /**
+     * @var ProductBuilder
+     */
+    private $productBuilder;
+    /**
      * @var string
      */
     private $locationId;
@@ -47,6 +51,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @var string
      */
     private $currency;
+    /**
+     * @var \SquareConnect\Model\CreateOrderRequest
+     */
+    private $createOrderRequest;
+    /**
+     * @var \SquareConnect\Model\CreateCustomerRequest
+     */
+    private $createCustomerRequest;
+
 
     public function __construct(SquareConfig $squareConfig)
     {
@@ -58,92 +71,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Calculates order total.
-     *
-     * @return float
-     */
-    public function _calculateTotalOrderCost()
-    {
-        $noDeductiblesCost = 0;
-        // Calculate gross amount (total)
-        foreach ($this->orderCopy->products as $product) {
-            $productPivot = $product->productPivot;
-            $product = $product->product;
-
-            $totalPrice = $productPivot->quantity * $product->price;
-            $currentPrice = $totalPrice;
-            $noDeductiblesCost += $currentPrice;
-        }
-        // Apply discounts on order and product level
-        $currentOrderPrice = $noDeductiblesCost;
-        // Order level discounts
-        foreach ($this->orderCopy->discounts as $orderDiscount) {
-            //Product level discounts
-            foreach ($this->orderCopy->products as $currProduct) {
-                $productPivot = $currProduct->productPivot;
-                $product = $currProduct->product;
-
-                $totalProductPrice = $productPivot->quantity * $product->price;
-                $currentProductPrice = $totalProductPrice;
-
-                // Calculate product discounts
-                foreach ($currProduct->discounts as $discount) {
-                    if ($discount->amount && !$discount->percentage) {
-                        $noDeductiblesCost -= $discount->amount;
-                        $currentProductPrice -= $discount->amount;
-                    }
-                    if ($discount->percentage && !$discount->amount) {
-                        $noDeductiblesCost -= $totalProductPrice * $discount->percentage / 100;
-                        $currentProductPrice -= $totalProductPrice * $discount->percentage / 100;
-                    }
-                }
-                //Algorithm based off of https://docs.connect.squareup.com/articles/orders-api-overview
-                $discountAmount = ($orderDiscount->percentage) ? $currentOrderPrice * $orderDiscount->percentage / 100 : $orderDiscount->amount;
-                $noDeductiblesCost -= $discountAmount;
-            }
-        }
-
-        // Order level taxes
-        foreach ($this->orderCopy->taxes as $orderTax) {
-            //Product level taxes
-            foreach ($this->orderCopy->products as $currProduct) {
-                $productPivot = $currProduct->productPivot;
-                $product = $currProduct->product;
-
-                $totalProductPrice = $productPivot->quantity * $product->price;
-                $currentProductPrice = $totalProductPrice;
-
-                // Calculate product discounts
-                foreach ($currProduct->discounts as $discount) {
-                    if ($discount->amount && !$discount->percentage) {
-                        $currentProductPrice -= $discount->amount;
-                    }
-                    if ($discount->percentage && !$discount->amount) {
-                        $currentProductPrice -= $totalProductPrice * $discount->percentage / 100;
-                    }
-                }
-
-                // Calculate product taxes
-                foreach ($currProduct->taxes as $tax) {
-                    if ($tax->type === Constants::TAX_ADDITIVE) {
-                        $noDeductiblesCost += $currentProductPrice * $tax->percentage / 100;
-                    }
-                }
-                // Calculate order taxes
-                if ($orderTax->type === Constants::TAX_ADDITIVE) {
-                    $taxAmount = $currentOrderPrice * $orderTax->percentage / 100;
-                    $noDeductiblesCost += $taxAmount;
-                }
-            }
-        }
-
-        return $noDeductiblesCost;
-    }
-
-    /**
      * List locations.
      *
      * @return \SquareConnect\Model\ListLocationsResponse
+     * @throws ApiException
      */
     public function locations()
     {
@@ -154,6 +85,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * Save a customer.
      *
      * @return void
+     * @throws ApiException
      */
     private function _saveCustomer()
     {
@@ -179,6 +111,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param bool $saveToSquare
      *
      * @return void
+     * @throws ApiException
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
      */
     private function _saveOrder(bool $saveToSquare = false)
     {
@@ -209,11 +144,40 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * @param ApiException $exception
+     *
+     * @return Exception
+     */
+    private function _handleChargeOrSaveException(ApiException $exception) {
+        //Set exception to be first in array of errors
+        $exceptionJSON = $exception->getResponseBody()->errors[0];
+
+        if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
+            if ($exceptionJSON->code == Constants::NOT_FOUND) {
+                $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
+            } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
+                $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
+            } elseif ($exceptionJSON->code == Constants::NONCE_USED) {
+                $exception = new UsedSquareNonceException($exceptionJSON->detail, 400, $exception);
+            }
+        } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
+            if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
+                $exception = new InvalidSquareExpirationDateException($exceptionJSON->detail, 400, $exception);
+            } elseif ($exceptionJSON->code == Constants::VERIFY_POSTAL_CODE) {
+                $exception = new InvalidSquareZipcodeException($exceptionJSON->detail, 402, $exception);
+            } elseif ($exceptionJSON->code == Constants::VERIFY_CVV) {
+                $exception = new InvalidSquareCvvException($exceptionJSON->detail, 402, $exception);
+            }
+        }
+
+        return $exception;
+    }
+
+    /**
      * Save collected data.
      *
-     * @throws \Nikolag\Square\Exception on non-2xx response
-     *
      * @return self
+     * @throws Exception on non-2xx response
      */
     public function save()
     {
@@ -225,26 +189,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (ApiException $exception) {
-            //Set exception to be first in array of errors
-            $exceptionJSON = $exception->getResponseBody()->errors[0];
-
-            if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
-                if ($exceptionJSON->code == Constants::NOT_FOUND) {
-                    $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
-                } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
-                    $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
-                } elseif ($exceptionJSON->code == Constants::NONCE_USED) {
-                    $exception = new UsedSquareNonceException($exceptionJSON->detail, 400, $exception);
-                }
-            } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
-                if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
-                    $exception = new InvalidSquareExpirationDateException($exceptionJSON->detail, 400, $exception);
-                } elseif ($exceptionJSON->code == Constants::VERIFY_POSTAL_CODE) {
-                    $exception = new InvalidSquareZipcodeException($exceptionJSON->detail, 402, $exception);
-                } elseif ($exceptionJSON->code == Constants::VERIFY_CVV) {
-                    $exception = new InvalidSquareCvvException($exceptionJSON->detail, 402, $exception);
-                }
-            }
+            $exception = $this->_handleChargeOrSaveException($exception);
 
             throw $exception;
         } catch (MissingPropertyException $e) {
@@ -261,9 +206,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @param array $data
      *
-     * @throws \Nikolag\Square\Exception on non-2xx response
-     *
      * @return \Nikolag\Square\Models\Transaction
+     * @throws ApiException
+     * @throws Exception on non-2xx response
+     * @throws InvalidSquareAmountException
+     * @throws MissingPropertyException
      */
     public function charge(array $data)
     {
@@ -277,7 +224,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             'card_nonce' => $data['card_nonce'],
         ];
 
-        $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount']]);
+        $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount'], 'currency' => $currency]);
         // Save and attach merchant
         if ($this->getMerchant()) {
             $transaction->merchant()->associate($this->getMerchant());
@@ -295,7 +242,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         if ($this->getOrder()) {
             try {
                 // Calculate the total order amount
-                $calculatedCost = $this->_calculateTotalOrderCost();
+                $calculatedCost = Util::calculateTotalOrderCost($this->orderCopy);
                 // If order total does not match charge amount, throw error
                 if ($calculatedCost != $data['amount']) {
                     throw new InvalidSquareAmountException('The charge amount does not match the order total.', 500);
@@ -317,33 +264,18 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $transaction->save();
 
         try {
-            $response = $this->config->transactionsAPI->charge($data['location_id'], $prepData)->getTransaction();
+            $chargeRequest = $this->squareBuilder->buildChargeRequest($prepData);
+            $response = $this->config->transactionsAPI->charge($data['location_id'], $chargeRequest)->getTransaction();
 
+            $transaction->payment_service_id = $response->getId();
             $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
             $transaction->save();
         } catch (ApiException $exception) {
+            $transaction->payment_service_id = null;
             $transaction->status = Constants::TRANSACTION_STATUS_FAILED;
             $transaction->save();
-            //Set exception to be first in array of errors
-            $exceptionJSON = $exception->getResponseBody()->errors[0];
 
-            if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
-                if ($exceptionJSON->code == Constants::NOT_FOUND) {
-                    $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
-                } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
-                    $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
-                } elseif ($exceptionJSON->code == Constants::NONCE_USED) {
-                    $exception = new UsedSquareNonceException($exceptionJSON->detail, 400, $exception);
-                }
-            } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
-                if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
-                    $exception = new InvalidSquareExpirationDateException($exceptionJSON->detail, 400, $exception);
-                } elseif ($exceptionJSON->code == Constants::VERIFY_POSTAL_CODE) {
-                    $exception = new InvalidSquareZipcodeException($exceptionJSON->detail, 402, $exception);
-                } elseif ($exceptionJSON->code == Constants::VERIFY_CVV) {
-                    $exception = new InvalidSquareCvvException($exceptionJSON->detail, 402, $exception);
-                }
-            }
+            $exception = $this->_handleChargeOrSaveException($exception);
 
             throw $exception;
         }
@@ -356,9 +288,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @param array $options
      *
-     * @throws \Nikolag\Square\Exception on non-2xx response
-     *
-     * @return \SquareConnect\Model\ListLocationsResponse
+     * @return \SquareConnect\Model\ListTransactionsResponse
+     * @throws ApiException
      */
     public function transactions(array $options)
     {
@@ -370,11 +301,14 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Add a product to the order.
      *
-     * @param mixed  $product
-     * @param int    $quantity
+     * @param mixed $product
+     * @param int $quantity
      * @param string $currency
      *
      * @return self
+     * @throws AlreadyUsedSquareProductException
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
      */
     public function addProduct($product, int $quantity = 1, string $currency = 'USD')
     {
@@ -401,7 +335,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @return CreateCustomerRequest
+     * @return \SquareConnect\Model\CreateCustomerRequest
      */
     public function getCreateCustomerRequest()
     {
@@ -409,7 +343,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param CreateCustomerRequest $createCustomerRequest
+     * @param \SquareConnect\Model\CreateCustomerRequest $createCustomerRequest
      *
      * @return self
      */
@@ -421,7 +355,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @return CreateOrderRequest
+     * @return \SquareConnect\Model\CreateOrderRequest
      */
     public function getCreateOrderRequest()
     {
@@ -429,7 +363,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param CreateOrderRequest $createOrderRequest
+     * @param \SquareConnect\Model\CreateOrderRequest $createOrderRequest
      *
      * @return self
      */
@@ -466,11 +400,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Setter for order.
      *
-     * @param mixed  $order
+     * @param mixed $order
      * @param string $locationId
      * @param string $currency
      *
      * @return self
+     * @throws MissingPropertyException
      */
     public function setOrder($order, string $locationId, string $currency = 'USD')
     {

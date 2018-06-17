@@ -13,7 +13,7 @@ class Transaction extends CoreTransaction
      * @var array
      */
     protected $attributes = [
-        'payment_service_type' => 'square',
+        'payment_service_type' => 'square'
     ];
 
     /**

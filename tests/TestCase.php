@@ -12,7 +12,7 @@ class TestCase extends BaseTestCase
     use DatabaseMigrations, WithoutMiddleware;
 
     /**
-     * @var Faker\Factory
+     * @var \Faker\Factory
      */
     protected $faker;
 
@@ -65,20 +65,20 @@ class TestCase extends BaseTestCase
             'database' => ':memory:',
             'prefix'   => '',
         ]);
-        // $app['config']->set('database.default', 'square_test');
-        // $app['config']->set('database.connections.square_test', [
-        //     'driver' => 'mysql',
-        //     'host' => '127.0.0.1',
-        //     'port' => '3306',
-        //     'database' => 'square_test',
-        //     'username' => 'root',
-        //     'password' => '',
-        //     'unix_socket' => '',
-        //     'charset' => 'utf8mb4',
-        //     'collation' => 'utf8mb4_unicode_ci',
-        //     'prefix' => '',
-        //     'strict' => true,
-        //     'engine' => null
-        // ]);
+//        $app['config']->set('database.default', 'square_test');
+//        $app['config']->set('database.connections.square_test', [
+//            'driver' => 'mysql',
+//            'host' => '127.0.0.1',
+//            'port' => '3306',
+//            'database' => 'square_test',
+//            'username' => 'root',
+//            'password' => '',
+//            'unix_socket' => '',
+//            'charset' => 'utf8mb4',
+//            'collation' => 'utf8mb4_unicode_ci',
+//            'prefix' => '',
+//            'strict' => true,
+//            'engine' => null
+//        ]);
     }
 }
