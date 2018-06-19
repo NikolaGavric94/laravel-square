@@ -22,4 +22,18 @@
         <log type="coverage-clover" target="build/logs/clover.xml" charset="UTF-8"/>
         <log type="coverage-html" target="build/logs/html" charset="UTF-8"/>
     </logging>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="QUEUE_DRIVER" value="sync"/>
+
+        <env name="SQUARE_APPLICATION_ID" value=""/>
+        <env name="SQUARE_TOKEN" value=""/>
+        <env name="SQUARE_LOCATION" value=""/>
+
+        <env name="SQUARE_USER_NAMESPACE" value="Nikolag\Square\Tests\Models\User"/>
+        <env name="SQUARE_ORDER_NAMESPACE" value="Nikolag\Square\Tests\Models\Order"/>
+    </php>
 </phpunit>
