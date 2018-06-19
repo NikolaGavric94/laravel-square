@@ -6,3 +6,6 @@ composer.lock
 *.cache
 laravel-square.wiki/
 .idea/
+build/
+.env.testing
+phpunit.xml

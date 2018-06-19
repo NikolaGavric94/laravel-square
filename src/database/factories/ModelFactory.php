@@ -3,6 +3,7 @@
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\Models\Order;
+use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,8 @@ use Nikolag\Square\Tests\Models\Order;
 | database. Just tell the factory how a default model should look.
 |
 */
+
+$factory = app(EloquentFactory::class);
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::TAX_NAMESPACE, function (Faker\Generator $faker) {
