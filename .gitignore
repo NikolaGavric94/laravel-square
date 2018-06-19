@@ -8,3 +8,4 @@ laravel-square.wiki/
 .idea/
 build/
 phpunit.xml
+.gitconfig
