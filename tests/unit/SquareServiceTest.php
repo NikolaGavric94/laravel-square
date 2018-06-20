@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Utils\Util;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Tests\TestCase;
@@ -13,13 +13,13 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
-use Nikolag\Square\Utils\Util;
 
 class SquareServiceTest extends TestCase
 {
@@ -188,15 +188,15 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Order creation without location id, testing exception case
+     * Order creation without location id, testing exception case.
      *
      * @return void
      */
     public function test_square_order_transaction_list()
     {
-        $array = array(
-            'location_id' => env('SQUARE_LOCATION')
-        );
+        $array = [
+            'location_id' => env('SQUARE_LOCATION'),
+        ];
 
         $transactions = Square::transactions($array);
 
@@ -205,7 +205,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Order creation without location id, testing exception case
+     * Order creation without location id, testing exception case.
      *
      * @return void
      */
@@ -366,7 +366,7 @@ class SquareServiceTest extends TestCase
             'percentage' => 10.0,
         ]);
         $tax = factory(Tax::class)->states('ADDITIVE')->create([
-            'percentage' => 10.0
+            'percentage' => 10.0,
         ]);
 
         $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
