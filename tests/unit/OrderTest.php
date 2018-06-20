@@ -2,16 +2,16 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;
-use Nikolag\Square\Models\Transaction;
-use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 
 class OrderTest extends TestCase
 {
@@ -83,7 +83,7 @@ class OrderTest extends TestCase
     }
 
     /**
-     * Order creation without order, testing exception case
+     * Order creation without order, testing exception case.
      *
      * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
      * @expectedExceptionMessage $order property is missing
@@ -91,7 +91,7 @@ class OrderTest extends TestCase
      */
     public function test_order_missing_order_exception()
     {
-        Square::setOrder(null, "");
+        Square::setOrder(null, '');
 
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('$order property is missing');
@@ -99,7 +99,7 @@ class OrderTest extends TestCase
     }
 
     /**
-     * Order creation without location id, testing exception case
+     * Order creation without location id, testing exception case.
      *
      * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
      * @expectedExceptionMessage $locationId property is missing
@@ -108,7 +108,7 @@ class OrderTest extends TestCase
     public function test_order_missing_location_id_exception()
     {
         $order = factory(Order::class)->create();
-        Square::setOrder($order, "");
+        Square::setOrder($order, '');
 
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('$locationId property is missing');
@@ -116,7 +116,7 @@ class OrderTest extends TestCase
     }
 
     /**
-     * Order charge using trait system
+     * Order charge using trait system.
      *
      * @return void
      */

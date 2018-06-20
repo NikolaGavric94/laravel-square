@@ -186,7 +186,7 @@ class SquareRequestBuilder
 
                 $data = [
                     'name' => $product->name,
-                    'quantity' => (string)$quantity,
+                    'quantity' => (string) $quantity,
                     'base_price_money' => $money,
                     'variation_name' => $product->variation_name,
                     'note' => $product->note,
