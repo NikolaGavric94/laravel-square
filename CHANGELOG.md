@@ -112,7 +112,18 @@ Transaction fields:
 ### Fixed
 - Order no longer requires `payment_service_type` to be added inside `attributes`
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.0...HEAD
+## [2.1.1] - 2018-06-20
+### Added
+- Bigger unit test coverage
+
+### Changed
+- README.md
+
+### Fixed
+- Proper resolving of passed options for `transactions` method inside `SquareService`
+- `charge` method on `HasProducts` trait to now properly pass in location id
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.1...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -122,3 +133,4 @@ Transaction fields:
 [2.0.0]: https://github.com/NikolaGavric94/laravel-square/compare/v1.1.1...v2.0.0
 [2.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.0...v2.0.1
 [2.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.1...v2.1.0
+[2.1.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.0...v2.1.1
