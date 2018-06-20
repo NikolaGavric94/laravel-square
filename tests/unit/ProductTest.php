@@ -8,14 +8,14 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Models\OrderProductPivot;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 
 class ProductTest extends TestCase
 {
@@ -96,7 +96,7 @@ class ProductTest extends TestCase
     }
 
     /**
-     * Order creation without location id, testing exception case
+     * Order creation without location id, testing exception case.
      *
      * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
      * @expectedExceptionMessage Required field is missing
