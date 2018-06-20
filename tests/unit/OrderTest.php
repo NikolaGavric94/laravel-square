@@ -2,9 +2,12 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Utils\Constants;
@@ -63,8 +66,8 @@ class OrderTest extends TestCase
 
         $data = [
             'location_id' => env('SQUARE_LOCATION'),
-            'amount'      => 445,
-            'card_nonce'  => 'fake-card-nonce-ok',
+            'amount' => 445,
+            'card_nonce' => 'fake-card-nonce-ok',
         ];
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'));
@@ -77,5 +80,60 @@ class OrderTest extends TestCase
         $this->assertCount(1, $square->getOrder()->taxes, 'Taxes count is not correct');
         $this->assertCount(1, $square->getOrder()->discounts, 'Discounts count is not correct');
         $this->assertCount(1, $square->getOrder()->products, 'Products count is not correct');
+    }
+
+    /**
+     * Order creation without order, testing exception case
+     *
+     * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
+     * @expectedExceptionMessage $order property is missing
+     * @expectedExceptionCode 500
+     */
+    public function test_order_missing_order_exception()
+    {
+        Square::setOrder(null, "");
+
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('$order property is missing');
+        $this->expectExceptionCode(500);
+    }
+
+    /**
+     * Order creation without location id, testing exception case
+     *
+     * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
+     * @expectedExceptionMessage $locationId property is missing
+     * @expectedExceptionCode 500
+     */
+    public function test_order_missing_location_id_exception()
+    {
+        $order = factory(Order::class)->create();
+        Square::setOrder($order, "");
+
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('$locationId property is missing');
+        $this->expectExceptionCode(500);
+    }
+
+    /**
+     * Order charge using trait system
+     *
+     * @return void
+     */
+    public function test_order_trait_charge()
+    {
+        $order = factory(Order::class)->create();
+        $merchant = factory(User::class)->create();
+        $product = factory(Product::class)->create([
+            'price' => 110,
+        ]);
+        $order->products()->attach($product);
+
+        $response = $order->charge(110, 'fake-card-nonce-ok', env('SQUARE_LOCATION'), $merchant);
+
+        $this->assertTrue($response instanceof Transaction);
+        $this->assertTrue($response->payment_service_type == 'square');
+        $this->assertEquals($response->status, Constants::TRANSACTION_STATUS_PASSED);
+        $this->assertEquals($response->amount, 110);
     }
 }

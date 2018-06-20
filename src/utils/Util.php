@@ -105,15 +105,14 @@ class Util
         // Product is not found
         $found = false;
         // Go through all products
-        $source->each(function ($curr) use (&$found, $product) {
-            // Match two products
+        foreach ($source as $curr) {
             if ($curr->product == $product) {
                 // product matches
                 $found = true;
                 // to stop iterating
-                return false;
+                break;
             }
-        });
+        }
 
         return $found;
     }

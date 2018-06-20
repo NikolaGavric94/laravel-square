@@ -8,6 +8,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Tests\TestCase;
@@ -91,5 +93,24 @@ class ProductTest extends TestCase
 
         $this->assertTrue($productPivot->hasProduct($product));
         $this->assertInstanceOf(Constants::PRODUCT_NAMESPACE, $productPivot->product);
+    }
+
+    /**
+     * Order creation without location id, testing exception case
+     *
+     * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
+     * @expectedExceptionMessage Required field is missing
+     * @expectedExceptionCode 500
+     */
+    public function test_order_missing_location_id_exception()
+    {
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create();
+
+        Square::setOrder($order, env('SQUARE_LOCATION'))->addProduct($product, 0);
+
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Required field is missing');
+        $this->expectExceptionCode(500);
     }
 }

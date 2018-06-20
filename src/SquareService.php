@@ -293,7 +293,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function transactions(array $options)
     {
-        $transactions = $this->config->transactionsAPI->listTransactions($options['location_id'], $options['begin_time'], $options['end_time'], $options['sort_order'], $options['cursor']);
+        $options = array(
+            'location_id' => array_key_exists('location_id', $options) ? $options['location_id'] : null,
+            'begin_time' => array_key_exists('begin_time', $options) ? $options['begin_time'] : null,
+            'end_time' => array_key_exists('end_time', $options) ? $options['end_time'] : null,
+            'sort_order' => array_key_exists('sort_order', $options) ? $options['sort_order'] : null,
+            'cursor' => array_key_exists('cursor', $options) ? $options['cursor'] : null
+        );
+
+        $transactions = $this->config->transactionsAPI->listTransactions($options['location_id'] ?? $this->locationId, $options['begin_time'], $options['end_time'], $options['sort_order'], $options['cursor']);
 
         return $transactions;
     }
@@ -405,6 +413,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param string $currency
      *
      * @return self
+     * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
     public function setOrder($order, string $locationId, string $currency = 'USD')

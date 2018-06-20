@@ -9,10 +9,22 @@ use Nikolag\Square\Exceptions\MissingPropertyException;
 
 class OrderBuilder
 {
+    /**
+     * @var ProductBuilder
+     */
     private $productBuilder;
+    /**
+     * @var DiscountBuilder
+     */
     private $discountBuilder;
+    /**
+     * @var TaxesBuilder
+     */
     private $taxesBuilder;
 
+    /**
+     * OrderBuilder constructor.
+     */
     public function __construct()
     {
         $this->productBuilder = new ProductBuilder();
@@ -41,33 +53,33 @@ class OrderBuilder
         // Check if order has discounts
         if ($orderCopy->discounts->isNotEmpty()) {
             // For each discount in order
-            $orderCopy->discounts->each(function ($discount) use ($order, $orderClass) {
+            foreach ($orderCopy->discounts as $discount) {
                 // Save discount
                 $discount->save();
                 // If order doesn't have discount, add it
                 if (! $order->hasDiscount($discount)) {
                     $order->discounts()->attach($discount->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
                 }
-            });
+            }
         }
 
         // Check if order has taxes
         if ($orderCopy->taxes->isNotEmpty()) {
             // For each tax in order
-            $orderCopy->taxes->each(function ($tax) use ($order, $orderClass) {
+            foreach ($orderCopy->taxes as $tax) {
                 // Save tax
                 $tax->save();
                 // If order doesn't have tax, add it
                 if (! $order->hasTax($tax)) {
                     $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE]);
                 }
-            });
+            }
         }
 
         // Check if order has products
         if ($orderCopy->products->isNotEmpty()) {
             // For each product in order
-            $orderCopy->products->each(function ($productClass) use ($order) {
+            foreach ($orderCopy->products as $productClass) {
                 // Assign product model
                 $product = $productClass->product;
                 // If order doesn't have product
@@ -85,26 +97,26 @@ class OrderBuilder
                     $productPivot->save();
 
                     // For each discount in product
-                    $productClass->discounts->each(function ($discount) use ($productPivot) {
+                    foreach ($productClass->discounts as $discount) {
                         // Save discount
                         $discount->save();
                         // If product doesn't have discount, add it
                         if (! $productPivot->hasDiscount($discount)) {
                             $productPivot->discounts()->attach($discount->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
                         }
-                    });
+                    }
 
                     // For each tax in product
-                    $productClass->taxes->each(function ($tax) use ($productPivot) {
+                    foreach ($productClass->taxes as $tax) {
                         // Save tax
                         $tax->save();
                         // If product doesn't have tax, add it
                         if (! $productPivot->hasTax($tax)) {
                             $productPivot->taxes()->attach($tax->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE]);
                         }
-                    });
+                    }
                 }
-            });
+            }
         }
         // Eagerly load products, for future use
         $order->load('products', 'taxes', 'discounts');
@@ -118,6 +130,8 @@ class OrderBuilder
      * @param Model $order
      *
      * @return stdClass
+     * @throws MissingPropertyException
+     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
     public function buildOrderCopyFromModel(Model $order)
     {
@@ -169,6 +183,8 @@ class OrderBuilder
      * @param array $order
      *
      * @return stdClass
+     * @throws MissingPropertyException
+     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
     public function buildOrderCopyFromArray(array $order)
     {

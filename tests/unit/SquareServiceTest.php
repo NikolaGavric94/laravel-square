@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;
@@ -18,6 +19,7 @@ use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
+use Nikolag\Square\Utils\Util;
 
 class SquareServiceTest extends TestCase
 {
@@ -186,6 +188,36 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Order creation without location id, testing exception case
+     *
+     * @return void
+     */
+    public function test_square_order_transaction_list()
+    {
+        $array = array(
+            'location_id' => env('SQUARE_LOCATION')
+        );
+
+        $transactions = Square::transactions($array);
+
+        $this->assertNotNull($transactions);
+        $this->assertInstanceOf('\SquareConnect\Model\ListTransactionsResponse', $transactions);
+    }
+
+    /**
+     * Order creation without location id, testing exception case
+     *
+     * @return void
+     */
+    public function test_square_order_locations_list()
+    {
+        $transactions = Square::locations();
+
+        $this->assertNotNull($transactions);
+        $this->assertInstanceOf('\SquareConnect\Model\ListLocationsResponse', $transactions);
+    }
+
+    /**
      * Save an order through facade.
      *
      * @return void
@@ -309,5 +341,44 @@ class SquareServiceTest extends TestCase
 
         $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
         $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
+    }
+
+    /**
+     * Test all in one as models.
+     *
+     * @return void
+     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
+     * @throws \Nikolag\Square\Exceptions\MissingPropertyException
+     */
+    public function test_square_total_calculation()
+    {
+        $orderBuilder = new OrderBuilder();
+        $merchant = factory(User::class)->create();
+        $customer = factory(Customer::class)->create();
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create([
+            'price' => 1000,
+        ]);
+        $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->create([
+            'amount' => 50,
+        ]);
+        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->create([
+            'percentage' => 10.0,
+        ]);
+        $tax = factory(Tax::class)->states('ADDITIVE')->create([
+            'percentage' => 10.0
+        ]);
+
+        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
+        $order->taxes()->attach($tax->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
+        $order->products()->attach($product);
+
+        $order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+
+        $square = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($order, env('SQUARE_LOCATION'));
+        $orderCopy = $orderBuilder->buildOrderCopyFromModel($square->getOrder());
+        $calculatedCost = Util::calculateTotalOrderCost($orderCopy);
+
+        $this->assertEquals(950, $calculatedCost);
     }
 }
