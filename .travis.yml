@@ -1,34 +1,35 @@
 language: php
 sudo: false
 php:
-  - 7.0
-  - 7.1
-  - 7.2
+    - 7.0
+    - 7.1
+    - 7.2
 
 env:
     global:
         secure: "iEpr+HXhmkt2OLMARFSWVLRLM6mseoNGmL3jf6jisi/nYeoeAwGTmibiyrDXHI8QJ1qWlZ4HT+ElchLNNY7BhQtxjCzF3x3A+BOfNm8bCssB+WtjABr92Lleb1OSmCoW1cp6eKiE/x92BgJR4KmQGeThT6TFXFm71fBnm6NcMFOpClMVhHC5jI588xGd/hI6sXAWVBI5mxJ+BABvXYcSPawpKo9KLMR9lCUVsAPraorDMtLzkWrj0uzIW854cKitAQMKm183UNkR/xdCQlV8MMFM5UZDfT6HUdjudgZeAjDeu2BevxQYWzPGop48AwX9W9BPnvkWkI9W1HRaOzTBw/lGR2xWK9LrdiLhNj5kt5QViygBCtBxRobtgg244w3rI9XWlyOawaV1h4goSiumwOJiaKgVogwsmeFaNSGESTAxyqMCXjd1ugXl+u2PHetzV2swDh9RYE9qT31s0EGAmr86CiGYtm4jE8trtb03HTp8J7GxKLiqeC6vJf4aCiKNBOaRt4O0dDNyLW+MIMFJQhHsQCetM5NYh9JGqKmySjBa1KYanJij1Y0SCLxjxbXHqhY73zM1TKiMy+ggEJIZZNs7p2Q0Gnq4ijJuVj0/ccNVcfReL2/NvRM6rTQwe1e1J8TGxKtfWux00TQCRAFHDDhWrtRtQo7YYOz/RZmaSfc="
 
 addons:
-  code_climate:
-    repo_token:
-        secure: "RnnIrzTkNYZn5ocWr8dIenHBFk/cwzF4AUvgHMZQlsHtgFclIX204xMEHL0bF+DR1XJNYqNE7Dk7Oqt1bt62ht7eTmOsOKhxcoDirbjp1We0o24ZyRIoso9qUg4YoDlc0K+QPx/u6OZHRkLny2+BHKPpLDV3MMSBo+n8MZJ1WiVqBpuHmlT3WV4kfeBpZoLDxbfVfFlczP27BV9M6anlT6ntsdR6HmqHruFQKvN+ulH5VFbBrQEEHsq/+zpcepS6rumoDhvD2BxjHGV046/GQSEiAcCEwsmgeSFilz2QqVXEx/xlJVqwCSxoih63e7uBfEgRPTuQ3CEsKVhnPzy1T72xqRsHOoYpQO//nXSER5LFlW7Sul2W1Zvzbco6LKQ4RXrdVzh3olCzBo8Ze4nkiHdsdUHkK0mM9ckR3WWWbFpmK0R4eACwzrpZC+7GUZmG+Xzipa716Bx9kT3XtOzlzOSWRlsLDlBML9LnkK6V1QOhgeotl6QqXcTWxnzPB9Dbjm0gF0Tpv+DSn9zRMvR2P1eKr7JFGiy4/FZ0W0aMd1HZPYRI7vwBHABRx2sgo7p5QFEoP/VmC73qRBVmCemPbF4R9hp0hhGrV7HHfb2DL1NjagkHdPDAIteHXpDc37EyP6ZH2JS/svCXTjq9HlpOnWaT85mq6EQxHZi7Xva46QY="
+    code_climate:
+        repo_token:
+            secure: "RnnIrzTkNYZn5ocWr8dIenHBFk/cwzF4AUvgHMZQlsHtgFclIX204xMEHL0bF+DR1XJNYqNE7Dk7Oqt1bt62ht7eTmOsOKhxcoDirbjp1We0o24ZyRIoso9qUg4YoDlc0K+QPx/u6OZHRkLny2+BHKPpLDV3MMSBo+n8MZJ1WiVqBpuHmlT3WV4kfeBpZoLDxbfVfFlczP27BV9M6anlT6ntsdR6HmqHruFQKvN+ulH5VFbBrQEEHsq/+zpcepS6rumoDhvD2BxjHGV046/GQSEiAcCEwsmgeSFilz2QqVXEx/xlJVqwCSxoih63e7uBfEgRPTuQ3CEsKVhnPzy1T72xqRsHOoYpQO//nXSER5LFlW7Sul2W1Zvzbco6LKQ4RXrdVzh3olCzBo8Ze4nkiHdsdUHkK0mM9ckR3WWWbFpmK0R4eACwzrpZC+7GUZmG+Xzipa716Bx9kT3XtOzlzOSWRlsLDlBML9LnkK6V1QOhgeotl6QqXcTWxnzPB9Dbjm0gF0Tpv+DSn9zRMvR2P1eKr7JFGiy4/FZ0W0aMd1HZPYRI7vwBHABRx2sgo7p5QFEoP/VmC73qRBVmCemPbF4R9hp0hhGrV7HHfb2DL1NjagkHdPDAIteHXpDc37EyP6ZH2JS/svCXTjq9HlpOnWaT85mq6EQxHZi7Xva46QY="
 
 before_script:
-  - cp .env.testing .env
-  - composer self-update
-  - composer update --no-scripts
+    - phpenv config-rm xdebug.ini
+    - cp .env.testing .env
+    - composer self-update
+    - composer update --no-scripts
 
 script:
-  - vendor/bin/phpunit
+    - phpdbg -qrr vendor/bin/phpunit
 
 after_script:
-  - vendor/bin/test-reporter
+    - vendor/bin/test-reporter
 
 # allow_failures: Allow this build to fail under the specified environments.
 # fast_finish: If your build fails do not continue trying to build, just stop.
 matrix:
-  fast_finish: true
+    fast_finish: true
 
 # Customize when the notification emails are sent.
 notifications:

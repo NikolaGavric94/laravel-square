@@ -1,7 +1,7 @@
 {
     "name": "nikolag/laravel-square",
     "description": "Square API integration with Laravel built on nikolag/core",
-    "keywords": ["square", "laravel", "square laravel integration", "square-laravel", "library", "package", "nikolag", "nikolag square", "nikolag-square"],
+    "keywords": ["square", "laravel", "square laravel integration", "square-laravel", "library", "package", "nikolag", "nikolag square", "nikolag-square", "laravel square"],
     "license": "MIT",
     "type": "laravel-package",
     "support": {
@@ -17,16 +17,15 @@
     }],
     "require": {
         "php": ">=7.0.0",
-        "laravel/framework": "^5.5",
-        "laravel/lumen": "^5.5",
+        "laravel/framework": "~5.5|~5.6",
         "square/connect": "2.5.*",
         "nikolag/core": "2.1.*"
     },
     "require-dev": {
-        "codeclimate/php-test-reporter": "^0.4.4",
         "fzaninotto/faker": "^1.7",
-        "orchestra/testbench": "3.5.*",
-        "phpunit/phpunit": "~6.0"
+        "codeclimate/php-test-reporter": "^0.4.4",
+        "orchestra/testbench": "~3.4.0|~3.5.0",
+        "phpunit/phpunit": "~6.0|~7.0"
     },
     "autoload": {
         "psr-4": {
