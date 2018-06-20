@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: nikola
  * Date: 6/20/18
- * Time: 03:00
+ * Time: 03:00.
  */
 
 namespace Nikolag\Square\Tests\Unit;

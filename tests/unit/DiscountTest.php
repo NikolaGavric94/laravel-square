@@ -2,11 +2,11 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Models\OrderProductPivot;
-use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Models\OrderProductPivot;
 
 class DiscountTest extends TestCase
 {

@@ -3,18 +3,17 @@
  * Created by PhpStorm.
  * User: nikola
  * Date: 6/20/18
- * Time: 02:33
+ * Time: 02:33.
  */
 
 namespace Nikolag\Square\Tests\Unit;
 
-
-use Nikolag\Square\Models\OrderProductPivot;
-use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
-use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Models\Product;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Models\OrderProductPivot;
 
 class ProductTest extends TestCase
 {
