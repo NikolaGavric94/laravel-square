@@ -15,10 +15,6 @@
         "email": "nikola.gavric94@gmail.com",
         "role": "Developer"
     }],
-    "repositories": [{
-        "type": "path",
-        "url": "../core/"
-    }],
     "require": {
         "php": ">=7.0.0",
         "illuminate/config": "~5.5|~5.6",
@@ -27,7 +23,7 @@
         "illuminate/container": "~5.5|~5.6",
         "illuminate/database": "~5.5|~5.6",
         "square/connect": "2.5.*",
-        "nikolag/core": "dev-master"
+        "nikolag/core": "2.x-dev"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.7",
@@ -62,11 +58,6 @@
             "Nikolag\\Square\\Tests\\": "tests/",
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
-    },
-    "scripts": {
-        "post-package-install": [
-
-        ]
     },
     "extra": {
         "branch-alias": {
