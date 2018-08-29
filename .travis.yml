@@ -27,7 +27,7 @@ install:
     - phpenv config-rm xdebug.ini
     - cp .env.testing .env
     - composer self-update
-    - composer install --prefer-source --no-interaction
+    - composer update --prefer-source --no-interaction
 before_script:
     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
     - chmod +x ./cc-test-reporter
