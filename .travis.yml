@@ -4,25 +4,25 @@ php:
     - 7.0
     - 7.1
     - 7.2
-matrix:
-  include:
-    - php: 7.0
-      env: ILLUMINATE_VERSION=5.2.*
-    - php: 7.0
-      env: ILLUMINATE_VERSION=5.3.*
-    - php: 7.0
-      env: ILLUMINATE_VERSION=5.4.*
-    - php: 7.0
-      env: ILLUMINATE_VERSION=5.5.*
-    - php: 7.1
-      env: ILLUMINATE_VERSION=5.6.*
-    - php: 7.1
-      env: ILLUMINATE_VERSION=5.7.*
-    - php: 7.2
-      env: ILLUMINATE_VERSION=5.6.*
-    - php: 7.2
-      env: ILLUMINATE_VERSION=5.7.*
 env:
+    matrix:
+      include:
+        - php: 7.0
+          env: ILLUMINATE_VERSION=5.2.*
+        - php: 7.0
+          env: ILLUMINATE_VERSION=5.3.*
+        - php: 7.0
+          env: ILLUMINATE_VERSION=5.4.*
+        - php: 7.0
+          env: ILLUMINATE_VERSION=5.5.*
+        - php: 7.1
+          env: ILLUMINATE_VERSION=5.6.*
+        - php: 7.1
+          env: ILLUMINATE_VERSION=5.7.*
+        - php: 7.2
+          env: ILLUMINATE_VERSION=5.6.*
+        - php: 7.2
+          env: ILLUMINATE_VERSION=5.7.*
     global:
         secure: "iEpr+HXhmkt2OLMARFSWVLRLM6mseoNGmL3jf6jisi/nYeoeAwGTmibiyrDXHI8QJ1qWlZ4HT+ElchLNNY7BhQtxjCzF3x3A+BOfNm8bCssB+WtjABr92Lleb1OSmCoW1cp6eKiE/x92BgJR4KmQGeThT6TFXFm71fBnm6NcMFOpClMVhHC5jI588xGd/hI6sXAWVBI5mxJ+BABvXYcSPawpKo9KLMR9lCUVsAPraorDMtLzkWrj0uzIW854cKitAQMKm183UNkR/xdCQlV8MMFM5UZDfT6HUdjudgZeAjDeu2BevxQYWzPGop48AwX9W9BPnvkWkI9W1HRaOzTBw/lGR2xWK9LrdiLhNj5kt5QViygBCtBxRobtgg244w3rI9XWlyOawaV1h4goSiumwOJiaKgVogwsmeFaNSGESTAxyqMCXjd1ugXl+u2PHetzV2swDh9RYE9qT31s0EGAmr86CiGYtm4jE8trtb03HTp8J7GxKLiqeC6vJf4aCiKNBOaRt4O0dDNyLW+MIMFJQhHsQCetM5NYh9JGqKmySjBa1KYanJij1Y0SCLxjxbXHqhY73zM1TKiMy+ggEJIZZNs7p2Q0Gnq4ijJuVj0/ccNVcfReL2/NvRM6rTQwe1e1J8TGxKtfWux00TQCRAFHDDhWrtRtQo7YYOz/RZmaSfc="
 
