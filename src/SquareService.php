@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square;
 
-use Nikolag\Square\Builders\CustomerBuilder;
 use stdClass;
 use Nikolag\Square\Utils\Util;
 use SquareConnect\ApiException;
@@ -11,6 +10,7 @@ use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
 use SquareConnect\Model\CreateOrderRequest;
+use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use SquareConnect\Model\CreateCustomerRequest;
 use Nikolag\Square\Builders\SquareRequestBuilder;
