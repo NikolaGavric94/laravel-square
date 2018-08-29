@@ -4,32 +4,53 @@ php:
     - 7.0
     - 7.1
     - 7.2
-
 env:
+    matrix:
+        - ILLUMINATE_VERSION=5.5.* ORCHESTRA_TESTBENCH_VERSION=3.5.*
     global:
-        secure: "iEpr+HXhmkt2OLMARFSWVLRLM6mseoNGmL3jf6jisi/nYeoeAwGTmibiyrDXHI8QJ1qWlZ4HT+ElchLNNY7BhQtxjCzF3x3A+BOfNm8bCssB+WtjABr92Lleb1OSmCoW1cp6eKiE/x92BgJR4KmQGeThT6TFXFm71fBnm6NcMFOpClMVhHC5jI588xGd/hI6sXAWVBI5mxJ+BABvXYcSPawpKo9KLMR9lCUVsAPraorDMtLzkWrj0uzIW854cKitAQMKm183UNkR/xdCQlV8MMFM5UZDfT6HUdjudgZeAjDeu2BevxQYWzPGop48AwX9W9BPnvkWkI9W1HRaOzTBw/lGR2xWK9LrdiLhNj5kt5QViygBCtBxRobtgg244w3rI9XWlyOawaV1h4goSiumwOJiaKgVogwsmeFaNSGESTAxyqMCXjd1ugXl+u2PHetzV2swDh9RYE9qT31s0EGAmr86CiGYtm4jE8trtb03HTp8J7GxKLiqeC6vJf4aCiKNBOaRt4O0dDNyLW+MIMFJQhHsQCetM5NYh9JGqKmySjBa1KYanJij1Y0SCLxjxbXHqhY73zM1TKiMy+ggEJIZZNs7p2Q0Gnq4ijJuVj0/ccNVcfReL2/NvRM6rTQwe1e1J8TGxKtfWux00TQCRAFHDDhWrtRtQo7YYOz/RZmaSfc="
+        secure: "l2TUjYEl2kOihVotX7UAhoKqpry09XQMHhYWbzr3I+sc3sxniWVQPiDEXxrqKCRM1tBIf/KDSx4lrmHFDar+q3vg8AiQHHQRUOW8KrAkDt7fx5w8fBdnvY/exGVoURINxl/MT0+LazTh6lQ6E/oNp7No0OzkKppcAiR47D5lqfg73mkE+YJCRegAblUEW1uf4nM83E5je+GK1lB8mZ0Dzr6KxSr9m8QHeSaj2pZE2JAZ/jUJ07LIuUHvyt5UowT9DQi2k1i3MHm9jOosA8RIyRpAikzdl7WSKO8lCGKbo50SeNM7u510KPifZkrMdGhNpsGcGI6L0/IQUn/FUpczSbYN+VyiWw3+y2vjx5j8fCgIZGnXDquDJvHE7N32kmFvwKwPUe+Sq7KM1o90+HZEmonMFU9csahIC47ZRQVWtxp67Ft49kDvrqBALef5xMzvJeB9N6pcidGgBfZdi+4Gj4eHwFPkJ+pz5L2aBrkWLksV3Qt/lXRdBukzkIO0NxWvlVIxNsGXQ8h03y09lf+MLvlH2dhZXM7+ePDL5sjPdaQFNKlhx++sTQrtZohEcgeObYgaZ+EUde7qm8kmJPUGSYWcJ91JrCs890MPGvGvdkTDLSzjEM68XWZ7FVjFqPkjrj1iSbteo2woSQuj+N+9rYMLxI82SjGDfdCiQ3g++5Q="
 
 addons:
     code_climate:
         repo_token:
             secure: "RnnIrzTkNYZn5ocWr8dIenHBFk/cwzF4AUvgHMZQlsHtgFclIX204xMEHL0bF+DR1XJNYqNE7Dk7Oqt1bt62ht7eTmOsOKhxcoDirbjp1We0o24ZyRIoso9qUg4YoDlc0K+QPx/u6OZHRkLny2+BHKPpLDV3MMSBo+n8MZJ1WiVqBpuHmlT3WV4kfeBpZoLDxbfVfFlczP27BV9M6anlT6ntsdR6HmqHruFQKvN+ulH5VFbBrQEEHsq/+zpcepS6rumoDhvD2BxjHGV046/GQSEiAcCEwsmgeSFilz2QqVXEx/xlJVqwCSxoih63e7uBfEgRPTuQ3CEsKVhnPzy1T72xqRsHOoYpQO//nXSER5LFlW7Sul2W1Zvzbco6LKQ4RXrdVzh3olCzBo8Ze4nkiHdsdUHkK0mM9ckR3WWWbFpmK0R4eACwzrpZC+7GUZmG+Xzipa716Bx9kT3XtOzlzOSWRlsLDlBML9LnkK6V1QOhgeotl6QqXcTWxnzPB9Dbjm0gF0Tpv+DSn9zRMvR2P1eKr7JFGiy4/FZ0W0aMd1HZPYRI7vwBHABRx2sgo7p5QFEoP/VmC73qRBVmCemPbF4R9hp0hhGrV7HHfb2DL1NjagkHdPDAIteHXpDc37EyP6ZH2JS/svCXTjq9HlpOnWaT85mq6EQxHZi7Xva46QY="
 
-before_script:
-    - phpenv config-rm xdebug.ini
+before_install:
+    - composer require illuminate/config:${ILLUMINATE_VERSION} --no-update
+    - composer require illuminate/console:${ILLUMINATE_VERSION} --no-update
+    - composer require illuminate/contracts:${ILLUMINATE_VERSION} --no-update
+    - composer require illuminate/container:${ILLUMINATE_VERSION} --no-update
+    - composer require illuminate/database:${ILLUMINATE_VERSION} --no-update
+    - composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} --no-update
+    - if [[ "${ILLUMINATE_VERSION}" == "5.7.*" ]]; then composer require --dev mockery/mockery --no-update; fi;
+
+install:
     - cp .env.testing .env
     - composer self-update
-    - composer update --no-scripts
-
+    - composer install --prefer-source --no-interaction
+before_script:
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
+    - ./cc-test-reporter before-build
 script:
-    - phpdbg -qrr vendor/bin/phpunit
+    - vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
 
 after_script:
-    - vendor/bin/test-reporter
+    - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 # allow_failures: Allow this build to fail under the specified environments.
 # fast_finish: If your build fails do not continue trying to build, just stop.
 matrix:
     fast_finish: true
+    include:
+        - php: 7.1
+          env: ILLUMINATE_VERSION=5.6.* ORCHESTRA_TESTBENCH_VERSION=3.6.*
+        - php: 7.1
+          env: ILLUMINATE_VERSION=5.7.* ORCHESTRA_TESTBENCH_VERSION=3.7.x-dev
+        - php: 7.2
+          env: ILLUMINATE_VERSION=5.6.* ORCHESTRA_TESTBENCH_VERSION=3.6.*
+        - php: 7.2
+          env: ILLUMINATE_VERSION=5.7.* ORCHESTRA_TESTBENCH_VERSION=3.7.x-dev
 
 # Customize when the notification emails are sent.
 notifications:
