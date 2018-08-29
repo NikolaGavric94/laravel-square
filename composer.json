@@ -15,11 +15,19 @@
         "email": "nikola.gavric94@gmail.com",
         "role": "Developer"
     }],
+    "repositories": [{
+        "type": "path",
+        "url": "../core/"
+    }],
     "require": {
         "php": ">=7.0.0",
-        "laravel/framework": "~5.5|~5.6",
+        "illuminate/config": "~5.5|~5.6",
+        "illuminate/console": "~5.5|~5.6",
+        "illuminate/contracts": "~5.5|~5.6",
+        "illuminate/container": "~5.5|~5.6",
+        "illuminate/database": "~5.5|~5.6",
         "square/connect": "2.5.*",
-        "nikolag/core": "2.1.*"
+        "nikolag/core": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.7",
@@ -57,7 +65,7 @@
     },
     "scripts": {
         "post-package-install": [
-            "php artisan vendor:publish --tag=nikolag_config"
+
         ]
     },
     "extra": {

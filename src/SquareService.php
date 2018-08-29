@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square;
 
+use Nikolag\Square\Builders\CustomerBuilder;
 use stdClass;
 use Nikolag\Square\Utils\Util;
 use SquareConnect\ApiException;
@@ -44,6 +45,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private $productBuilder;
     /**
+     * @var CustomerBuilder
+     */
+    protected $customerBuilder;
+    /**
      * @var string
      */
     private $locationId;
@@ -67,6 +72,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->orderBuilder = new OrderBuilder();
         $this->squareBuilder = new SquareRequestBuilder();
         $this->productBuilder = new ProductBuilder();
+        $this->customerBuilder = new CustomerBuilder();
     }
 
     /**
@@ -386,15 +392,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param mixed $customer
      *
      * @return self
+     * @throws MissingPropertyException
      */
     public function setCustomer($customer)
     {
         $customerClass = Constants::CUSTOMER_NAMESPACE;
 
         if (is_a($customer, $customerClass)) {
-            $this->customer = $customer;
+            $this->customer = $this->customerBuilder->load($customer->toArray());
         } elseif (is_array($customer)) {
-            $this->customer = new $customerClass($customer);
+            $this->customer = $this->customerBuilder->load($customer);
         }
 
         if ($customer) {
