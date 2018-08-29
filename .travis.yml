@@ -22,6 +22,7 @@ before_install:
     - composer require illuminate/container:${ILLUMINATE_VERSION} --no-update
     - composer require illuminate/database:${ILLUMINATE_VERSION} --no-update
     - composer require orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} --no-update
+    - composer require --dev mockery/mockery --no-update
 
 install:
     - phpenv config-rm xdebug.ini
