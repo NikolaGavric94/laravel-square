@@ -3,14 +3,13 @@
  * Created by PhpStorm.
  * User: nikola
  * Date: 7/6/18
- * Time: 00:06
+ * Time: 00:06.
  */
 
 namespace Nikolag\Square\Builders;
 
-
-use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 
 class CustomerBuilder
 {
@@ -33,7 +32,7 @@ class CustomerBuilder
         /** @var \Nikolag\Square\Models\Customer $temp */$temp = new $this->customerClass;
         //If email doesn't exist on the customer
         //throw new exception because it should exist
-        if (!array_key_exists('email', $data) || $data['email'] == null) {
+        if (! array_key_exists('email', $data) || $data['email'] == null) {
             throw new MissingPropertyException('$email property for object Customer is missing or is null', 500);
         }
 

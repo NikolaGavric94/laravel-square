@@ -37,7 +37,7 @@ class Customer extends CoreCustomer
     }
 
     /**
-     * Initiate this customer
+     * Initiate this customer.
      *
      * @param array $data
      *
