@@ -27,7 +27,6 @@
     },
     "require-dev": {
         "fzaninotto/faker": "^1.7",
-        "codeclimate/php-test-reporter": "^0.4.4",
         "orchestra/testbench": "~3.5.0|~3.6.0|~3.7.0",
         "phpunit/phpunit": "~6.0|~7.0"
     },
