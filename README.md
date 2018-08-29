@@ -15,11 +15,8 @@ Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com
 4.  [Examples](#examples) 
 5.  [Available methods](#all-traits-and-their-methods) 
 6.  [Contributing](#contributing) 
-7.  [License](#license)
-
-## Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)
-
-Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
+7.  [Donation](#donating) 
+8.  [License](#license)
 
 ## Installation guide
 `composer require nikolag/laravel-square`
@@ -29,7 +26,11 @@ But there are still couple of steps to do in order to use this package.
 
 ---
 
-Configuration files will automatically be published for you and you should check it out at `config/nikolag.php` before continuing.
+First you have to publish configuration files:
+```sh
+php artisan vendor:publish --tag=nikolag_config
+```
+Check configuration files out at `config/nikolag.php` before continuing.
 
 **Important:** If for some reason you can't see `square` driver inside of `connections` array, you'll have to add it manually. You can find configuration file [here](https://github.com/NikolaGavric94/laravel-square/blob/master/src/config/nikolag.php) and copy everything from inside `connections` array and **append** to your `connections` array inside of published config file (`config/nikolag.php`)
 
@@ -118,6 +119,10 @@ All methods for this facade are moved to the [wiki](https://github.com/NikolaGav
 Everyone is welcome to contribute to this repository, simply open up an issue
 and label the request, whether it is an issue, bug or a feature. For any other
 enquiries send an email to nikola.gavric94@gmail.com
+
+## <a name="donating">Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
+
+Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
 
 ### Contributors
 | Name                                               | Changes                                                                                                                       | Date       |

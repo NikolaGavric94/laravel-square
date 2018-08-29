@@ -123,7 +123,14 @@ Transaction fields:
 - Proper resolving of passed options for `transactions` method inside `SquareService`
 - `charge` method on `HasProducts` trait to now properly pass in location id
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.1...HEAD
+## [2.1.2] - 2018-08-29
+### Added
+- `Customer` builder
+
+### Changed
+- `SquareService` code cleanup
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.2...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -134,3 +141,4 @@ Transaction fields:
 [2.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.0...v2.0.1
 [2.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.1...v2.1.0
 [2.1.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.0...v2.1.1
+[2.1.2]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.1...v2.1.2
