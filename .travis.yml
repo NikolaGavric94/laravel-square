@@ -25,7 +25,6 @@ before_install:
     - if [[ "${ILLUMINATE_VERSION}" == "5.7.*" ]]; then composer require --dev mockery/mockery --no-update; fi;
 
 install:
-    - phpenv config-rm xdebug.ini
     - cp .env.testing .env
     - composer self-update
     - composer install --prefer-source --no-interaction
