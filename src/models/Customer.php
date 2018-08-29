@@ -35,4 +35,20 @@ class Customer extends CoreCustomer
     {
         return $this->hasMany(Constants::TRANSACTION_NAMESPACE, 'customer_id', Constants::CUSTOMER_IDENTIFIER);
     }
+
+    /**
+     * Initiate this customer.
+     *
+     * @param array $data
+     *
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null
+     */
+    public function initiateOrSave(array $data)
+    {
+        $query = $this->newQuery()->where('email', $data['email']);
+
+        $this->fill($data);
+
+        return $query->exists() ? $query->first() : $this;
+    }
 }
