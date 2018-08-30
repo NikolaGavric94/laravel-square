@@ -13,9 +13,9 @@ Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com
 2.  [Customer System](#customers-system) 
 3.  [Order System](#orders-system) 
 4.  [Examples](#examples) 
-5.  [Available methods](#all-traits-and-their-methods) 
+5.  [Available methods](#all-traits-and-their-methods)  
 6.  [Contributing](#contributing) 
-7.  [Donation](#donating) 
+7.  [Donation](#donating)
 8.  [License](#license)
 
 ## Installation guide
@@ -120,19 +120,19 @@ Everyone is welcome to contribute to this repository, simply open up an issue
 and label the request, whether it is an issue, bug or a feature. For any other
 enquiries send an email to nikola.gavric94@gmail.com
 
-## <a name="donating">Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
-
-Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
-
 ### Contributors
 | Name                                               | Changes                                                                                                                       | Date       |
 | -------------------------------------------------- |:-----------------------------------------------------------------------------------------------------------------------------:|:----------:|
 | [@Godlikehobbit](https://github.com/Godlikehobbit) | Add optional currency parameter to charge function [pull request #6](https://github.com/NikolaGavric94/laravel-square/pull/6) | 2017-09-12 |
 
+## <a name="donating">Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
+
+Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
+
 ## License
 MIT License
 
-Copyright (c) 2018
+Copyright (c) 2018 Nikola Gavrić <nikola.gavric94@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

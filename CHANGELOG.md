@@ -130,7 +130,24 @@ Transaction fields:
 ### Changed
 - `SquareService` code cleanup
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.2...HEAD
+## [2.2.0] - 2018-08-30
+### Added
+- `Laravel 5.7` and `Lumen >= 5.5` integration
+- `Lumen` and `Laravel` integration tests
+- Latest `square/connect` version (2.9)
+- Latest `orchestra/testbench` version (3.7) 
+
+### Changed
+- Improved `TravisCI` configuration
+- Updated `CodeClimate` test reporter
+- Improved test coverage
+- Improved environment test coverage
+
+### Fixed
+- Removed deprecated `CodeClimate` test reporter
+- Test report triggers on `CodeClimate` are not per commit
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -142,3 +159,4 @@ Transaction fields:
 [2.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.0.1...v2.1.0
 [2.1.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.0...v2.1.1
 [2.1.2]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.1...v2.1.2
+[2.2.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.2...v2.2.0
