@@ -7,7 +7,7 @@ laravel-square
 
 <!-- [![Total Downloads](https://poser.pugx.org/laravel-square/downloads)](https://packagist.org/packages/laravel-square) -->
 
-Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
+Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 1.  [Installation guide](#installation-guide) 
 2.  [Customer System](#customers-system) 
