@@ -33,7 +33,7 @@ class OrderTest extends TestCase
         $this->assertCount(5, $order->discounts, 'Discounts count doesn\'t match');
         $this->assertNotNull($order->taxes, 'Taxes are empty.');
         $this->assertCount(3, $order->taxes, 'Taxes count doesn\'t match');
-    }
+    }//018245334 063451631 Bora i mica
 
     /**
      * Charge with order.
@@ -67,7 +67,7 @@ class OrderTest extends TestCase
         $data = [
             'location_id' => env('SQUARE_LOCATION'),
             'amount' => 445,
-            'card_nonce' => 'fake-card-nonce-ok',
+            'card_nonce' => 'cnon:card-nonce-ok',
         ];
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'));

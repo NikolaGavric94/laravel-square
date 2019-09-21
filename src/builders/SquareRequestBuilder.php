@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square\Builders;
 
-use SquareConnect\Model\ChargeRequest;
 use Illuminate\Database\Eloquent\Model;
 use SquareConnect\Model\CreateOrderRequest;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,6 +11,7 @@ use SquareConnect\Model\CreateOrderRequestDiscount;
 use SquareConnect\Model\CreateOrderRequestLineItem;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use SquareConnect\Model\CreatePaymentRequest;
 
 class SquareRequestBuilder
 {
@@ -20,11 +20,11 @@ class SquareRequestBuilder
      *
      * @param array $prepData
      *
-     * @return \SquareConnect\Model\ChargeRequest
+     * @return \SquareConnect\Model\CreatePaymentRequest
      */
     public function buildChargeRequest(array $prepData)
     {
-        return new ChargeRequest($prepData);
+        return new CreatePaymentRequest($prepData);
     }
 
     /**

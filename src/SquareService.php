@@ -221,7 +221,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 'amount'   => $data['amount'],
                 'currency' => $currency,
             ],
-            'card_nonce' => $data['card_nonce'],
+            'source_id' => $data['card_nonce'],
         ];
 
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount'], 'currency' => $currency]);
@@ -265,7 +265,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         try {
             $chargeRequest = $this->squareBuilder->buildChargeRequest($prepData);
-            $response = $this->config->transactionsAPI->charge($data['location_id'], $chargeRequest)->getTransaction();
+            $response = $this->config->paymentsAPI->createPayment($chargeRequest)->getPayment();
 
             $transaction->payment_service_id = $response->getId();
             $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
@@ -284,14 +284,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Transactions directly from Square API.
+     * Payments directly from Square API.
+     * Please check: https://developer.squareup.com/reference/square/payments-api/list-payments#query-parameters
+     * for options that you can pass to this function.
      *
      * @param array $options
      *
-     * @return \SquareConnect\Model\ListTransactionsResponse
+     * @return \SquareConnect\Model\ListPaymentsResponse
      * @throws ApiException
      */
-    public function transactions(array $options)
+    public function payments(array $options)
     {
         $options = [
             'location_id' => array_key_exists('location_id', $options) ? $options['location_id'] : null,
@@ -301,9 +303,17 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             'cursor' => array_key_exists('cursor', $options) ? $options['cursor'] : null,
         ];
 
-        $transactions = $this->config->transactionsAPI->listTransactions($options['location_id'] ?? $this->locationId, $options['begin_time'], $options['end_time'], $options['sort_order'], $options['cursor']);
+        $payments = $this->config->paymentsAPI->listPayments(
+            $options['begin_time'],
+            $options['end_time'],
+            $options['sort_order'],
+            $options['cursor'],
+            $options['location_id'] ?? $this->locationId,
+            $options['total'],
+            $options['last_4'],
+            $options['card_brand']);
 
-        return $transactions;
+        return $payments;
     }
 
     /**

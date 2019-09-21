@@ -4,6 +4,8 @@ namespace Nikolag\Square;
 
 use Nikolag\Core\CoreConfig;
 use SquareConnect\Api\OrdersApi;
+use SquareConnect\Api\PaymentsApi;
+use SquareConnect\ApiClient;
 use SquareConnect\Configuration;
 use SquareConnect\Api\CustomersApi;
 use SquareConnect\Api\LocationsApi;
@@ -28,6 +30,10 @@ class SquareConfig extends CoreConfig implements ConfigContract
      * @var \SquareConnect\Api\OrdersApi
      */
     public $ordersAPI;
+    /**
+     * @var \SquareConnect\Api\PaymentsApi
+     */
+    public $paymentsAPI;
 
     /**
      * SquareConfig constructor.
@@ -39,23 +45,15 @@ class SquareConfig extends CoreConfig implements ConfigContract
         parent::__construct();
         $this->config = config('nikolag.connections.square');
         $this->checkConfigValidity($this->config);
-        $this->setAccessToken($this->config['access_token']);
-        $this->locationsAPI = new LocationsApi();
-        $this->customersAPI = new CustomersApi();
-        $this->transactionsAPI = new TransactionsApi();
-        $this->ordersAPI = new OrdersApi();
-    }
-
-    /**
-     * Access token for square.
-     *
-     * @param string $accessToken
-     *
-     * @return void
-     */
-    public function setAccessToken(string $accessToken)
-    {
-        Configuration::getDefaultConfiguration()->setAccessToken($accessToken);
+        $squareConfig = new Configuration();
+        $squareConfig->setHost("https://connect.squareup.com");
+        $squareConfig->setAccessToken($this->config['access_token']);
+        $api_client = new ApiClient($squareConfig);
+        $this->locationsAPI = new LocationsApi($api_client);
+        $this->customersAPI = new CustomersApi($api_client);
+        $this->transactionsAPI = new TransactionsApi($api_client);
+        $this->ordersAPI = new OrdersApi($api_client);
+        $this->paymentsAPI = new PaymentsApi($api_client);
     }
 
     /**
@@ -96,6 +94,16 @@ class SquareConfig extends CoreConfig implements ConfigContract
     public function ordersAPI()
     {
         return $this->ordersAPI;
+    }
+
+    /**
+     * Api for payments.
+     *
+     * @return PaymentsApi
+     */
+    public function paymentsAPI()
+    {
+        return $this->paymentsAPI;
     }
 
     /**
