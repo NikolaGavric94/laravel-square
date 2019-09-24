@@ -5,21 +5,16 @@ laravel-square
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
 =========
 
-<!-- [![Total Downloads](https://poser.pugx.org/laravel-square/downloads)](https://packagist.org/packages/laravel-square) -->
-
-Square integration with Laravel >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
+Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 1.  [Installation guide](#installation-guide) 
 2.  [Customer System](#customers-system) 
 3.  [Order System](#orders-system) 
 4.  [Examples](#examples) 
-5.  [Available methods](#all-traits-and-their-methods) 
+5.  [Available methods](#all-traits-and-their-methods)  
 6.  [Contributing](#contributing) 
-7.  [License](#license)
-
-## Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)
-
-Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
+7.  [Donation](#donating)
+8.  [License](#license)
 
 ## Installation guide
 `composer require nikolag/laravel-square`
@@ -29,7 +24,11 @@ But there are still couple of steps to do in order to use this package.
 
 ---
 
-Configuration files will automatically be published for you and you should check it out at `config/nikolag.php` before continuing.
+First you have to publish configuration files:
+```sh
+php artisan vendor:publish --tag=nikolag_config
+```
+Check configuration files out at `config/nikolag.php` before continuing.
 
 **Important:** If for some reason you can't see `square` driver inside of `connections` array, you'll have to add it manually. You can find configuration file [here](https://github.com/NikolaGavric94/laravel-square/blob/master/src/config/nikolag.php) and copy everything from inside `connections` array and **append** to your `connections` array inside of published config file (`config/nikolag.php`)
 
@@ -123,11 +122,18 @@ enquiries send an email to nikola.gavric94@gmail.com
 | Name                                               | Changes                                                                                                                       | Date       |
 | -------------------------------------------------- |:-----------------------------------------------------------------------------------------------------------------------------:|:----------:|
 | [@Godlikehobbit](https://github.com/Godlikehobbit) | Add optional currency parameter to charge function [pull request #6](https://github.com/NikolaGavric94/laravel-square/pull/6) | 2017-09-12 |
+| [@PaulJulio](https://github.com/PaulJulio) | Cap square/connect version to resolve deprecation exceptions [pull request #27](https://github.com/NikolaGavric94/laravel-square/pull/27) | 2019-09-20 |
+
+Special thanks to all of the contributors!
+
+## <a name="donating">Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
+
+Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
 
 ## License
 MIT License
 
-Copyright (c) 2018
+Copyright (c) 2018 Nikola Gavrić <nikola.gavric94@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
