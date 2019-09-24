@@ -1,11 +1,18 @@
+# MacOS excludes
 *.DS_Store
 **.DS_Store
-vendor/
-composer.lock
-.env
-*.cache
-laravel-square.wiki/
+
+# General
 .idea/
+.gitconfig
+.env
+composer.lock
+vendor/
+*.cache
+
+# Wiki
+laravel-square.wiki/
+
+# PHPUnit
 build/
 phpunit.xml
-.gitconfig
