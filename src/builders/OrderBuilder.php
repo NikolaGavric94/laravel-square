@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Builders;
 
+use Illuminate\Support\Arr;
 use stdClass;
 use Nikolag\Square\Utils\Constants;
 use Illuminate\Database\Eloquent\Model;
@@ -192,32 +193,32 @@ class OrderBuilder
             $orderCopy = new stdClass();
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
-            if (array_has($order, 'taxes') && $order['taxes'] != null) {
+            if (Arr::has($order, 'taxes') && $order['taxes'] != null) {
                 $orderCopy->taxes = $this->taxesBuilder->createTaxes($order['taxes']);
             }
             // Create discounts Collection
             $orderCopy->discounts = collect([]);
             //Order Discounts
-            if (array_has($order, 'discounts') && $order['discounts'] != null) {
+            if (Arr::has($order, 'discounts') && $order['discounts'] != null) {
                 $orderCopy->discounts = $this->discountBuilder->createDiscounts($order['discounts']);
             }
             // Create products Collection
             $orderCopy->products = collect([]);
             //Products
-            if (array_has($order, 'products') && $order['products'] != null) {
+            if (Arr::has($order, 'products') && $order['products'] != null) {
                 foreach ($order['products'] as $product) {
                     // Create product
                     $productTemp = $this->productBuilder->createProductFromArray($product);
                     // Create discounts Collection
                     $productTemp->discounts = collect([]);
                     //Product Discounts
-                    if (array_has($product, 'discounts')) {
+                    if (Arr::has($product, 'discounts')) {
                         $productTemp->discounts = $this->discountBuilder->createDiscounts($product['discounts'], $productTemp->productPivot);
                     }
                     // Create taxes Collection
                     $productTemp->taxes = collect([]);
                     //Product Taxes
-                    if (array_has($product, 'taxes')) {
+                    if (Arr::has($product, 'taxes')) {
                         $productTemp->taxes = $this->taxesBuilder->createTaxes($product['taxes'], $productTemp->productPivot);
                     }
                     $orderCopy->products->push($productTemp);

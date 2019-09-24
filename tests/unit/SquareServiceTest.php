@@ -41,113 +41,92 @@ class SquareServiceTest extends TestCase
     /**
      * Charge with non existing nonce.
      *
-     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareNonceException
-     * @expectedExceptionCode 404
-     *
      * @return void
      */
     public function test_square_charge_wrong_nonce()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'not-existant-nonce', 'location_id' => env('SQUARE_LOCATION')]);
-
         $this->expectException(InvalidSquareNonceException::class);
         $this->expectExceptionCode(404);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'not-existant-nonce', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
      * Charge with wrong CVV.
      *
-     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareCvvException
-     * @expectedExceptionCode 402
-     *
      * @return void
      */
     public function test_square_charge_wrong_cvv()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
-
         $this->expectException(InvalidSquareCvvException::class);
         $this->expectExceptionCode(402);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
      * Charge with wrong Postal Code.
      *
-     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareZipcodeException
-     * @expectedExceptionCode 402
-     *
      * @return void
      */
     public function test_square_charge_wrong_postal()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
-
         $this->expectException(InvalidSquareZipcodeException::class);
         $this->expectExceptionCode(402);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
      * Charge with wrong Expiration date.
      *
-     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareExpirationDateException
-     * @expectedExceptionCode 400
-     *
      * @return void
      */
     public function test_square_charge_wrong_expiration_date()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
-
         $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
      * Charge declined.
      *
-     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareExpirationDateException
-     * @expectedExceptionCode 400
-     *
      * @return void
      */
     public function test_square_charge_declined()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
-
         $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
      * Charge with already used nonce.
      *
-     * @expectedException \Nikolag\Square\Exceptions\UsedSquareNonceException
-     * @expectedExceptionCode 400
-     *
      * @return void
      */
     public function test_square_charge_used_nonce()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-already-used', 'location_id' => env('SQUARE_LOCATION')]);
-
         $this->expectException(UsedSquareNonceException::class);
         $this->expectExceptionCode(400);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-already-used', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
      * Charge with non-existant currency.
      *
-     * @expectedException \Nikolag\Square\Exceptions\InvalidSquareCurrencyException
-     * @expectedExceptionCode 400
-     *
      * @return void
      */
     public function test_square_charge_non_existant_currency()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
-
         $this->expectException(InvalidSquareCurrencyException::class);
         $this->expectExceptionCode(400);
+
+        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
     }
 
     /**
@@ -242,6 +221,7 @@ class SquareServiceTest extends TestCase
      * Save and charge an order through facade.
      *
      * @return void
+     * @throws \Nikolag\Core\Exceptions\Exception
      */
     public function test_square_order_facade_save_and_charge()
     {

@@ -98,19 +98,17 @@ class ProductTest extends TestCase
     /**
      * Order creation without location id, testing exception case.
      *
-     * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
-     * @expectedExceptionMessage Required field is missing
-     * @expectedExceptionCode 500
+     * @return void
      */
     public function test_order_missing_location_id_exception()
     {
         $order = factory(Order::class)->create();
         $product = factory(Product::class)->create();
 
-        Square::setOrder($order, env('SQUARE_LOCATION'))->addProduct($product, 0);
-
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('Required field is missing');
         $this->expectExceptionCode(500);
+
+        Square::setOrder($order, env('SQUARE_LOCATION'))->addProduct($product, 0);
     }
 }
