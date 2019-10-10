@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\Models\Order;
@@ -22,7 +24,7 @@ $factory = app(EloquentFactory::class);
 $factory->define(Constants::TAX_NAMESPACE, function (Faker\Generator $faker) {
     return [
         'name'       => $faker->unique()->company,
-        'type'       => array_random([Constants::TAX_ADDITIVE, Constants::TAX_INCLUSIVE]),
+        'type'       => Arr::random([Constants::TAX_ADDITIVE, Constants::TAX_INCLUSIVE]),
         'percentage' => $faker->randomFloat(2, 1, 100),
     ];
 });
@@ -96,7 +98,7 @@ $factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'status'   => array_random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
+        'status'   => Arr::random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
         'amount'   => $faker->numberBetween(5000, 500000),
         'currency' => 'USD',
     ];
@@ -129,6 +131,6 @@ $factory->define(User::class, function (Faker\Generator $faker) {
         'name'           => $faker->name,
         'email'          => $faker->unique()->safeEmail,
         'password'       => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'remember_token' => Str::random(10),
     ];
 });

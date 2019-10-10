@@ -2,10 +2,10 @@
 
 namespace Nikolag\Square\Builders;
 
+use Illuminate\Support\Arr;
 use stdClass;
 use Nikolag\Square\Models\Product;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 
@@ -85,7 +85,7 @@ class ProductBuilder
             $tempQuantity = null;
 
             // If $product has quantity
-            if (array_has($product, 'quantity')) {
+            if (Arr::has($product, 'quantity')) {
                 $tempQuantity = $product['quantity'];
             }
 
@@ -105,13 +105,13 @@ class ProductBuilder
             // Create taxes Collection
             $productCopy->discounts = collect([]);
             //Discounts
-            if (array_has($product, 'discounts')) {
+            if (Arr::has($product, 'discounts')) {
                 $productCopy->discounts = $this->discountBuilder->createDiscounts($product['discounts'], $productCopy->productPivot);
             }
             // Create taxes Collection
             $productCopy->taxes = collect([]);
             //Taxes
-            if (array_has($product, 'taxes')) {
+            if (Arr::has($product, 'taxes')) {
                 $productCopy->taxes = $this->taxesBuilder->createTaxes($product['taxes'], $productCopy->productPivot);
             }
 
@@ -136,12 +136,12 @@ class ProductBuilder
         //If product doesn't have quantity in pivot table
         //throw new exception because every product should
         //have at least 1 quantity
-        if (! array_has($product, 'quantity') || $product['quantity'] == null || $product['quantity'] == 0) {
+        if (! Arr::has($product, 'quantity') || $product['quantity'] == null || $product['quantity'] == 0) {
             throw new MissingPropertyException('$quantity property for object Product is missing', 500);
         }
         //Check if order is present and if already has this product
         //or if product doesn't have property $id then create new Product object
-        if (($order && ! $order->hasProduct($product)) || ! array_has($product, 'id')) {
+        if (($order && ! $order->hasProduct($product)) || ! Arr::has($product, 'id')) {
             $tempProduct = new Product($product);
             $productPivot = new OrderProductPivot($product);
         } else {
@@ -183,7 +183,7 @@ class ProductBuilder
         }
         // Check if order is present and if already has this product
         // or if product doesn't have property $id then create new Product object
-        if (($order && ! $order->hasProduct($product)) && ! array_has($product->toArray(), 'id')) {
+        if (($order && ! $order->hasProduct($product)) && ! Arr::has($product->toArray(), 'id')) {
             $tempProduct = new Product($product->toArray());
             $productPivot = new OrderProductPivot($product->toArray());
         } else {

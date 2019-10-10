@@ -39,6 +39,7 @@ class OrderTest extends TestCase
      * Charge with order.
      *
      * @return void
+     * @throws \Nikolag\Core\Exceptions\Exception
      */
     public function test_order_charge()
     {
@@ -85,34 +86,31 @@ class OrderTest extends TestCase
     /**
      * Order creation without order, testing exception case.
      *
-     * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
-     * @expectedExceptionMessage $order property is missing
-     * @expectedExceptionCode 500
+     * @return void
      */
     public function test_order_missing_order_exception()
     {
-        Square::setOrder(null, '');
-
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('$order property is missing');
         $this->expectExceptionCode(500);
+
+        Square::setOrder(null, '');
     }
 
     /**
      * Order creation without location id, testing exception case.
      *
-     * @expectedException \Nikolag\Square\Exceptions\MissingPropertyException
-     * @expectedExceptionMessage $locationId property is missing
-     * @expectedExceptionCode 500
+     * @return void
      */
     public function test_order_missing_location_id_exception()
     {
         $order = factory(Order::class)->create();
-        Square::setOrder($order, '');
 
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('$locationId property is missing');
         $this->expectExceptionCode(500);
+
+        Square::setOrder($order, '');
     }
 
     /**

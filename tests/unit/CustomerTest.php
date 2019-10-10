@@ -46,7 +46,6 @@ class CustomerTest extends TestCase
      */
     public function test_customers_have_transactions()
     {
-        //$user = factory(User::class)->create();
         $customers = factory(Customer::class, 25)
             ->create()
             ->each(function ($customer) {
