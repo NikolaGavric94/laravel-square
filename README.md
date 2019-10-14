@@ -1,4 +1,7 @@
-laravel-square 
+<p><a href="https://medium.com/square-corner-blog/square-implementation-with-laravel-22a4ad3fe1ec">
+    <img src="https://miro.medium.com/max/1920/1*84QaUM_X3hvpO8qe9b_5jw.png" title="Nikolag Laravel Package" />
+</a></p>
+
 [![Test Coverage](https://api.codeclimate.com/v1/badges/7b6c53096c35381463c5/test_coverage)](https://codeclimate.com/github/NikolaGavric94/laravel-square/test_coverage) 
 [![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg)](https://travis-ci.org/NikolaGavric94/laravel-square) 
 [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
@@ -7,14 +10,23 @@ laravel-square
 
 Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
-1.  [Installation guide](#installation-guide) 
-2.  [Customer System](#customers-system) 
-3.  [Order System](#orders-system) 
-4.  [Examples](#examples) 
-5.  [Available methods](#all-traits-and-their-methods)  
-6.  [Contributing](#contributing) 
-7.  [Donation](#donating)
-8.  [License](#license)
+1.  [Version Compatibility](#compatibility)
+2.  [Installation guide](#installation-guide) 
+3.  [Customer System](#customers-system) 
+4.  [Order System](#orders-system) 
+5.  [Examples](#examples) 
+6.  [Available methods](#all-traits-and-their-methods)  
+7.  [Contributing](#contributing) 
+8.  [Donation](#donating)
+9.  [License](#license)
+
+
+## Version Compatibility
+
+| Library Version 	| Laravel/Lumen Version 	| Square Version                   	|
+|:-----------------:|:-------------------------:|:---------------------------------:|
+| < 2.3.0          	|&nbsp;  >= 5.5                  	    | < [2.20190814](https://github.com/square/connect-php-sdk/tree/2.20190710.0)                      	|
+| [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 	|&nbsp; >= 5.5                   	| [2.20190814.2 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) 	|
 
 ## Installation guide
 `composer require nikolag/laravel-square`
@@ -133,7 +145,7 @@ Any amount helps to dedicate more time and resources for developing new stuff an
 ## License
 MIT License
 
-Copyright (c) 2018 Nikola Gavrić <nikola.gavric94@gmail.com>
+Copyright (c) Nikola Gavrić <nikola.gavric94@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
