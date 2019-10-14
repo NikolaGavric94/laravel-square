@@ -16,7 +16,6 @@ use SquareConnect\Model\CreateCustomerRequest;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
@@ -159,12 +158,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $exceptionJSON = $exception->getResponseBody()->errors[0];
 
         if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
-            if ($exceptionJSON->code == Constants::NOT_FOUND) {
+            if ($exceptionJSON->code == Constants::BAD_REQUEST) {
                 $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
             } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
                 $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
-            } elseif ($exceptionJSON->code == Constants::NONCE_USED) {
-                $exception = new UsedSquareNonceException($exceptionJSON->detail, 400, $exception);
             }
         } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
             if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
@@ -227,7 +224,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 'amount'   => $data['amount'],
                 'currency' => $currency,
             ],
-            'source_id' => $data['card_nonce'],
+            'autocomplete' => true,
+            'source_id' => $data['source_id'],
         ];
 
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount'], 'currency' => $currency]);
@@ -238,8 +236,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         // Save and attach customer
         if ($this->getCustomer()) {
             try {
+                // Save customer on Square portal
                 $this->_saveCustomer();
+                // Save customer into the table for further use
                 $transaction->customer()->associate($this->getCustomer());
+                // Set customer id for square from model
+                $prepData['customer_id'] = $this->getCustomer()->payment_service_id;
             } catch (Exception $e) {
                 throw $e;
             }
@@ -307,6 +309,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             'end_time' => array_key_exists('end_time', $options) ? $options['end_time'] : null,
             'sort_order' => array_key_exists('sort_order', $options) ? $options['sort_order'] : null,
             'cursor' => array_key_exists('cursor', $options) ? $options['cursor'] : null,
+            'total' => array_key_exists('total', $options) ? $options['total'] : null,
+            'last_4' => array_key_exists('last_4', $options) ? $options['last_4'] : null,
+            'card_brand' => array_key_exists('card_brand', $options) ? $options['card_brand'] : null,
         ];
 
         $payments = $this->config->paymentsAPI->listPayments(
@@ -359,7 +364,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @return \SquareConnect\Model\CreateCustomerRequest
+     * @return \SquareConnect\Model\CreateCustomerRequest|\SquareConnect\Model\UpdateCustomerRequest
      */
     public function getCreateCustomerRequest()
     {
