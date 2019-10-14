@@ -64,10 +64,12 @@ class SquareRequestBuilder
     {
         $data = [
             'idempotency_key' => uniqid(),
-            'reference_id'    => (string) $order->id,
-            'line_items'      => $this->buildProducts($order->products, $currency),
-            'discounts'       => $this->buildDiscounts($order->discounts, $currency),
-            'taxes'           => $this->buildTaxes($order->taxes),
+            'order'           => [
+                'reference_id'=> (string) $order->id,
+                'line_items'  => $this->buildProducts($order->products, $currency),
+                'discounts'   => $this->buildDiscounts($order->discounts, $currency),
+                'taxes'       => $this->buildTaxes($order->taxes),
+            ]
         ];
 
         return new CreateOrderRequest($data);
