@@ -26,7 +26,7 @@ trait HasProducts
     public function charge(float $amount, string $nonce, string $location_id, $merchant, $customer = null, string $currency = 'USD')
     {
         return Square::setOrder($this, $location_id)->setMerchant($merchant)->setCustomer($customer)->charge(
-            ['amount' => $amount, 'card_nonce' => $nonce, 'location_id' => $location_id, 'currency' => $currency]
+            ['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency]
         );
     }
 
