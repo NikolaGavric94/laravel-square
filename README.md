@@ -10,7 +10,7 @@
 
 Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
-1.  [Version Compatibility](#compatibility)
+1.  [Version Compatibility](#version-compatibility)
 2.  [Installation guide](#installation-guide) 
 3.  [Customer System](#customers-system) 
 4.  [Order System](#orders-system) 
@@ -138,7 +138,8 @@ enquiries send an email to nikola.gavric94@gmail.com
 
 Special thanks to all of the contributors!
 
-## <a name="donating">Donating [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
+## Donating
+<a name="donating">[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
 
 Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
 
