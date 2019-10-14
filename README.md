@@ -1,12 +1,11 @@
-<p><a href="https://medium.com/square-corner-blog/square-implementation-with-laravel-22a4ad3fe1ec">
-    <img src="https://miro.medium.com/max/1920/1*84QaUM_X3hvpO8qe9b_5jw.png" title="Nikolag Laravel Package" />
-</a></p>
-
 [![Test Coverage](https://api.codeclimate.com/v1/badges/7b6c53096c35381463c5/test_coverage)](https://codeclimate.com/github/NikolaGavric94/laravel-square/test_coverage) 
 [![Build Status](https://travis-ci.org/NikolaGavric94/laravel-square.svg)](https://travis-ci.org/NikolaGavric94/laravel-square) 
 [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
-=========
+<p><a href="https://medium.com/square-corner-blog/square-implementation-with-laravel-22a4ad3fe1ec">
+    <img src="https://miro.medium.com/max/1920/1*84QaUM_X3hvpO8qe9b_5jw.png" title="Nikolag Laravel Package" />
+</a></p>
+==========
 
 Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
