@@ -14,7 +14,6 @@ use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Builders\OrderBuilder;
-use Nikolag\Square\Exceptions\UsedSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
@@ -30,7 +29,7 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_charge_ok()
     {
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]);
 
         $this->assertTrue($response instanceof Transaction, 'Response is not of type Transaction.');
         $this->assertTrue($response->payment_service_type == 'square', 'Response service type is not square');
@@ -48,7 +47,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(InvalidSquareNonceException::class);
         $this->expectExceptionCode(404);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'not-existant-nonce', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'not-existent-nonce', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -61,7 +60,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(InvalidSquareCvvException::class);
         $this->expectExceptionCode(402);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -74,7 +73,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(InvalidSquareZipcodeException::class);
         $this->expectExceptionCode(402);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -87,7 +86,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -100,7 +99,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(InvalidSquareExpirationDateException::class);
         $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -110,10 +109,10 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_charge_used_nonce()
     {
-        $this->expectException(UsedSquareNonceException::class);
-        $this->expectExceptionCode(400);
+        $this->expectException(InvalidSquareCvvException::class);
+        $this->expectExceptionCode(402);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-already-used', 'location_id' => env('SQUARE_LOCATION')]);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -126,7 +125,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(InvalidSquareCurrencyException::class);
         $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
     }
 
     /**
@@ -177,10 +176,10 @@ class SquareServiceTest extends TestCase
             'location_id' => env('SQUARE_LOCATION'),
         ];
 
-        $transactions = Square::transactions($array);
+        $transactions = Square::payments($array);
 
         $this->assertNotNull($transactions);
-        $this->assertInstanceOf('\SquareConnect\Model\ListTransactionsResponse', $transactions);
+        $this->assertInstanceOf('\SquareConnect\Model\ListPaymentsResponse', $transactions);
     }
 
     /**
@@ -234,7 +233,7 @@ class SquareServiceTest extends TestCase
 
         $square = Square::setOrder($orderArr, env('SQUARE_LOCATION'))->save();
         $transaction = $square->charge(
-            ['amount' => $product['price'], 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
+            ['amount' => $product['price'], 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
         );
         //Load order again for equals check
         $transaction->load('order');
@@ -275,7 +274,7 @@ class SquareServiceTest extends TestCase
         $productArr['discounts'] = [$productDiscount->toArray()];
 
         $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
-            ['amount' => 850, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
+            ['amount' => 850, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
         );
 
         $transaction = $transaction->load('merchant', 'customer');
@@ -314,7 +313,7 @@ class SquareServiceTest extends TestCase
         $order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
 
         $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($order, env('SQUARE_LOCATION'))->charge(
-            ['amount' => 850, 'card_nonce' => 'fake-card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
+            ['amount' => 850, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
         );
 
         $transaction = $transaction->load('merchant', 'customer');

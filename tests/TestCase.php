@@ -3,6 +3,7 @@
 namespace Nikolag\Square\Tests;
 
 use Faker\Factory as Faker;
+use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -22,6 +23,11 @@ class TestCase extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
+        // make sure, our .env file is loaded
+        $this->app->useEnvironmentPath(__DIR__.'/..');
+        $this->app->bootstrapWith([LoadEnvironmentVariables::class]);
+        parent::getEnvironmentSetUp($this->app);
+        // setup database migrations, factories and migrate
         $this->loadLaravelMigrations(['--database' => 'square_test']);
         $this->artisan('migrate', ['--database' => 'square_test']);
         $this->withFactories(__DIR__.'/../src/database/factories');

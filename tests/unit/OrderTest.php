@@ -2,6 +2,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Illuminate\Support\Env;
+use Illuminate\Support\Facades\App;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;
@@ -33,7 +35,7 @@ class OrderTest extends TestCase
         $this->assertCount(5, $order->discounts, 'Discounts count doesn\'t match');
         $this->assertNotNull($order->taxes, 'Taxes are empty.');
         $this->assertCount(3, $order->taxes, 'Taxes count doesn\'t match');
-    }//018245334 063451631 Bora i mica
+    }
 
     /**
      * Charge with order.
@@ -68,7 +70,7 @@ class OrderTest extends TestCase
         $data = [
             'location_id' => env('SQUARE_LOCATION'),
             'amount' => 445,
-            'card_nonce' => 'cnon:card-nonce-ok',
+            'source_id' => 'cnon:card-nonce-ok',
         ];
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'));
@@ -127,7 +129,7 @@ class OrderTest extends TestCase
         ]);
         $order->products()->attach($product);
 
-        $response = $order->charge(110, 'fake-card-nonce-ok', env('SQUARE_LOCATION'), $merchant);
+        $response = $order->charge(110, 'cnon:card-nonce-ok', env('SQUARE_LOCATION'), $merchant);
 
         $this->assertTrue($response instanceof Transaction);
         $this->assertTrue($response->payment_service_type == 'square');
