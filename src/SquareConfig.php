@@ -46,7 +46,11 @@ class SquareConfig extends CoreConfig implements ConfigContract
         $this->config = config('nikolag.connections.square');
         $this->checkConfigValidity($this->config);
         $squareConfig = new Configuration();
-        $squareConfig->setHost("https://connect.squareup.com");
+        if (array_key_exists('sandbox', $this->config) && $this->config['sandbox']) {
+            $squareConfig->setHost('https://connect.squareupsandbox.com');
+        } else {
+            $squareConfig->setHost('https://connect.squareup.com');
+        }
         $squareConfig->setAccessToken($this->config['access_token']);
         $api_client = new ApiClient($squareConfig);
         $this->locationsAPI = new LocationsApi($api_client);
