@@ -3,7 +3,6 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Illuminate\Support\Env;
-use Illuminate\Support\Facades\App;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product;

@@ -3,10 +3,10 @@
 namespace Nikolag\Square\Tests;
 
 use Faker\Factory as Faker;
-use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 
 class TestCase extends BaseTestCase
 {
