@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Support\Arr;
 use stdClass;
+use Illuminate\Support\Arr;
 use Nikolag\Square\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Models\OrderProductPivot;
