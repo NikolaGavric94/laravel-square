@@ -160,6 +160,15 @@ Transaction fields:
 ### Changed
 - Improved `TravisCI` configuration
 
+## [2.4.0] - 2019-10-14
+### Added
+- Latest `Square API` version (2.20190925.0)
+- Sandbox environment flag
+
+### Changed
+- Deprecated and removed used nonce exception
+- Taxes, discounts and line items in payments not a top level children anymore https://developer.squareup.com/reference/square/orders-api/create-order#request__property-discounts
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
@@ -175,3 +184,4 @@ Transaction fields:
 [2.2.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.1.2...v2.2.0
 [2.2.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.0...v2.2.1
 [2.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.1...v2.3.0
+[2.4.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.3.0...v2.4.0
