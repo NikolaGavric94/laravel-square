@@ -169,7 +169,7 @@ Transaction fields:
 - Deprecated and removed used nonce exception
 - Taxes, discounts and line items in payments not a top level children anymore https://developer.squareup.com/reference/square/orders-api/create-order#request__property-discounts
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
