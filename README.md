@@ -45,7 +45,7 @@ Check configuration files out at `config/nikolag.php` before continuing.
 **Important:** If for some reason you can't see `square` driver inside of `connections` array, you'll have to add it manually. You can find configuration file [here](https://github.com/NikolaGavric94/laravel-square/blob/master/src/config/nikolag.php) and copy everything from inside `connections` array and **append** to your `connections` array inside of published config file (`config/nikolag.php`)
 
 <p align="center" style="text-align: center;">
-  <img src="https://preview.ibb.co/ddoUGS/nikolag_config.png" alt="nikolag configuration" title="Nikolag Configuration File" />
+  <img src="https://i.ibb.co/vsBCZtJ/Screenshot-2019-10-14-at-10-50-52.png" alt="nikolag configuration" title="Nikolag Configuration File" />
   <br>
   <i>Figure 1. Config file</i>
 </p>
