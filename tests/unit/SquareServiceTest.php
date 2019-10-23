@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Utils\Util;
 use Nikolag\Square\Facades\Square;
@@ -126,6 +127,20 @@ class SquareServiceTest extends TestCase
         $this->expectExceptionCode(400);
 
         $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
+    }
+
+    /**
+     * Charge without location.
+     *
+     * @return void
+     */
+    public function test_square_charge_missing_location_id()
+    {
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessageMatches('\'location_id\'');
+        $this->expectExceptionCode(500);
+
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok']);
     }
 
     /**

@@ -180,6 +180,6 @@ class UserTest extends TestCase
         $this->expectException(InvalidSquareCurrencyException::class);
         $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'), null, 'XXX');
+        $response = $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'), [], null, 'XXX');
     }
 }

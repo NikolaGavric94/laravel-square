@@ -169,7 +169,31 @@ Transaction fields:
 - Deprecated and removed used nonce exception
 - Taxes, discounts and line items in payments not a top level children anymore https://developer.squareup.com/reference/square/orders-api/create-order#request__property-discounts
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.0...HEAD
+## [2.4.1] - 2019-10-23
+### Added
+- `location_id`, `note` and `reference_id` into [charge](https://github.com/NikolaGavric94/laravel-square/blob/3b3f4dcdc5c09adb4206f59484a11baf37034fce/src/SquareService.php#L220) method
+
+### Changed
+- `charge` method signature for both [HasProducts](https://github.com/NikolaGavric94/laravel-square/wiki/HasProducts%20Trait#hasproducts-trait)
+and [HasCustomers](https://github.com/NikolaGavric94/laravel-square/wiki/HasCustomers%20Trait#hascustomers-trait)
+trait
+- **BREAKING CHANGE:** `charge` method when using [facade](https://github.com/NikolaGavric94/laravel-square/wiki/Simple%20Examples)
+approach now requires `location_id`
+to be present in the `$options` array
+- **BREAKING CHANGE:** `charge` method signature for 
+[Customer system](https://github.com/NikolaGavric94/laravel-square/wiki/Customer%20Examples)
+on both 
+[trait](https://github.com/NikolaGavric94/laravel-square/wiki/Customer%20Examples#trait-approach-1)
+and [facade](https://github.com/NikolaGavric94/laravel-square/wiki/Customer%20Examples#facade-approach-1)
+approach
+- **BREAKING CHANGE:** `charge` method signature for 
+[Order system](https://github.com/NikolaGavric94/laravel-square/wiki/Order%20Examples)
+on both 
+[trait](https://github.com/NikolaGavric94/laravel-square/wiki/Order%20Examples#trait-approach)
+and [facade](https://github.com/NikolaGavric94/laravel-square/wiki/Order%20Examples#facade-approach-1)
+approach
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -185,3 +209,4 @@ Transaction fields:
 [2.2.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.0...v2.2.1
 [2.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.1...v2.3.0
 [2.4.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.3.0...v2.4.0
+[2.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...v2.4.1

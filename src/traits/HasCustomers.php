@@ -78,16 +78,17 @@ trait HasCustomers
      * @param float $amount
      * @param string $nonce
      * @param string $location_id
+     * @param array $options
      * @param mixed $customer
      * @param string $currency
      *
      * @return \Nikolag\Square\Models\Transaction
      * @throws \Nikolag\Core\Exceptions\Exception
      */
-    public function charge(float $amount, string $nonce, string $location_id, $customer = null, string $currency = 'USD')
+    public function charge(float $amount, string $nonce, string $location_id, array $options = [], $customer = null, string $currency = 'USD')
     {
         return Square::setMerchant($this)->setCustomer($customer)->charge(
-            ['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency]
+            array_merge(['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency], $options)
         );
     }
 

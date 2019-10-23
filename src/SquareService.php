@@ -217,6 +217,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function charge(array $data)
     {
+        $location_id = array_key_exists('location_id', $data) ? $data['location_id'] : null;
         $currency = array_key_exists('currency', $data) ? $data['currency'] : 'USD';
         $prepData = [
             'idempotency_key' => uniqid(),
@@ -226,7 +227,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             ],
             'autocomplete' => true,
             'source_id' => $data['source_id'],
+            'location_id' => $location_id,
+            'note' => array_key_exists('note', $data) ? $data['note'] : null,
+            'reference_id' => array_key_exists('reference_id', $data) ? (string) $data['reference_id'] : null
         ];
+
+        // Location id is now mandatory to know under which Location we are doing a charge on
+        if (! $prepData['location_id']) {
+            throw new MissingPropertyException('Required field \'location_id\' is missing', 500);
+        }
 
         $transaction = new Transaction(['status' => Constants::TRANSACTION_STATUS_OPENED, 'amount' => $data['amount'], 'currency' => $currency]);
         // Save and attach merchant
