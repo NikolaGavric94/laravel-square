@@ -14,6 +14,7 @@ use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Builders\OrderBuilder;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
@@ -126,6 +127,20 @@ class SquareServiceTest extends TestCase
         $this->expectExceptionCode(400);
 
         $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
+    }
+
+    /**
+     * Charge without location.
+     *
+     * @return void
+     */
+    public function test_square_charge_missing_location_id()
+    {
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Required field \'location_id\' is missing');
+        $this->expectExceptionCode(500);
+
+        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok']);
     }
 
     /**

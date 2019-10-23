@@ -14,19 +14,20 @@ trait HasProducts
     /**
      * Charge an order.
      *
-     * @param float  $amount
+     * @param float $amount
      * @param string $nonce
      * @param string $location_id
-     * @param mixed  $merchant
-     * @param mixed  $customer
+     * @param mixed $merchant
+     * @param array $options
+     * @param mixed $customer
      * @param string $currency
      *
      * @return \Nikolag\Square\Models\Transaction
      */
-    public function charge(float $amount, string $nonce, string $location_id, $merchant, $customer = null, string $currency = 'USD')
+    public function charge(float $amount, string $nonce, string $location_id, $merchant, array $options = [], $customer = null, string $currency = 'USD')
     {
         return Square::setOrder($this, $location_id)->setMerchant($merchant)->setCustomer($customer)->charge(
-            ['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency]
+            array_merge(['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency], $options)
         );
     }
 
