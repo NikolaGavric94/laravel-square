@@ -3,10 +3,10 @@
 namespace Nikolag\Square;
 
 use Nikolag\Core\CoreConfig;
-use SquareConnect\Api\OrdersApi;
-use SquareConnect\Api\PaymentsApi;
 use SquareConnect\ApiClient;
+use SquareConnect\Api\OrdersApi;
 use SquareConnect\Configuration;
+use SquareConnect\Api\PaymentsApi;
 use SquareConnect\Api\CustomersApi;
 use SquareConnect\Api\LocationsApi;
 use SquareConnect\Api\TransactionsApi;
