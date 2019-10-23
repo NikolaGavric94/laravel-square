@@ -229,7 +229,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             'source_id' => $data['source_id'],
             'location_id' => $location_id,
             'note' => array_key_exists('note', $data) ? $data['note'] : null,
-            'reference_id' => array_key_exists('reference_id', $data) ? (string) $data['reference_id'] : null
+            'reference_id' => array_key_exists('reference_id', $data) ? (string) $data['reference_id'] : null,
         ];
 
         // Location id is now mandatory to know under which Location we are doing a charge on
