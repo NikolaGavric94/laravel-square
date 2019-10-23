@@ -137,7 +137,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_missing_location_id()
     {
         $this->expectException(MissingPropertyException::class);
-        $this->expectExceptionMessageMatches('\'location_id\'');
+        $this->expectExceptionMessage('Required field \'location_id\' is missing');
         $this->expectExceptionCode(500);
 
         $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok']);
