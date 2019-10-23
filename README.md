@@ -5,7 +5,8 @@
 <p><a href="https://medium.com/square-corner-blog/square-implementation-with-laravel-22a4ad3fe1ec">
     <img src="https://miro.medium.com/max/1920/1*84QaUM_X3hvpO8qe9b_5jw.png" title="Nikolag Laravel Package" />
 </a></p>
-==========
+
+-------------------------
 
 Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
@@ -25,7 +26,7 @@ Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://gith
 | Library Version 	| Laravel/Lumen Version 	| Square Version                   	|
 |:-----------------:|:-------------------------:|:---------------------------------:|
 | < 2.3.0          	|&nbsp;  >= 5.5                  	    | < [2.20190814](https://github.com/square/connect-php-sdk/tree/2.20190710.0)                      	|
-| [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 	|&nbsp; >= 5.5                   	| [2.20190814.2 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) 	|
+| [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 	|&nbsp; >= 5.5                   	| [2.20190925.0 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) 	|
 
 ## Installation guide
 `composer require nikolag/laravel-square`
