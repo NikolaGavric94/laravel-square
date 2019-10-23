@@ -171,7 +171,7 @@ Transaction fields:
 
 ## [2.4.1] - 2019-10-23
 ### Added
-- `location_id`, `note` and `reference_id` into [charge](https://github.com/NikolaGavric94/laravel-square/blob/3b3f4dcdc5c09adb4206f59484a11baf37034fce/src/SquareService.php#L220) method
+- `location_id`, `note` and `reference_id` into [charge](https://github.com/NikolaGavric94/laravel-square/blob/5136c3fafe4a713f31e70c72d75f3e8ac0ecd8a5/src/SquareService.php#L220-L238) method
 
 ### Changed
 - `charge` method signature for both [HasProducts](https://github.com/NikolaGavric94/laravel-square/wiki/HasProducts%20Trait#hasproducts-trait)
