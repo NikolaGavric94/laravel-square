@@ -37,7 +37,7 @@ But there are still couple of steps to do in order to use this package.
 ---
 
 First you have to publish configuration files:
-```sh
+```php
 php artisan vendor:publish --tag=nikolag_config
 ```
 Check configuration files out at `config/nikolag.php` before continuing.
