@@ -2,16 +2,16 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Models\Product;
-use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Models\Discount;
-use Nikolag\Square\Utils\Constants;
-use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
-use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Utils\Constants;
 
 class OrderTest extends TestCase
 {

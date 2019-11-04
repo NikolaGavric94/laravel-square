@@ -2,12 +2,12 @@
 
 namespace Nikolag\Square\Traits;
 
-use Nikolag\Square\Models\Tax;
-use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Models\Product;
-use Nikolag\Square\Models\Discount;
-use Nikolag\Square\Utils\Constants;
 use Illuminate\Support\Facades\Schema;
+use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Utils\Constants;
 
 trait HasProducts
 {

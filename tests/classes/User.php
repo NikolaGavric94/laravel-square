@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Tests\Models;
 
-use Nikolag\Square\Traits\HasCustomers;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Nikolag\Square\Traits\HasCustomers;
 
 class User extends Authenticatable
 {

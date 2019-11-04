@@ -2,11 +2,11 @@
 
 namespace Nikolag\Square\Builders;
 
-use stdClass;
-use Illuminate\Support\Arr;
-use Nikolag\Square\Utils\Constants;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Utils\Constants;
+use stdClass;
 
 class OrderBuilder
 {

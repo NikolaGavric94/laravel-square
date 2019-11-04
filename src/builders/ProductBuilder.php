@@ -2,12 +2,12 @@
 
 namespace Nikolag\Square\Builders;
 
-use stdClass;
-use Illuminate\Support\Arr;
-use Nikolag\Square\Models\Product;
 use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Models\OrderProductPivot;
+use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\OrderProductPivot;
+use Nikolag\Square\Models\Product;
+use stdClass;
 
 class ProductBuilder
 {

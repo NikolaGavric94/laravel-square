@@ -2,24 +2,24 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Models\Tax;
-use Nikolag\Square\Utils\Util;
-use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Models\Product;
-use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Models\Customer;
-use Nikolag\Square\Models\Discount;
-use Nikolag\Square\Utils\Constants;
-use Nikolag\Square\Tests\Models\User;
-use Nikolag\Square\Models\Transaction;
-use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Builders\OrderBuilder;
-use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Utils\Util;
 
 class SquareServiceTest extends TestCase
 {

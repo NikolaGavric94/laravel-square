@@ -8,8 +8,8 @@
 
 namespace Nikolag\Square\Builders;
 
-use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Utils\Constants;
 
 class CustomerBuilder
 {

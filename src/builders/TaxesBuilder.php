@@ -2,10 +2,10 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Support\Arr;
-use Nikolag\Square\Models\Tax;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Tax;
 
 class TaxesBuilder
 {

@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Utils;
 
-use stdClass;
 use Illuminate\Support\Collection;
+use stdClass;
 
 class Util
 {
