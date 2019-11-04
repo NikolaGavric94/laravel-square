@@ -2,11 +2,11 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Support\Arr;
-use Nikolag\Square\Models\Discount;
 use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Exceptions\MissingPropertyException;
+use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Discount;
 
 class DiscountBuilder
 {
