@@ -82,13 +82,21 @@ SQUARE_USER_NAMESPACE=<USER_NAMESPACE>
 ```
 
 ### Orders system
-To be able to utilize the order system for Users, your Order class must use `HasProducts` trait.
+To be able to utilize the order system for Users, your Order class must use `HasProducts` trait and define `$table` property.
 ```php
 ...
 use Nikolag\Square\Traits\HasProducts;
 
 class Order extends Model {
   use HasProducts;
+  ...
+
+  /**
+   * The table associated with the model.
+   *
+   * @var string
+   */
+  protected $table = '<TABLE_NAME>';
   ...
 }
 ```
