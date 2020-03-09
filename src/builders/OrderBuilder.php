@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Builders;
 
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use stdClass;
 use Illuminate\Support\Arr;
 use Nikolag\Square\Utils\Constants;
@@ -229,5 +230,32 @@ class OrderBuilder
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
         }
+    }
+
+    /**
+     * Build order model from array.
+     *
+     * @param array $order
+     * @param Model $emptyModel
+     *
+     * @return Model
+     * @throws MissingPropertyException
+     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
+     */
+    public function buildOrderModelFromArray(array $order, Model $emptyModel)
+    {
+        $property = config('nikolag.connections.square.order.service_identifier');
+        foreach($order as $key => $value) {
+            if ($key
+                && $key != 'taxes'
+                && $key != 'discounts'
+                && $key != 'products'
+                && $key != $property
+                && $key != 'payment_service_type'
+                && $emptyModel->hasAttribute($key)) {
+                $emptyModel->{$key} = $value;
+            }
+        }
+        return $emptyModel;
     }
 }

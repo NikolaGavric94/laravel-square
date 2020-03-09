@@ -466,7 +466,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $this->order = $order;
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromModel($order);
         } elseif (is_array($order)) {
-            $this->order = new $orderClass($order);
+            $this->order = $this->orderBuilder->buildOrderModelFromArray($order, new $orderClass());
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
         }
 
