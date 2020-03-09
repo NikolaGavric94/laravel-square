@@ -244,7 +244,7 @@ class OrderBuilder
     public function buildOrderModelFromArray(array $order, Model $emptyModel)
     {
         $property = config('nikolag.connections.square.order.service_identifier');
-        foreach($order as $key => $value) {
+        foreach ($order as $key => $value) {
             if ($key
                 && $key != 'taxes'
                 && $key != 'discounts'
@@ -255,6 +255,7 @@ class OrderBuilder
                 $emptyModel->{$key} = $value;
             }
         }
+
         return $emptyModel;
     }
 }
