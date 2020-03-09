@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Square\Utils\Constants;
 use Nikolag\Core\Models\Customer as CoreCustomer;
+use Nikolag\Square\Utils\Constants;
 
 class Customer extends CoreCustomer
 {

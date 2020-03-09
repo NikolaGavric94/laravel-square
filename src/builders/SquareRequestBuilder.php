@@ -2,16 +2,16 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Database\Eloquent\Model;
-use SquareConnect\Model\CreateOrderRequest;
 use Illuminate\Database\Eloquent\Collection;
-use SquareConnect\Model\CreatePaymentRequest;
+use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 use SquareConnect\Model\CreateCustomerRequest;
-use SquareConnect\Model\CreateOrderRequestTax;
+use SquareConnect\Model\CreateOrderRequest;
 use SquareConnect\Model\CreateOrderRequestDiscount;
 use SquareConnect\Model\CreateOrderRequestLineItem;
-use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use SquareConnect\Model\CreateOrderRequestTax;
+use SquareConnect\Model\CreatePaymentRequest;
 
 class SquareRequestBuilder
 {

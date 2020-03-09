@@ -1,11 +1,11 @@
 <?php
 
+use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Nikolag\Square\Utils\Constants;
-use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\Models\Order;
-use Illuminate\Database\Eloquent\Factory as EloquentFactory;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Utils\Constants;
 
 /*
 |--------------------------------------------------------------------------

@@ -2,15 +2,15 @@
 
 namespace Nikolag\Square;
 
+use Nikolag\Core\Contracts\ConfigContract;
 use Nikolag\Core\CoreConfig;
-use SquareConnect\ApiClient;
-use SquareConnect\Api\OrdersApi;
-use SquareConnect\Configuration;
-use SquareConnect\Api\PaymentsApi;
 use SquareConnect\Api\CustomersApi;
 use SquareConnect\Api\LocationsApi;
+use SquareConnect\Api\OrdersApi;
+use SquareConnect\Api\PaymentsApi;
 use SquareConnect\Api\TransactionsApi;
-use Nikolag\Core\Contracts\ConfigContract;
+use SquareConnect\ApiClient;
+use SquareConnect\Configuration;
 
 class SquareConfig extends CoreConfig implements ConfigContract
 {

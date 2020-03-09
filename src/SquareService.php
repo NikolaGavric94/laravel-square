@@ -2,28 +2,28 @@
 
 namespace Nikolag\Square;
 
-use stdClass;
-use Nikolag\Square\Utils\Util;
-use SquareConnect\ApiException;
-use Nikolag\Square\Utils\Constants;
-use Nikolag\Square\Models\Transaction;
+use Nikolag\Core\Abstracts\CorePaymentService;
+use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
-use SquareConnect\Model\CreateOrderRequest;
-use Nikolag\Square\Builders\CustomerBuilder;
-use Nikolag\Core\Abstracts\CorePaymentService;
-use SquareConnect\Model\CreateCustomerRequest;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
-use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
+use Nikolag\Square\Exceptions\InvalidSquareAmountException;
+use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
+use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
-use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
-use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
+use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Utils\Util;
+use SquareConnect\ApiException;
+use SquareConnect\Model\CreateCustomerRequest;
+use SquareConnect\Model\CreateOrderRequest;
+use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
 {

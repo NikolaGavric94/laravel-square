@@ -2,10 +2,10 @@
 
 namespace Nikolag\Square\Providers;
 
-use Nikolag\Square\SquareConfig;
-use Nikolag\Square\SquareService;
 use Illuminate\Support\ServiceProvider;
 use Nikolag\Square\Contracts\SquareServiceContract;
+use Nikolag\Square\SquareConfig;
+use Nikolag\Square\SquareService;
 
 class SquareServiceProvider extends ServiceProvider
 {

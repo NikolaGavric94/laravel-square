@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square\Models;
 
-use Nikolag\Square\Utils\Constants;
 use Nikolag\Core\Models\Transaction as CoreTransaction;
+use Nikolag\Square\Utils\Constants;
 
 class Transaction extends CoreTransaction
 {

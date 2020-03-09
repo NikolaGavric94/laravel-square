@@ -2,10 +2,10 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Models\Customer;
-use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Tests\TestCase;
 
 class CustomerTest extends TestCase
 {
