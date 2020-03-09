@@ -193,7 +193,19 @@ on both
 and [facade](https://github.com/NikolaGavric94/laravel-square/wiki/Order%20Examples#facade-approach-1)
 approach
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...HEAD
+## [2.4.2] - 2020-03-09
+### Added
+- `buildOrderModelFromArray` into the [OrderBuilder](https://github.com/NikolaGavric94/laravel-square/blob/2ace8e77e70707526f6079688a2099b42be91656/src/builders/OrderBuilder.php#L235-L260)
+
+### Changed
+- [setOrder](https://github.com/NikolaGavric94/laravel-square/blob/2ace8e77e70707526f6079688a2099b42be91656/src/SquareService.php#L469-L470) now properly assigns property values (no more mass assignments).
+- [Order system examples](https://github.com/NikolaGavric94/laravel-square/wiki/Order%20Examples) are now updated with proper examples
+- [README.md](https://github.com/NikolaGavric94/laravel-square/blob/master/README.md) section with `Orders system` is now updated to include `$table` property
+
+### Fixed
+- Resolved [#37](https://github.com/NikolaGavric94/laravel-square/issues/37)
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.2...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -210,3 +222,4 @@ approach
 [2.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.1...v2.3.0
 [2.4.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.3.0...v2.4.0
 [2.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...v2.4.1
+[2.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...v2.4.2
