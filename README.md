@@ -23,10 +23,11 @@ Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://gith
 
 ## Version Compatibility
 
-| Library Version 	| Laravel/Lumen Version 	| Square Version                   	|
+| Library Version 	| Laravel Version 	| Square Version                   	|
 |:-----------------:|:-------------------------:|:---------------------------------:|
-| < 2.3.0          	|&nbsp;  >= 5.5                  	    | < [2.20190814](https://github.com/square/connect-php-sdk/tree/2.20190710.0)                      	|
-| > [2.4.0](https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...master) 	        |&nbsp; >= 5.5                   	| [2.20190925.0 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) 	|
+| < 2.3.x          	|&nbsp;  >= 5.5                  	    | < [2.20190814](https://github.com/square/connect-php-sdk/tree/2.20190710.0)                      	|
+| > [2.4.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...master) 	        |&nbsp; >= 5.5                   	| [2.20190925.0 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) 	|
+| [2.5.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...master) |&nbsp; >= 7.x | [2.20190925.0 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0)
 
 ## Installation guide
 `composer require nikolag/laravel-square`
