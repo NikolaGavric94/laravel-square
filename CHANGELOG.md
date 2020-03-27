@@ -205,7 +205,18 @@ approach
 ### Fixed
 - Resolved [#37](https://github.com/NikolaGavric94/laravel-square/issues/37)
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.2...HEAD
+## [2.5.0] - 2020-03-26
+### Added
+- Support for `Laravel 7.x`
+
+### Changed
+- [README.md](https://github.com/NikolaGavric94/laravel-square/blob/master/README.md) section with `Version Compatibility` is now updated to include `Laravel 7.x`
+
+### Fixed
+- Resolved [#41](https://github.com/NikolaGavric94/laravel-square/issues/41)
+- Resolved [#40](https://github.com/NikolaGavric94/laravel-square/issues/40)
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -222,4 +233,5 @@ approach
 [2.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.2.1...v2.3.0
 [2.4.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.3.0...v2.4.0
 [2.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...v2.4.1
-[2.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...v2.4.2
+[2.4.2]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...v2.4.2
+[2.5.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.2...v2.5.0

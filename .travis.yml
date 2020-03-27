@@ -63,6 +63,8 @@ matrix:
           env: ILLUMINATE_VERSION=5.8.* ORCHESTRA_TESTBENCH_VERSION=3.8.*
         - php: 7.3
           env: ILLUMINATE_VERSION=6.* ORCHESTRA_TESTBENCH_VERSION=4.*
+        - php: 7.3
+          env: ILLUMINATE_VERSION=7.* ORCHESTRA_TESTBENCH_VERSION=5.*
 
 # Customize when the notification emails are sent.
 notifications:

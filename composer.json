@@ -17,19 +17,19 @@
     }],
     "require": {
         "php": ">=7.1.0",
-        "illuminate/support": "~5.5|~5.6|~5.7|~5.8|~6.0",
-        "illuminate/config": "~5.5|~5.6|~5.7|~5.8|~6.0",
-        "illuminate/console": "~5.5|~5.6|~5.7|~5.8|~6.0",
-        "illuminate/contracts": "~5.5|~5.6|~5.7|~5.8|~6.0",
-        "illuminate/container": "~5.5|~5.6|~5.7|~5.8|~6.0",
-        "illuminate/database": "~5.5|~5.6|~5.7|~5.8|~6.0",
-        "illuminate/filesystem": "~5.5|~5.6|~5.7|~5.8|~6.0",
+        "illuminate/support": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
+        "illuminate/config": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
+        "illuminate/console": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
+        "illuminate/contracts": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
+        "illuminate/container": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
+        "illuminate/database": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
+        "illuminate/filesystem": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0",
         "square/connect": "2.20190925.0",
-        "nikolag/core": "2.3.*"
+        "nikolag/core": "2.4.*"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.4",
-        "orchestra/testbench": "~3.6|~3.7|~3.8|~4.0",
+        "orchestra/testbench": "~3.6|~3.7|~3.8|~4.0|~5.0",
         "phpunit/phpunit": "~6.0|~7.0|~8.0"
     },
     "autoload": {
@@ -62,7 +62,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.4.x-dev"
+            "dev-master": "2.5.x-dev"
         },
         "laravel": {
             "providers": [
