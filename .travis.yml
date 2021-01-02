@@ -13,7 +13,7 @@ before_install:
     - composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} --no-update
     - composer require --dev phpunit/phpunit:${PHPUNIT_VERSION} --no-update
     - if [[ "${ILLUMINATE_VERSION}" == "5.7.*" ]]; then composer require --dev mockery/mockery --no-update; fi;
-    - if [[ "${TRAVIS_PHP_VERSION}" == "7.1" ] || [ "${TRAVIS_PHP_VERSION}" == "7.2" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
+    - if [[ "${TRAVIS_PHP_VERSION}" == "7.1" || "${TRAVIS_PHP_VERSION}" == "7.2" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
     - if [[ "${ILLUMINATE_VERSION}" == "8.*" ]]; then composer require --dev "laravel/legacy-factories:^1.0.4" --no-update; fi;
 
 install:
