@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Nikolag\Core\Models\OrderProductPivot as IntermediateTable;
 use Nikolag\Square\Utils\Constants;
-use \DateTimeInterface;
 
 class OrderProductPivot extends IntermediateTable
 {

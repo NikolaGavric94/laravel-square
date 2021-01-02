@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Nikolag\Core\Models\Customer as CoreCustomer;
 use Nikolag\Square\Utils\Constants;
-use \DateTimeInterface;
 
 class Customer extends CoreCustomer
 {

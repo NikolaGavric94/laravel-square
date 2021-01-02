@@ -118,10 +118,10 @@ class Util
     }
 
     /**
-    * Generate random alphanumeric string of supplied length or 30 by default.
-    *
-    * @param int $length
-    */
+     * Generate random alphanumeric string of supplied length or 30 by default.
+     *
+     * @param int $length
+     */
     public static function uid(int $length = 30)
     {
         return bin2hex(random_bytes($length));

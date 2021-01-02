@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Nikolag\Core\Models\Discount as CoreDiscount;
 use Nikolag\Square\Utils\Constants;
-use \DateTimeInterface;
 
 class Discount extends CoreDiscount
 {
