@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Nikolag\Core\Models\Product as CoreProduct;
 use Nikolag\Square\Utils\Constants;
-use \DateTimeInterface;
 
 class Product extends CoreProduct
 {

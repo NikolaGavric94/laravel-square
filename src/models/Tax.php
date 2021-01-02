@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Nikolag\Core\Models\Tax as CoreTax;
 use Nikolag\Square\Utils\Constants;
-use \DateTimeInterface;
 
 class Tax extends CoreTax
 {

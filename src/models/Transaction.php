@@ -2,9 +2,9 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Nikolag\Core\Models\Transaction as CoreTransaction;
 use Nikolag\Square\Utils\Constants;
-use \DateTimeInterface;
 
 class Transaction extends CoreTransaction
 {

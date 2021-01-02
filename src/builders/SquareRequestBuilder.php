@@ -6,30 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use SquareConnect\Model\CreateCustomerRequest;
-use SquareConnect\Model\CreateOrderRequest;
-use SquareConnect\Model\OrderLineItem;
-use SquareConnect\Model\OrderLineItemDiscount;
-use SquareConnect\Model\OrderLineItemTax;
-use SquareConnect\Model\CreatePaymentRequest;
-use SquareConnect\Model\OrderLineItemAppliedDiscount;
-use SquareConnect\Model\OrderLineItemAppliedTax;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use SquareConnect\Model\CreateCustomerRequest;
+use SquareConnect\Model\CreateOrderRequest;
+use SquareConnect\Model\CreatePaymentRequest;
+use SquareConnect\Model\OrderLineItem;
+use SquareConnect\Model\OrderLineItemAppliedDiscount;
+use SquareConnect\Model\OrderLineItemAppliedTax;
+use SquareConnect\Model\OrderLineItemDiscount;
+use SquareConnect\Model\OrderLineItemTax;
 
 class SquareRequestBuilder
 {
     /**
-    * Item line level taxes which need to be applied to order
+     * Item line level taxes which need to be applied to order.
      *
-     * @var Collection $productTaxes
-    */
+     * @var Collection
+     */
     private $productTaxes;
     /**
-    * Item line level taxes which need to be applied to order
+     * Item line level taxes which need to be applied to order.
      *
-     * @var Collection $productDiscounts
-    */
+     * @var Collection
+     */
     private $productDiscounts;
 
     /**
@@ -109,11 +109,12 @@ class SquareRequestBuilder
             $data['order']['taxes'] = $this->productTaxes->merge($data['order']['taxes'])->toArray();
             $this->productTaxes = collect([]);
         }
+
         return new CreateOrderRequest($data);
     }
 
     /**
-     * Builds and returns array of discounts
+     * Builds and returns array of discounts.
      *
      * @param Collection $discounts
      * @param string $currency
@@ -143,7 +144,7 @@ class SquareRequestBuilder
                 $data = [
                     'uid'  => Util::uid(),
                     'name' => $discount->name,
-                    'scope'=> Constants::DISCOUNT_SCOPE_ORDER
+                    'scope'=> Constants::DISCOUNT_SCOPE_ORDER,
                 ];
                 //If percentage exists append it
                 if ($percentage && $percentage != 0.0) {
@@ -168,7 +169,7 @@ class SquareRequestBuilder
     }
 
     /**
-     * Builds and returns array of already applied discounts
+     * Builds and returns array of already applied discounts.
      *
      * @param Collection $discounts
      * @param string $class
@@ -192,7 +193,7 @@ class SquareRequestBuilder
     }
 
     /**
-     * Builds and returns array of taxes
+     * Builds and returns array of taxes.
      *
      * @param Collection $taxes
      * @param string $class
@@ -226,7 +227,7 @@ class SquareRequestBuilder
     }
 
     /**
-     * Builds and returns array of already applied taxes
+     * Builds and returns array of already applied taxes.
      *
      * @param Collection $taxes
      * @param string $class
