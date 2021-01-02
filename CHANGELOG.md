@@ -216,6 +216,18 @@ approach
 - Resolved [#41](https://github.com/NikolaGavric94/laravel-square/issues/41)
 - Resolved [#40](https://github.com/NikolaGavric94/laravel-square/issues/40)
 
+## [2.6.0] - 2021-01-02
+### Added
+- Support for `Laravel 8.x`
+- Latest `Square API` version (`3.20200528.1`)
+
+### Changed
+- [README.md](https://github.com/NikolaGavric94/laravel-square/blob/master/README.md) section with `Version Compatibility` is now updated to include `Laravel 8.x`
+- Product _(Line item)_ level discounts and taxes are now registered under `Order` with a type of `LINE_ITEM` as per documentation. This change doesn't require any update on the side of the developer.
+
+### Fixed
+- Resolved [#51](https://github.com/NikolaGavric94/laravel-square/issues/51)
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
@@ -235,3 +247,4 @@ approach
 [2.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...v2.4.1
 [2.4.2]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...v2.4.2
 [2.5.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.2...v2.5.0
+[2.6.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...v2.6.0
