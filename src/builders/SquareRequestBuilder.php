@@ -2,19 +2,45 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use SquareConnect\Model\CreateCustomerRequest;
 use SquareConnect\Model\CreateOrderRequest;
-use SquareConnect\Model\CreateOrderRequestDiscount;
-use SquareConnect\Model\CreateOrderRequestLineItem;
-use SquareConnect\Model\CreateOrderRequestTax;
+use SquareConnect\Model\OrderLineItem;
+use SquareConnect\Model\OrderLineItemDiscount;
+use SquareConnect\Model\OrderLineItemTax;
 use SquareConnect\Model\CreatePaymentRequest;
+use SquareConnect\Model\OrderLineItemAppliedDiscount;
+use SquareConnect\Model\OrderLineItemAppliedTax;
+use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Utils\Util;
 
 class SquareRequestBuilder
 {
+    /**
+    * Item line level taxes which need to be applied to order
+     *
+     * @var Collection $productTaxes
+    */
+    private $productTaxes;
+    /**
+    * Item line level taxes which need to be applied to order
+     *
+     * @var Collection $productDiscounts
+    */
+    private $productDiscounts;
+
+    /**
+     * SquareRequestBuilder constructor.
+     */
+    public function __construct()
+    {
+        $this->productTaxes = collect([]);
+        $this->productDiscounts = collect([]);
+    }
+
     /**
      * Create and return charge request.
      *
@@ -72,11 +98,22 @@ class SquareRequestBuilder
             ],
         ];
 
+        // Add product level discounts to order level taxes
+        if ($this->productDiscounts->isNotEmpty()) {
+            $data['order']['discounts'] = $this->productDiscounts->merge($data['order']['discounts'])->toArray();
+            $this->productDiscounts = collect([]);
+        }
+
+        // Add product level taxes to order level taxes
+        if ($this->productTaxes->isNotEmpty()) {
+            $data['order']['taxes'] = $this->productTaxes->merge($data['order']['taxes'])->toArray();
+            $this->productTaxes = collect([]);
+        }
         return new CreateOrderRequest($data);
     }
 
     /**
-     * Builds and returns array of discounts for a \SquareConnect\Model\CreateOrderRequestDiscount.
+     * Builds and returns array of discounts
      *
      * @param Collection $discounts
      * @param string $currency
@@ -86,7 +123,7 @@ class SquareRequestBuilder
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildDiscounts(Collection $discounts, string $currency, string $class = CreateOrderRequestDiscount::class)
+    public function buildDiscounts(Collection $discounts, string $currency, string $class = OrderLineItemDiscount::class)
     {
         $temp = [];
         if ($discounts->isNotEmpty()) {
@@ -104,11 +141,14 @@ class SquareRequestBuilder
                     throw new InvalidSquareOrderException('Both $amount and $percentage exist for object Discount, only 1 is allowed', 500);
                 }
                 $data = [
+                    'uid'  => Util::uid(),
                     'name' => $discount->name,
+                    'scope'=> Constants::DISCOUNT_SCOPE_ORDER
                 ];
                 //If percentage exists append it
                 if ($percentage && $percentage != 0.0) {
                     $data['percentage'] = (string) $percentage;
+                    $data['type'] = Constants::DISCOUNT_FIXED_PERCENTAGE;
                 }
                 //If amount exists append it
                 if ($amount && $amount != 0) {
@@ -117,7 +157,9 @@ class SquareRequestBuilder
                         'currency' => $currency,
                     ];
                     $data['amount_money'] = $money;
+                    $data['type'] = Constants::DISCOUNT_FIXED_AMOUNT;
                 }
+
                 array_push($temp, new $class($data));
             }
         }
@@ -126,7 +168,31 @@ class SquareRequestBuilder
     }
 
     /**
-     * Builds and returns array of taxes for a \SquareConnect\Model\CreateOrderRequestTax.
+     * Builds and returns array of already applied discounts
+     *
+     * @param Collection $discounts
+     * @param string $class
+     *
+     * @return array
+     */
+    public function buildAppliedDiscounts(Collection $discounts, string $class = OrderLineItemAppliedDiscount::class)
+    {
+        $temp = [];
+        if ($discounts->isNotEmpty()) {
+            foreach ($discounts as $discount) {
+                $data = [
+                    'uid'           => Util::uid(),
+                    'discount_uid'  => $discount->getUid(),
+                ];
+                array_push($temp, new $class($data));
+            }
+        }
+
+        return $temp;
+    }
+
+    /**
+     * Builds and returns array of taxes
      *
      * @param Collection $taxes
      * @param string $class
@@ -134,7 +200,7 @@ class SquareRequestBuilder
      * @return array
      * @throws MissingPropertyException
      */
-    public function buildTaxes(Collection $taxes, string $class = CreateOrderRequestTax::class)
+    public function buildTaxes(Collection $taxes, string $class = OrderLineItemTax::class)
     {
         $temp = [];
         if ($taxes->isNotEmpty()) {
@@ -146,9 +212,11 @@ class SquareRequestBuilder
                     throw new MissingPropertyException('$percentage property for object Tax is missing or is invalid', 500);
                 }
                 $data = [
-                    'name'       => $tax->name,
-                    'type'       => $tax->type,
-                    'percentage' => (string) $percentage,
+                    'uid'           => Util::uid(),
+                    'name'          => $tax->name,
+                    'type'          => $tax->type,
+                    'percentage'    => (string) $percentage,
+                    'scope'         => Constants::DISCOUNT_SCOPE_ORDER,
                 ];
                 array_push($temp, new $class($data));
             }
@@ -158,16 +226,41 @@ class SquareRequestBuilder
     }
 
     /**
-     * Builds and returns array of \SquareConnect\Model\CreateOrderRequestLineItem for order.
+     * Builds and returns array of already applied taxes
+     *
+     * @param Collection $taxes
+     * @param string $class
+     *
+     * @return array
+     */
+    public function buildAppliedTaxes(Collection $taxes, string $class = OrderLineItemAppliedTax::class)
+    {
+        $temp = [];
+        if ($taxes->isNotEmpty()) {
+            foreach ($taxes as $tax) {
+                $data = [
+                    'uid'           => Util::uid(),
+                    'tax_uid'       => $tax->getUid(),
+                ];
+                array_push($temp, new $class($data));
+            }
+        }
+
+        return $temp;
+    }
+
+    /**
+     * Builds and returns array of \SquareConnect\Model\OrderLineItem for order.
      *
      * @param Collection $products
      * @param string $currency
+     * @param string $class
      *
      * @return array
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildProducts(Collection $products, string $currency)
+    public function buildProducts(Collection $products, string $currency, string $class = OrderLineItem::class)
     {
         $temp = [];
         if ($products->isNotEmpty()) {
@@ -185,6 +278,13 @@ class SquareRequestBuilder
                     'amount' => $product->price,
                     'currency' => $currency,
                 ];
+                //Build product level taxes so we can append them to order later
+                $taxes = collect($this->buildTaxes($pivotProduct->taxes));
+                $this->productTaxes = $this->productTaxes->merge($taxes);
+
+                //Build product level discounts so we can append them to order later
+                $discounts = collect($this->buildDiscounts($pivotProduct->discounts, $currency));
+                $this->productDiscounts = $this->productDiscounts->merge($discounts);
 
                 $data = [
                     'name' => $product->name,
@@ -192,10 +292,10 @@ class SquareRequestBuilder
                     'base_price_money' => $money,
                     'variation_name' => $product->variation_name,
                     'note' => $product->note,
-                    'taxes' => $this->buildTaxes($pivotProduct->taxes),
-                    'discounts' => $this->buildDiscounts($pivotProduct->discounts, $currency),
+                    'applied_taxes' => $this->buildAppliedTaxes($taxes),
+                    'applied_discounts' => $this->buildAppliedDiscounts($discounts),
                 ];
-                array_push($temp, new CreateOrderRequestLineItem($data));
+                array_push($temp, new $class($data));
             }
         }
 

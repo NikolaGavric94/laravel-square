@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use Nikolag\Core\Models\OrderProductPivot as IntermediateTable;
 use Nikolag\Square\Utils\Constants;
+use \DateTimeInterface;
 
 class OrderProductPivot extends IntermediateTable
 {
@@ -107,5 +108,16 @@ class OrderProductPivot extends IntermediateTable
     public function discounts()
     {
         return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE);
+    }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

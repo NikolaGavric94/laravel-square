@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use Nikolag\Core\Models\Transaction as CoreTransaction;
 use Nikolag\Square\Utils\Constants;
+use \DateTimeInterface;
 
 class Transaction extends CoreTransaction
 {
@@ -44,5 +45,16 @@ class Transaction extends CoreTransaction
     public function order()
     {
         return $this->belongsTo(config('nikolag.connections.square.order.namespace'), 'order_id', Constants::TRANSACTION_IDENTIFIER);
+    }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

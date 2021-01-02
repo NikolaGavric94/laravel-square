@@ -54,21 +54,17 @@ $factory->define(Constants::ORDER_PRODUCT_NAMESPACE, function (Faker\Generator $
 $factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker) {
     return [
         'name'       => $faker->unique()->company,
-        'percentage' => $faker->randomFloat(2, 1, 100),
-        'amount'     => $faker->numberBetween(1, 100),
     ];
 });
 /* PERCENTAGE ONLY */
 $factory->state(Constants::DISCOUNT_NAMESPACE, 'PERCENTAGE_ONLY', function (Faker\Generator $faker) {
     return [
         'percentage' => $faker->randomFloat(2, 1, 100),
-        'amount'     => null,
     ];
 });
 /* AMOUNT ONLY */
 $factory->state(Constants::DISCOUNT_NAMESPACE, 'AMOUNT_ONLY', function (Faker\Generator $faker) {
     return [
-        'percentage' => null,
         'amount'     => $faker->numberBetween(1, 100),
     ];
 });

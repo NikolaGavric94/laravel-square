@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use Nikolag\Core\Models\Discount as CoreDiscount;
 use Nikolag\Square\Utils\Constants;
+use \DateTimeInterface;
 
 class Discount extends CoreDiscount
 {
@@ -25,5 +26,16 @@ class Discount extends CoreDiscount
     public function products()
     {
         return $this->morphToMany(Constants::ORDER_PRODUCT_NAMESPACE, 'deductible', 'nikolag_deductibles', 'deductible_id', 'featurable_id');
+    }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
