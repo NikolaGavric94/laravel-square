@@ -12,7 +12,6 @@ before_install:
     - composer require illuminate/database:${ILLUMINATE_VERSION} --no-update
     - composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} --no-update
     - composer require --dev phpunit/phpunit:${PHPUNIT_VERSION} --no-update
-    - if [[ "${ILLUMINATE_VERSION}" == "5.7.*" ]]; then composer require --dev mockery/mockery --no-update; fi;
     - if [[ "${ILLUMINATE_VERSION}" == "5.5.*" || "${ILLUMINATE_VERSION}" == "5.6.*" || "${ILLUMINATE_VERSION}" == "5.7.*" || "${ILLUMINATE_VERSION}" == "5.8.*" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
     - if [[ "${ILLUMINATE_VERSION}" == "8.*" ]]; then composer require --dev "laravel/legacy-factories:^1.0.4" --no-update; fi;
 
