@@ -27,8 +27,8 @@ class DiscountBuilder
         foreach ($discounts as $discount) {
             //If discount doesn't have amount AND percentage in discounts table
             //throw new exception because it should have at least 1
-            if ((!isset($discount['amount']) || $discount['amount'] == null || $discount['amount'] == 0) &&
-                (!isset($discount['percentage']) || $discount['percentage'] == null || $discount['percentage'] == '')) {
+            if ((! isset($discount['amount']) || $discount['amount'] == null || $discount['amount'] == 0) &&
+                (! isset($discount['percentage']) || $discount['percentage'] == null || $discount['percentage'] == '')) {
                 throw new MissingPropertyException('Both $amount and $percentage property for object Discount are missing, 1 is required', 500);
             }
             //If discount have amount AND percentage in discount table
