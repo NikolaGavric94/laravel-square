@@ -22,7 +22,7 @@ before_install:
     - composer require illuminate/database:${ILLUMINATE_VERSION} --no-update
     - composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} --no-update
     - if [[ "${ILLUMINATE_VERSION}" == "5.7.*" ]]; then composer require --dev mockery/mockery --no-update; fi;
-    - if [[ "${ILLUMINATE_VERSION}" == "5.5.*" ]]; then composer remove fakerphp/faker;composer require fzaninotto/faker --no-update; fi;
+    - if [[ "${ILLUMINATE_VERSION}" == "5.5.*" ]]; then composer remove --dev fakerphp/faker; composer require --dev fzaninotto/faker --no-update; fi;
     - if [[ "${ILLUMINATE_VERSION}" == "8.*" ]]; then composer require --dev "laravel/legacy-factories:^1.0.4" --no-update; fi;
 
 install:
