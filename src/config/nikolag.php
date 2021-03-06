@@ -7,7 +7,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This represents the default connection name that will be used when
-    | u have multiple available connections. For all available connections
+    | you have multiple available connections. For all available connections
     | take a look a the code documentation of 'connections' just below.
     |
     */
