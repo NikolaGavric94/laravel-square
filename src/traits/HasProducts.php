@@ -7,6 +7,7 @@ use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 
 trait HasProducts
@@ -22,7 +23,7 @@ trait HasProducts
      * @param mixed $customer
      * @param string $currency
      *
-     * @return \Nikolag\Square\Models\Transaction
+     * @return Transaction
      */
     public function charge(float $amount, string $nonce, string $location_id, $merchant, array $options = [], $customer = null, string $currency = 'USD')
     {
@@ -102,7 +103,7 @@ trait HasProducts
      */
     public function taxes()
     {
-        return $this->morphToMany(Constants::TAX_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::TAX_NAMESPACE)->distinct();
+        return $this->morphToMany(Constants::TAX_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::TAX_NAMESPACE)->distinct()->withPivot('scope');
     }
 
     /**
@@ -112,6 +113,6 @@ trait HasProducts
      */
     public function discounts()
     {
-        return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE)->distinct();
+        return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE)->distinct()->withPivot('scope');
     }
 }

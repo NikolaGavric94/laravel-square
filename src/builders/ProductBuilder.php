@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Utils\Constants;
 use stdClass;
 
 class ProductBuilder
@@ -23,6 +24,7 @@ class ProductBuilder
     /**
      * Add a product to the order from model as source.
      *
+     * @param stdClass $orderCopy
      * @param Model $order
      * @param Model $product
      * @param int $quantity
@@ -32,7 +34,7 @@ class ProductBuilder
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
-    public function addProductFromModel(Model $order, Model $product, int $quantity, string $currency = 'USD')
+    public function addProductFromModel(stdClass $orderCopy, Model $order, Model $product, int $quantity, string $currency = 'USD')
     {
         try {
             // Create product placeholder
@@ -49,13 +51,13 @@ class ProductBuilder
             $productCopy->discounts = collect([]);
             // //Discounts
             if ($product->discounts && $product->discounts->isNotEmpty()) {
-                $productCopy->discounts = $this->discountBuilder->createDiscounts($product->discounts->toArray(), $productCopy->product);
+                $productCopy->discounts = $this->discountBuilder->createDiscounts($product->discounts->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->product);
             }
             // Create taxes Collection
             $productCopy->taxes = collect([]);
             //Taxes
             if ($product->taxes && $product->taxes->isNotEmpty()) {
-                $productCopy->taxes = $this->taxesBuilder->createTaxes($product->taxes->toArray(), $productCopy->product);
+                $productCopy->taxes = $this->taxesBuilder->createTaxes($product->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->product);
             }
 
             return $productCopy;
@@ -67,6 +69,7 @@ class ProductBuilder
     /**
      * Add a product to the order from array as source.
      *
+     * @param stdClass $orderCopy
      * @param Model $order
      * @param array $product
      * @param int $quantity
@@ -76,7 +79,7 @@ class ProductBuilder
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
-    public function addProductFromArray(Model $order, array $product, int $quantity, string $currency = 'USD')
+    public function addProductFromArray(stdClass $orderCopy, Model $order, array $product, int $quantity, string $currency = 'USD')
     {
         try {
             // Create product placeholder
@@ -106,13 +109,23 @@ class ProductBuilder
             $productCopy->discounts = collect([]);
             //Discounts
             if (Arr::has($product, 'discounts')) {
-                $productCopy->discounts = $this->discountBuilder->createDiscounts($product['discounts'], $productCopy->productPivot);
+                $productCopy->discounts = $this->discountBuilder->createDiscounts($product['discounts'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->productPivot);
+                $productCopy->discounts->each(function($discount) use ($orderCopy) {
+                    if (! $orderCopy->discounts->contains($discount)) {
+                        $orderCopy->discounts->add($discount);
+                    }
+                });
             }
             // Create taxes Collection
             $productCopy->taxes = collect([]);
             //Taxes
             if (Arr::has($product, 'taxes')) {
-                $productCopy->taxes = $this->taxesBuilder->createTaxes($product['taxes'], $productCopy->productPivot);
+                $productCopy->taxes = $this->taxesBuilder->createTaxes($product['taxes'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->productPivot);
+                $productCopy->taxes->each(function($tax) use ($orderCopy) {
+                    if (! $orderCopy->taxes->contains($tax)) {
+                        $orderCopy->taxes->add($tax);
+                    }
+                });
             }
 
             return $productCopy;
@@ -152,8 +165,8 @@ class ProductBuilder
             }
         }
 
-        $productObj->product = $tempProduct;
-        $productObj->productPivot = $productPivot;
+        $productObj = $tempProduct;
+        $productObj->pivot = $productPivot;
 
         return $productObj;
     }
@@ -195,8 +208,8 @@ class ProductBuilder
         }
 
         $productPivot->quantity = $quantity;
-        $productObj->product = $tempProduct;
-        $productObj->productPivot = $productPivot;
+        $productObj = $tempProduct;
+        $productObj->pivot = $productPivot;
 
         return $productObj;
     }

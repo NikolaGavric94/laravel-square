@@ -32,15 +32,15 @@ class SquareConfigTest extends TestCase
     public function test_square_config_ok()
     {
         $this->assertNotNull($this->config->locationsAPI());
-        $this->assertInstanceOf('\SquareConnect\Api\LocationsApi', $this->config->locationsAPI());
+        $this->assertInstanceOf('\Square\Apis\LocationsApi', $this->config->locationsAPI());
         $this->assertNotNull($this->config->customersAPI());
-        $this->assertInstanceOf('\SquareConnect\Api\CustomersApi', $this->config->customersAPI());
+        $this->assertInstanceOf('\Square\Apis\CustomersApi', $this->config->customersAPI());
         $this->assertNotNull($this->config->ordersAPI());
-        $this->assertInstanceOf('\SquareConnect\Api\OrdersApi', $this->config->ordersAPI());
+        $this->assertInstanceOf('\Square\Apis\OrdersApi', $this->config->ordersAPI());
         $this->assertNotNull($this->config->transactionsAPI());
-        $this->assertInstanceOf('\SquareConnect\Api\PaymentsApi', $this->config->paymentsAPI());
+        $this->assertInstanceOf('\Square\Apis\PaymentsApi', $this->config->paymentsAPI());
         $this->assertNotNull($this->config->paymentsAPI());
-        $this->assertInstanceOf('\SquareConnect\Api\TransactionsApi', $this->config->transactionsAPI());
+        $this->assertInstanceOf('\Square\Apis\TransactionsApi', $this->config->transactionsAPI());
         $this->assertNotNull($this->config->getConfig());
     }
 }

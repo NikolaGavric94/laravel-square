@@ -24,13 +24,14 @@
         "illuminate/container": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/database": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/filesystem": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
-        "square/connect": "3.20200528.1",
+        "square/square": "16.0.0.20211117",
         "nikolag/core": "2.5.*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.13",
         "orchestra/testbench": "~3.6|~3.7|~3.8|~4.0|~5.0|~6.0",
-        "phpunit/phpunit": "~6.0|~7.0|~8.0|~9.0"
+        "phpunit/phpunit": "~6.0|~7.0|~8.0|~9.0",
+        "laravel/legacy-factories": "~1.1"
     },
     "autoload": {
         "psr-4": {
@@ -59,6 +60,16 @@
             "Nikolag\\Square\\Tests\\": "tests/",
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
+    },
+    "scripts": {
+        "test:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-clover=\"build/clover.xml\""
+        ],
+        "test:coverage-html": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-html=\"build/html\""
+        ]
     },
     "extra": {
         "branch-alias": {

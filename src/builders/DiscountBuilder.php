@@ -7,6 +7,8 @@ use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\OrderProductPivot;
+use Nikolag\Square\Utils\Constants;
 
 class DiscountBuilder
 {
@@ -15,13 +17,14 @@ class DiscountBuilder
      * from discounts array.
      *
      * @param array $discounts
+     * @param string $scope
      * @param Model $parent
      *
      * @return \Illuminate\Support\Collection
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function createDiscounts(array $discounts, Model $parent = null)
+    public function createDiscounts(array $discounts, string $scope, Model $parent = null)
     {
         $temp = collect([]);
         foreach ($discounts as $discount) {
@@ -43,9 +46,21 @@ class DiscountBuilder
             if (($parent && ! $parent->hasDiscount($discount)) || ! Arr::has($discount, 'id')) {
                 $tempDiscount = new Discount($discount);
             } else {
-                $tempDiscount = Discount::find($discount['id']);
+                // Load discount with pivot
+                if (Arr::has($discount, 'pivot')) {
+                    if ($scope === Constants::DEDUCTIBLE_SCOPE_ORDER) {
+                        $orderClass = config('nikolag.connections.square.order.namespace');
+                        $tempDiscount = $orderClass::find($discount['pivot']['featurable_id'])->discounts()->find($discount['id']);
+                    } else if ($scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
+                        $tempDiscount = OrderProductPivot::find($discount['pivot']['featurable_id'])->discounts()->find($discount['id']);
+                    }
+                }
             }
-            $temp->push($tempDiscount);
+
+            if (isset($tempDiscount)) {
+                $tempDiscount->scope = $scope;
+                $temp->push($tempDiscount);
+            }
         }
 
         return $temp;

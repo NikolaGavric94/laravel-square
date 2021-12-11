@@ -2,7 +2,11 @@
 
 namespace Nikolag\Square\Traits;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nikolag\Core\Exceptions\Exception;
 use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 
 trait HasCustomers
@@ -10,7 +14,7 @@ trait HasCustomers
     /**
      * Retrieve merchant customers.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return BelongsToMany
      */
     public function customers()
     {
@@ -35,7 +39,7 @@ trait HasCustomers
     /**
      * All transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function transactions()
     {
@@ -45,7 +49,7 @@ trait HasCustomers
     /**
      * Paid transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function passedTransactions()
     {
@@ -55,7 +59,7 @@ trait HasCustomers
     /**
      * Pending transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function openedTransactions()
     {
@@ -65,7 +69,7 @@ trait HasCustomers
     /**
      * Failed transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function failedTransactions()
     {
@@ -82,8 +86,8 @@ trait HasCustomers
      * @param mixed $customer
      * @param string $currency
      *
-     * @return \Nikolag\Square\Models\Transaction
-     * @throws \Nikolag\Core\Exceptions\Exception
+     * @return Transaction
+     * @throws Exception
      */
     public function charge(float $amount, string $nonce, string $location_id, array $options = [], $customer = null, string $currency = 'USD')
     {
@@ -109,7 +113,7 @@ trait HasCustomers
      *
      * @param string $status
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     private function _byTransactionStatus(string $status)
     {

@@ -20,9 +20,13 @@ use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
-use SquareConnect\ApiException;
-use SquareConnect\Model\CreateCustomerRequest;
-use SquareConnect\Model\CreateOrderRequest;
+use Square\Exceptions\ApiException;
+use Square\Models\CreateCustomerRequest;
+use Square\Models\CreateOrderRequest;
+use Square\Models\Error;
+use Square\Models\ListLocationsResponse;
+use Square\Models\ListPaymentsResponse;
+use Square\Models\UpdateCustomerRequest;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -56,11 +60,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private $currency;
     /**
-     * @var \SquareConnect\Model\CreateOrderRequest
+     * @var CreateOrderRequest
      */
     private $createOrderRequest;
     /**
-     * @var \SquareConnect\Model\CreateCustomerRequest
+     * @var CreateCustomerRequest
      */
     private $createCustomerRequest;
 
@@ -77,12 +81,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * List locations.
      *
-     * @return \SquareConnect\Model\ListLocationsResponse
+     * @return ListLocationsResponse
      * @throws ApiException
      */
     public function locations()
     {
-        return $this->config->locationsAPI->listLocations();
+        return $this->config->locationsAPI()->listLocations()->getResult();
     }
 
     /**
@@ -94,10 +98,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     private function _saveCustomer()
     {
         if (! $this->getCustomer()->payment_service_id) {
-            $response = $this->config->customersAPI->createCustomer($this->getCreateCustomerRequest());
+            $response = $this->config->customersAPI()->createCustomer($this->getCreateCustomerRequest())->getResult();
             $this->getCustomer()->payment_service_id = $response->getCustomer()->getId();
         } else {
-            $this->config->customersAPI->updateCustomer($this->getCustomer()->payment_service_id, $this->getCreateCustomerRequest());
+            $this->config->customersAPI()->updateCustomer($this->getCustomer()->payment_service_id, $this->getCreateCustomerRequest());
         }
 
         $this->getCustomer()->save();
@@ -115,9 +119,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param bool $saveToSquare
      *
      * @return void
-     * @throws ApiException
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
+     * @throws ApiException
      */
     private function _saveOrder(bool $saveToSquare = false)
     {
@@ -136,11 +140,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         if (! $this->getOrder()->hasAttribute($property)) {
             throw new InvalidSquareOrderException('Table orders is missing a required column: '.$property, 500);
         }
-        $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->currency);
+        $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->locationId, $this->currency);
         $this->setCreateOrderRequest($orderRequest);
         // If want to save to square, make a request
         if ($saveToSquare) {
-            $response = $this->config->ordersAPI->createOrder($this->locationId, $this->getCreateOrderRequest());
+            $response = $this->config->ordersAPI()->createOrder($this->getCreateOrderRequest());
+            if ($response->isError()) {
+                $this->_handleChargeOrSaveException($response->getErrors());
+            }
+            $response = $response->getResult();
             //Save id of a real order inside of Square to our local model for future use
             $this->getOrder()->{$property} = $response->getOrder()->getId();
         }
@@ -148,28 +156,28 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param ApiException $exception
+     * @param Error[] $errors
      *
      * @return Exception
      */
-    private function _handleChargeOrSaveException(ApiException $exception)
+    private function _handleChargeOrSaveException(array $errors)
     {
         //Set exception to be first in array of errors
-        $exceptionJSON = $exception->getResponseBody()->errors[0];
+        $exceptionJSON = $errors[0];
 
-        if ($exceptionJSON->category == Constants::INVALID_REQUEST_ERROR) {
-            if ($exceptionJSON->code == Constants::BAD_REQUEST) {
-                $exception = new InvalidSquareNonceException($exceptionJSON->detail, 404, $exception);
-            } elseif ($exceptionJSON->code == Constants::INVALID_VALUE) {
-                $exception = new InvalidSquareCurrencyException($exceptionJSON->detail, 400, $exception);
+        if ($exceptionJSON->getCategory() === Constants::INVALID_REQUEST_ERROR) {
+            if ($exceptionJSON->getCode() === Constants::BAD_REQUEST) {
+                $exception = new InvalidSquareNonceException($exceptionJSON->getDetail(), 404);
+            } elseif ($exceptionJSON->getCode() === Constants::INVALID_VALUE) {
+                $exception = new InvalidSquareCurrencyException($exceptionJSON->getDetail(), 400);
             }
-        } elseif ($exceptionJSON->category == Constants::PAYMENT_METHOD_ERROR) {
-            if ($exceptionJSON->code == Constants::INVALID_EXPIRATION) {
-                $exception = new InvalidSquareExpirationDateException($exceptionJSON->detail, 400, $exception);
-            } elseif ($exceptionJSON->code == Constants::VERIFY_POSTAL_CODE) {
-                $exception = new InvalidSquareZipcodeException($exceptionJSON->detail, 402, $exception);
-            } elseif ($exceptionJSON->code == Constants::VERIFY_CVV) {
-                $exception = new InvalidSquareCvvException($exceptionJSON->detail, 402, $exception);
+        } elseif ($exceptionJSON->getCategory() === Constants::PAYMENT_METHOD_ERROR) {
+            if ($exceptionJSON->getCode() === Constants::INVALID_EXPIRATION) {
+                $exception = new InvalidSquareExpirationDateException($exceptionJSON->getDetail(), 400);
+            } elseif ($exceptionJSON->getCode() === Constants::VERIFY_POSTAL_CODE) {
+                $exception = new InvalidSquareZipcodeException($exceptionJSON->getDetail(), 402);
+            } elseif ($exceptionJSON->getCode() === Constants::VERIFY_CVV) {
+                $exception = new InvalidSquareCvvException($exceptionJSON->getDetail(), 402);
             }
         }
 
@@ -181,6 +189,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @return self
      * @throws Exception on non-2xx response
+     * @throws ApiException
      */
     public function save()
     {
@@ -192,9 +201,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (ApiException $exception) {
-            $exception = $this->_handleChargeOrSaveException($exception);
-
-            throw $exception;
+            throw new $exception;
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required fields are missing', 500, $e);
         } catch (InvalidSquareOrderException $e) {
@@ -209,7 +216,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @param array $data
      *
-     * @return \Nikolag\Square\Models\Transaction
+     * @return Transaction
      * @throws ApiException
      * @throws Exception on non-2xx response
      * @throws InvalidSquareAmountException
@@ -244,20 +251,21 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
         // Save and attach customer
         if ($this->getCustomer()) {
-            try {
-                // Save customer on Square portal
-                $this->_saveCustomer();
-                // Save customer into the table for further use
-                $transaction->customer()->associate($this->getCustomer());
-                // Set customer id for square from model
-                $prepData['customer_id'] = $this->getCustomer()->payment_service_id;
-            } catch (Exception $e) {
-                throw $e;
-            }
+            $this->_saveCustomer();
+            // Save customer into the table for further use
+            $transaction->customer()->associate($this->getCustomer());
+            // Set customer id for square from model
+            $prepData['customer_id'] = $this->getCustomer()->payment_service_id;
         }
         // Save and attach order
         if ($this->getOrder()) {
             try {
+                // <===============================================================================================>
+                // When adding product with ->addProduct the discounts and taxes are not registered under order level
+                // $order->discounts has no line item discounts
+                // Need to check where is best place to filter through those discounts and taxes and add them to order upon adding product
+                // <===============================================================================================>
+
                 // Calculate the total order amount
                 $calculatedCost = Util::calculateTotalOrderCost($this->orderCopy);
                 // If order total does not match charge amount, throw error
@@ -280,21 +288,21 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
         $transaction->save();
 
-        try {
-            $chargeRequest = $this->squareBuilder->buildChargeRequest($prepData);
-            $response = $this->config->paymentsAPI->createPayment($chargeRequest)->getPayment();
+        $chargeRequest = $this->squareBuilder->buildChargeRequest($prepData);
+        $response = $this->config->paymentsAPI()->createPayment($chargeRequest);
+
+        if ($response->isSuccess()) {
+            $response = $response->getResult()->getPayment();
 
             $transaction->payment_service_id = $response->getId();
             $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
             $transaction->save();
-        } catch (ApiException $exception) {
+        } else if($response->isError()) {
             $transaction->payment_service_id = null;
             $transaction->status = Constants::TRANSACTION_STATUS_FAILED;
             $transaction->save();
 
-            $exception = $this->_handleChargeOrSaveException($exception);
-
-            throw $exception;
+            throw $this->_handleChargeOrSaveException($response->getErrors());
         }
 
         return $transaction;
@@ -307,7 +315,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @param array $options
      *
-     * @return \SquareConnect\Model\ListPaymentsResponse
+     * @return ListPaymentsResponse
      * @throws ApiException
      */
     public function payments(array $options)
@@ -323,7 +331,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             'card_brand' => array_key_exists('card_brand', $options) ? $options['card_brand'] : null,
         ];
 
-        $payments = $this->config->paymentsAPI->listPayments(
+        return $this->config->paymentsAPI()->listPayments(
             $options['begin_time'],
             $options['end_time'],
             $options['sort_order'],
@@ -331,9 +339,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $options['location_id'] ?? $this->locationId,
             $options['total'],
             $options['last_4'],
-            $options['card_brand']);
-
-        return $payments;
+            $options['card_brand'])->getResult();
     }
 
     /**
@@ -355,9 +361,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         try {
             if (is_a($product, $productClass)) {
-                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity, $currency);
+                $productPivot = $this->productBuilder->addProductFromModel($this->orderCopy, $this->getOrder(), $product, $quantity, $currency);
             } else {
-                $productPivot = $this->productBuilder->addProductFromArray($this->getOrder(), $product, $quantity, $currency);
+                $productPivot = $this->productBuilder->addProductFromArray($this->orderCopy, $this->getOrder(), $product, $quantity, $currency);
             }
             // Check if order already has this product
             if (! Util::hasProduct($this->orderCopy->products, $productPivot->product)) {
@@ -373,7 +379,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @return \SquareConnect\Model\CreateCustomerRequest|\SquareConnect\Model\UpdateCustomerRequest
+     * @return CreateCustomerRequest|UpdateCustomerRequest
      */
     public function getCreateCustomerRequest()
     {
@@ -381,7 +387,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param \SquareConnect\Model\CreateCustomerRequest $createCustomerRequest
+     * @param CreateCustomerRequest $createCustomerRequest
      *
      * @return self
      */
@@ -393,7 +399,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @return \SquareConnect\Model\CreateOrderRequest
+     * @return CreateOrderRequest
      */
     public function getCreateOrderRequest()
     {
@@ -401,7 +407,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param \SquareConnect\Model\CreateOrderRequest $createOrderRequest
+     * @param CreateOrderRequest $createOrderRequest
      *
      * @return self
      */

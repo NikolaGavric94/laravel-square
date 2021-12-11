@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
@@ -155,8 +154,8 @@ class SquareServiceTest extends TestCase
         $order = factory(Order::class)->create();
         $product = factory(Product::class)->create();
 
-        $order->discounts()->attach($discount, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
-        $order->taxes()->attach($tax, ['deductible_type' => Constants::TAX_NAMESPACE]);
+        $order->discounts()->attach($discount, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->taxes()->attach($tax, ['deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $order->products()->attach($product->id, ['quantity' => 5]);
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'));
@@ -194,7 +193,7 @@ class SquareServiceTest extends TestCase
         $transactions = Square::payments($array);
 
         $this->assertNotNull($transactions);
-        $this->assertInstanceOf('\SquareConnect\Model\ListPaymentsResponse', $transactions);
+        $this->assertInstanceOf('\Square\Models\ListPaymentsResponse', $transactions);
     }
 
     /**
@@ -207,7 +206,7 @@ class SquareServiceTest extends TestCase
         $transactions = Square::locations();
 
         $this->assertNotNull($transactions);
-        $this->assertInstanceOf('\SquareConnect\Model\ListLocationsResponse', $transactions);
+        $this->assertInstanceOf('\Square\Models\ListLocationsResponse', $transactions);
     }
 
     /**
@@ -277,7 +276,7 @@ class SquareServiceTest extends TestCase
         $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->make([
             'amount' => 50,
         ]);
-        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->create([
+        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->make([
             'percentage' => 10.0,
         ]);
         $tax = factory(Tax::class)->states('INCLUSIVE')->make([
@@ -321,11 +320,11 @@ class SquareServiceTest extends TestCase
             'percentage' => 10.0,
         ]);
 
-        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
-        $order->taxes()->attach($tax->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
+        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->taxes()->attach($tax->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $order->products()->attach($product);
 
-        $order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+        $order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
 
         $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($order, env('SQUARE_LOCATION'))->charge(
             ['amount' => 850, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
@@ -346,33 +345,82 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_total_calculation()
     {
-        $orderBuilder = new OrderBuilder();
         $merchant = factory(User::class)->create();
         $customer = factory(Customer::class)->create();
         $order = factory(Order::class)->create();
         $product = factory(Product::class)->create([
             'price' => 1000,
         ]);
-        $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->create([
-            'amount' => 50,
-        ]);
         $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->create([
             'percentage' => 10.0,
         ]);
-        $tax = factory(Tax::class)->states('ADDITIVE')->create([
+        $orderDiscountFixed = factory(Discount::class)->states('AMOUNT_ONLY')->create([
+            'amount' => 250.0,
+        ]);
+        $taxAdditive = factory(Tax::class)->states('ADDITIVE')->create([
             'percentage' => 10.0,
         ]);
+        $taxInclusive = factory(Tax::class)->states('INCLUSIVE')->create([
+            'percentage' => 15.0,
+        ]);
 
-        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
-        $order->taxes()->attach($tax->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace')]);
+        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->discounts()->attach($orderDiscountFixed->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->taxes()->attach($taxAdditive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->taxes()->attach($taxInclusive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $order->products()->attach($product);
 
-        $order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+        $square = Square::setMerchant($merchant)
+            ->setCustomer($customer)
+            ->setOrder($order, env('SQUARE_LOCATION'))
+            ->save();
+        $calculatedCost = Util::calculateTotalOrderCostByModel($square->getOrder());
 
-        $square = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($order, env('SQUARE_LOCATION'));
-        $orderCopy = $orderBuilder->buildOrderCopyFromModel($square->getOrder());
-        $calculatedCost = Util::calculateTotalOrderCost($orderCopy);
+        $this->assertEquals(585, $calculatedCost);
+    }
 
-        $this->assertEquals(950, $calculatedCost);
+    /**
+     * Test all in one as arrays with addition of scope.
+     *
+     * @return void
+     */
+    public function test_square_array_all_scopes()
+    {
+        $merchant = factory(User::class)->create();
+        $customer = factory(Customer::class)->make();
+        $order = factory(Order::class)->make();
+        $product = factory(Product::class)->make([
+            'price' => 1000,
+        ]);
+        $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->make([
+            'amount' => 50,
+        ]);
+        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->make([
+            'percentage' => 10.0,
+        ]);
+        $tax = factory(Tax::class)->states('ADDITIVE')->make([
+            'percentage' => 10.0,
+        ]);
+        $orderArr = $order->toArray();
+        $orderArr['discounts'] = [$orderDiscount->toArray()];
+        $productArr = $product->toArray();
+        $productArr['discounts'] = [$productDiscount->toArray()];
+        $productArr['taxes'] = [$tax->toArray()];
+
+        $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
+            ['amount' => 750, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
+        );
+
+        $transaction = $transaction->load('merchant', 'customer');
+
+        $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
+        $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
+        $this->assertContains(Product::find(1)->id, $transaction->order->products->pluck('id'), 'Product is not part of the order.');
+        $this->assertEquals($transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope,
+            Constants::DEDUCTIBLE_SCOPE_PRODUCT, 'Discount scope is not \'LINE_ITEM\'');
+        $this->assertEquals($transaction->order->taxes->where('name', $tax->name)->first()->pivot->scope,
+            Constants::DEDUCTIBLE_SCOPE_PRODUCT, 'Tax scope is not \'LINE_ITEM\'');
+        $this->assertEquals($transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope,
+            Constants::DEDUCTIBLE_SCOPE_ORDER, 'Discount scope is not \'ORDER\'');
     }
 }

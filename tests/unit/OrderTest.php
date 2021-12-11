@@ -26,8 +26,8 @@ class OrderTest extends TestCase
         $taxes = factory(Tax::class, 3)->create();
         $order = factory(Order::class)->create();
 
-        $order->discounts()->attach($discounts, ['deductible_type' => Constants::DISCOUNT_NAMESPACE]);
-        $order->taxes()->attach($taxes, ['deductible_type' => Constants::TAX_NAMESPACE]);
+        $order->discounts()->attach($discounts, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->taxes()->attach($taxes, ['deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
 
         $this->assertNotNull($order->discounts, 'Discounts are empty.');
         $this->assertCount(5, $order->discounts, 'Discounts count doesn\'t match');
@@ -62,8 +62,8 @@ class OrderTest extends TestCase
         $product['quantity'] = 5;
         $product['discounts'] = [$discountOne->toArray()];
 
-        $order->discounts()->attach($discountTwo->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
-        $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE]);
+        $order->discounts()->attach($discountTwo->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
 
         $data = [
             'location_id' => env('SQUARE_LOCATION'),
@@ -79,7 +79,7 @@ class OrderTest extends TestCase
         $this->assertNotNull($order->discounts, 'Discounts are empty');
         $this->assertNotNull($order->products, 'Products are empty');
         $this->assertCount(1, $square->getOrder()->taxes, 'Taxes count is not correct');
-        $this->assertCount(1, $square->getOrder()->discounts, 'Discounts count is not correct');
+        $this->assertCount(2, $square->getOrder()->discounts, 'Discounts count is not correct');
         $this->assertCount(1, $square->getOrder()->products, 'Products count is not correct');
     }
 

@@ -4,8 +4,11 @@ namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Models\Tax;
+use Nikolag\Square\Utils\Constants;
 
 class TaxesBuilder
 {
@@ -14,12 +17,13 @@ class TaxesBuilder
      * from taxes array.
      *
      * @param array $taxes
+     * @param string $scope
      * @param Model $parent
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      * @throws MissingPropertyException
      */
-    public function createTaxes(array $taxes, Model $parent = null)
+    public function createTaxes(array $taxes, string $scope, Model $parent = null)
     {
         $temp = collect([]);
         foreach ($taxes as $tax) {
@@ -33,9 +37,21 @@ class TaxesBuilder
             if (($parent && ! $parent->hasTax($tax)) || ! Arr::has($tax, 'id')) {
                 $tempTax = new Tax($tax);
             } else {
-                $tempTax = Tax::find($tax['id']);
+                // Load tax with pivot
+                if (Arr::has($tax, 'pivot')) {
+                    if ($scope === Constants::DEDUCTIBLE_SCOPE_ORDER) {
+                        $orderClass = config('nikolag.connections.square.order.namespace');
+                        $tempTax = $orderClass::find($tax['pivot']['featurable_id'])->taxes()->find($tax['id']);
+                    } else if ($scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
+                        $tempTax = OrderProductPivot::find($tax['pivot']['featurable_id'])->taxes()->find($tax['id']);
+                    }
+                }
             }
-            $temp->push($tempTax);
+
+            if (isset($tempTax)) {
+                $tempTax->scope = $scope;
+                $temp->push($tempTax);
+            }
         }
 
         return $temp;
