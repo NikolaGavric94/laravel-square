@@ -82,6 +82,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * List locations.
      *
      * @return ListLocationsResponse
+     *
      * @throws ApiException
      */
     public function locations()
@@ -93,6 +94,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * Save a customer.
      *
      * @return void
+     *
      * @throws ApiException
      */
     private function _saveCustomer()
@@ -116,9 +118,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * Save order to database and if required
      * also save to square vault.
      *
-     * @param bool $saveToSquare
-     *
+     * @param  bool  $saveToSquare
      * @return void
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      * @throws ApiException
@@ -156,8 +158,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param Error[] $errors
-     *
+     * @param  Error[]  $errors
      * @return Exception
      */
     private function _handleChargeOrSaveException(array $errors)
@@ -188,6 +189,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * Save collected data.
      *
      * @return self
+     *
      * @throws Exception on non-2xx response
      * @throws ApiException
      */
@@ -214,9 +216,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Charge a customer.
      *
-     * @param array $data
-     *
+     * @param  array  $data
      * @return Transaction
+     *
      * @throws ApiException
      * @throws Exception on non-2xx response
      * @throws InvalidSquareAmountException
@@ -297,7 +299,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $transaction->payment_service_id = $response->getId();
             $transaction->status = Constants::TRANSACTION_STATUS_PASSED;
             $transaction->save();
-        } else if($response->isError()) {
+        } elseif ($response->isError()) {
             $transaction->payment_service_id = null;
             $transaction->status = Constants::TRANSACTION_STATUS_FAILED;
             $transaction->save();
@@ -313,9 +315,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * Please check: https://developer.squareup.com/reference/square/payments-api/list-payments#query-parameters
      * for options that you can pass to this function.
      *
-     * @param array $options
-     *
+     * @param  array  $options
      * @return ListPaymentsResponse
+     *
      * @throws ApiException
      */
     public function payments(array $options)
@@ -345,11 +347,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Add a product to the order.
      *
-     * @param mixed $product
-     * @param int $quantity
-     * @param string $currency
-     *
+     * @param  mixed  $product
+     * @param  int  $quantity
+     * @param  string  $currency
      * @return self
+     *
      * @throws AlreadyUsedSquareProductException
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
@@ -387,8 +389,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param CreateCustomerRequest $createCustomerRequest
-     *
+     * @param  CreateCustomerRequest  $createCustomerRequest
      * @return self
      */
     public function setCreateCustomerRequest(CreateCustomerRequest $createCustomerRequest)
@@ -407,8 +408,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param CreateOrderRequest $createOrderRequest
-     *
+     * @param  CreateOrderRequest  $createOrderRequest
      * @return self
      */
     public function setCreateOrderRequest(CreateOrderRequest $createOrderRequest)
@@ -419,9 +419,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param mixed $customer
-     *
+     * @param  mixed  $customer
      * @return self
+     *
      * @throws MissingPropertyException
      */
     public function setCustomer($customer)
@@ -445,11 +445,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Setter for order.
      *
-     * @param mixed $order
-     * @param string $locationId
-     * @param string $currency
-     *
+     * @param  mixed  $order
+     * @param  string  $locationId
+     * @param  string  $currency
      * @return self
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */

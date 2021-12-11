@@ -16,11 +16,11 @@ class TaxesBuilder
      * Find or create tax models
      * from taxes array.
      *
-     * @param array $taxes
-     * @param string $scope
-     * @param Model $parent
-     *
+     * @param  array  $taxes
+     * @param  string  $scope
+     * @param  Model  $parent
      * @return Collection
+     *
      * @throws MissingPropertyException
      */
     public function createTaxes(array $taxes, string $scope, Model $parent = null)
@@ -42,7 +42,7 @@ class TaxesBuilder
                     if ($scope === Constants::DEDUCTIBLE_SCOPE_ORDER) {
                         $orderClass = config('nikolag.connections.square.order.namespace');
                         $tempTax = $orderClass::find($tax['pivot']['featurable_id'])->taxes()->find($tax['id']);
-                    } else if ($scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
+                    } elseif ($scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
                         $tempTax = OrderProductPivot::find($tax['pivot']['featurable_id'])->taxes()->find($tax['id']);
                     }
                 }

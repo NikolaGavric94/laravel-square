@@ -10,10 +10,9 @@ use stdClass;
 class Util
 {
     /**
-     * Calculates order total based on orderCopy (stdClass of Model)
+     * Calculates order total based on orderCopy (stdClass of Model).
      *
-     * @param stdClass $orderCopy
-     *
+     * @param  stdClass  $orderCopy
      * @return float
      */
     public static function calculateTotalOrderCost(stdClass $orderCopy)
@@ -25,9 +24,9 @@ class Util
      * Calculate all discounts on order level no matter
      * their scope.
      *
-     * @param Collection $discounts
-     * @param float $noDeductiblesCost
-     * @param Collection $products
+     * @param  Collection  $discounts
+     * @param  float  $noDeductiblesCost
+     * @param  Collection  $products
      * @return float|int
      */
     private static function _calculateDiscounts($discounts, float $noDeductiblesCost, $products)
@@ -36,16 +35,16 @@ class Util
         if ($discounts->isNotEmpty()) {
             if ($products != null) {
                 $totalDiscount = $discounts->map(function ($discount) use ($products, $noDeductiblesCost) {
-                    if ((!$discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
+                    if ((! $discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
                         ($discount->pivot && $discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
                         return self::_calculateProductDiscounts($products, $discount);
-                    } else if ((!$discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
+                    } elseif ((! $discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
                             ($discount->pivot && $discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
                         return self::_calculateOrderDiscounts($discount, $noDeductiblesCost);
                     }
 
                     return 0;
-                })->pipe(function($total) {
+                })->pipe(function ($total) {
                     return $total->sum();
                 });
             }
@@ -59,7 +58,7 @@ class Util
      * takes over precedence over flat amount.
      *
      * @param $discount
-     * @param float $noDeductiblesCost
+     * @param  float  $noDeductiblesCost
      * @return float|int|mixed
      */
     private static function _calculateOrderDiscounts($discount, float $noDeductiblesCost)
@@ -89,7 +88,7 @@ class Util
     }
 
     /**
-     * Function which calculates taxes on product level
+     * Function which calculates taxes on product level.
      *
      * @param $products
      * @param $tax
@@ -102,29 +101,29 @@ class Util
         });
 
         if ($product) {
-            return ($product->price * $product->pivot->quantity * $tax->percentage / 100);
+            return $product->price * $product->pivot->quantity * $tax->percentage / 100;
         }
     }
 
     /**
-     * Function which calculates taxes on order level
+     * Function which calculates taxes on order level.
      *
-     * @param float $noDeductiblesCost
+     * @param  float  $noDeductiblesCost
      * @param $tax
      * @return float|int
      */
     private static function _calculateOrderTaxes(float $noDeductiblesCost, $tax)
     {
-        return ($noDeductiblesCost * $tax->percentage / 100);
+        return $noDeductiblesCost * $tax->percentage / 100;
     }
 
     /**
      * Calculate all taxes on order level no matter
      * their scope, type of ADDITIVE.
      *
-     * @param Collection $taxes
-     * @param float $noDeductiblesCost
-     * @param Collection $products
+     * @param  Collection  $taxes
+     * @param  float  $noDeductiblesCost
+     * @param  Collection  $products
      * @return float|int
      */
     private static function _calculateTaxes($taxes, float $noDeductiblesCost, $products)
@@ -135,15 +134,16 @@ class Util
                 $totalTaxes = $taxes->filter(function ($tax) {
                     return $tax->type === Constants::TAX_ADDITIVE;
                 })->map(function ($taxTwo) use ($products, $noDeductiblesCost) {
-                    if ((!$taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
+                    if ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
                         ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
                         return self::_calculateProductTaxes($products, $taxTwo);
-                    } else if ((!$taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
+                    } elseif ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
                         ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
                         return self::_calculateOrderTaxes($noDeductiblesCost, $taxTwo);
                     }
+
                     return 0;
-                })->pipe(function($total) {
+                })->pipe(function ($total) {
                     return $total->sum();
                 });
             }
@@ -153,14 +153,15 @@ class Util
     }
 
     /**
-     * Calculate total order cost
+     * Calculate total order cost.
      *
-     * @param Collection $discounts
-     * @param Collection $taxes
-     * @param Collection $products
+     * @param  Collection  $discounts
+     * @param  Collection  $taxes
+     * @param  Collection  $products
      * @return float|int
      */
-    private static function _calculateTotalCost($discounts, $taxes, $products) {
+    private static function _calculateTotalCost($discounts, $taxes, $products)
+    {
         $noDeductiblesCost = 0;
         $finalCost = 0;
         $lineItemDiscounts = collect([]);
@@ -198,20 +199,20 @@ class Util
     /**
      * Filter elements based on scope and collection of elements.
      *
-     * @param string $scope Scope of elements, can be one of: [Constants::DEDUCTIBLE_SCOPE_ORDER, Constants::DEDUCTIBLE_SCOPE_PRODUCT]
-     * @param Collection $collection A collection of elements
+     * @param  string  $scope  Scope of elements, can be one of: [Constants::DEDUCTIBLE_SCOPE_ORDER, Constants::DEDUCTIBLE_SCOPE_PRODUCT]
+     * @param  Collection  $collection  A collection of elements
      */
-    private static function _filterElements(string $scope, Collection $collection) {
+    private static function _filterElements(string $scope, Collection $collection)
+    {
         return $collection->filter(function ($obj) use ($scope) {
             return ($obj->pivot && $obj->pivot->scope === $scope) || $obj->scope === $scope;
         });
     }
 
     /**
-     * Calculates order total based on Model
+     * Calculates order total based on Model.
      *
-     * @param Model $order
-     *
+     * @param  Model  $order
      * @return float
      */
     public static function calculateTotalOrderCostByModel(Model $order)
@@ -222,9 +223,8 @@ class Util
     /**
      * Check if source has product.
      *
-     * @param Collection|\Illuminate\Database\Eloquent\Collection $source
-     * @param array|int|Product $product
-     *
+     * @param  Collection|\Illuminate\Database\Eloquent\Collection  $source
+     * @param  array|int|Product  $product
      * @return bool
      */
     public static function hasProduct($source, $product)
@@ -232,13 +232,13 @@ class Util
         // Check if $product is either int, Model or array
         if (is_a($product, Product::class)) {
             return $source->contains($product);
-        } else if (is_array($product)) {
+        } elseif (is_array($product)) {
             if (array_key_exists('id', $product)) {
                 return $source->contains(Product::find($product['id']));
-            } else if (array_key_exists('name', $product)) {
+            } elseif (array_key_exists('name', $product)) {
                 return $source->contains(Product::where('name', $product['name'])->first());
             }
-        } else if (is_int($product)) {
+        } elseif (is_int($product)) {
             return $source->contains(Product::find($product));
         }
 
@@ -248,8 +248,9 @@ class Util
     /**
      * Generate random alphanumeric string of supplied length or 30 by default.
      *
-     * @param int $length
+     * @param  int  $length
      * @return string
+     *
      * @throws \Exception
      */
     public static function uid(int $length = 30)

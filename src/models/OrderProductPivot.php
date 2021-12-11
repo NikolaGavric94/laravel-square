@@ -31,8 +31,7 @@ class OrderProductPivot extends IntermediateTable
     /**
      * Does intermediate table has discount.
      *
-     * @param mixed $discount
-     *
+     * @param  mixed  $discount
      * @return bool
      */
     public function hasDiscount($discount)
@@ -45,8 +44,7 @@ class OrderProductPivot extends IntermediateTable
     /**
      * Does intermediate table has tax.
      *
-     * @param mixed $tax
-     *
+     * @param  mixed  $tax
      * @return bool
      */
     public function hasTax($tax)
@@ -59,8 +57,7 @@ class OrderProductPivot extends IntermediateTable
     /**
      * Does intermediate table has product.
      *
-     * @param mixed $product
-     *
+     * @param  mixed  $product
      * @return bool
      */
     public function hasProduct($product)

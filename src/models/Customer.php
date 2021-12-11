@@ -40,8 +40,7 @@ class Customer extends CoreCustomer
     /**
      * Initiate this customer.
      *
-     * @param array $data
-     *
+     * @param  array  $data
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null
      */
     public function initiateOrSave(array $data)

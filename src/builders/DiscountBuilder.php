@@ -16,11 +16,11 @@ class DiscountBuilder
      * Find or create discount models
      * from discounts array.
      *
-     * @param array $discounts
-     * @param string $scope
-     * @param Model $parent
-     *
+     * @param  array  $discounts
+     * @param  string  $scope
+     * @param  Model  $parent
      * @return \Illuminate\Support\Collection
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
@@ -51,7 +51,7 @@ class DiscountBuilder
                     if ($scope === Constants::DEDUCTIBLE_SCOPE_ORDER) {
                         $orderClass = config('nikolag.connections.square.order.namespace');
                         $tempDiscount = $orderClass::find($discount['pivot']['featurable_id'])->discounts()->find($discount['id']);
-                    } else if ($scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
+                    } elseif ($scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
                         $tempDiscount = OrderProductPivot::find($discount['pivot']['featurable_id'])->discounts()->find($discount['id']);
                     }
                 }

@@ -24,8 +24,7 @@ trait HasCustomers
     /**
      * Retrieve customer if he exists, otherwise return false.
      *
-     * @param string $email
-     *
+     * @param  string  $email
      * @return mixed
      */
     public function hasCustomer(string $email)
@@ -79,14 +78,14 @@ trait HasCustomers
     /**
      * Charge a customer.
      *
-     * @param float $amount
-     * @param string $nonce
-     * @param string $location_id
-     * @param array $options
-     * @param mixed $customer
-     * @param string $currency
-     *
+     * @param  float  $amount
+     * @param  string  $nonce
+     * @param  string  $location_id
+     * @param  array  $options
+     * @param  mixed  $customer
+     * @param  string  $currency
      * @return Transaction
+     *
      * @throws Exception
      */
     public function charge(float $amount, string $nonce, string $location_id, array $options = [], $customer = null, string $currency = 'USD')
@@ -99,8 +98,7 @@ trait HasCustomers
     /**
      * Save a customer.
      *
-     * @param array $customer
-     *
+     * @param  array  $customer
      * @return void
      */
     public function saveCustomer(array $customer)
@@ -111,8 +109,7 @@ trait HasCustomers
     /**
      * Model function, return all transactions by status.
      *
-     * @param string $status
-     *
+     * @param  string  $status
      * @return HasMany
      */
     private function _byTransactionStatus(string $status)
