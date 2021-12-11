@@ -262,12 +262,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         // Save and attach order
         if ($this->getOrder()) {
             try {
-                // <===============================================================================================>
-                // When adding product with ->addProduct the discounts and taxes are not registered under order level
-                // $order->discounts has no line item discounts
-                // Need to check where is best place to filter through those discounts and taxes and add them to order upon adding product
-                // <===============================================================================================>
-
                 // Calculate the total order amount
                 $calculatedCost = Util::calculateTotalOrderCost($this->orderCopy);
                 // If order total does not match charge amount, throw error
