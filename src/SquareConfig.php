@@ -5,11 +5,11 @@ namespace Nikolag\Square;
 use Nikolag\Core\Contracts\ConfigContract;
 use Nikolag\Core\CoreConfig;
 use Nikolag\Core\Exceptions\InvalidConfigurationException;
-use Square\Apis\LocationsApi;
 use Square\Apis\CustomersApi;
-use Square\Apis\TransactionsApi;
+use Square\Apis\LocationsApi;
 use Square\Apis\OrdersApi;
 use Square\Apis\PaymentsApi;
+use Square\Apis\TransactionsApi;
 use Square\SquareClient;
 
 class SquareConfig extends CoreConfig implements ConfigContract
@@ -33,7 +33,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
         $environment = $isSandbox ? 'sandbox' : 'production';
         $this->squareClient = new SquareClient([
             'accessToken' => $this->config['access_token'],
-            'environment' => $environment
+            'environment' => $environment,
         ]);
     }
 

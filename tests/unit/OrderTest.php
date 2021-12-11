@@ -39,6 +39,7 @@ class OrderTest extends TestCase
      * Charge with order.
      *
      * @return void
+     *
      * @throws \Nikolag\Core\Exceptions\Exception
      */
     public function test_order_charge()

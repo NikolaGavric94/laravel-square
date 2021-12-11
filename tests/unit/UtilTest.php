@@ -14,12 +14,12 @@ use Nikolag\Square\Utils\Util;
 class UtilTest extends TestCase
 {
     /**
-     * @var Order $order
+     * @var Order
      */
     protected $order;
 
     /**
-     * @var Product $product
+     * @var Product
      */
     protected $product;
 
@@ -116,7 +116,7 @@ class UtilTest extends TestCase
     }
 
     /**
-     * Test if the method uid returns whatever is provided
+     * Test if the method uid returns whatever is provided.
      *
      * @return void
      */
@@ -125,7 +125,7 @@ class UtilTest extends TestCase
         $random = rand(1, 50);
         $actual = Util::uid($random);
 
-        $this->assertEquals($random*2, strlen($actual), 'Util::uid has not returned '.($random*2).' characters');
+        $this->assertEquals($random * 2, strlen($actual), 'Util::uid has not returned '.($random * 2).' characters');
     }
 
 //    /**

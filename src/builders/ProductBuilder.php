@@ -24,13 +24,13 @@ class ProductBuilder
     /**
      * Add a product to the order from model as source.
      *
-     * @param stdClass $orderCopy
-     * @param Model $order
-     * @param Model $product
-     * @param int $quantity
-     * @param string $currency
-     *
+     * @param  stdClass  $orderCopy
+     * @param  Model  $order
+     * @param  Model  $product
+     * @param  int  $quantity
+     * @param  string  $currency
      * @return stdClass
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
@@ -69,13 +69,13 @@ class ProductBuilder
     /**
      * Add a product to the order from array as source.
      *
-     * @param stdClass $orderCopy
-     * @param Model $order
-     * @param array $product
-     * @param int $quantity
-     * @param string $currency
-     *
+     * @param  stdClass  $orderCopy
+     * @param  Model  $order
+     * @param  array  $product
+     * @param  int  $quantity
+     * @param  string  $currency
      * @return stdClass
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
@@ -110,7 +110,7 @@ class ProductBuilder
             //Discounts
             if (Arr::has($product, 'discounts')) {
                 $productCopy->discounts = $this->discountBuilder->createDiscounts($product['discounts'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->productPivot);
-                $productCopy->discounts->each(function($discount) use ($orderCopy) {
+                $productCopy->discounts->each(function ($discount) use ($orderCopy) {
                     if (! $orderCopy->discounts->contains($discount)) {
                         $orderCopy->discounts->add($discount);
                     }
@@ -121,7 +121,7 @@ class ProductBuilder
             //Taxes
             if (Arr::has($product, 'taxes')) {
                 $productCopy->taxes = $this->taxesBuilder->createTaxes($product['taxes'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->productPivot);
-                $productCopy->taxes->each(function($tax) use ($orderCopy) {
+                $productCopy->taxes->each(function ($tax) use ($orderCopy) {
                     if (! $orderCopy->taxes->contains($tax)) {
                         $orderCopy->taxes->add($tax);
                     }
@@ -137,10 +137,10 @@ class ProductBuilder
     /**
      * Create product from array.
      *
-     * @param array $product
-     * @param Model|null $order
-     *
+     * @param  array  $product
+     * @param  Model|null  $order
      * @return stdClass
+     *
      * @throws MissingPropertyException
      */
     public function createProductFromArray(array $product, Model $order = null)
@@ -174,11 +174,11 @@ class ProductBuilder
     /**
      * Create product from model.
      *
-     * @param Model $product
-     * @param Model|null $order
-     * @param int|null $quantity
-     *
+     * @param  Model  $product
+     * @param  Model|null  $order
+     * @param  int|null  $quantity
      * @return stdClass
+     *
      * @throws MissingPropertyException
      */
     public function createProductFromModel(Model $product, Model $order = null, int $quantity = null)
