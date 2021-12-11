@@ -15,14 +15,13 @@ trait HasProducts
     /**
      * Charge an order.
      *
-     * @param float $amount
-     * @param string $nonce
-     * @param string $location_id
-     * @param mixed $merchant
-     * @param array $options
-     * @param mixed $customer
-     * @param string $currency
-     *
+     * @param  float  $amount
+     * @param  string  $nonce
+     * @param  string  $location_id
+     * @param  mixed  $merchant
+     * @param  array  $options
+     * @param  mixed  $customer
+     * @param  string  $currency
      * @return Transaction
      */
     public function charge(float $amount, string $nonce, string $location_id, $merchant, array $options = [], $customer = null, string $currency = 'USD')
@@ -35,8 +34,7 @@ trait HasProducts
     /**
      * Check existence of an attribute in model.
      *
-     * @param string $attribute
-     *
+     * @param  string  $attribute
      * @return bool
      */
     public function hasAttribute(string $attribute)
@@ -47,8 +45,7 @@ trait HasProducts
     /**
      * Does an order have a discount.
      *
-     * @param mixed $discount
-     *
+     * @param  mixed  $discount
      * @return bool
      */
     public function hasDiscount($discount)
@@ -61,8 +58,7 @@ trait HasProducts
     /**
      * Does an order have a tax.
      *
-     * @param mixed $tax
-     *
+     * @param  mixed  $tax
      * @return bool
      */
     public function hasTax($tax)
@@ -75,8 +71,7 @@ trait HasProducts
     /**
      * Does an order have a product.
      *
-     * @param mixed $product
-     *
+     * @param  mixed  $product
      * @return bool
      */
     public function hasProduct($product)

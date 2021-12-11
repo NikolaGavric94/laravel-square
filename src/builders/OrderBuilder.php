@@ -37,9 +37,8 @@ class OrderBuilder
      * Build order from order copy
      * and save to database simultaneously.
      *
-     * @param Model    $order
-     * @param stdClass $orderCopy
-     *
+     * @param  Model  $order
+     * @param  stdClass  $orderCopy
      * @return Model
      */
     public function buildOrderFromOrderCopy(Model $order, stdClass $orderCopy)
@@ -153,9 +152,9 @@ class OrderBuilder
     /**
      * Build order copy from model.
      *
-     * @param Model $order
-     *
+     * @param  Model  $order
      * @return stdClass
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
@@ -188,7 +187,7 @@ class OrderBuilder
                         $productTemp->taxes = $this->taxesBuilder->createTaxes($product->pivot->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_ORDER, $productTemp->productPivot);
 
                         // Check for any taxes that are missing on order level
-                        $missingTaxes = $productTemp->taxes->reject(function($tax) use ($orderCopy) {
+                        $missingTaxes = $productTemp->taxes->reject(function ($tax) use ($orderCopy) {
                             return $orderCopy->taxes->contains($tax);
                         });
 
@@ -204,7 +203,7 @@ class OrderBuilder
                         $productTemp->discounts = $this->discountBuilder->createDiscounts($product->pivot->discounts->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productTemp->pivot);
 
                         // Check for any discounts that are missing on order level
-                        $missingDiscounts = $productTemp->discounts->reject(function($discount) use ($orderCopy) {
+                        $missingDiscounts = $productTemp->discounts->reject(function ($discount) use ($orderCopy) {
                             return $orderCopy->discounts->contains($discount);
                         });
 
@@ -216,6 +215,7 @@ class OrderBuilder
                     $orderCopy->products->push($productTemp);
                 }
             }
+
             return $orderCopy;
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
@@ -225,9 +225,9 @@ class OrderBuilder
     /**
      * Build order copy from array.
      *
-     * @param array $order
-     *
+     * @param  array  $order
      * @return stdClass
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
@@ -260,7 +260,7 @@ class OrderBuilder
                         $productTemp->discounts = $this->discountBuilder->createDiscounts($product['discounts'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productTemp->productPivot);
 
                         // Check for any discounts that are missing on order level
-                        $missingDiscounts = $productTemp->discounts->reject(function($discount) use ($orderCopy) {
+                        $missingDiscounts = $productTemp->discounts->reject(function ($discount) use ($orderCopy) {
                             return $orderCopy->discounts->contains($discount);
                         });
 
@@ -276,7 +276,7 @@ class OrderBuilder
                         $productTemp->taxes = $this->taxesBuilder->createTaxes($product['taxes'], $productTemp->productPivot);
 
                         // Check for any taxes that are missing on order level
-                        $missingTaxes = $productTemp->taxes->reject(function($tax) use ($orderCopy) {
+                        $missingTaxes = $productTemp->taxes->reject(function ($tax) use ($orderCopy) {
                             return $orderCopy->taxes->contains($tax);
                         });
 
@@ -298,10 +298,10 @@ class OrderBuilder
     /**
      * Build order model from array.
      *
-     * @param array $order
-     * @param Model $emptyModel
-     *
+     * @param  array  $order
+     * @param  Model  $emptyModel
      * @return Model
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */

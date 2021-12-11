@@ -46,8 +46,7 @@ class SquareRequestBuilder
     /**
      * Create and return charge request.
      *
-     * @param array $prepData
-     *
+     * @param  array  $prepData
      * @return CreatePaymentRequest
      */
     public function buildChargeRequest(array $prepData)
@@ -60,14 +59,14 @@ class SquareRequestBuilder
         $request->setLocationId($prepData['location_id']);
         $request->setNote($prepData['note']);
         $request->setReferenceId($prepData['reference_id']);
+
         return $request;
     }
 
     /**
      * Create and return customer request.
      *
-     * @param Model $customer
-     *
+     * @param  Model  $customer
      * @return CreateCustomerRequest
      */
     public function buildCustomerRequest(Model $customer)
@@ -88,11 +87,11 @@ class SquareRequestBuilder
     /**
      * Create and return order request.
      *
-     * @param Model $order
-     * @param string $locationId
-     * @param string $currency
-     *
+     * @param  Model  $order
+     * @param  string  $locationId
+     * @param  string  $currency
      * @return CreateOrderRequest
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
@@ -113,10 +112,10 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of discounts.
      *
-     * @param Collection $discounts
-     * @param string $currency
-     *
+     * @param  Collection  $discounts
+     * @param  string  $currency
      * @return array
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
@@ -144,7 +143,7 @@ class SquareRequestBuilder
 
                 // If it's LINE ITEM then assign proper UID
                 if ($discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
-                    $found = $this->productDiscounts->first(function($disc) use ($discount) {
+                    $found = $this->productDiscounts->first(function ($disc) use ($discount) {
                         return $disc->getName() === $discount->name;
                     });
 
@@ -176,8 +175,7 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of already applied discounts.
      *
-     * @param Collection $discounts
-     *
+     * @param  Collection  $discounts
      * @return array
      */
     public function buildAppliedDiscounts(Collection $discounts)
@@ -197,9 +195,9 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of taxes.
      *
-     * @param Collection $taxes
-     *
+     * @param  Collection  $taxes
      * @return array
+     *
      * @throws MissingPropertyException
      */
     public function buildTaxes(Collection $taxes)
@@ -223,7 +221,7 @@ class SquareRequestBuilder
 
                 // If it's LINE ITEM then assign proper UID
                 if ($tax->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
-                    $found = $this->productTaxes->first(function($inner) use ($tax) {
+                    $found = $this->productTaxes->first(function ($inner) use ($tax) {
                         return $inner->getName() === $tax->name;
                     });
 
@@ -242,9 +240,8 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of already applied taxes.
      *
-     * @param Collection $taxes
-     * @param string $class
-     *
+     * @param  Collection  $taxes
+     * @param  string  $class
      * @return array
      */
     public function buildAppliedTaxes(Collection $taxes)
@@ -264,11 +261,11 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of \SquareConnect\Model\OrderLineItem for order.
      *
-     * @param Collection $products
-     * @param string $currency
-     * @param string $class
-     *
+     * @param  Collection  $products
+     * @param  string  $currency
+     * @param  string  $class
      * @return array
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */

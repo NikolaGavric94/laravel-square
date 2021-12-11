@@ -234,6 +234,7 @@ class SquareServiceTest extends TestCase
      * Save and charge an order through facade.
      *
      * @return void
+     *
      * @throws \Nikolag\Core\Exceptions\Exception
      */
     public function test_square_order_facade_save_and_charge()
@@ -340,6 +341,7 @@ class SquareServiceTest extends TestCase
      * Test all in one as models.
      *
      * @return void
+     *
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      * @throws \Nikolag\Square\Exceptions\MissingPropertyException
      */
