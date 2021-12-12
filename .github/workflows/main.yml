@@ -107,7 +107,7 @@ jobs:
       - name: Add new factory package for laravel 8.*
         env:
           ILLUMINATE_VERSION: ${{ matrix.illuminate }}
-        if: ${{ matrix.illuminate == '8.x' }}
+        if: ${{ (matrix.php-version == '7.3' || matrix.php-version == '7.4') && matrix.illuminate == '8.*'}}
         run: composer require --dev "laravel/legacy-factories:^1.0.4" --no-update
 
       # Copy env config and install remaining composer deps
