@@ -62,10 +62,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: "Building and testing accross multiple environments"
-        uses: NikolaGavric94/laravel-square@release/support-square-sdk
+        with:
+          ref: release/support-square-sdk
 
       # Setup php
       - name: Setup PHP with PECL extension
