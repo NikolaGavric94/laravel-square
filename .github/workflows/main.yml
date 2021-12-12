@@ -118,14 +118,30 @@ jobs:
           PHPUNIT_VERSION: ${{ matrix.phpunit }}
         run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} --no-update
 
-      # Runs a set of commands using the runners shell
-      - name: Build and run
+      - name: Change square package for < 7.1 php
+        env:
+          PHP_VERSION: ${{ matrix.php-version }}
+        run: if [[ "${PHP_VERSION}" == "7.1" ]]; then composer remove square/square --no-update; composer install square/connect@3.20200528.1 --no-update; fi;
+
+      - name: Change faker package for older laravel versions
         env:
           ILLUMINATE_VERSION: ${{ matrix.illuminate }}
-          ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
-          PHPUNIT_VERSION: ${{ matrix.phpunit }}
-          PHP_VERSION: ${{ matrix.php-version }}
+        run: if [[ "${ILLUMINATE_VERSION}" == "5.5.*" || "${ILLUMINATE_VERSION}" == "5.6.*" || "${ILLUMINATE_VERSION}" == "5.7.*" || "${ILLUMINATE_VERSION}" == "5.8.*" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
+
+      - name: Add new factory package for laravel 8.*
+        env:
+          ILLUMINATE_VERSION: ${{ matrix.illuminate }}
+        run: if [[ "${ILLUMINATE_VERSION}" == "8.*" ]]; then composer require --dev "laravel/legacy-factories:^1.0.4" --no-update; fi;
+
+      # Copy env config and install remaining composer deps
+      - name: Copy config and build
         run: |
-          if [[ "${PHP_VERSION}" == "7.1" ]]; then composer remove square/square --no-update; composer install square/connect@3.20200528.1 --no-update; fi;
-          if [[ "${ILLUMINATE_VERSION}" == "5.5.*" || "${ILLUMINATE_VERSION}" == "5.6.*" || "${ILLUMINATE_VERSION}" == "5.7.*" || "${ILLUMINATE_VERSION}" == "5.8.*" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
-          if [[ "${ILLUMINATE_VERSION}" == "8.*" ]]; then composer require --dev "laravel/legacy-factories:^1.0.4" --no-update; fi;
+          cp .env.testing .env
+          composer self-update
+          composer install --no-interaction --no-cache
+
+      # Run phpunit tests
+      - name: Run tests
+        run: vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+
+
