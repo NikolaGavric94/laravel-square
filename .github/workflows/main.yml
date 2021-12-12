@@ -65,7 +65,7 @@ jobs:
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: "Building and testing accross multiple environments"
-        uses: NikolaGavric94/laravel-square@${{GITHUB_REF#refs/heads/}}
+        uses: NikolaGavric94/laravel-square@${GITHUB_REF}
 
       # Setup php
       - name: Setup PHP with PECL extension
