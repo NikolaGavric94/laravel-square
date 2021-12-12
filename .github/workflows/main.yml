@@ -9,9 +9,6 @@ on:
       - release/**
       - master
       - dev
-  pull_request:
-    branches:
-      - master
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -70,10 +67,11 @@ jobs:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: ${{ matrix.php-versions }}
 
       # Runs a set of commands using the runners shell
       - name: "Building and testing accross multiple environments"
+        uses: NikolaGavric94/laravel-square@${{GITHUB_REF#refs/heads/}}
         env:
           ILLUMINATE_VERSION: ${{ matrix.illuminate }}
           ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
