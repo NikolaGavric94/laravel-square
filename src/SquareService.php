@@ -165,6 +165,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         //Set exception to be first in array of errors
         $exceptionJSON = $errors[0];
+        $exception = new Exception($exceptionJSON->getDetail());
 
         if ($exceptionJSON->getCategory() === Constants::INVALID_REQUEST_ERROR) {
             if ($exceptionJSON->getCode() === Constants::BAD_REQUEST) {
