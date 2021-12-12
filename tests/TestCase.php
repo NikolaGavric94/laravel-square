@@ -64,26 +64,26 @@ class TestCase extends BaseTestCase
     protected function getEnvironmentSetUp($app)
     {
         // Setup default database to use sqlite :memory:
-//        $app['config']->set('database.default', 'square_test');
-//        $app['config']->set('database.connections.square_test', [
-//            'driver'   => 'sqlite',
-//            'database' => ':memory:',
-//            'prefix'   => '',
-//        ]);
         $app['config']->set('database.default', 'square_test');
         $app['config']->set('database.connections.square_test', [
-            'driver' => 'mysql',
-            'host' => 'mysql',
-            'port' => '3306',
-            'database' => 'square_test',
-            'username' => 'root',
-            'password' => '',
-            'unix_socket' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => '',
         ]);
+//        $app['config']->set('database.default', 'square_test');
+//        $app['config']->set('database.connections.square_test', [
+//            'driver' => 'mysql',
+//            'host' => 'mysql',
+//            'port' => '3306',
+//            'database' => 'square_test',
+//            'username' => 'root',
+//            'password' => '',
+//            'unix_socket' => '',
+//            'charset' => 'utf8mb4',
+//            'collation' => 'utf8mb4_unicode_ci',
+//            'prefix' => '',
+//            'strict' => true,
+//            'engine' => null,
+//        ]);
     }
 }
