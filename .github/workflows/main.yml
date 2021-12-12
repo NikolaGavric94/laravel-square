@@ -25,75 +25,52 @@ jobs:
     strategy:
       matrix:
         include:
-          - php: 7.1
+          - php-versions: ["7.1", "7.2"]
             illuminate: "5.5.*"
             orchestra: "3.5.*"
             phpunit: "6.*"
-          - php: 7.1
+          - php-versions: ["7.1", "7.2"]
             illuminate: "5.6.*"
             orchestra: "3.6.*"
             phpunit: "7.*"
-          - php: 7.1
+          - php-versions: ["7.1", "7.2"]
             illuminate: "5.7.*"
             orchestra: "3.7.*"
             phpunit: "7.*"
-          - php: 7.1
+          - php-versions: ["7.1", "7.2"]
             illuminate: "5.8.*"
             orchestra: "3.8.*"
             phpunit: "7.*"
-          - php: 7.2
-            illuminate: "5.5.*"
-            orchestra: "3.5.*"
-            phpunit: "6.*"
-          - php: 7.2
-            illuminate: "5.6.*"
-            orchestra: "3.6.*"
-            phpunit: "7.*"
-          - php: 7.2
-            illuminate: "5.7.*"
-            orchestra: "3.7.*"
-            phpunit: "7.*"
-          - php: 7.2
-            illuminate: "5.8.*"
-            orchestra: "3.8.*"
-            phpunit: "7.*"
-          - php: 7.2
+          - php-versions: ["7.2", "7.3"]
             illuminate: "6.*"
             orchestra: "4.*"
             phpunit: "8.*"
-          - php: 7.2
+          - php-versions: ["7.2", "7.3"]
             illuminate: "7.*"
             orchestra: "5.*"
             phpunit: "8.*"
-          - php: 7.3
+          - php-versions: "7.3"
             illuminate: "5.8.*"
             orchestra: "3.8.*"
             phpunit: "8.*"
-          - php: 7.3
-            illuminate: "6.*"
-            orchestra: "4.*"
-            phpunit: "8.*"
-          - php: 7.3
-            illuminate: "7.*"
-            orchestra: "5.*"
-            phpunit: "8.*"
-          - php: 7.3
+          - php-versions: ["7.3", "7.4"]
             illuminate: "8.*"
             orchestra: "6.*"
             phpunit: "8.*"
-          - php: 7.4
+          - php-versions: "7.4"
             illuminate: "7.*"
             orchestra: "5.*"
-            phpunit: "8.*"
-          - php: 7.4
-            illuminate: "8.*"
-            orchestra: "6.*"
             phpunit: "8.*"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - uses: actions/checkout@v2
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      #- uses: NikolaGavric94/laravel-square@latest
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
 
       # Runs a set of commands using the runners shell
       - name: "Building and testing accross multiple environments"
