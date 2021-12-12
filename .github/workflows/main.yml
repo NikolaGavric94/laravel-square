@@ -9,9 +9,6 @@ on:
       - release/**
       - master
       - dev
-  pull_request:
-    branches:
-      - master
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -85,7 +82,7 @@ jobs:
         env:
           ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
           PHPUNIT_VERSION: ${{ matrix.phpunit }}
-        run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} doctrine/dbal --no-update
+        run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} doctrine/dbal:2.13 --no-update
 
       - name: Change faker package for older laravel versions
         env:
