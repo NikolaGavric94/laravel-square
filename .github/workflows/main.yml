@@ -105,18 +105,20 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
 
+      # Setup laravel deps
+      - name: Setup laravel deps
+        env:
+          ILLUMINATE_VERSION: ${{ matrix.illuminate }}
+        run: composer require illuminate/config:${ILLUMINATE_VERSION} illuminate/console:${ILLUMINATE_VERSION} illuminate/contracts:${ILLUMINATE_VERSION} illuminate/container:${ILLUMINATE_VERSION} illuminate/database:${ILLUMINATE_VERSION} --no-update
+
       # Runs a set of commands using the runners shell
-      - name: "Building and testing accross multiple environments"
+      - name: Build and run
         env:
           ILLUMINATE_VERSION: ${{ matrix.illuminate }}
           ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
           PHPUNIT_VERSION: ${{ matrix.phpunit }}
           PHP_VERSION: ${{ matrix.php-version }}
         run: |
-          composer --version
-          composer require --help
-          composer require illuminate/config:${ILLUMINATE_VERSION} illuminate/console:${ILLUMINATE_VERSION} illuminate/contracts:${ILLUMINATE_VERSION} --no-update
-          composer require illuminate/container:${ILLUMINATE_VERSION} illuminate/database:${ILLUMINATE_VERSION} --no-update
           composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} --no-update
           if [[ "${PHP_VERSION}" == "7.1" ]]; then composer remove square/square --no-update; composer install square/connect@3.20200528.1 --no-update; fi;
           if [[ "${ILLUMINATE_VERSION}" == "5.5.*" || "${ILLUMINATE_VERSION}" == "5.6.*" || "${ILLUMINATE_VERSION}" == "5.7.*" || "${ILLUMINATE_VERSION}" == "5.8.*" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
