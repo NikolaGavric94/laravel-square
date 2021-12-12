@@ -14,7 +14,13 @@ class AddScopeNikolagDeductibleTable extends Migration
     public function up()
     {
         Schema::table('nikolag_deductibles', function (Blueprint $table) {
-            $table->string('scope', '60');
+            $table->string('scope', '60')->nullable();
+        });
+
+        // Make it non nullable due to SQLite issue
+        // (https://laracasts.com/discuss/channels/general-discussion/migrations-sqlite-general-error-1-cannot-add-a-not-null-column-with-default-value-null)
+        Schema::table('nikolag_deductibles', function (Blueprint $table) {
+            $table->string('scope', '60')->nullable(false)->change();
         });
     }
 
