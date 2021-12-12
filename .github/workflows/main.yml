@@ -96,7 +96,7 @@ jobs:
         env:
           ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
           PHPUNIT_VERSION: ${{ matrix.phpunit }}
-        run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} doctrine/dbal@3.2.0 --no-update
+        run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} doctrine/dbal --no-update
 
       - name: Change faker package for older laravel versions
         env:
