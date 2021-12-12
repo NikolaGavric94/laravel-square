@@ -121,17 +121,20 @@ jobs:
       - name: Change square package for < 7.1 php
         env:
           PHP_VERSION: ${{ matrix.php-version }}
-        run: if [[ "${PHP_VERSION}" == "7.1" ]]; then composer remove square/square --no-update; composer install square/connect@3.20200528.1 --no-update; fi;
+        if: ${{ matrix.php-version == "7.1" }}
+        run: composer remove square/square --no-update && composer require square/connect@3.20200528.1 --no-update
 
       - name: Change faker package for older laravel versions
         env:
           ILLUMINATE_VERSION: ${{ matrix.illuminate }}
-        run: if [[ "${ILLUMINATE_VERSION}" == "5.5.*" || "${ILLUMINATE_VERSION}" == "5.6.*" || "${ILLUMINATE_VERSION}" == "5.7.*" || "${ILLUMINATE_VERSION}" == "5.8.*" ]]; then composer remove --dev fakerphp/faker; composer require --dev "fzaninotto/faker:^1.4" --no-update; fi;
+        if: ${{ matrix.illuminate == "5.5.*" || matrix.illuminate == "5.6.*" || matrix.illuminate == "5.7.*" || matrix.illuminate == "5.8.*" }}
+        run: composer remove --dev fakerphp/faker --no-update && composer require --dev "fzaninotto/faker:^1.4" --no-update
 
       - name: Add new factory package for laravel 8.*
         env:
           ILLUMINATE_VERSION: ${{ matrix.illuminate }}
-        run: if [[ "${ILLUMINATE_VERSION}" == "8.*" ]]; then composer require --dev "laravel/legacy-factories:^1.0.4" --no-update; fi;
+        if: ${{ matrix.illuminate == "8.x" }}
+        run: composer require --dev "laravel/legacy-factories:^1.0.4" --no-update
 
       # Copy env config and install remaining composer deps
       - name: Copy config and build
