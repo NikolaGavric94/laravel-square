@@ -122,7 +122,7 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php-version }}
         if: ${{ matrix.php-version == '7.1' }}
-        run: composer remove square/square --no-update && composer require square/connect@3.20200528.1 --no-update
+        run: composer remove square/square --no-update && composer require square/connect-php-sdk@3.20200528.1 --no-update
 
       - name: Change faker package for older laravel versions
         env:
