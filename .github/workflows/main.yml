@@ -25,26 +25,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - php-version: "7.1"
-            illuminate: "5.5.*"
-            orchestra: "3.5.*"
-            phpunit: "6.*"
-          - php-version: "7.1"
-            illuminate: "5.6.*"
-            orchestra: "3.6.*"
-            phpunit: "7.*"
-          - php-version: "7.1"
-            illuminate: "5.6.*"
-            orchestra: "3.6.*"
-            phpunit: "7.*"
-          - php-version: "7.1"
-            illuminate: "5.7.*"
-            orchestra: "3.7.*"
-            phpunit: "7.*"
-          - php-version: "7.1"
-            illuminate: "5.8.*"
-            orchestra: "3.8.*"
-            phpunit: "7.*"
           - php-version: "7.2"
             illuminate: "5.5.*"
             orchestra: "3.5.*"
@@ -117,12 +97,6 @@ jobs:
           ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
           PHPUNIT_VERSION: ${{ matrix.phpunit }}
         run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} --no-update
-
-      - name: Change square package for < 7.1 php
-        env:
-          PHP_VERSION: ${{ matrix.php-version }}
-        if: ${{ matrix.php-version == '7.1' }}
-        run: composer remove square/square --no-update && composer require square/connect@3.20200528.0 --no-update
 
       - name: Change faker package for older laravel versions
         env:
