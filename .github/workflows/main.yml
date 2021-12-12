@@ -116,6 +116,7 @@ jobs:
           cp .env.testing .env
           composer self-update
           composer install --no-interaction --no-cache
+          php artisan migrate
 
       # Run phpunit tests
       - name: Run tests
