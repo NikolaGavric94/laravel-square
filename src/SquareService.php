@@ -123,6 +123,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
+     * @throws Exception
      * @throws ApiException
      */
     private function _saveOrder(bool $saveToSquare = false)
@@ -148,7 +149,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         if ($saveToSquare) {
             $response = $this->config->ordersAPI()->createOrder($this->getCreateOrderRequest());
             if ($response->isError()) {
-                $this->_handleChargeOrSaveException($response->getErrors());
+                throw $this->_handleChargeOrSaveException($response->getErrors());
             }
             $response = $response->getResult();
             //Save id of a real order inside of Square to our local model for future use
@@ -183,7 +184,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             }
         }
 
-        return $exception;
+        throw $exception;
     }
 
     /**
