@@ -106,5 +106,12 @@ jobs:
       # Run phpunit tests
       - name: Run tests
         run: vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+        env:
+          SQUARE_ORDER_NAMESPACE: ${{ secrets.SQUARE_ORDER_NAMESPACE }}
+          SQUARE_USER_NAMESPACE: ${{ secrets.SQUARE_USER_NAMESPACE }}
+          SQUARE_APPLICATION_ID: ${{ secrets.SQUARE_APPLICATION_ID }}
+          SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
+          SQUARE_LOCATION: ${{ secrets.SQUARE_LOCATION }}
+          SQUARE_SANDBOX: ${{ secrets.SQUARE_SANDBOX }}
 
 
