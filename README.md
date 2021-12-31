@@ -23,12 +23,20 @@ Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://gith
 
 ## Version Compatibility
 
-| Library Version 	| Laravel Version 	| Square Version                   	|
+### Old square connect api
+| Library Version 	| Laravel Version 	| Square Connect Version                   	|
 |:-----------------:|:-------------------------:|:---------------------------------:|
 | [2.3.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.3.0...master) |&nbsp; >= 5.5 | [2.20190814 (Square Connect V1)](https://github.com/square/connect-php-sdk/tree/2.20190710.0)   |
 | [2.4.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.4.0...master) |&nbsp; >= 6.x | [2.20190925.0 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) |
 | [2.5.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...master) |&nbsp; >= 7.x | [2.20190925.0 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/2.20190925.0) |
 | [2.6.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...master) |&nbsp; >= 8.x | [3.20200528.1 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/3.20200528.1) |
+
+### New square sdk
+| Library Version 	| Laravel Version 	| Square SDK Version                   	|
+|:-----------------:|:-------------------------:|:---------------------------------:|
+| [3.0.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...master) |&nbsp; >= 6.x | [17.0.0.20211215](https://github.com/square/square-php-sdk/tree/17.0.0.20211215)   |
+
+**If you are updating from versions below 3.0 then you need to execute: `php artisan migrate`. This will add some columns required by the library into the tables created by the library, your own tables won't be affected.**
 
 ## Installation guide
 `composer require nikolag/laravel-square`

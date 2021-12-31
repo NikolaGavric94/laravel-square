@@ -228,7 +228,21 @@ approach
 ### Fixed
 - Resolved [#51](https://github.com/NikolaGavric94/laravel-square/issues/51)
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...HEAD
+## [3.0.1] - 2021-12-31
+### Added
+- Support for new Square library: Square SDK ver. [17.0.0.20211215](https://github.com/square/square-php-sdk/tree/17.0.0.20211215)
+- Added new `SCOPE` field for deductibles (Taxes & Discounts) which can be one of following values: (ORDER, LINE_ITEM)
+- Support for github actions
+- Increased test coverage
+
+### Changed
+- [README.md](https://github.com/NikolaGavric94/laravel-square/blob/master/README.md) section with `Version Compatibility` is now updated to include new `Square SDK` version too.
+- Improved error exception handling
+
+### Fixed
+- Resolved [#60](https://github.com/NikolaGavric94/laravel-square/issues/60)
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.1...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -248,3 +262,4 @@ approach
 [2.4.2]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.1...v2.4.2
 [2.5.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.2...v2.5.0
 [2.6.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...v2.6.0
+[3.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...v3.0.1
