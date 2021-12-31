@@ -116,4 +116,9 @@ jobs:
           SQUARE_LOCATION: ${{ secrets.SQUARE_LOCATION }}
           SQUARE_SANDBOX: ${{ secrets.SQUARE_SANDBOX }}
 
+      # Upload test coverage to code climate
+      - name: Publish code coverage
+        uses: paambaati/codeclimate-action@v3.0.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_TOKEN }}
 
