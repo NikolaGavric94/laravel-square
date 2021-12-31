@@ -31,8 +31,7 @@ class OrderProductPivot extends IntermediateTable
     /**
      * Does intermediate table has discount.
      *
-     * @param mixed $discount
-     *
+     * @param  mixed  $discount
      * @return bool
      */
     public function hasDiscount($discount)
@@ -45,8 +44,7 @@ class OrderProductPivot extends IntermediateTable
     /**
      * Does intermediate table has tax.
      *
-     * @param mixed $tax
-     *
+     * @param  mixed  $tax
      * @return bool
      */
     public function hasTax($tax)
@@ -59,8 +57,7 @@ class OrderProductPivot extends IntermediateTable
     /**
      * Does intermediate table has product.
      *
-     * @param mixed $product
-     *
+     * @param  mixed  $product
      * @return bool
      */
     public function hasProduct($product)
@@ -97,7 +94,7 @@ class OrderProductPivot extends IntermediateTable
      */
     public function taxes()
     {
-        return $this->morphToMany(Constants::TAX_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::TAX_NAMESPACE);
+        return $this->morphToMany(Constants::TAX_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::TAX_NAMESPACE)->withPivot('scope');
     }
 
     /**
@@ -107,7 +104,7 @@ class OrderProductPivot extends IntermediateTable
      */
     public function discounts()
     {
-        return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE);
+        return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE)->withPivot('scope');
     }
 
     /**

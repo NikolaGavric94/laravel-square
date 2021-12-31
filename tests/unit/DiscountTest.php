@@ -55,8 +55,8 @@ class DiscountTest extends TestCase
             'name' => $name,
         ]);
 
-        $discount->products()->attach($product1, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
-        $discount->products()->attach($product2, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+        $discount->products()->attach($product1, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $discount->products()->attach($product2, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
 
         $this->assertCount(2, $discount->products);
         $this->assertContainsOnlyInstancesOf(Constants::ORDER_PRODUCT_NAMESPACE, $discount->products);
@@ -77,8 +77,8 @@ class DiscountTest extends TestCase
             'name' => $name,
         ]);
 
-        $discount->orders()->attach($order1, ['featurable_type' => Order::class, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
-        $discount->orders()->attach($order2, ['featurable_type' => Order::class, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+        $discount->orders()->attach($order1, ['featurable_type' => Order::class, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $discount->orders()->attach($order2, ['featurable_type' => Order::class, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
 
         $this->assertCount(2, $discount->orders);
         $this->assertContainsOnlyInstancesOf(Order::class, $discount->orders);

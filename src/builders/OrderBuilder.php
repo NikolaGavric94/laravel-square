@@ -37,9 +37,8 @@ class OrderBuilder
      * Build order from order copy
      * and save to database simultaneously.
      *
-     * @param Model    $order
-     * @param stdClass $orderCopy
-     *
+     * @param  Model  $order
+     * @param  stdClass  $orderCopy
      * @return Model
      */
     public function buildOrderFromOrderCopy(Model $order, stdClass $orderCopy)
@@ -55,11 +54,15 @@ class OrderBuilder
         if ($orderCopy->discounts->isNotEmpty()) {
             // For each discount in order
             foreach ($orderCopy->discounts as $discount) {
+                // Assign to temp variable
+                $scope = $discount->scope;
+                // Remove temp scope attribute
+                unset($discount->scope);
                 // Save discount
                 $discount->save();
                 // If order doesn't have discount, add it
                 if (! $order->hasDiscount($discount)) {
-                    $order->discounts()->attach($discount->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+                    $order->discounts()->attach($discount->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => $scope]);
                 }
             }
         }
@@ -68,11 +71,15 @@ class OrderBuilder
         if ($orderCopy->taxes->isNotEmpty()) {
             // For each tax in order
             foreach ($orderCopy->taxes as $tax) {
+                // Assign to temp variable
+                $scope = $tax->scope;
+                // Remove temp scope attribute
+                unset($tax->scope);
                 // Save tax
                 $tax->save();
                 // If order doesn't have tax, add it
                 if (! $order->hasTax($tax)) {
-                    $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE]);
+                    $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => $scope]);
                 }
             }
         }
@@ -80,16 +87,23 @@ class OrderBuilder
         // Check if order has products
         if ($orderCopy->products->isNotEmpty()) {
             // For each product in order
-            foreach ($orderCopy->products as $productClass) {
-                // Assign product model
-                $product = $productClass->product;
+            foreach ($orderCopy->products as $product) {
                 // If order doesn't have product
                 if (! $order->hasProduct($product)) {
+                    // Create intermediate table
+                    $productPivot = $product->pivot;
+                    // Create discounts
+                    $discounts = $product->discounts;
+                    // Create taxes
+                    $taxes = $product->taxes;
+                    // Remove because laravel doesn't recognize it because its Collection/array
+                    unset($product->pivot);
+                    unset($product->discounts);
+                    unset($product->taxes);
                     // Save product
                     $product->save();
 
-                    // Create intermediate table
-                    $productPivot = $productClass->productPivot;
+                    $product->pivot = $productPivot;
                     // Associate product with it
                     $productPivot->product()->associate($product);
                     // Associate order with it
@@ -98,22 +112,32 @@ class OrderBuilder
                     $productPivot->save();
 
                     // For each discount in product
-                    foreach ($productClass->discounts as $discount) {
+                    foreach ($discounts as $discount) {
+                        // Remove temp scope attribute
+                        unset($discount->scope);
                         // Save discount
                         $discount->save();
+                        // If order doesn't have discount, add it
+                        if (! $order->hasDiscount($discount)) {
+                            $order->discounts()->attach($discount->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
+                        }
                         // If product doesn't have discount, add it
                         if (! $productPivot->hasDiscount($discount)) {
-                            $productPivot->discounts()->attach($discount->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE]);
+                            $productPivot->discounts()->attach($discount->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
                         }
                     }
 
                     // For each tax in product
-                    foreach ($productClass->taxes as $tax) {
+                    foreach ($taxes as $tax) {
                         // Save tax
                         $tax->save();
+                        // If order doesn't have tax, add it
+                        if (! $order->hasTax($tax)) {
+                            $order->taxes()->attach($tax->id, ['featurable_type' => $orderClass, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
+                        }
                         // If product doesn't have tax, add it
                         if (! $productPivot->hasTax($tax)) {
-                            $productPivot->taxes()->attach($tax->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE]);
+                            $productPivot->taxes()->attach($tax->id, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
                         }
                     }
                 }
@@ -128,9 +152,9 @@ class OrderBuilder
     /**
      * Build order copy from model.
      *
-     * @param Model $order
-     *
+     * @param  Model  $order
      * @return stdClass
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
@@ -147,7 +171,7 @@ class OrderBuilder
             $orderCopy->discounts = collect([]);
             //Order Discounts
             if ($order->discounts->isNotEmpty()) {
-                $orderCopy->discounts = $this->discountBuilder->createDiscounts($order->discounts->toArray(), $order);
+                $orderCopy->discounts = $this->discountBuilder->createDiscounts($order->discounts->toArray(), Constants::DEDUCTIBLE_SCOPE_ORDER, $order);
             }
             // Create products Collection
             $orderCopy->products = collect([]);
@@ -160,13 +184,33 @@ class OrderBuilder
                     $productTemp->taxes = collect([]);
                     //Product Taxes
                     if ($product->pivot->taxes->isNotEmpty()) {
-                        $productTemp->taxes = $this->taxesBuilder->createTaxes($product->pivot->taxes->toArray(), $productTemp->productPivot);
+                        $productTemp->taxes = $this->taxesBuilder->createTaxes($product->pivot->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_ORDER, $productTemp->productPivot);
+
+                        // Check for any taxes that are missing on order level
+                        $missingTaxes = $productTemp->taxes->reject(function ($tax) use ($orderCopy) {
+                            return $orderCopy->taxes->contains($tax);
+                        });
+
+                        // Add all missing taxes to order level
+                        if ($missingTaxes->isNotEmpty()) {
+                            $orderCopy->taxes = $orderCopy->taxes->merge($missingTaxes);
+                        }
                     }
                     // Create initial discounts
                     $productTemp->discounts = collect([]);
                     //Product Discounts
                     if ($product->pivot->discounts->isNotEmpty()) {
-                        $productTemp->discounts = $this->discountBuilder->createDiscounts($product->pivot->discounts->toArray(), $productTemp->productPivot);
+                        $productTemp->discounts = $this->discountBuilder->createDiscounts($product->pivot->discounts->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productTemp->pivot);
+
+                        // Check for any discounts that are missing on order level
+                        $missingDiscounts = $productTemp->discounts->reject(function ($discount) use ($orderCopy) {
+                            return $orderCopy->discounts->contains($discount);
+                        });
+
+                        // Add all missing discounts to order level
+                        if ($missingDiscounts->isNotEmpty()) {
+                            $orderCopy->discounts = $orderCopy->discounts->merge($missingDiscounts);
+                        }
                     }
                     $orderCopy->products->push($productTemp);
                 }
@@ -181,9 +225,9 @@ class OrderBuilder
     /**
      * Build order copy from array.
      *
-     * @param array $order
-     *
+     * @param  array  $order
      * @return stdClass
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
@@ -200,7 +244,7 @@ class OrderBuilder
             $orderCopy->discounts = collect([]);
             //Order Discounts
             if (Arr::has($order, 'discounts') && $order['discounts'] != null) {
-                $orderCopy->discounts = $this->discountBuilder->createDiscounts($order['discounts']);
+                $orderCopy->discounts = $this->discountBuilder->createDiscounts($order['discounts'], Constants::DEDUCTIBLE_SCOPE_ORDER);
             }
             // Create products Collection
             $orderCopy->products = collect([]);
@@ -213,13 +257,33 @@ class OrderBuilder
                     $productTemp->discounts = collect([]);
                     //Product Discounts
                     if (Arr::has($product, 'discounts')) {
-                        $productTemp->discounts = $this->discountBuilder->createDiscounts($product['discounts'], $productTemp->productPivot);
+                        $productTemp->discounts = $this->discountBuilder->createDiscounts($product['discounts'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productTemp->productPivot);
+
+                        // Check for any discounts that are missing on order level
+                        $missingDiscounts = $productTemp->discounts->reject(function ($discount) use ($orderCopy) {
+                            return $orderCopy->discounts->contains($discount);
+                        });
+
+                        // Add all missing discounts to order level
+                        if ($missingDiscounts->isNotEmpty()) {
+                            $orderCopy->discounts = $orderCopy->discounts->merge($missingDiscounts);
+                        }
                     }
                     // Create taxes Collection
                     $productTemp->taxes = collect([]);
                     //Product Taxes
                     if (Arr::has($product, 'taxes')) {
                         $productTemp->taxes = $this->taxesBuilder->createTaxes($product['taxes'], $productTemp->productPivot);
+
+                        // Check for any taxes that are missing on order level
+                        $missingTaxes = $productTemp->taxes->reject(function ($tax) use ($orderCopy) {
+                            return $orderCopy->taxes->contains($tax);
+                        });
+
+                        // Add all missing discounts to order level
+                        if ($missingTaxes->isNotEmpty()) {
+                            $orderCopy->taxes = $orderCopy->taxes->merge($missingTaxes);
+                        }
                     }
                     $orderCopy->products->push($productTemp);
                 }
@@ -234,10 +298,10 @@ class OrderBuilder
     /**
      * Build order model from array.
      *
-     * @param array $order
-     * @param Model $emptyModel
-     *
+     * @param  array  $order
+     * @param  Model  $emptyModel
      * @return Model
+     *
      * @throws MissingPropertyException
      * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */

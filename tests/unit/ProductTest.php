@@ -83,7 +83,7 @@ class ProductTest extends TestCase
         $tax1 = factory(Tax::class)->create();
         $tax2 = factory(Tax::class)->create();
 
-        $productPivot->taxes()->attach([$tax1->id, $tax2->id], ['deductible_type' => Constants::TAX_NAMESPACE]);
+        $productPivot->taxes()->attach([$tax1->id, $tax2->id], ['deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
         $productPivot->product()->associate($product);
 
         $this->assertCount(2, $productPivot->taxes);

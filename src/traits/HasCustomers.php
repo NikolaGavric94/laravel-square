@@ -2,7 +2,11 @@
 
 namespace Nikolag\Square\Traits;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nikolag\Core\Exceptions\Exception;
 use Nikolag\Square\Facades\Square;
+use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 
 trait HasCustomers
@@ -10,7 +14,7 @@ trait HasCustomers
     /**
      * Retrieve merchant customers.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return BelongsToMany
      */
     public function customers()
     {
@@ -20,8 +24,7 @@ trait HasCustomers
     /**
      * Retrieve customer if he exists, otherwise return false.
      *
-     * @param string $email
-     *
+     * @param  string  $email
      * @return mixed
      */
     public function hasCustomer(string $email)
@@ -35,7 +38,7 @@ trait HasCustomers
     /**
      * All transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function transactions()
     {
@@ -45,7 +48,7 @@ trait HasCustomers
     /**
      * Paid transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function passedTransactions()
     {
@@ -55,7 +58,7 @@ trait HasCustomers
     /**
      * Pending transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function openedTransactions()
     {
@@ -65,7 +68,7 @@ trait HasCustomers
     /**
      * Failed transactions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function failedTransactions()
     {
@@ -75,15 +78,15 @@ trait HasCustomers
     /**
      * Charge a customer.
      *
-     * @param float $amount
-     * @param string $nonce
-     * @param string $location_id
-     * @param array $options
-     * @param mixed $customer
-     * @param string $currency
+     * @param  float  $amount
+     * @param  string  $nonce
+     * @param  string  $location_id
+     * @param  array  $options
+     * @param  mixed  $customer
+     * @param  string  $currency
+     * @return Transaction
      *
-     * @return \Nikolag\Square\Models\Transaction
-     * @throws \Nikolag\Core\Exceptions\Exception
+     * @throws Exception
      */
     public function charge(float $amount, string $nonce, string $location_id, array $options = [], $customer = null, string $currency = 'USD')
     {
@@ -95,8 +98,7 @@ trait HasCustomers
     /**
      * Save a customer.
      *
-     * @param array $customer
-     *
+     * @param  array  $customer
      * @return void
      */
     public function saveCustomer(array $customer)
@@ -107,9 +109,8 @@ trait HasCustomers
     /**
      * Model function, return all transactions by status.
      *
-     * @param string $status
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @param  string  $status
+     * @return HasMany
      */
     private function _byTransactionStatus(string $status)
     {

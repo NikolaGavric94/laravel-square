@@ -17,15 +17,16 @@
     }],
     "require": {
         "php": ">=7.0",
-        "illuminate/support": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
+        "doctrine/dbal": "^3.2",
         "illuminate/config": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/console": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
-        "illuminate/contracts": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/container": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
+        "illuminate/contracts": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/database": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/filesystem": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
-        "square/connect": "3.20200528.1",
-        "nikolag/core": "2.5.*"
+        "illuminate/support": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
+        "nikolag/core": "2.5.*",
+        "square/square": "17.0.0.20211215"
     },
     "require-dev": {
         "fakerphp/faker": "^1.13",
@@ -60,9 +61,19 @@
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
     },
+    "scripts": {
+        "test:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-clover=\"build/clover.xml\""
+        ],
+        "test:coverage-html": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-html=\"build/html\""
+        ]
+    },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.6.x-dev"
+            "dev-master": "3.0.x-dev"
         },
         "laravel": {
             "providers": [

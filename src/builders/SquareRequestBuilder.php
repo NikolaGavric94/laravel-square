@@ -8,14 +8,16 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
-use SquareConnect\Model\CreateCustomerRequest;
-use SquareConnect\Model\CreateOrderRequest;
-use SquareConnect\Model\CreatePaymentRequest;
-use SquareConnect\Model\OrderLineItem;
-use SquareConnect\Model\OrderLineItemAppliedDiscount;
-use SquareConnect\Model\OrderLineItemAppliedTax;
-use SquareConnect\Model\OrderLineItemDiscount;
-use SquareConnect\Model\OrderLineItemTax;
+use Square\Models\CreateCustomerRequest;
+use Square\Models\CreateOrderRequest;
+use Square\Models\CreatePaymentRequest;
+use Square\Models\Money;
+use Square\Models\Order;
+use Square\Models\OrderLineItem;
+use Square\Models\OrderLineItemAppliedDiscount;
+use Square\Models\OrderLineItemAppliedTax;
+use Square\Models\OrderLineItemDiscount;
+use Square\Models\OrderLineItemTax;
 
 class SquareRequestBuilder
 {
@@ -44,87 +46,80 @@ class SquareRequestBuilder
     /**
      * Create and return charge request.
      *
-     * @param array $prepData
-     *
-     * @return \SquareConnect\Model\CreatePaymentRequest
+     * @param  array  $prepData
+     * @return CreatePaymentRequest
      */
     public function buildChargeRequest(array $prepData)
     {
-        return new CreatePaymentRequest($prepData);
+        $money = new Money();
+        $money->setCurrency($prepData['amount_money']['currency']);
+        $money->setAmount($prepData['amount_money']['amount']);
+        $request = new CreatePaymentRequest($prepData['source_id'], $prepData['idempotency_key'], $money);
+        $request->setAutocomplete($prepData['autocomplete']);
+        $request->setLocationId($prepData['location_id']);
+        $request->setNote($prepData['note']);
+        $request->setReferenceId($prepData['reference_id']);
+
+        return $request;
     }
 
     /**
      * Create and return customer request.
      *
-     * @param Model $customer
-     *
-     * @return \SquareConnect\Model\CreateCustomerRequest
+     * @param  Model  $customer
+     * @return CreateCustomerRequest
      */
     public function buildCustomerRequest(Model $customer)
     {
-        $data = [
-            'given_name'    => $customer->first_name,
-            'family_name'   => $customer->last_name,
-            'company_name'  => $customer->company_name,
-            'nickname'      => $customer->nickname,
-            'email_address' => $customer->email,
-            'phone_number'  => $customer->phone,
-            'reference_id'  => $customer->owner_id,
-            'note'          => $customer->note,
-        ];
+        $request = new CreateCustomerRequest();
+        $request->setGivenName($customer->first_name);
+        $request->setFamilyName($customer->last_name);
+        $request->setCompanyName($customer->company_name);
+        $request->setNickname($customer->nickname);
+        $request->setEmailAddress($customer->email);
+        $request->setPhoneNumber($customer->phone);
+        $request->setReferenceId($customer->owner_id);
+        $request->setNote($customer->note);
 
-        return new CreateCustomerRequest($data);
+        return $request;
     }
 
     /**
      * Create and return order request.
      *
-     * @param Model $order
-     * @param string $currency
+     * @param  Model  $order
+     * @param  string  $locationId
+     * @param  string  $currency
+     * @return CreateOrderRequest
      *
-     * @return \SquareConnect\Model\CreateOrderRequest
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildOrderRequest(Model $order, string $currency)
+    public function buildOrderRequest(Model $order, string $locationId, string $currency)
     {
-        $data = [
-            'idempotency_key' => uniqid(),
-            'order'           => [
-                'reference_id'=> (string) $order->id,
-                'line_items'  => $this->buildProducts($order->products, $currency),
-                'discounts'   => $this->buildDiscounts($order->discounts, $currency),
-                'taxes'       => $this->buildTaxes($order->taxes),
-            ],
-        ];
+        $squareOrder = new Order($locationId);
+        $squareOrder->setReferenceId($order->id);
+        $squareOrder->setLineItems($this->buildProducts($order->products, $currency));
+        $squareOrder->setDiscounts($this->buildDiscounts($order->discounts, $currency));
+        $squareOrder->setTaxes($this->buildTaxes($order->taxes));
+        $request = new CreateOrderRequest();
+        $request->setOrder($squareOrder);
+        $request->setIdempotencyKey(uniqid());
 
-        // Add product level discounts to order level taxes
-        if ($this->productDiscounts->isNotEmpty()) {
-            $data['order']['discounts'] = $this->productDiscounts->merge($data['order']['discounts'])->toArray();
-            $this->productDiscounts = collect([]);
-        }
-
-        // Add product level taxes to order level taxes
-        if ($this->productTaxes->isNotEmpty()) {
-            $data['order']['taxes'] = $this->productTaxes->merge($data['order']['taxes'])->toArray();
-            $this->productTaxes = collect([]);
-        }
-
-        return new CreateOrderRequest($data);
+        return $request;
     }
 
     /**
      * Builds and returns array of discounts.
      *
-     * @param Collection $discounts
-     * @param string $currency
-     * @param string $class
-     *
+     * @param  Collection  $discounts
+     * @param  string  $currency
      * @return array
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildDiscounts(Collection $discounts, string $currency, string $class = OrderLineItemDiscount::class)
+    public function buildDiscounts(Collection $discounts, string $currency)
     {
         $temp = [];
         if ($discounts->isNotEmpty()) {
@@ -141,27 +136,36 @@ class SquareRequestBuilder
                 if (($amount != null || $amount != 0) && ($percentage != null || $percentage != 0.0)) {
                     throw new InvalidSquareOrderException('Both $amount and $percentage exist for object Discount, only 1 is allowed', 500);
                 }
-                $data = [
-                    'uid'  => Util::uid(),
-                    'name' => $discount->name,
-                    'scope'=> Constants::DISCOUNT_SCOPE_ORDER,
-                ];
+                $tempDiscount = new OrderLineItemDiscount();
+                $tempDiscount->setUid(Util::uid());
+                $tempDiscount->setName($discount->name);
+                $tempDiscount->setScope($discount->pivot->scope);
+
+                // If it's LINE ITEM then assign proper UID
+                if ($discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
+                    $found = $this->productDiscounts->first(function ($disc) use ($discount) {
+                        return $disc->getName() === $discount->name;
+                    });
+
+                    if ($found) {
+                        $tempDiscount->setUid($found->getUid());
+                    }
+                }
                 //If percentage exists append it
                 if ($percentage && $percentage != 0.0) {
-                    $data['percentage'] = (string) $percentage;
-                    $data['type'] = Constants::DISCOUNT_FIXED_PERCENTAGE;
+                    $tempDiscount->setPercentage((string) $percentage);
+                    $tempDiscount->setType(Constants::DEDUCTIBLE_FIXED_PERCENTAGE);
                 }
                 //If amount exists append it
                 if ($amount && $amount != 0) {
-                    $money = [
-                        'amount'   => $amount,
-                        'currency' => $currency,
-                    ];
-                    $data['amount_money'] = $money;
-                    $data['type'] = Constants::DISCOUNT_FIXED_AMOUNT;
+                    $money = new Money();
+                    $money->setAmount($amount);
+                    $money->setCurrency($currency);
+                    $tempDiscount->setAmountMoney($money);
+                    $tempDiscount->setType(Constants::DEDUCTIBLE_FIXED_AMOUNT);
                 }
 
-                array_push($temp, new $class($data));
+                array_push($temp, $tempDiscount);
             }
         }
 
@@ -171,21 +175,17 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of already applied discounts.
      *
-     * @param Collection $discounts
-     * @param string $class
-     *
+     * @param  Collection  $discounts
      * @return array
      */
-    public function buildAppliedDiscounts(Collection $discounts, string $class = OrderLineItemAppliedDiscount::class)
+    public function buildAppliedDiscounts(Collection $discounts)
     {
         $temp = [];
         if ($discounts->isNotEmpty()) {
             foreach ($discounts as $discount) {
-                $data = [
-                    'uid'           => Util::uid(),
-                    'discount_uid'  => $discount->getUid(),
-                ];
-                array_push($temp, new $class($data));
+                $tempDiscount = new OrderLineItemAppliedDiscount($discount->getUid());
+                $tempDiscount->setUid(Util::uid());
+                array_push($temp, $tempDiscount);
             }
         }
 
@@ -195,31 +195,42 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of taxes.
      *
-     * @param Collection $taxes
-     * @param string $class
-     *
+     * @param  Collection  $taxes
      * @return array
+     *
      * @throws MissingPropertyException
      */
-    public function buildTaxes(Collection $taxes, string $class = OrderLineItemTax::class)
+    public function buildTaxes(Collection $taxes)
     {
         $temp = [];
         if ($taxes->isNotEmpty()) {
             foreach ($taxes as $tax) {
-                //If percentage doesn't exist tax table
+                $tempTax = new OrderLineItemTax();
+                //If percentage doesn't exist in tax table
                 //throw new exception because it should exist
                 $percentage = $tax->percentage;
                 if ($percentage == null || $percentage == 0.0) {
                     throw new MissingPropertyException('$percentage property for object Tax is missing or is invalid', 500);
                 }
-                $data = [
-                    'uid'           => Util::uid(),
-                    'name'          => $tax->name,
-                    'type'          => $tax->type,
-                    'percentage'    => (string) $percentage,
-                    'scope'         => Constants::DISCOUNT_SCOPE_ORDER,
-                ];
-                array_push($temp, new $class($data));
+
+                $tempTax->setUid(Util::uid());
+                $tempTax->setName($tax->name);
+                $tempTax->setType($tax->type);
+                $tempTax->setPercentage((string) $percentage);
+                $tempTax->setScope($tax->pivot->scope);
+
+                // If it's LINE ITEM then assign proper UID
+                if ($tax->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
+                    $found = $this->productTaxes->first(function ($inner) use ($tax) {
+                        return $inner->getName() === $tax->name;
+                    });
+
+                    if ($found) {
+                        $tempTax->setUid($found->getUid());
+                    }
+                }
+
+                array_push($temp, $tempTax);
             }
         }
 
@@ -229,21 +240,18 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of already applied taxes.
      *
-     * @param Collection $taxes
-     * @param string $class
-     *
+     * @param  Collection  $taxes
+     * @param  string  $class
      * @return array
      */
-    public function buildAppliedTaxes(Collection $taxes, string $class = OrderLineItemAppliedTax::class)
+    public function buildAppliedTaxes(Collection $taxes)
     {
         $temp = [];
         if ($taxes->isNotEmpty()) {
             foreach ($taxes as $tax) {
-                $data = [
-                    'uid'           => Util::uid(),
-                    'tax_uid'       => $tax->getUid(),
-                ];
-                array_push($temp, new $class($data));
+                $tempTax = new OrderLineItemAppliedTax($tax->getUid());
+                $tempTax->setUid(Util::uid());
+                array_push($temp, $tempTax);
             }
         }
 
@@ -253,15 +261,15 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of \SquareConnect\Model\OrderLineItem for order.
      *
-     * @param Collection $products
-     * @param string $currency
-     * @param string $class
-     *
+     * @param  Collection  $products
+     * @param  string  $currency
+     * @param  string  $class
      * @return array
+     *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildProducts(Collection $products, string $currency, string $class = OrderLineItem::class)
+    public function buildProducts(Collection $products, string $currency)
     {
         $temp = [];
         if ($products->isNotEmpty()) {
@@ -275,10 +283,7 @@ class SquareRequestBuilder
                 if ($quantity == null || $quantity == 0) {
                     throw new MissingPropertyException('$quantity property for object Product is missing', 500);
                 }
-                $money = [
-                    'amount' => $product->price,
-                    'currency' => $currency,
-                ];
+
                 //Build product level taxes so we can append them to order later
                 $taxes = collect($this->buildTaxes($pivotProduct->taxes));
                 $this->productTaxes = $this->productTaxes->merge($taxes);
@@ -287,16 +292,18 @@ class SquareRequestBuilder
                 $discounts = collect($this->buildDiscounts($pivotProduct->discounts, $currency));
                 $this->productDiscounts = $this->productDiscounts->merge($discounts);
 
-                $data = [
-                    'name' => $product->name,
-                    'quantity' => (string) $quantity,
-                    'base_price_money' => $money,
-                    'variation_name' => $product->variation_name,
-                    'note' => $product->note,
-                    'applied_taxes' => $this->buildAppliedTaxes($taxes),
-                    'applied_discounts' => $this->buildAppliedDiscounts($discounts),
-                ];
-                array_push($temp, new $class($data));
+                $money = new Money();
+                $money->setAmount($product->price);
+                $money->setCurrency($currency);
+                $tempProduct = new OrderLineItem($quantity);
+                $tempProduct->setName($product->name);
+                $tempProduct->setBasePriceMoney($money);
+                $tempProduct->setQuantity((string) $quantity);
+                $tempProduct->setVariationName($product->variation_name);
+                $tempProduct->setNote($product->note);
+                $tempProduct->setAppliedDiscounts($this->buildAppliedDiscounts($discounts));
+                $tempProduct->setAppliedTaxes($this->buildAppliedTaxes($taxes));
+                array_push($temp, $tempProduct);
             }
         }
 

@@ -29,7 +29,7 @@ class TestCase extends BaseTestCase
         parent::getEnvironmentSetUp($this->app);
         // setup database migrations, factories and migrate
         $this->loadLaravelMigrations(['--database' => 'square_test']);
-        $this->artisan('migrate', ['--database' => 'square_test']);
+        $this->artisan('migrate', ['--database' => 'square_test'])->run();
         $this->withFactories(__DIR__.'/../src/database/factories');
         $this->faker = Faker::create();
     }
@@ -58,8 +58,7 @@ class TestCase extends BaseTestCase
     /**
      * Define environment setup.
      *
-     * @param \Illuminate\Foundation\Application $app
-     *
+     * @param  \Illuminate\Foundation\Application  $app
      * @return void
      */
     protected function getEnvironmentSetUp($app)
@@ -74,7 +73,7 @@ class TestCase extends BaseTestCase
 //        $app['config']->set('database.default', 'square_test');
 //        $app['config']->set('database.connections.square_test', [
 //            'driver' => 'mysql',
-//            'host' => '127.0.0.1',
+//            'host' => 'mysql',
 //            'port' => '3306',
 //            'database' => 'square_test',
 //            'username' => 'root',
@@ -84,7 +83,7 @@ class TestCase extends BaseTestCase
 //            'collation' => 'utf8mb4_unicode_ci',
 //            'prefix' => '',
 //            'strict' => true,
-//            'engine' => null
+//            'engine' => null,
 //        ]);
     }
 }

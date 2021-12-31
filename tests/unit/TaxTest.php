@@ -3,7 +3,6 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Models\OrderProductPivot;
-use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
@@ -56,8 +55,8 @@ class TaxTest extends TestCase
             'name' => $name,
         ]);
 
-        $tax->orders()->attach($order1, ['featurable_type' => Order::class, 'deductible_type' => Constants::TAX_NAMESPACE]);
-        $tax->orders()->attach($order2, ['featurable_type' => Order::class, 'deductible_type' => Constants::TAX_NAMESPACE]);
+        $tax->orders()->attach($order1, ['featurable_type' => Order::class, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $tax->orders()->attach($order2, ['featurable_type' => Order::class, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
 
         $this->assertCount(2, $tax->orders);
         $this->assertContainsOnlyInstancesOf(Order::class, $tax->orders);
@@ -78,8 +77,8 @@ class TaxTest extends TestCase
             'name' => $name,
         ]);
 
-        $tax->products()->attach($product1, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE]);
-        $tax->products()->attach($product2, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE]);
+        $tax->products()->attach($product1, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
+        $tax->products()->attach($product2, ['featurable_type' => Constants::ORDER_PRODUCT_NAMESPACE, 'deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
 
         $this->assertCount(2, $tax->products);
         $this->assertContainsOnlyInstancesOf(Constants::ORDER_PRODUCT_NAMESPACE, $tax->products);

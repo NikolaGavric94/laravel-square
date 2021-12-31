@@ -4,100 +4,77 @@ namespace Nikolag\Square;
 
 use Nikolag\Core\Contracts\ConfigContract;
 use Nikolag\Core\CoreConfig;
-use SquareConnect\Api\CustomersApi;
-use SquareConnect\Api\LocationsApi;
-use SquareConnect\Api\OrdersApi;
-use SquareConnect\Api\PaymentsApi;
-use SquareConnect\Api\TransactionsApi;
-use SquareConnect\ApiClient;
-use SquareConnect\Configuration;
+use Nikolag\Core\Exceptions\InvalidConfigurationException;
+use Square\Apis\CustomersApi;
+use Square\Apis\LocationsApi;
+use Square\Apis\OrdersApi;
+use Square\Apis\PaymentsApi;
+use Square\Apis\TransactionsApi;
+use Square\SquareClient;
 
 class SquareConfig extends CoreConfig implements ConfigContract
 {
     /**
-     * @var \SquareConnect\Api\LocationsApi
+     * @var SquareClient
      */
-    public $locationsAPI;
-    /**
-     * @var \SquareConnect\Api\CustomersApi
-     */
-    public $customersAPI;
-    /**
-     * @var \SquareConnect\Api\TransactionsApi
-     */
-    public $transactionsAPI;
-    /**
-     * @var \SquareConnect\Api\OrdersApi
-     */
-    public $ordersAPI;
-    /**
-     * @var \SquareConnect\Api\PaymentsApi
-     */
-    public $paymentsAPI;
+    private $squareClient;
 
     /**
      * SquareConfig constructor.
      *
-     * @throws \Nikolag\Core\Exceptions\InvalidConfigurationException
+     * @throws InvalidConfigurationException
      */
     public function __construct()
     {
         parent::__construct();
         $this->config = config('nikolag.connections.square');
         $this->checkConfigValidity($this->config);
-        $squareConfig = new Configuration();
-        if (array_key_exists('sandbox', $this->config) && $this->config['sandbox']) {
-            $squareConfig->setHost('https://connect.squareupsandbox.com');
-        } else {
-            $squareConfig->setHost('https://connect.squareup.com');
-        }
-        $squareConfig->setAccessToken($this->config['access_token']);
-        $api_client = new ApiClient($squareConfig);
-        $this->locationsAPI = new LocationsApi($api_client);
-        $this->customersAPI = new CustomersApi($api_client);
-        $this->transactionsAPI = new TransactionsApi($api_client);
-        $this->ordersAPI = new OrdersApi($api_client);
-        $this->paymentsAPI = new PaymentsApi($api_client);
+        $isSandbox = array_key_exists('sandbox', $this->config) && $this->config['sandbox'];
+        $environment = $isSandbox ? 'sandbox' : 'production';
+        $this->squareClient = new SquareClient([
+            'accessToken' => $this->config['access_token'],
+            'environment' => $environment,
+        ]);
     }
 
     /**
      * Api for locations.
      *
-     * @return \SquareConnect\Api\LocationsApi
+     * @return LocationsApi
      */
     public function locationsAPI()
     {
-        return $this->locationsAPI;
+        return $this->squareClient->getLocationsApi();
     }
 
     /**
      * Api for customers.
      *
-     * @return \SquareConnect\Api\CustomersApi
+     * @return CustomersApi
      */
     public function customersAPI()
     {
-        return $this->customersAPI;
+        return $this->squareClient->getCustomersApi();
     }
 
     /**
      * Api for transactions.
      *
-     * @return \SquareConnect\Api\TransactionsApi
+     * @return TransactionsApi
      */
     public function transactionsAPI()
     {
-        return $this->transactionsAPI;
+        return $this->squareClient->getTransactionsApi();
     }
 
     /**
      * Api for orders.
      *
-     * @return \SquareConnect\Api\ordersApi
+     * @return OrdersApi
      */
     public function ordersAPI()
     {
-        return $this->ordersAPI;
+        return $this->squareClient->getOrdersApi();
     }
 
     /**
@@ -107,7 +84,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      */
     public function paymentsAPI()
     {
-        return $this->paymentsAPI;
+        return $this->squareClient->getPaymentsApi();
     }
 
     /**
