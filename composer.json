@@ -25,7 +25,6 @@
         "illuminate/database": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/filesystem": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
         "illuminate/support": "~5.5|~5.6|~5.7|~5.8|~6.0|~7.0|~8.0",
-        "laravel/legacy-factories": "^1.1",
         "nikolag/core": "2.5.*",
         "square/square": "17.0.0.20211215"
     },
@@ -86,10 +85,7 @@
         }
     },
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "composer/package-versions-deprecated": false
-        }
+        "sort-packages": true
     },
     "minimum-stability": "dev",
     "prefer-stable": true
