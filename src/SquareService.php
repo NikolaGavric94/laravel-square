@@ -205,7 +205,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (ApiException $exception) {
-            throw new $exception;
+            throw $exception;
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required fields are missing', 500, $e);
         } catch (InvalidSquareOrderException $e) {
