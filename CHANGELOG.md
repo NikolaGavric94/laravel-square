@@ -242,6 +242,10 @@ approach
 ### Fixed
 - Resolved [#60](https://github.com/NikolaGavric94/laravel-square/issues/60)
 
+## [3.0.2] - 2022-06-28
+### Fixed
+- Fixes TypeError when trying to update already existing customer, contributor minor update [#71](https://github.com/NikolaGavric94/laravel-square/pull/71)
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.1...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
@@ -263,3 +267,4 @@ approach
 [2.5.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.4.2...v2.5.0
 [2.6.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...v2.6.0
 [3.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...v3.0.1
+[3.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.1...v3.0.2
