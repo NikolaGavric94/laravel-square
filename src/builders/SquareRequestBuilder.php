@@ -18,6 +18,7 @@ use Square\Models\OrderLineItemAppliedDiscount;
 use Square\Models\OrderLineItemAppliedTax;
 use Square\Models\OrderLineItemDiscount;
 use Square\Models\OrderLineItemTax;
+use Square\Models\UpdateCustomerRequest;
 
 class SquareRequestBuilder
 {
@@ -67,11 +68,15 @@ class SquareRequestBuilder
      * Create and return customer request.
      *
      * @param  Model  $customer
-     * @return CreateCustomerRequest
+     * @return CreateCustomerRequest|UpdateCustomerRequest
      */
     public function buildCustomerRequest(Model $customer)
     {
-        $request = new CreateCustomerRequest();
+        if ($customer->payment_service_id) {
+            $request = new UpdateCustomerRequest();
+        } else {
+            $request = new CreateCustomerRequest();
+        }
         $request->setGivenName($customer->first_name);
         $request->setFamilyName($customer->last_name);
         $request->setCompanyName($customer->company_name);

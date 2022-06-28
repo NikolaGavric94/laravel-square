@@ -385,10 +385,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param  CreateCustomerRequest  $createCustomerRequest
+     * @param  CreateCustomerRequest|UpdateCustomerRequest  $createCustomerRequest
      * @return self
      */
-    public function setCreateCustomerRequest(CreateCustomerRequest $createCustomerRequest)
+    public function setCreateCustomerRequest($createCustomerRequest)
     {
         $this->createCustomerRequest = $createCustomerRequest;
 
