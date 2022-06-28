@@ -153,6 +153,7 @@ enquiries send an email to nikola.gavric94@gmail.com
 | -------------------------------------------------- |:-----------------------------------------------------------------------------------------------------------------------------:|:----------:|
 | [@Godlikehobbit](https://github.com/Godlikehobbit) | Add optional currency parameter to charge function [pull request #6](https://github.com/NikolaGavric94/laravel-square/pull/6) | 2017-09-12 |
 | [@PaulJulio](https://github.com/PaulJulio) | Cap square/connect version to resolve deprecation exceptions [pull request #27](https://github.com/NikolaGavric94/laravel-square/pull/27) | 2019-09-20 |
+| [@Alex Oleynik](https://github.com/alexoleynik0) | Fixes TypeError when updating customers [pull request #71](https://github.com/NikolaGavric94/laravel-square/pull/71) | 2022-06-28 |
 
 Special thanks to all of the contributors!
 
