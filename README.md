@@ -110,14 +110,14 @@ class Order extends Model {
   ...
 }
 ```
-You also need to define couple of environment variables
+You also need to define a couple of environment variables
 ```.env
 // .env file
 SQUARE_ORDER_NAMESPACE=<ORDER_NAMESPACE>
 SQUARE_ORDER_IDENTIFIER=<ORDER_IDENTIFIER>
 SQUARE_PAYMENT_IDENTIFIER=<ORDER_SQUARE_ID_COLUMN>
 ```
-**Important:** `SQUARE_PAYMENT_IDENTIFIER` represents name of the column where we will keep unique ID that Square generates once it saves an Order. This means that you will need to add new column to your Orders table which will hold that value.
+**Important:** `SQUARE_PAYMENT_IDENTIFIER` represents the name of the column where we will keep the unique ID that Square generates once it saves an Order. This means that you will need to add a new column to your Orders table which will hold that value.
 
 ## Examples
 
@@ -146,7 +146,7 @@ All methods for this facade are moved to the [wiki](https://github.com/NikolaGav
 ## Contributing
 Everyone is welcome to contribute to this repository, simply open up an issue
 and label the request, whether it is an issue, bug or a feature. For any other
-enquiries send an email to nikola.gavric94@gmail.com
+inquiries send an email to nikola.gavric94@gmail.com
 
 ### Contributors
 | Name                                               | Changes                                                                                                                       | Date       |
