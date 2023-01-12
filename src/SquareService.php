@@ -236,6 +236,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 'amount'   => $data['amount'],
                 'currency' => $currency,
             ],
+            'verification_token' => array_key_exists('verification_token', $data) ? $data['verification_token'] : null,
             'autocomplete' => true,
             'source_id' => $data['source_id'],
             'location_id' => $location_id,
