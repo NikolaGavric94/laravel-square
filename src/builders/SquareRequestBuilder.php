@@ -60,6 +60,10 @@ class SquareRequestBuilder
         $request->setLocationId($prepData['location_id']);
         $request->setNote($prepData['note']);
         $request->setReferenceId($prepData['reference_id']);
+        
+        if (array_key_exists('verification_token', $prepData)) {
+            $request->setVerificationToken($prepData['verification_token']);
+        }
 
         return $request;
     }
