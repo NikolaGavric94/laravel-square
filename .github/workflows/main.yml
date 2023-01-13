@@ -63,7 +63,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: sandbox
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: master
 
@@ -120,7 +120,7 @@ jobs:
 
       # Upload test coverage to code climate
       - name: Publish code coverage
-        uses: paambaati/codeclimate-action@v3.0.0
+        uses: paambaati/codeclimate-action@v3.2.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_TOKEN }}
 
