@@ -158,11 +158,6 @@ inquiries send an email to nikola.gavric94@gmail.com
 
 Special thanks to all of the contributors!
 
-## Donating
-<a name="donating">[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/NikolaGavric/25)</a>
-
-Any amount helps to dedicate more time and resources for developing new stuff and keeping the library up-to-date with both `Laravel` and `Square` changes in the future. It will also help in creating future projects under the same brand.
-
 ## License
 MIT License
 
