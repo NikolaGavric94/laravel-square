@@ -242,7 +242,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             'note' => array_key_exists('note', $data) ? $data['note'] : null,
             'reference_id' => array_key_exists('reference_id', $data) ? (string) $data['reference_id'] : null,
         ];
-        
+
         if (array_key_exists('verification_token', $data) && is_string($data['verification_token'])) {
             $prepData['verification_token'] = $data['verification_token'];
         }
