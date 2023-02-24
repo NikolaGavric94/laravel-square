@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
@@ -20,7 +21,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_save_customer()
+    public function test_user_save_customer(): void
     {
         $user = factory(User::class)->create();
         $customer = [
@@ -47,7 +48,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_saves_multiple_customers()
+    public function test_user_saves_multiple_customers(): void
     {
         $user = factory(User::class)->create();
 
@@ -68,7 +69,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_ok()
+    public function test_user_charge_ok(): void
     {
         $user = factory(User::class)->create();
         $response = $user->charge(5000, 'cnon:card-nonce-ok', env('SQUARE_LOCATION'));
@@ -83,14 +84,15 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_wrong_nonce()
+    public function test_user_charge_wrong_nonce(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareNonceException::class);
-        $this->expectExceptionCode(404);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/Invalid source/i");
+        $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'not-existent-nonce', env('SQUARE_LOCATION'));
+        $user->charge(5000, 'not-existent-nonce', env('SQUARE_LOCATION'));
     }
 
     /**
@@ -98,14 +100,15 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_wrong_cvv()
+    public function test_user_charge_wrong_cvv(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareCvvException::class);
-        $this->expectExceptionCode(402);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
+        $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
     }
 
     /**
@@ -113,14 +116,15 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_wrong_postal()
+    public function test_user_charge_wrong_postal(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareZipcodeException::class);
-        $this->expectExceptionCode(402);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::VERIFY_POSTAL_CODE."/i");
+        $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
+        $user->charge(5000, 'cnon:card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
     }
 
     /**
@@ -128,14 +132,15 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_wrong_expiration_date()
+    public function test_user_charge_wrong_expiration_date(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareExpirationDateException::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
         $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
+        $user->charge(5000, 'cnon:card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
     }
 
     /**
@@ -143,14 +148,15 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_declined()
+    public function test_user_charge_declined(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareExpirationDateException::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
         $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
+        $user->charge(5000, 'cnon:card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
     }
 
     /**
@@ -158,14 +164,15 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_used_nonce()
+    public function test_user_charge_used_nonce(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareCvvException::class);
-        $this->expectExceptionCode(402);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
+        $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
     }
 
     /**
@@ -173,13 +180,14 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function test_user_charge_non_existant_currency()
+    public function test_user_charge_non_existant_currency(): void
     {
         $user = factory(User::class)->create();
 
-        $this->expectException(InvalidSquareCurrencyException::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/This merchant can only process payments in USD, but amount was provided in XXX/i");
         $this->expectExceptionCode(400);
 
-        $response = $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'), [], null, 'XXX');
+        $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'), [], null, 'XXX');
     }
 }

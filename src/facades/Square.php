@@ -13,7 +13,7 @@ use Square\Models\ListPaymentsResponse;
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)
  * @method static mixed getCustomer()
- * @method static void setCustomer($customer)
+ * @method static SquareServiceContract setCustomer($customer)
  * @method static mixed getMerchant()
  * @method static SquareServiceContract setMerchant($merchant)
  * @method static mixed getOrder()
@@ -24,8 +24,8 @@ use Square\Models\ListPaymentsResponse;
  */
 class Square extends Facade
 {
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
-        return 'square';
+        return SquareService::class;
     }
 }

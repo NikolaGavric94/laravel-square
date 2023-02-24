@@ -29,7 +29,7 @@ class SquareConfigTest extends TestCase
      *
      * @return void
      */
-    public function test_square_config_ok()
+    public function test_square_config_ok(): void
     {
         $this->assertNotNull($this->config->locationsAPI());
         $this->assertInstanceOf('\Square\Apis\LocationsApi', $this->config->locationsAPI());

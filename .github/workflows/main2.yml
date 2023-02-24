@@ -1,15 +1,15 @@
 # This is a basic workflow to help you get started with Actions
-name: "Build and test PHP 7.x"
+name: "Build and test PHP 8.x"
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   pull_request:
     branches:
-      - 'master'
+      - '3.1.**'
   push:
     branches:
-      - 'master'
+      - '3.1.**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,42 +24,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - php-version: "7.2"
-            illuminate: "5.8.*"
-            orchestra: "3.8.*"
-            phpunit: "7.*"
-          - php-version: "7.2"
-            illuminate: "6.*"
-            orchestra: "4.*"
-            phpunit: "8.*"
-          - php-version: "7.2"
-            illuminate: "7.*"
-            orchestra: "5.*"
-            phpunit: "8.*"
-          - php-version: "7.3"
-            illuminate: "5.8.*"
-            orchestra: "3.8.*"
-            phpunit: "8.*"
-          - php-version: "7.3"
-            illuminate: "6.*"
-            orchestra: "4.*"
-            phpunit: "8.*"
-          - php-version: "7.3"
-            illuminate: "7.*"
-            orchestra: "5.*"
-            phpunit: "8.*"
-          - php-version: "7.3"
-            illuminate: "8.*"
-            orchestra: "6.*"
-            phpunit: "8.*"
-          - php-version: "7.4"
-            illuminate: "7.*"
-            orchestra: "5.*"
-            phpunit: "8.*"
-          - php-version: "7.4"
-            illuminate: "8.*"
-            orchestra: "6.*"
-            phpunit: "8.*"
+          - php-version: "8.1"
+            illuminate: "9.*"
+            orchestra: "7.*"
+            phpunit: "9.*"
+          - php-version: "8.2"
+            illuminate: "9.*"
+            orchestra: "7.*"
+            phpunit: "9.*"
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: sandbox
     steps:
@@ -86,18 +58,6 @@ jobs:
           ORCHESTRA_TESTBENCH_VERSION: ${{ matrix.orchestra }}
           PHPUNIT_VERSION: ${{ matrix.phpunit }}
         run: composer require --dev orchestra/testbench:${ORCHESTRA_TESTBENCH_VERSION} phpunit/phpunit:${PHPUNIT_VERSION} doctrine/dbal:2.13 --no-update
-
-      - name: Change faker package for older laravel versions
-        env:
-          ILLUMINATE_VERSION: ${{ matrix.illuminate }}
-        if: ${{ matrix.illuminate == '5.5.*' || matrix.illuminate == '5.6.*' || matrix.illuminate == '5.7.*' || matrix.illuminate == '5.8.*' }}
-        run: composer remove --dev fakerphp/faker --no-update && composer require --dev "fzaninotto/faker:^1.4" --no-update
-
-      - name: Add new factory package for laravel 8.*
-        env:
-          ILLUMINATE_VERSION: ${{ matrix.illuminate }}
-        if: ${{ (matrix.php-version == '7.3' || matrix.php-version == '7.4') && matrix.illuminate == '8.*'}}
-        run: composer require --dev "laravel/legacy-factories:^1.0.4" --no-update
 
       # Copy env config and install remaining composer deps
       - name: Copy config and build

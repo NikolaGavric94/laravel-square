@@ -24,7 +24,7 @@ class ProductTest extends TestCase
      *
      * @return void
      */
-    public function test_product_make()
+    public function test_product_make(): void
     {
         $product = factory(Product::class)->create();
 
@@ -36,7 +36,7 @@ class ProductTest extends TestCase
      *
      * @return void
      */
-    public function test_product_create()
+    public function test_product_create(): void
     {
         $name = $this->faker->name;
 
@@ -54,7 +54,7 @@ class ProductTest extends TestCase
      *
      * @return void
      */
-    public function test_product_create_with_orders()
+    public function test_product_create_with_orders(): void
     {
         $name = $this->faker->name;
         $order1 = factory(Order::class)->create();
@@ -75,7 +75,7 @@ class ProductTest extends TestCase
      *
      * @return void
      */
-    public function test_product_create_with_taxes()
+    public function test_product_create_with_taxes(): void
     {
         $product = factory(Product::class)->create();
         $productPivot = factory(OrderProductPivot::class)->create();
@@ -100,7 +100,7 @@ class ProductTest extends TestCase
      *
      * @return void
      */
-    public function test_order_missing_location_id_exception()
+    public function test_order_missing_location_id_exception(): void
     {
         $order = factory(Order::class)->create();
         $product = factory(Product::class)->create();

@@ -14,7 +14,7 @@ class CustomerTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_make()
+    public function test_customer_make(): void
     {
         $customer = factory(Customer::class)->create();
 
@@ -26,7 +26,7 @@ class CustomerTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_create()
+    public function test_customer_create(): void
     {
         $email = $this->faker->email;
 
@@ -44,7 +44,7 @@ class CustomerTest extends TestCase
      *
      * @return void
      */
-    public function test_customers_have_transactions()
+    public function test_customers_have_transactions(): void
     {
         $customers = factory(Customer::class, 25)
             ->create()
@@ -63,7 +63,7 @@ class CustomerTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_transaction_list()
+    public function test_customer_transaction_list(): void
     {
         $customer = factory(Customer::class)->create();
         $collection = $customer->transactions;
@@ -78,7 +78,7 @@ class CustomerTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_transactions_statuses()
+    public function test_customer_transactions_statuses(): void
     {
         $user = factory(User::class)->create();
         $openedTransactions = factory(Transaction::class, 5)->states('OPENED')->create();

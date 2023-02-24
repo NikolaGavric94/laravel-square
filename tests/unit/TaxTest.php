@@ -15,7 +15,7 @@ class TaxTest extends TestCase
      *
      * @return void
      */
-    public function test_tax_make()
+    public function test_tax_make(): void
     {
         $tax = factory(Tax::class)->create();
 
@@ -27,7 +27,7 @@ class TaxTest extends TestCase
      *
      * @return void
      */
-    public function test_tax_create()
+    public function test_tax_create(): void
     {
         $name = $this->faker->name;
 
@@ -45,7 +45,7 @@ class TaxTest extends TestCase
      *
      * @return void
      */
-    public function test_tax_create_with_orders()
+    public function test_tax_create_with_orders(): void
     {
         $name = $this->faker->name;
         $order1 = factory(Order::class)->create();
@@ -67,7 +67,7 @@ class TaxTest extends TestCase
      *
      * @return void
      */
-    public function test_tax_create_with_products()
+    public function test_tax_create_with_products(): void
     {
         $name = $this->faker->name;
         $product1 = factory(OrderProductPivot::class)->create();

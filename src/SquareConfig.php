@@ -2,7 +2,6 @@
 
 namespace Nikolag\Square;
 
-use Nikolag\Core\Contracts\ConfigContract;
 use Nikolag\Core\CoreConfig;
 use Nikolag\Core\Exceptions\InvalidConfigurationException;
 use Square\Apis\CustomersApi;
@@ -12,12 +11,12 @@ use Square\Apis\PaymentsApi;
 use Square\Apis\TransactionsApi;
 use Square\SquareClient;
 
-class SquareConfig extends CoreConfig implements ConfigContract
+class SquareConfig extends CoreConfig
 {
     /**
      * @var SquareClient
      */
-    private $squareClient;
+    private SquareClient $squareClient;
 
     /**
      * SquareConfig constructor.
@@ -42,7 +41,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      *
      * @return LocationsApi
      */
-    public function locationsAPI()
+    public function locationsAPI(): LocationsApi
     {
         return $this->squareClient->getLocationsApi();
     }
@@ -52,7 +51,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      *
      * @return CustomersApi
      */
-    public function customersAPI()
+    public function customersAPI(): CustomersApi
     {
         return $this->squareClient->getCustomersApi();
     }
@@ -62,7 +61,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      *
      * @return TransactionsApi
      */
-    public function transactionsAPI()
+    public function transactionsAPI(): TransactionsApi
     {
         return $this->squareClient->getTransactionsApi();
     }
@@ -72,7 +71,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      *
      * @return OrdersApi
      */
-    public function ordersAPI()
+    public function ordersAPI(): OrdersApi
     {
         return $this->squareClient->getOrdersApi();
     }
@@ -82,7 +81,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      *
      * @return PaymentsApi
      */
-    public function paymentsAPI()
+    public function paymentsAPI(): PaymentsApi
     {
         return $this->squareClient->getPaymentsApi();
     }
@@ -92,7 +91,7 @@ class SquareConfig extends CoreConfig implements ConfigContract
      *
      * @return array
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config;
     }

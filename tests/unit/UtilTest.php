@@ -63,7 +63,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_order_doesnt_have_product()
+    public function test_order_doesnt_have_product(): void
     {
         $found = Util::hasProduct($this->order->products, $this->product);
 
@@ -76,7 +76,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_calculate_total_order_cost()
+    public function test_calculate_total_order_cost(): void
     {
         $square = Square::setOrder($this->order, env('SQUARE_LOCATION'))
             ->addProduct($this->product)
@@ -92,7 +92,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_order_does_have_product_with_square_service()
+    public function test_order_does_have_product_with_square_service(): void
     {
         $square = Square::setOrder($this->order, env('SQUARE_LOCATION'))
             ->addProduct($this->product)
@@ -111,7 +111,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_uid_returns_exactly_thirty_characters()
+    public function test_uid_returns_exactly_thirty_characters(): void
     {
         $actual = Util::uid();
 
@@ -123,12 +123,12 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_uid_returns_x_characters()
+    public function test_uid_returns_x_characters(): void
     {
         $random = rand(1, 50);
         $actual = Util::uid($random);
 
-        $this->assertEquals($random * 2, strlen($actual), 'Util::uid has not returned '.($random * 2).' characters');
+        $this->assertEquals($random * 2, strlen($actual), 'Util::uid has not returned ' . ($random * 2) . ' characters');
     }
 
     /**
@@ -136,7 +136,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_create()
+    public function test_customer_create(): void
     {
         $email = $this->faker->email;
 
@@ -154,7 +154,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_customers_have_transactions()
+    public function test_customers_have_transactions(): void
     {
         $customers = factory(Customer::class, 25)
             ->create()
@@ -173,7 +173,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_transaction_list()
+    public function test_customer_transaction_list(): void
     {
         $customer = factory(Customer::class)->create();
         $collection = $customer->transactions;
@@ -188,7 +188,7 @@ class UtilTest extends TestCase
      *
      * @return void
      */
-    public function test_customer_transactions_statuses()
+    public function test_customer_transactions_statuses(): void
     {
         $user = factory(User::class)->create();
         $openedTransactions = factory(Transaction::class, 5)->states('OPENED')->create();

@@ -20,7 +20,7 @@ class OrderTest extends TestCase
      *
      * @return void
      */
-    public function test_order_make()
+    public function test_order_make(): void
     {
         $discounts = factory(Discount::class, 5)->create();
         $taxes = factory(Tax::class, 3)->create();
@@ -42,7 +42,7 @@ class OrderTest extends TestCase
      *
      * @throws \Nikolag\Core\Exceptions\Exception
      */
-    public function test_order_charge()
+    public function test_order_charge(): void
     {
         $orderClass = config('nikolag.connections.square.order.namespace');
 
@@ -89,7 +89,7 @@ class OrderTest extends TestCase
      *
      * @return void
      */
-    public function test_order_missing_order_exception()
+    public function test_order_missing_order_exception(): void
     {
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('$order property is missing');
@@ -103,7 +103,7 @@ class OrderTest extends TestCase
      *
      * @return void
      */
-    public function test_order_missing_location_id_exception()
+    public function test_order_missing_location_id_exception(): void
     {
         $order = factory(Order::class)->create();
 
@@ -119,7 +119,7 @@ class OrderTest extends TestCase
      *
      * @return void
      */
-    public function test_order_trait_charge()
+    public function test_order_trait_charge(): void
     {
         $order = factory(Order::class)->create();
         $merchant = factory(User::class)->create();

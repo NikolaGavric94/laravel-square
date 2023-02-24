@@ -2,39 +2,53 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
 use Nikolag\Square\Exceptions\InvalidSquareCvvException;
 use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
 use Nikolag\Square\Exceptions\InvalidSquareNonceException;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
-use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
-use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\ErrorCategory;
+use Square\Models\ErrorCode;
 
 class SquareServiceTest extends TestCase
 {
+    private TestDataHolder $data;
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->data = TestDataHolder::make();
+    }
+
     /**
      * Charge OK.
      *
      * @return void
      */
-    public function test_square_charge_ok()
+    public function test_square_charge_ok(): void
     {
         $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]);
 
         $this->assertTrue($response instanceof Transaction, 'Response is not of type Transaction.');
         $this->assertTrue($response->payment_service_type == 'square', 'Response service type is not square');
-        $this->assertEquals($response->amount, 5000, 'Transaction amount is not 5000.');
-        $this->assertEquals($response->status, Constants::TRANSACTION_STATUS_PASSED, 'Transaction status is not PASSED');
+        $this->assertEquals(5000, $response->amount, 'Transaction amount is not 5000.');
+        $this->assertEquals(Constants::TRANSACTION_STATUS_PASSED, $response->status, 'Transaction status is not PASSED');
     }
 
     /**
@@ -42,12 +56,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_wrong_nonce()
+    public function test_square_charge_wrong_nonce(): void
     {
-        $this->expectException(InvalidSquareNonceException::class);
-        $this->expectExceptionCode(404);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/Invalid source/i");
+        $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'not-existent-nonce', 'location_id' => env('SQUARE_LOCATION')]);
+        Square::charge(['amount' => 5000, 'source_id' => 'not-existent-nonce', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -55,12 +70,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_wrong_cvv()
+    public function test_square_charge_wrong_cvv(): void
     {
-        $this->expectException(InvalidSquareCvvException::class);
-        $this->expectExceptionCode(402);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -68,12 +84,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_wrong_postal()
+    public function test_square_charge_wrong_postal(): void
     {
-        $this->expectException(InvalidSquareZipcodeException::class);
-        $this->expectExceptionCode(402);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::VERIFY_POSTAL_CODE."/i");
+        $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -81,12 +98,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_wrong_expiration_date()
+    public function test_square_charge_wrong_expiration_date(): void
     {
-        $this->expectException(InvalidSquareExpirationDateException::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
         $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -94,12 +112,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_declined()
+    public function test_square_charge_declined(): void
     {
-        $this->expectException(InvalidSquareExpirationDateException::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
         $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -107,12 +126,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_used_nonce()
+    public function test_square_charge_used_nonce(): void
     {
-        $this->expectException(InvalidSquareCvvException::class);
-        $this->expectExceptionCode(402);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
     }
 
     /**
@@ -120,12 +140,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_non_existant_currency()
+    public function test_square_charge_non_existant_currency(): void
     {
-        $this->expectException(InvalidSquareCurrencyException::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches("/This merchant can only process payments in USD, but amount was provided in XXX/i");
         $this->expectExceptionCode(400);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
     }
 
     /**
@@ -133,13 +154,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_charge_missing_location_id()
+    public function test_square_charge_missing_location_id(): void
     {
         $this->expectException(MissingPropertyException::class);
         $this->expectExceptionMessage('Required field \'location_id\' is missing');
         $this->expectExceptionCode(500);
 
-        $response = Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok']);
+        Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok']);
     }
 
     /**
@@ -147,20 +168,15 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_order_make()
+    public function test_square_order_make(): void
     {
-        $discount = factory(Discount::class)->states('AMOUNT_ONLY')->create();
-        $tax = factory(Tax::class)->create();
-        $order = factory(Order::class)->create();
-        $product = factory(Product::class)->create();
+        $this->data->order->discounts()->attach($this->data->discount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->taxes()->attach($this->data->tax->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->products()->attach($this->data->product->id, ['quantity' => 5]);
 
-        $order->discounts()->attach($discount, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->taxes()->attach($tax, ['deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->products()->attach($product->id, ['quantity' => 5]);
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'));
 
-        $square = Square::setOrder($order, env('SQUARE_LOCATION'));
-
-        $this->assertEquals($square->getOrder(), $order, 'Orders are not the same');
+        $this->assertEquals($square->getOrder(), $this->data->order, 'Orders are not the same');
     }
 
     /**
@@ -168,13 +184,11 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_order_add_product()
+    public function test_square_order_add_product(): void
     {
-        $order = factory(Order::class)->create();
-        $product = factory(Product::class)->create();
         $product2 = factory(Product::class)->create();
 
-        $square = Square::setOrder($order, env('SQUARE_LOCATION'))->addProduct($product, 1)->addProduct($product2, 2)->save();
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product, 1)->addProduct($product2, 2)->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
     }
@@ -184,7 +198,7 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_order_transaction_list()
+    public function test_square_order_transaction_list(): void
     {
         $array = [
             'location_id' => env('SQUARE_LOCATION'),
@@ -201,7 +215,7 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_order_locations_list()
+    public function test_square_order_locations_list(): void
     {
         $transactions = Square::locations();
 
@@ -214,12 +228,10 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_order_facade_save()
+    public function test_square_order_facade_save(): void
     {
-        $order = factory(Order::class)->make();
-        $product = factory(Product::class)->make();
-        $order = $order->toArray();
-        $product = $product->toArray();
+        $order = $this->data->order->toArray();
+        $product = $this->data->product->toArray();
         $product['quantity'] = 1;
         $order['products'] = [$product];
 
@@ -237,12 +249,10 @@ class SquareServiceTest extends TestCase
      *
      * @throws \Nikolag\Core\Exceptions\Exception
      */
-    public function test_square_order_facade_save_and_charge()
+    public function test_square_order_facade_save_and_charge(): void
     {
-        $order = factory(Order::class)->make();
-        $product = factory(Product::class)->make();
-        $orderArr = $order->toArray();
-        $product = $product->toArray();
+        $orderArr = $this->data->order->toArray();
+        $product = $this->data->product->toArray();
         $product['quantity'] = 1;
         $orderArr['products'] = [$product];
 
@@ -262,33 +272,90 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Test we throw proper exception and message
+     * when the customer has invalid phone number
+     *
+     * @return void
+     * @throws \Nikolag\Core\Exceptions\Exception
+     */
+    public function test_square_invalid_customer_phone_number(): void
+    {
+        try {
+            $this->data->customer->phone = "bad phone number";
+            Square::setCustomer($this->data->customer)->setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product)->charge(
+                ['amount' => 0, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
+            );
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e->getPrevious());
+            $this->assertMatchesRegularExpression("/Expected phone_number to be a valid phone number/i", $e->getPrevious()->getMessage());
+            $this->assertEquals(400, $e->getPrevious()->getCode());
+        }
+    }
+
+    /**
+     * Test we throw proper exception and message
+     * when the customer has invalid email address
+     *
+     * @return void
+     * @throws \Nikolag\Core\Exceptions\Exception
+     */
+    public function test_square_invalid_customer_email_address(): void
+    {
+        try {
+            $this->data->customer->email = "bad email address";
+            Square::setCustomer($this->data->customer)->setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product)->charge(
+                ['amount' => 0, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
+            );
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e->getPrevious());
+            $this->assertMatchesRegularExpression("/Expected email_address to be a valid email address/i", $e->getPrevious()->getMessage());
+            $this->assertEquals(400, $e->getPrevious()->getCode());
+        }
+    }
+
+    /**
      * Test all in one as arrays.
      *
      * @return void
      */
-    public function test_square_array_all()
+    public function test_square_array_all(): void
     {
-        $merchant = factory(User::class)->create();
-        $customer = factory(Customer::class)->make();
-        $order = factory(Order::class)->make();
-        $product = factory(Product::class)->make([
-            'price' => 1000,
-        ]);
-        $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->make([
-            'amount' => 50,
-        ]);
-        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->make([
-            'percentage' => 10.0,
-        ]);
-        $tax = factory(Tax::class)->states('INCLUSIVE')->make([
-            'percentage' => 10.0,
-        ]);
-        $orderArr = $order->toArray();
+        extract($this->data->modify(prodFac: "make", prodDiscFac: "make", orderDisFac: "make"));
+
+        $orderArr = $this->data->order->toArray();
         $orderArr['discounts'] = [$orderDiscount->toArray()];
         $productArr = $product->toArray();
         $productArr['discounts'] = [$productDiscount->toArray()];
 
-        $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
+        $transaction = Square::setMerchant($this->data->merchant)
+            ->setCustomer($this->data->customer)
+            ->setOrder($orderArr, env('SQUARE_LOCATION'))
+            ->addProduct($productArr)
+            ->charge(['amount' => 850, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]);
+
+        $transaction = $transaction->load('merchant', 'customer');
+
+        $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
+        $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
+    }
+
+    /**
+     * Test all in one as models.
+     *
+     * @return void
+     */
+    public function test_square_model_all(): void
+    {
+        $this->data = TestDataHolder::create();
+        extract($this->data->modify());
+
+        $this->data->order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->taxes()->attach($taxInclusive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->products()->attach($product);
+
+        $this->data->order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
+
+        $transaction = Square::setMerchant($this->data->merchant)->setCustomer($this->data->customer)->setOrder($this->data->order, env('SQUARE_LOCATION'))->charge(
             ['amount' => 850, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
         );
 
@@ -302,79 +369,24 @@ class SquareServiceTest extends TestCase
      * Test all in one as models.
      *
      * @return void
-     */
-    public function test_square_model_all()
-    {
-        $merchant = factory(User::class)->create();
-        $customer = factory(Customer::class)->create();
-        $order = factory(Order::class)->create();
-        $product = factory(Product::class)->create([
-            'price' => 1000,
-        ]);
-        $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->create([
-            'amount' => 50,
-        ]);
-        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->create([
-            'percentage' => 10.0,
-        ]);
-        $tax = factory(Tax::class)->states('INCLUSIVE')->create([
-            'percentage' => 10.0,
-        ]);
-
-        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->taxes()->attach($tax->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->products()->attach($product);
-
-        $order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
-
-        $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($order, env('SQUARE_LOCATION'))->charge(
-            ['amount' => 850, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
-        );
-
-        $transaction = $transaction->load('merchant', 'customer');
-
-        $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
-        $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
-    }
-
-    /**
-     * Test all in one as models.
      *
-     * @return void
-     *
-     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
-     * @throws \Nikolag\Square\Exceptions\MissingPropertyException
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
      */
-    public function test_square_total_calculation()
+    public function test_square_total_calculation(): void
     {
-        $merchant = factory(User::class)->create();
-        $customer = factory(Customer::class)->create();
-        $order = factory(Order::class)->create();
-        $product = factory(Product::class)->create([
-            'price' => 1000,
-        ]);
-        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->create([
-            'percentage' => 10.0,
-        ]);
-        $orderDiscountFixed = factory(Discount::class)->states('AMOUNT_ONLY')->create([
-            'amount' => 250.0,
-        ]);
-        $taxAdditive = factory(Tax::class)->states('ADDITIVE')->create([
-            'percentage' => 10.0,
-        ]);
-        $taxInclusive = factory(Tax::class)->states('INCLUSIVE')->create([
-            'percentage' => 15.0,
-        ]);
+        $this->data = TestDataHolder::create();
+        extract($this->data->modify());
 
-        $order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->discounts()->attach($orderDiscountFixed->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->taxes()->attach($taxAdditive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->taxes()->attach($taxInclusive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $order->products()->attach($product);
+        $this->data->order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->discounts()->attach($orderDiscountFixed->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->taxes()->attach($taxAdditive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->taxes()->attach($taxInclusive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $this->data->order->products()->attach($product);
 
-        $square = Square::setMerchant($merchant)
-            ->setCustomer($customer)
-            ->setOrder($order, env('SQUARE_LOCATION'))
+        $square = Square::setMerchant($this->data->merchant)
+            ->setCustomer($this->data->customer)
+            ->setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->save();
         $calculatedCost = Util::calculateTotalOrderCostByModel($square->getOrder());
 
@@ -386,30 +398,16 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_square_array_all_scopes()
+    public function test_square_array_all_scopes(): void
     {
-        $merchant = factory(User::class)->create();
-        $customer = factory(Customer::class)->make();
-        $order = factory(Order::class)->make();
-        $product = factory(Product::class)->make([
-            'price' => 1000,
-        ]);
-        $productDiscount = factory(Discount::class)->states('AMOUNT_ONLY')->make([
-            'amount' => 50,
-        ]);
-        $orderDiscount = factory(Discount::class)->states('PERCENTAGE_ONLY')->make([
-            'percentage' => 10.0,
-        ]);
-        $tax = factory(Tax::class)->states('ADDITIVE')->make([
-            'percentage' => 10.0,
-        ]);
-        $orderArr = $order->toArray();
+        extract($this->data->modify(prodFac: "make", prodDiscFac: "make", orderDisFac: "make", taxAddFac: "make"));
+        $orderArr = $this->data->order->toArray();
         $orderArr['discounts'] = [$orderDiscount->toArray()];
         $productArr = $product->toArray();
         $productArr['discounts'] = [$productDiscount->toArray()];
-        $productArr['taxes'] = [$tax->toArray()];
+        $productArr['taxes'] = [$taxAdditive->toArray()];
 
-        $transaction = Square::setMerchant($merchant)->setCustomer($customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
+        $transaction = Square::setMerchant($this->data->merchant)->setCustomer($this->data->customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
             ['amount' => 750, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
         );
 
@@ -418,11 +416,11 @@ class SquareServiceTest extends TestCase
         $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
         $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
         $this->assertContains(Product::find(1)->id, $transaction->order->products->pluck('id'), 'Product is not part of the order.');
-        $this->assertEquals($transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope,
-            Constants::DEDUCTIBLE_SCOPE_PRODUCT, 'Discount scope is not \'LINE_ITEM\'');
-        $this->assertEquals($transaction->order->taxes->where('name', $tax->name)->first()->pivot->scope,
-            Constants::DEDUCTIBLE_SCOPE_PRODUCT, 'Tax scope is not \'LINE_ITEM\'');
-        $this->assertEquals($transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope,
-            Constants::DEDUCTIBLE_SCOPE_ORDER, 'Discount scope is not \'ORDER\'');
+        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_PRODUCT,
+            $transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope, 'Discount scope is not \'LINE_ITEM\'');
+        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_PRODUCT,
+            $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope, 'Tax scope is not \'LINE_ITEM\'');
+        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_ORDER,
+            $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope, 'Discount scope is not \'ORDER\'');
     }
 }

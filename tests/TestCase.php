@@ -37,7 +37,7 @@ class TestCase extends BaseTestCase
     /**
      * Add service providers this package depends on.
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             'Nikolag\Square\Providers\SquareServiceProvider',
@@ -48,7 +48,7 @@ class TestCase extends BaseTestCase
     /**
      * Add aliases this package depends on.
      */
-    protected function getPackageAliases($app)
+    protected function getPackageAliases($app): array
     {
         return [
             'Square' => 'Nikolag\Square\Facades\Square',
@@ -61,7 +61,7 @@ class TestCase extends BaseTestCase
      * @param  \Illuminate\Foundation\Application  $app
      * @return void
      */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'square_test');

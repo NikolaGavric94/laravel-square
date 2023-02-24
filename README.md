@@ -1,5 +1,6 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/7b6c53096c35381463c5/test_coverage)](https://codeclimate.com/github/NikolaGavric94/laravel-square/test_coverage)
-[![Build and test](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml)
+[![Build and test PHP 7.x](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml)
+[![Build and test PHP 8.x](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main2.yml/badge.svg?branch=3.1.x)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main2.yml)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
 <p><a href="https://medium.com/square-corner-blog/square-implementation-with-laravel-22a4ad3fe1ec">
@@ -10,15 +11,14 @@
 
 Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
-1.  [Version Compatibility](#version-compatibility)
-2.  [Installation guide](#installation-guide) 
-3.  [Customer System](#customers-system) 
-4.  [Order System](#orders-system) 
-5.  [Examples](#examples) 
-6.  [Available methods](#all-traits-and-their-methods)  
-7.  [Contributing](#contributing) 
-8.  [Donation](#donating)
-9.  [License](#license)
+1. [Version Compatibility](#version-compatibility)
+2. [Installation guide](#installation-guide) 
+3. [Customer System](#customers-system) 
+4. [Order System](#orders-system) 
+5. [Examples](#examples) 
+6. [Available methods](#all-traits-and-their-methods)  
+7. [Contributing](#contributing) 
+8. [License](#license)
 
 
 ## Version Compatibility
@@ -32,9 +32,10 @@ Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://gith
 | [2.6.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...master) |&nbsp; >= 8.x | [3.20200528.1 (Square Connect V2)](https://github.com/square/connect-php-sdk/tree/3.20200528.1) |
 
 ### New square sdk
-| Library Version 	| Laravel Version 	| Square SDK Version                   	|
-|:-----------------:|:-------------------------:|:---------------------------------:|
-| [3.0.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...master) |&nbsp; >= 6.x | [17.0.0.20211215](https://github.com/square/square-php-sdk/tree/17.0.0.20211215)   |
+|                                 Library Version 	                                 | Laravel Version 	 | Square SDK Version                   	|
+|:---------------------------------------------------------------------------------:|:-----------------:|:---------------------------------:|
+| [3.0.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...v3.0.2) |   &nbsp; >= 8.x   | [17.0.0.20211215](https://github.com/square/square-php-sdk/tree/17.0.0.20211215)   |
+| [3.1.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.0.2...master) |   &nbsp; >= 9.x   | [25.1.0.20230119](https://github.com/square/square-php-sdk/tree/25.1.0.20230119)   |
 
 **If you are updating from versions below 3.0 then you need to execute: `php artisan migrate`. This will add some columns required by the library into the tables created by the library, your own tables won't be affected.**
 
