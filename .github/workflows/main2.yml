@@ -24,15 +24,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - php-version: "8.0"
-            illuminate: "9.*"
-            orchestra: "7.*"
-            phpunit: "9.*"
           - php-version: "8.1"
-            illuminate: "9.*"
-            orchestra: "7.*"
-            phpunit: "9.*"
-          - php-version: "8.2.0"
             illuminate: "9.*"
             orchestra: "7.*"
             phpunit: "9.*"
