@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: master
+          ref: '3.1.x'
 
       # Setup php
       - name: Setup PHP with PECL extension
