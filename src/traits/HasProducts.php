@@ -18,14 +18,15 @@ trait HasProducts
     /**
      * Charge an order.
      *
-     * @param float $amount
-     * @param string $nonce
-     * @param string $location_id
-     * @param mixed $merchant
-     * @param array $options
-     * @param mixed|null $customer
-     * @param string $currency
+     * @param  float  $amount
+     * @param  string  $nonce
+     * @param  string  $location_id
+     * @param  mixed  $merchant
+     * @param  array  $options
+     * @param  mixed|null  $customer
+     * @param  string  $currency
      * @return Transaction
+     *
      * @throws Exception
      */
     public function charge(float $amount, string $nonce, string $location_id, mixed $merchant, array $options = [], mixed $customer = null, string $currency = 'USD'): Transaction

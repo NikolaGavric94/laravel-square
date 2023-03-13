@@ -16,9 +16,9 @@ class TaxesBuilder
      * Find or create tax models
      * from taxes array.
      *
-     * @param array $taxes
-     * @param string $scope
-     * @param Model|null $parent
+     * @param  array  $taxes
+     * @param  string  $scope
+     * @param  Model|null  $parent
      * @return Collection
      *
      * @throws MissingPropertyException

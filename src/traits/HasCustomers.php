@@ -82,7 +82,7 @@ trait HasCustomers
      * @param  string  $nonce
      * @param  string  $location_id
      * @param  array  $options
-     * @param mixed|null $customer
+     * @param  mixed|null  $customer
      * @param  string  $currency
      * @return Transaction
      *

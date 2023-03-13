@@ -10,12 +10,7 @@ use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
-use Nikolag\Square\Exceptions\InvalidSquareCvvException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
-use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
-use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
@@ -168,15 +163,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param ApiResponse $response
+     * @param  ApiResponse  $response
      * @return Exception
      */
     private function _handleApiResponseErrors(ApiResponse $response): Exception
     {
         $errors = $response->getErrors();
         $firstError = array_shift($errors);
-        $mapFunc = fn($error) => new Exception($error->getCategory() . ": " . $error->getDetail(), $response->getStatusCode());
-        $exception = new Exception($firstError->getCategory() . ": " . $firstError->getDetail(), $response->getStatusCode());
+        $mapFunc = fn ($error) => new Exception($error->getCategory().': '.$error->getDetail(), $response->getStatusCode());
+        $exception = new Exception($firstError->getCategory().': '.$firstError->getDetail(), $response->getStatusCode());
 
         return $exception->setAdditionalExceptions(array_map($mapFunc, $errors));
     }
@@ -346,7 +341,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Add a product to the order.
      *
-     * @param mixed $product
+     * @param  mixed  $product
      * @param  int  $quantity
      * @param  string  $currency
      * @return self
@@ -362,7 +357,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         try {
             if (is_a($product, $productClass)) {
-                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product , $quantity);
+                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity);
             } else {
                 $productPivot = $this->productBuilder->addProductFromArray($this->orderCopy, $this->getOrder(), $product, $quantity);
             }
@@ -418,7 +413,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @param mixed $customer
+     * @param  mixed  $customer
      * @return self
      *
      * @throws MissingPropertyException
@@ -444,7 +439,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Setter for order.
      *
-     * @param mixed $order
+     * @param  mixed  $order
      * @param  string  $locationId
      * @param  string  $currency
      * @return self

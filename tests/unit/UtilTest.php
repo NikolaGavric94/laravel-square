@@ -128,7 +128,7 @@ class UtilTest extends TestCase
         $random = rand(1, 50);
         $actual = Util::uid($random);
 
-        $this->assertEquals($random * 2, strlen($actual), 'Util::uid has not returned ' . ($random * 2) . ' characters');
+        $this->assertEquals($random * 2, strlen($actual), 'Util::uid has not returned '.($random * 2).' characters');
     }
 
     /**
