@@ -3,11 +3,6 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exception;
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
-use Nikolag\Square\Exceptions\InvalidSquareCvvException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
-use Nikolag\Square\Exceptions\InvalidSquareNonceException;
-use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\User;
@@ -89,7 +84,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/Invalid source/i");
+        $this->expectExceptionMessageMatches('/Invalid source/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'not-existent-nonce', env('SQUARE_LOCATION'));
@@ -105,7 +100,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
@@ -121,7 +116,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::VERIFY_POSTAL_CODE."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_POSTAL_CODE.'/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'cnon:card-nonce-rejected-postalcode', env('SQUARE_LOCATION'));
@@ -137,7 +132,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'cnon:card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
@@ -153,7 +148,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'cnon:card-nonce-rejected-expiration', env('SQUARE_LOCATION'));
@@ -169,7 +164,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'));
@@ -185,7 +180,7 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/This merchant can only process payments in USD, but amount was provided in XXX/i");
+        $this->expectExceptionMessageMatches('/This merchant can only process payments in USD, but amount was provided in XXX/i');
         $this->expectExceptionCode(400);
 
         $user->charge(5000, 'cnon:card-nonce-rejected-cvv', env('SQUARE_LOCATION'), [], null, 'XXX');

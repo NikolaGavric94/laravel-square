@@ -249,8 +249,9 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of already applied taxes.
      *
-     * @param Collection $taxes
+     * @param  Collection  $taxes
      * @return array
+     *
      * @throws \Exception
      */
     public function buildAppliedTaxes(Collection $taxes): array
@@ -270,8 +271,8 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of \SquareConnect\Model\OrderLineItem for order.
      *
-     * @param Collection $products
-     * @param string $currency
+     * @param  Collection  $products
+     * @param  string  $currency
      * @return array
      *
      * @throws InvalidSquareOrderException

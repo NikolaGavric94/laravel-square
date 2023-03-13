@@ -14,11 +14,11 @@ use stdClass;
 class ProductBuilder
 {
     /**
-     * @var DiscountBuilder $discountBuilder
+     * @var DiscountBuilder
      */
     private DiscountBuilder $discountBuilder;
     /**
-     * @var TaxesBuilder $taxesBuilder
+     * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
 
@@ -31,9 +31,9 @@ class ProductBuilder
     /**
      * Add a product to the order from model as source.
      *
-     * @param Model $order
-     * @param Model $product
-     * @param int $quantity
+     * @param  Model  $order
+     * @param  Model  $product
+     * @param  int  $quantity
      * @return Product|stdClass
      *
      * @throws InvalidSquareOrderException
@@ -71,10 +71,10 @@ class ProductBuilder
     /**
      * Add a product to the order from array as source.
      *
-     * @param stdClass $orderCopy
-     * @param Model $order
-     * @param array $product
-     * @param int $quantity
+     * @param  stdClass  $orderCopy
+     * @param  Model  $order
+     * @param  array  $product
+     * @param  int  $quantity
      * @return Product|stdClass
      *
      * @throws InvalidSquareOrderException
@@ -136,8 +136,8 @@ class ProductBuilder
     /**
      * Create product from array.
      *
-     * @param array $product
-     * @param Model|null $order
+     * @param  array  $product
+     * @param  Model|null  $order
      * @return Product|stdClass
      *
      * @throws MissingPropertyException
@@ -173,9 +173,9 @@ class ProductBuilder
     /**
      * Create product from model.
      *
-     * @param Model $product
-     * @param Model|null $order
-     * @param int|null $quantity
+     * @param  Model  $product
+     * @param  Model|null  $order
+     * @param  int|null  $quantity
      * @return Product|stdClass
      *
      * @throws MissingPropertyException
