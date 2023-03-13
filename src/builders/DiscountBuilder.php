@@ -17,9 +17,9 @@ class DiscountBuilder
      * Find or create discount models
      * from discounts array.
      *
-     * @param array $discounts
-     * @param string $scope
-     * @param Model|null $parent
+     * @param  array  $discounts
+     * @param  string  $scope
+     * @param  Model|null  $parent
      * @return Collection
      *
      * @throws InvalidSquareOrderException

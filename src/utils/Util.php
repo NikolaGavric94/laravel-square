@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Models\Product;
 use stdClass;
-use function PHPUnit\Framework\isEmpty;
 
 class Util
 {
     /**
      * Calculates order total based on orderCopy (stdClass of Model).
      *
-     * @param stdClass $orderCopy
+     * @param  stdClass  $orderCopy
      * @return float|int
      */
     public static function calculateTotalOrderCost(stdClass $orderCopy): float|int
@@ -25,9 +24,9 @@ class Util
      * Calculate all discounts on order level no matter
      * their scope.
      *
-     * @param Collection $discounts
+     * @param  Collection  $discounts
      * @param  float  $noDeductiblesCost
-     * @param Collection $products
+     * @param  Collection  $products
      * @return float|int
      */
     private static function _calculateDiscounts(Collection $discounts, float $noDeductiblesCost, Collection $products): float|int
@@ -124,9 +123,9 @@ class Util
      * Calculate all taxes on order level no matter
      * their scope, type of ADDITIVE.
      *
-     * @param Collection $taxes
+     * @param  Collection  $taxes
      * @param  float  $noDeductiblesCost
-     * @param Collection $products
+     * @param  Collection  $products
      * @return float|int
      */
     private static function _calculateTaxes(Collection $taxes, float $noDeductiblesCost, Collection $products): float|int
@@ -156,9 +155,9 @@ class Util
     /**
      * Calculate total order cost.
      *
-     * @param Collection $discounts
-     * @param Collection $taxes
-     * @param Collection $products
+     * @param  Collection  $discounts
+     * @param  Collection  $taxes
+     * @param  Collection  $products
      * @return float|int
      */
     private static function _calculateTotalCost(Collection $discounts, Collection $taxes, Collection $products): float|int
@@ -213,7 +212,7 @@ class Util
     /**
      * Calculates order total based on Model.
      *
-     * @param Model $order
+     * @param  Model  $order
      * @return float|int
      */
     public static function calculateTotalOrderCostByModel(Model $order): float|int
@@ -224,8 +223,8 @@ class Util
     /**
      * Check if source has product.
      *
-     * @param \Illuminate\Database\Eloquent\Collection|Collection $source
-     * @param int|array|Product|null $product
+     * @param  \Illuminate\Database\Eloquent\Collection|Collection  $source
+     * @param  int|array|Product|null  $product
      * @return bool
      */
     public static function hasProduct(\Illuminate\Database\Eloquent\Collection|Collection $source, Product|int|array|null $product): bool

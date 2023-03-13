@@ -3,12 +3,7 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exception;
-use Nikolag\Square\Exceptions\InvalidSquareCurrencyException;
-use Nikolag\Square\Exceptions\InvalidSquareCvvException;
-use Nikolag\Square\Exceptions\InvalidSquareExpirationDateException;
-use Nikolag\Square\Exceptions\InvalidSquareNonceException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
-use Nikolag\Square\Exceptions\InvalidSquareZipcodeException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
@@ -20,8 +15,6 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
-use Square\Models\ErrorCategory;
-use Square\Models\ErrorCode;
 
 class SquareServiceTest extends TestCase
 {
@@ -59,7 +52,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_nonce(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/Invalid source/i");
+        $this->expectExceptionMessageMatches('/Invalid source/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'not-existent-nonce', 'location_id' => env('SQUARE_LOCATION')]);
@@ -73,7 +66,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_cvv(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
@@ -87,7 +80,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_postal(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::VERIFY_POSTAL_CODE."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_POSTAL_CODE.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
@@ -101,7 +94,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_expiration_date(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
@@ -115,7 +108,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_declined(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::INVALID_EXPIRATION."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
@@ -129,7 +122,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_used_nonce(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/".Constants::VERIFY_CVV."/i");
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
@@ -143,7 +136,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_non_existant_currency(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches("/This merchant can only process payments in USD, but amount was provided in XXX/i");
+        $this->expectExceptionMessageMatches('/This merchant can only process payments in USD, but amount was provided in XXX/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION'), 'currency' => 'XXX']);
@@ -273,42 +266,44 @@ class SquareServiceTest extends TestCase
 
     /**
      * Test we throw proper exception and message
-     * when the customer has invalid phone number
+     * when the customer has invalid phone number.
      *
      * @return void
+     *
      * @throws \Nikolag\Core\Exceptions\Exception
      */
     public function test_square_invalid_customer_phone_number(): void
     {
         try {
-            $this->data->customer->phone = "bad phone number";
+            $this->data->customer->phone = 'bad phone number';
             Square::setCustomer($this->data->customer)->setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product)->charge(
                 ['amount' => 0, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
             );
         } catch (Exception $e) {
             $this->assertInstanceOf(Exception::class, $e->getPrevious());
-            $this->assertMatchesRegularExpression("/Expected phone_number to be a valid phone number/i", $e->getPrevious()->getMessage());
+            $this->assertMatchesRegularExpression('/Expected phone_number to be a valid phone number/i', $e->getPrevious()->getMessage());
             $this->assertEquals(400, $e->getPrevious()->getCode());
         }
     }
 
     /**
      * Test we throw proper exception and message
-     * when the customer has invalid email address
+     * when the customer has invalid email address.
      *
      * @return void
+     *
      * @throws \Nikolag\Core\Exceptions\Exception
      */
     public function test_square_invalid_customer_email_address(): void
     {
         try {
-            $this->data->customer->email = "bad email address";
+            $this->data->customer->email = 'bad email address';
             Square::setCustomer($this->data->customer)->setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product)->charge(
                 ['amount' => 0, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
             );
         } catch (Exception $e) {
             $this->assertInstanceOf(Exception::class, $e->getPrevious());
-            $this->assertMatchesRegularExpression("/Expected email_address to be a valid email address/i", $e->getPrevious()->getMessage());
+            $this->assertMatchesRegularExpression('/Expected email_address to be a valid email address/i', $e->getPrevious()->getMessage());
             $this->assertEquals(400, $e->getPrevious()->getCode());
         }
     }
@@ -320,7 +315,7 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_array_all(): void
     {
-        extract($this->data->modify(prodFac: "make", prodDiscFac: "make", orderDisFac: "make"));
+        extract($this->data->modify(prodFac: 'make', prodDiscFac: 'make', orderDisFac: 'make'));
 
         $orderArr = $this->data->order->toArray();
         $orderArr['discounts'] = [$orderDiscount->toArray()];
@@ -400,7 +395,7 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_array_all_scopes(): void
     {
-        extract($this->data->modify(prodFac: "make", prodDiscFac: "make", orderDisFac: "make", taxAddFac: "make"));
+        extract($this->data->modify(prodFac: 'make', prodDiscFac: 'make', orderDisFac: 'make', taxAddFac: 'make'));
         $orderArr = $this->data->order->toArray();
         $orderArr['discounts'] = [$orderDiscount->toArray()];
         $productArr = $product->toArray();

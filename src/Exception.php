@@ -18,9 +18,9 @@ class Exception extends BaseException
     /**
      * Constructor.
      *
-     * @param mixed $message
-     * @param mixed $code
-     * @param PhpException|null $previous
+     * @param  mixed  $message
+     * @param  mixed  $code
+     * @param  PhpException|null  $previous
      */
     public function __construct($message = null, $code = 0, PhpException $previous = null)
     {
@@ -36,7 +36,7 @@ class Exception extends BaseException
     }
 
     /**
-     * @param Exception[] $additionalExceptions
+     * @param  Exception[]  $additionalExceptions
      * @return $this
      */
     public function setAdditionalExceptions(array $additionalExceptions): Exception
@@ -47,12 +47,13 @@ class Exception extends BaseException
     }
 
     /**
-     * Add more errors in case there are multiple issues
+     * Add more errors in case there are multiple issues.
      *
-     * @param Exception $exception
+     * @param  Exception  $exception
      * @return $this
      */
-    public function addAdditionalException(Exception $exception): Exception {
+    public function addAdditionalException(Exception $exception): Exception
+    {
         $this->additionalExceptions[] = $exception;
 
         return $this;

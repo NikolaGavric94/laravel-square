@@ -1,24 +1,27 @@
 <?php
+
 namespace Nikolag\Square\Tests;
 
-use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
-use Nikolag\Square\Utils\Util;
 
-class TestDataHolder {
-    public function __construct(public ?Order    $order,
-                                public ?Product  $product,
+class TestDataHolder
+{
+    public function __construct(public ?Order $order,
+                                public ?Product $product,
                                 public ?Customer $customer,
-                                public ?User     $merchant,
-                                public ?Tax      $tax,
-                                public ?Discount $discount) {}
+                                public ?User $merchant,
+                                public ?Tax $tax,
+                                public ?Discount $discount)
+    {
+    }
 
-    public static function make(): self {
+    public static function make(): self
+    {
         return new static(factory(Order::class)->make(),
             factory(Product::class)->make(),
             factory(Customer::class)->make(),
@@ -27,7 +30,8 @@ class TestDataHolder {
             factory(Discount::class)->states('AMOUNT_ONLY')->make());
     }
 
-    public static function create(): self {
+    public static function create(): self
+    {
         return new static(factory(Order::class)->create(),
             factory(Product::class)->create(),
             factory(Customer::class)->create(),
@@ -36,12 +40,13 @@ class TestDataHolder {
             factory(Discount::class)->states('AMOUNT_ONLY')->create());
     }
 
-    public function modify(string $prodFac = "create",
-                           string $prodDiscFac = "create",
-                           string $orderDisFac = "create",
-                           string $orderDiscFixFac = "create",
-                           string $taxAddFac = "create",
-                           string $taxIncFac = "create") {
+    public function modify(string $prodFac = 'create',
+                           string $prodDiscFac = 'create',
+                           string $orderDisFac = 'create',
+                           string $orderDiscFixFac = 'create',
+                           string $taxAddFac = 'create',
+                           string $taxIncFac = 'create')
+    {
         $product = factory(Product::class)->{$prodFac}([
             'price' => 1000,
         ]);
@@ -60,6 +65,7 @@ class TestDataHolder {
         $taxInclusive = factory(Tax::class)->states('INCLUSIVE')->{$taxIncFac}([
             'percentage' => 15.0,
         ]);
+
         return compact('product', 'productDiscount', 'orderDiscount', 'orderDiscountFixed', 'taxAdditive', 'taxInclusive');
     }
 }
