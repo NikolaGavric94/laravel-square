@@ -246,6 +246,14 @@ approach
 ### Fixed
 - Fixes TypeError when trying to update already existing customer, contributor minor update [#71](https://github.com/NikolaGavric94/laravel-square/pull/71)
 
+## [3.1.0] - 2023-03-13
+### Added
+- Support for new Square library: Square SDK ver. [25.1.0.20230119](https://github.com/square/square-php-sdk/tree/25.1.0.20230119)
+- Support for Laravel 9
+### Changed
+- Reworked the way exceptions were being generated and thrown to a more fluid way
+- Various refactors to adapt codebase to PHP8
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.1...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
@@ -268,3 +276,4 @@ approach
 [2.6.0]: https://github.com/NikolaGavric94/laravel-square/compare/v2.5.0...v2.6.0
 [3.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...v3.0.1
 [3.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.1...v3.0.2
+[3.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.2...v3.1.0
