@@ -2,7 +2,10 @@
 
 namespace Nikolag\Square\Traits;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\Schema;
+use Nikolag\Core\Exceptions\Exception;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
@@ -15,16 +18,17 @@ trait HasProducts
     /**
      * Charge an order.
      *
-     * @param  float  $amount
-     * @param  string  $nonce
-     * @param  string  $location_id
-     * @param  mixed  $merchant
-     * @param  array  $options
-     * @param  mixed  $customer
-     * @param  string  $currency
+     * @param float $amount
+     * @param string $nonce
+     * @param string $location_id
+     * @param mixed $merchant
+     * @param array $options
+     * @param mixed|null $customer
+     * @param string $currency
      * @return Transaction
+     * @throws Exception
      */
-    public function charge(float $amount, string $nonce, string $location_id, $merchant, array $options = [], $customer = null, string $currency = 'USD')
+    public function charge(float $amount, string $nonce, string $location_id, mixed $merchant, array $options = [], mixed $customer = null, string $currency = 'USD'): Transaction
     {
         return Square::setOrder($this, $location_id)->setMerchant($merchant)->setCustomer($customer)->charge(
             array_merge(['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency], $options)
@@ -37,7 +41,7 @@ trait HasProducts
      * @param  string  $attribute
      * @return bool
      */
-    public function hasAttribute(string $attribute)
+    public function hasAttribute(string $attribute): bool
     {
         return Schema::hasColumn($this->table, $attribute);
     }
@@ -48,7 +52,7 @@ trait HasProducts
      * @param  mixed  $discount
      * @return bool
      */
-    public function hasDiscount($discount)
+    public function hasDiscount(mixed $discount): bool
     {
         $val = is_array($discount) ? array_key_exists('id', $discount) ? Discount::find($discount['id']) : $discount : $discount;
 
@@ -61,7 +65,7 @@ trait HasProducts
      * @param  mixed  $tax
      * @return bool
      */
-    public function hasTax($tax)
+    public function hasTax(mixed $tax): bool
     {
         $val = is_array($tax) ? array_key_exists('id', $tax) ? Tax::find($tax['id']) : $tax : $tax;
 
@@ -74,7 +78,7 @@ trait HasProducts
      * @param  mixed  $product
      * @return bool
      */
-    public function hasProduct($product)
+    public function hasProduct(mixed $product): bool
     {
         $val = is_array($product) ? array_key_exists('id', $product) ? Product::find($product['id']) : $product : $product;
 
@@ -84,9 +88,9 @@ trait HasProducts
     /**
      * Return a list of products which are included in this order.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function products()
+    public function products(): BelongsToMany
     {
         return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id');
     }
@@ -94,9 +98,9 @@ trait HasProducts
     /**
      * Return a list of taxes which are in included in this order.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return MorphToMany
      */
-    public function taxes()
+    public function taxes(): MorphToMany
     {
         return $this->morphToMany(Constants::TAX_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::TAX_NAMESPACE)->distinct()->withPivot('scope');
     }
@@ -104,9 +108,9 @@ trait HasProducts
     /**
      * Return a list of discounts which are in included in this order.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return MorphToMany
      */
-    public function discounts()
+    public function discounts(): MorphToMany
     {
         return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE)->distinct()->withPivot('scope');
     }

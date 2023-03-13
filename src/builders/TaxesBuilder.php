@@ -16,14 +16,14 @@ class TaxesBuilder
      * Find or create tax models
      * from taxes array.
      *
-     * @param  array  $taxes
-     * @param  string  $scope
-     * @param  Model  $parent
+     * @param array $taxes
+     * @param string $scope
+     * @param Model|null $parent
      * @return Collection
      *
      * @throws MissingPropertyException
      */
-    public function createTaxes(array $taxes, string $scope, Model $parent = null)
+    public function createTaxes(array $taxes, string $scope, Model $parent = null): Collection
     {
         $temp = collect([]);
         foreach ($taxes as $tax) {

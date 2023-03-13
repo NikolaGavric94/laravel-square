@@ -16,7 +16,7 @@ trait HasCustomers
      *
      * @return BelongsToMany
      */
-    public function customers()
+    public function customers(): BelongsToMany
     {
         return $this->belongsToMany(Constants::CUSTOMER_NAMESPACE, 'nikolag_customer_user', 'owner_id', 'customer_id');
     }
@@ -27,7 +27,7 @@ trait HasCustomers
      * @param  string  $email
      * @return mixed
      */
-    public function hasCustomer(string $email)
+    public function hasCustomer(string $email): mixed
     {
         $query = $this->customers()->where('email', '=', $email);
 
@@ -40,7 +40,7 @@ trait HasCustomers
      *
      * @return HasMany
      */
-    public function transactions()
+    public function transactions(): HasMany
     {
         return $this->hasMany(Constants::TRANSACTION_NAMESPACE, 'merchant_id', config('nikolag.connections.square.user.identifier'));
     }
@@ -50,7 +50,7 @@ trait HasCustomers
      *
      * @return HasMany
      */
-    public function passedTransactions()
+    public function passedTransactions(): HasMany
     {
         return $this->_byTransactionStatus(Constants::TRANSACTION_STATUS_PASSED);
     }
@@ -60,7 +60,7 @@ trait HasCustomers
      *
      * @return HasMany
      */
-    public function openedTransactions()
+    public function openedTransactions(): HasMany
     {
         return $this->_byTransactionStatus(Constants::TRANSACTION_STATUS_OPENED);
     }
@@ -70,7 +70,7 @@ trait HasCustomers
      *
      * @return HasMany
      */
-    public function failedTransactions()
+    public function failedTransactions(): HasMany
     {
         return $this->_byTransactionStatus(Constants::TRANSACTION_STATUS_FAILED);
     }
@@ -82,13 +82,13 @@ trait HasCustomers
      * @param  string  $nonce
      * @param  string  $location_id
      * @param  array  $options
-     * @param  mixed  $customer
+     * @param mixed|null $customer
      * @param  string  $currency
      * @return Transaction
      *
      * @throws Exception
      */
-    public function charge(float $amount, string $nonce, string $location_id, array $options = [], $customer = null, string $currency = 'USD')
+    public function charge(float $amount, string $nonce, string $location_id, array $options = [], mixed $customer = null, string $currency = 'USD'): Transaction
     {
         return Square::setMerchant($this)->setCustomer($customer)->charge(
             array_merge(['amount' => $amount, 'source_id' => $nonce, 'location_id' => $location_id, 'currency' => $currency], $options)
@@ -101,7 +101,7 @@ trait HasCustomers
      * @param  array  $customer
      * @return void
      */
-    public function saveCustomer(array $customer)
+    public function saveCustomer(array $customer): void
     {
         Square::setMerchant($this)->setCustomer($customer)->save();
     }
@@ -112,7 +112,7 @@ trait HasCustomers
      * @param  string  $status
      * @return HasMany
      */
-    private function _byTransactionStatus(string $status)
+    private function _byTransactionStatus(string $status): HasMany
     {
         return $this->transactions()->where(function ($query) use ($status) {
             $query->where('merchant_id', '=', $this->attributes[config('nikolag.connections.square.user.identifier')])

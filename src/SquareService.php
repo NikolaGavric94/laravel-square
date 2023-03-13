@@ -346,7 +346,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Add a product to the order.
      *
-     * @param  mixed  $product
+     * @param mixed $product
      * @param  int  $quantity
      * @param  string  $currency
      * @return self
@@ -355,16 +355,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function addProduct($product, int $quantity = 1, string $currency = 'USD'): static
+    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD'): static
     {
         //Product class
         $productClass = Constants::PRODUCT_NAMESPACE;
 
         try {
             if (is_a($product, $productClass)) {
-                $productPivot = $this->productBuilder->addProductFromModel($this->orderCopy, $this->getOrder(), $product, $quantity, $currency);
+                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product , $quantity);
             } else {
-                $productPivot = $this->productBuilder->addProductFromArray($this->orderCopy, $this->getOrder(), $product, $quantity, $currency);
+                $productPivot = $this->productBuilder->addProductFromArray($this->orderCopy, $this->getOrder(), $product, $quantity);
             }
             // Check if order already has this product
             if (! Util::hasProduct($this->orderCopy->products, $productPivot->product)) {
@@ -444,7 +444,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Setter for order.
      *
-     * @param  mixed  $order
+     * @param mixed $order
      * @param  string  $locationId
      * @param  string  $currency
      * @return self
@@ -452,7 +452,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function setOrder($order, string $locationId, string $currency = 'USD'): static
+    public function setOrder(mixed $order, string $locationId, string $currency = 'USD'): static
     {
         //Order class
         $orderClass = config('nikolag.connections.square.order.namespace');

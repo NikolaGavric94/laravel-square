@@ -27,13 +27,13 @@ class SquareRequestBuilder
      *
      * @var Collection
      */
-    private $productTaxes;
+    private Collection $productTaxes;
     /**
      * Item line level taxes which need to be applied to order.
      *
      * @var Collection
      */
-    private $productDiscounts;
+    private Collection $productDiscounts;
 
     /**
      * SquareRequestBuilder constructor.
@@ -50,7 +50,7 @@ class SquareRequestBuilder
      * @param  array  $prepData
      * @return CreatePaymentRequest
      */
-    public function buildChargeRequest(array $prepData)
+    public function buildChargeRequest(array $prepData): CreatePaymentRequest
     {
         $money = new Money();
         $money->setCurrency($prepData['amount_money']['currency']);
@@ -74,7 +74,7 @@ class SquareRequestBuilder
      * @param  Model  $customer
      * @return CreateCustomerRequest|UpdateCustomerRequest
      */
-    public function buildCustomerRequest(Model $customer)
+    public function buildCustomerRequest(Model $customer): UpdateCustomerRequest|CreateCustomerRequest
     {
         if ($customer->payment_service_id) {
             $request = new UpdateCustomerRequest();
@@ -104,7 +104,7 @@ class SquareRequestBuilder
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildOrderRequest(Model $order, string $locationId, string $currency)
+    public function buildOrderRequest(Model $order, string $locationId, string $currency): CreateOrderRequest
     {
         $squareOrder = new Order($locationId);
         $squareOrder->setReferenceId($order->id);
@@ -128,7 +128,7 @@ class SquareRequestBuilder
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildDiscounts(Collection $discounts, string $currency)
+    public function buildDiscounts(Collection $discounts, string $currency): array
     {
         $temp = [];
         if ($discounts->isNotEmpty()) {
@@ -174,7 +174,7 @@ class SquareRequestBuilder
                     $tempDiscount->setType(Constants::DEDUCTIBLE_FIXED_AMOUNT);
                 }
 
-                array_push($temp, $tempDiscount);
+                $temp[] = $tempDiscount;
             }
         }
 
@@ -187,14 +187,14 @@ class SquareRequestBuilder
      * @param  Collection  $discounts
      * @return array
      */
-    public function buildAppliedDiscounts(Collection $discounts)
+    public function buildAppliedDiscounts(Collection $discounts): array
     {
         $temp = [];
         if ($discounts->isNotEmpty()) {
             foreach ($discounts as $discount) {
                 $tempDiscount = new OrderLineItemAppliedDiscount($discount->getUid());
                 $tempDiscount->setUid(Util::uid());
-                array_push($temp, $tempDiscount);
+                $temp[] = $tempDiscount;
             }
         }
 
@@ -209,7 +209,7 @@ class SquareRequestBuilder
      *
      * @throws MissingPropertyException
      */
-    public function buildTaxes(Collection $taxes)
+    public function buildTaxes(Collection $taxes): array
     {
         $temp = [];
         if ($taxes->isNotEmpty()) {
@@ -239,7 +239,7 @@ class SquareRequestBuilder
                     }
                 }
 
-                array_push($temp, $tempTax);
+                $temp[] = $tempTax;
             }
         }
 
@@ -249,18 +249,18 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of already applied taxes.
      *
-     * @param  Collection  $taxes
-     * @param  string  $class
+     * @param Collection $taxes
      * @return array
+     * @throws \Exception
      */
-    public function buildAppliedTaxes(Collection $taxes)
+    public function buildAppliedTaxes(Collection $taxes): array
     {
         $temp = [];
         if ($taxes->isNotEmpty()) {
             foreach ($taxes as $tax) {
                 $tempTax = new OrderLineItemAppliedTax($tax->getUid());
                 $tempTax->setUid(Util::uid());
-                array_push($temp, $tempTax);
+                $temp[] = $tempTax;
             }
         }
 
@@ -270,15 +270,14 @@ class SquareRequestBuilder
     /**
      * Builds and returns array of \SquareConnect\Model\OrderLineItem for order.
      *
-     * @param  Collection  $products
-     * @param  string  $currency
-     * @param  string  $class
+     * @param Collection $products
+     * @param string $currency
      * @return array
      *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function buildProducts(Collection $products, string $currency)
+    public function buildProducts(Collection $products, string $currency): array
     {
         $temp = [];
         if ($products->isNotEmpty()) {
@@ -312,7 +311,7 @@ class SquareRequestBuilder
                 $tempProduct->setNote($product->note);
                 $tempProduct->setAppliedDiscounts($this->buildAppliedDiscounts($discounts));
                 $tempProduct->setAppliedTaxes($this->buildAppliedTaxes($taxes));
-                array_push($temp, $tempProduct);
+                $temp[] = $tempProduct;
             }
         }
 

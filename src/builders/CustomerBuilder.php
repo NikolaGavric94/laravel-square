@@ -9,6 +9,7 @@
 namespace Nikolag\Square\Builders;
 
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Utils\Constants;
 
 class CustomerBuilder
@@ -16,20 +17,20 @@ class CustomerBuilder
     /**
      * @var string
      */
-    protected $customerClass = Constants::CUSTOMER_NAMESPACE;
+    protected string $customerClass = Constants::CUSTOMER_NAMESPACE;
 
     /**
      * Find or create tax models
      * from taxes array.
      *
      * @param  array  $data
-     * @return \Nikolag\Square\Models\Customer $temp
+     * @return Customer $temp
      *
      * @throws MissingPropertyException
      */
-    public function load(array $data)
+    public function load(array $data): Customer
     {
-/** @var \Nikolag\Square\Models\Customer $temp */$temp = new $this->customerClass;
+        $temp = new $this->customerClass;
         //If email doesn't exist on the customer
         //throw new exception because it should exist
         if (! array_key_exists('email', $data) || $data['email'] == null) {

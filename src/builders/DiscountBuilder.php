@@ -4,6 +4,7 @@ namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
@@ -16,15 +17,15 @@ class DiscountBuilder
      * Find or create discount models
      * from discounts array.
      *
-     * @param  array  $discounts
-     * @param  string  $scope
-     * @param  Model  $parent
-     * @return \Illuminate\Support\Collection
+     * @param array $discounts
+     * @param string $scope
+     * @param Model|null $parent
+     * @return Collection
      *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function createDiscounts(array $discounts, string $scope, Model $parent = null)
+    public function createDiscounts(array $discounts, string $scope, Model $parent = null): Collection
     {
         $temp = collect([]);
         foreach ($discounts as $discount) {

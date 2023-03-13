@@ -14,7 +14,7 @@ interface SquareServiceContract extends PaymentServiceContract
      * @param  string  $currency
      * @return self
      */
-    public function addProduct($product, int $quantity = 1, string $currency = 'USD');
+    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD'): SquareServiceContract;
 
     /**
      * Setter for order.
@@ -24,5 +24,5 @@ interface SquareServiceContract extends PaymentServiceContract
      * @param  string  $currency
      * @return self
      */
-    public function setOrder($order, string $locationId, string $currency = 'USD');
+    public function setOrder(mixed $order, string $locationId, string $currency = 'USD'): SquareServiceContract;
 }

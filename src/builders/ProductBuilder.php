@@ -4,6 +4,7 @@ namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Models\Product;
@@ -12,8 +13,14 @@ use stdClass;
 
 class ProductBuilder
 {
-    private $discountBuilder;
-    private $taxesBuilder;
+    /**
+     * @var DiscountBuilder $discountBuilder
+     */
+    private DiscountBuilder $discountBuilder;
+    /**
+     * @var TaxesBuilder $taxesBuilder
+     */
+    private TaxesBuilder $taxesBuilder;
 
     public function __construct()
     {
@@ -24,22 +31,17 @@ class ProductBuilder
     /**
      * Add a product to the order from model as source.
      *
-     * @param  stdClass  $orderCopy
-     * @param  Model  $order
-     * @param  Model  $product
-     * @param  int  $quantity
-     * @param  string  $currency
-     * @return stdClass
+     * @param Model $order
+     * @param Model $product
+     * @param int $quantity
+     * @return Product|stdClass
      *
+     * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
-     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
-    public function addProductFromModel(stdClass $orderCopy, Model $order, Model $product, int $quantity, string $currency = 'USD')
+    public function addProductFromModel(Model $order, Model $product, int $quantity): Product|stdClass
     {
         try {
-            // Create product placeholder
-            $productCopy = new stdClass();
-
             // If quantity is null or 0
             if ($quantity == null || $quantity == 0) {
                 // throw exception
@@ -69,21 +71,18 @@ class ProductBuilder
     /**
      * Add a product to the order from array as source.
      *
-     * @param  stdClass  $orderCopy
-     * @param  Model  $order
-     * @param  array  $product
-     * @param  int  $quantity
-     * @param  string  $currency
-     * @return stdClass
+     * @param stdClass $orderCopy
+     * @param Model $order
+     * @param array $product
+     * @param int $quantity
+     * @return Product|stdClass
      *
+     * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
-     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
      */
-    public function addProductFromArray(stdClass $orderCopy, Model $order, array $product, int $quantity, string $currency = 'USD')
+    public function addProductFromArray(stdClass $orderCopy, Model $order, array $product, int $quantity): Product|stdClass
     {
         try {
-            // Create product placeholder
-            $productCopy = new stdClass();
             // Get quantity
             $tempQuantity = null;
 
@@ -137,13 +136,13 @@ class ProductBuilder
     /**
      * Create product from array.
      *
-     * @param  array  $product
-     * @param  Model|null  $order
-     * @return stdClass
+     * @param array $product
+     * @param Model|null $order
+     * @return Product|stdClass
      *
      * @throws MissingPropertyException
      */
-    public function createProductFromArray(array $product, Model $order = null)
+    public function createProductFromArray(array $product, Model $order = null): Product|stdClass
     {
         $productObj = new stdClass();
         //If product doesn't have quantity in pivot table
@@ -174,14 +173,14 @@ class ProductBuilder
     /**
      * Create product from model.
      *
-     * @param  Model  $product
-     * @param  Model|null  $order
-     * @param  int|null  $quantity
-     * @return stdClass
+     * @param Model $product
+     * @param Model|null $order
+     * @param int|null $quantity
+     * @return Product|stdClass
      *
      * @throws MissingPropertyException
      */
-    public function createProductFromModel(Model $product, Model $order = null, int $quantity = null)
+    public function createProductFromModel(Model $product, Model $order = null, int $quantity = null): Product|stdClass
     {
         $productObj = new stdClass();
         //If product doesn't have quantity in pivot table

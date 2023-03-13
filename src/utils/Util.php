@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Models\Product;
 use stdClass;
+use function PHPUnit\Framework\isEmpty;
 
 class Util
 {
     /**
      * Calculates order total based on orderCopy (stdClass of Model).
      *
-     * @param  stdClass  $orderCopy
-     * @return float
+     * @param stdClass $orderCopy
+     * @return float|int
      */
-    public static function calculateTotalOrderCost(stdClass $orderCopy)
+    public static function calculateTotalOrderCost(stdClass $orderCopy): float|int
     {
         return self::_calculateTotalCost($orderCopy->discounts, $orderCopy->taxes, $orderCopy->products);
     }
@@ -24,30 +25,28 @@ class Util
      * Calculate all discounts on order level no matter
      * their scope.
      *
-     * @param  Collection  $discounts
+     * @param Collection $discounts
      * @param  float  $noDeductiblesCost
-     * @param  Collection  $products
+     * @param Collection $products
      * @return float|int
      */
-    private static function _calculateDiscounts($discounts, float $noDeductiblesCost, $products)
+    private static function _calculateDiscounts(Collection $discounts, float $noDeductiblesCost, Collection $products): float|int
     {
         $totalDiscount = 0;
-        if ($discounts->isNotEmpty()) {
-            if ($products != null) {
-                $totalDiscount = $discounts->map(function ($discount) use ($products, $noDeductiblesCost) {
-                    if ((! $discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
-                        ($discount->pivot && $discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
-                        return self::_calculateProductDiscounts($products, $discount);
-                    } elseif ((! $discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
-                            ($discount->pivot && $discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
-                        return self::_calculateOrderDiscounts($discount, $noDeductiblesCost);
-                    }
+        if ($discounts->isNotEmpty() && $products->isNotEmpty()) {
+            $totalDiscount = $discounts->map(function ($discount) use ($products, $noDeductiblesCost) {
+                if ((! $discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
+                    ($discount->pivot && $discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
+                    return self::_calculateProductDiscounts($products, $discount);
+                } elseif ((! $discount->pivot && $discount->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
+                        ($discount->pivot && $discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
+                    return self::_calculateOrderDiscounts($discount, $noDeductiblesCost);
+                }
 
-                    return 0;
-                })->pipe(function ($total) {
-                    return $total->sum();
-                });
-            }
+                return 0;
+            })->pipe(function ($total) {
+                return $total->sum();
+            });
         }
 
         return $totalDiscount;
@@ -59,9 +58,9 @@ class Util
      *
      * @param $discount
      * @param  float  $noDeductiblesCost
-     * @return float|int|mixed
+     * @return float|int
      */
-    private static function _calculateOrderDiscounts($discount, float $noDeductiblesCost)
+    private static function _calculateOrderDiscounts($discount, float $noDeductiblesCost): float|int
     {
         return ($discount->percentage) ? ($noDeductiblesCost * $discount->percentage / 100) :
             $discount->amount;
@@ -73,9 +72,9 @@ class Util
      *
      * @param $products
      * @param $discount
-     * @return float|int|mixed|void
+     * @return float|int
      */
-    private static function _calculateProductDiscounts($products, $discount)
+    private static function _calculateProductDiscounts($products, $discount): float|int
     {
         $product = $products->first(function ($product) use ($discount) {
             return $product->pivot->discounts->contains($discount) || $product->discounts->contains($discount);
@@ -84,6 +83,8 @@ class Util
         if ($product) {
             return ($discount->percentage) ? ($product->price * $product->pivot->quantity * $discount->percentage / 100) :
                 $discount->amount;
+        } else {
+            return 0;
         }
     }
 
@@ -92,9 +93,9 @@ class Util
      *
      * @param $products
      * @param $tax
-     * @return float|int|void
+     * @return float|int
      */
-    private static function _calculateProductTaxes($products, $tax)
+    private static function _calculateProductTaxes($products, $tax): float|int
     {
         $product = $products->first(function ($product) use ($tax) {
             return $product->pivot->taxes->contains($tax) || $product->taxes->contains($tax);
@@ -102,6 +103,8 @@ class Util
 
         if ($product) {
             return $product->price * $product->pivot->quantity * $tax->percentage / 100;
+        } else {
+            return 0;
         }
     }
 
@@ -112,7 +115,7 @@ class Util
      * @param $tax
      * @return float|int
      */
-    private static function _calculateOrderTaxes(float $noDeductiblesCost, $tax)
+    private static function _calculateOrderTaxes(float $noDeductiblesCost, $tax): float|int
     {
         return $noDeductiblesCost * $tax->percentage / 100;
     }
@@ -121,32 +124,30 @@ class Util
      * Calculate all taxes on order level no matter
      * their scope, type of ADDITIVE.
      *
-     * @param  Collection  $taxes
+     * @param Collection $taxes
      * @param  float  $noDeductiblesCost
-     * @param  Collection  $products
+     * @param Collection $products
      * @return float|int
      */
-    private static function _calculateTaxes($taxes, float $noDeductiblesCost, $products)
+    private static function _calculateTaxes(Collection $taxes, float $noDeductiblesCost, Collection $products): float|int
     {
         $totalTaxes = 0;
-        if ($taxes->isNotEmpty()) {
-            if ($products != null) {
-                $totalTaxes = $taxes->filter(function ($tax) {
-                    return $tax->type === Constants::TAX_ADDITIVE;
-                })->map(function ($taxTwo) use ($products, $noDeductiblesCost) {
-                    if ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
-                        ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
-                        return self::_calculateProductTaxes($products, $taxTwo);
-                    } elseif ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
-                        ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
-                        return self::_calculateOrderTaxes($noDeductiblesCost, $taxTwo);
-                    }
+        if ($taxes->isNotEmpty() && $products->isNotEmpty()) {
+            $totalTaxes = $taxes->filter(function ($tax) {
+                return $tax->type === Constants::TAX_ADDITIVE;
+            })->map(function ($taxTwo) use ($products, $noDeductiblesCost) {
+                if ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
+                    ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
+                    return self::_calculateProductTaxes($products, $taxTwo);
+                } elseif ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
+                    ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
+                    return self::_calculateOrderTaxes($noDeductiblesCost, $taxTwo);
+                }
 
-                    return 0;
-                })->pipe(function ($total) {
-                    return $total->sum();
-                });
-            }
+                return 0;
+            })->pipe(function ($total) {
+                return $total->sum();
+            });
         }
 
         return $totalTaxes;
@@ -155,12 +156,12 @@ class Util
     /**
      * Calculate total order cost.
      *
-     * @param  Collection  $discounts
-     * @param  Collection  $taxes
-     * @param  Collection  $products
+     * @param Collection $discounts
+     * @param Collection $taxes
+     * @param Collection $products
      * @return float|int
      */
-    private static function _calculateTotalCost($discounts, $taxes, $products)
+    private static function _calculateTotalCost(Collection $discounts, Collection $taxes, Collection $products): float|int
     {
         $noDeductiblesCost = 0;
         $finalCost = 0;
@@ -202,7 +203,7 @@ class Util
      * @param  string  $scope  Scope of elements, can be one of: [Constants::DEDUCTIBLE_SCOPE_ORDER, Constants::DEDUCTIBLE_SCOPE_PRODUCT]
      * @param  Collection  $collection  A collection of elements
      */
-    private static function _filterElements(string $scope, Collection $collection)
+    private static function _filterElements(string $scope, Collection $collection): Collection
     {
         return $collection->filter(function ($obj) use ($scope) {
             return ($obj->pivot && $obj->pivot->scope === $scope) || $obj->scope === $scope;
@@ -212,10 +213,10 @@ class Util
     /**
      * Calculates order total based on Model.
      *
-     * @param  Model  $order
-     * @return float
+     * @param Model $order
+     * @return float|int
      */
-    public static function calculateTotalOrderCostByModel(Model $order)
+    public static function calculateTotalOrderCostByModel(Model $order): float|int
     {
         return self::_calculateTotalCost($order->discounts, $order->taxes, $order->products);
     }
@@ -223,11 +224,11 @@ class Util
     /**
      * Check if source has product.
      *
-     * @param  Collection|\Illuminate\Database\Eloquent\Collection  $source
-     * @param  array|int|Product  $product
+     * @param \Illuminate\Database\Eloquent\Collection|Collection $source
+     * @param int|array|Product|null $product
      * @return bool
      */
-    public static function hasProduct($source, $product)
+    public static function hasProduct(\Illuminate\Database\Eloquent\Collection|Collection $source, Product|int|array|null $product): bool
     {
         // Check if $product is either int, Model or array
         if (is_a($product, Product::class)) {
@@ -253,7 +254,7 @@ class Util
      *
      * @throws \Exception
      */
-    public static function uid(int $length = 30)
+    public static function uid(int $length = 30): string
     {
         return bin2hex(random_bytes($length));
     }

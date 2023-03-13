@@ -4,6 +4,7 @@ namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Utils\Constants;
 use stdClass;
@@ -13,15 +14,15 @@ class OrderBuilder
     /**
      * @var ProductBuilder
      */
-    private $productBuilder;
+    private ProductBuilder $productBuilder;
     /**
      * @var DiscountBuilder
      */
-    private $discountBuilder;
+    private DiscountBuilder $discountBuilder;
     /**
      * @var TaxesBuilder
      */
-    private $taxesBuilder;
+    private TaxesBuilder $taxesBuilder;
 
     /**
      * OrderBuilder constructor.
@@ -41,7 +42,7 @@ class OrderBuilder
      * @param  stdClass  $orderCopy
      * @return Model
      */
-    public function buildOrderFromOrderCopy(Model $order, stdClass $orderCopy)
+    public function buildOrderFromOrderCopy(Model $order, stdClass $orderCopy): Model
     {
         // Order namespace
         $orderClass = config('nikolag.connections.square.order.namespace');
@@ -156,9 +157,9 @@ class OrderBuilder
      * @return stdClass
      *
      * @throws MissingPropertyException
-     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
+     * @throws InvalidSquareOrderException
      */
-    public function buildOrderCopyFromModel(Model $order)
+    public function buildOrderCopyFromModel(Model $order): stdClass
     {
         try {
             $orderCopy = new stdClass();
@@ -229,16 +230,16 @@ class OrderBuilder
      * @return stdClass
      *
      * @throws MissingPropertyException
-     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
+     * @throws InvalidSquareOrderException
      */
-    public function buildOrderCopyFromArray(array $order)
+    public function buildOrderCopyFromArray(array $order): stdClass
     {
         try {
             $orderCopy = new stdClass();
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
             if (Arr::has($order, 'taxes') && $order['taxes'] != null) {
-                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order['taxes']);
+                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order['taxes'], Constants::DEDUCTIBLE_SCOPE_ORDER);
             }
             // Create discounts Collection
             $orderCopy->discounts = collect([]);
@@ -303,9 +304,9 @@ class OrderBuilder
      * @return Model
      *
      * @throws MissingPropertyException
-     * @throws \Nikolag\Square\Exceptions\InvalidSquareOrderException
+     * @throws InvalidSquareOrderException
      */
-    public function buildOrderModelFromArray(array $order, Model $emptyModel)
+    public function buildOrderModelFromArray(array $order, Model $emptyModel): Model
     {
         $property = config('nikolag.connections.square.order.service_identifier');
         foreach ($order as $key => $value) {
