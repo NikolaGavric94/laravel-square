@@ -15,10 +15,6 @@
         "email": "nikola.gavric94@gmail.com",
         "role": "Developer"
     }],
-    "repositories": [{
-        "type" : "path",
-        "url" : "../nikolag-core"
-    }],
     "require": {
         "php": ">=8.1",
         "doctrine/dbal": "^3.5",
@@ -29,7 +25,7 @@
         "illuminate/database": "10.x",
         "illuminate/filesystem": "10.x",
         "illuminate/support": "10.x",
-        "nikolag/core": "@dev",
+        "nikolag/core": "2.7.x",
         "square/square": "25.1.0.20230119"
     },
     "require-dev": {
@@ -92,6 +88,5 @@
     "config": {
         "sort-packages": true
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }
