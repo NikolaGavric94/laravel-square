@@ -35,7 +35,8 @@ Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://gith
 |                                 Library Version 	                                 | Laravel Version 	 | Square SDK Version                   	|
 |:---------------------------------------------------------------------------------:|:-----------------:|:---------------------------------:|
 | [3.0.x](https://github.com/NikolaGavric94/laravel-square/compare/v2.6.0...v3.0.2) |   &nbsp; >= 8.x   | [17.0.0.20211215](https://github.com/square/square-php-sdk/tree/17.0.0.20211215)   |
-| [3.1.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.0.2...master) |   &nbsp; >= 9.x   | [25.1.0.20230119](https://github.com/square/square-php-sdk/tree/25.1.0.20230119)   |
+| [3.1.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.0.2...v3.1.0) |   &nbsp; >= 9.x   | [25.1.0.20230119](https://github.com/square/square-php-sdk/tree/25.1.0.20230119)   |
+| [3.2.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.2.0...master) |  &nbsp; >= 10.x   | [25.1.0.20230119](https://github.com/square/square-php-sdk/tree/25.1.0.20230119)   |
 
 **If you are updating from versions below 3.0 then you need to execute: `php artisan migrate`. This will add some columns required by the library into the tables created by the library, your own tables won't be affected.**
 
