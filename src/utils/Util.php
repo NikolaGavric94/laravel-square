@@ -55,7 +55,7 @@ class Util
      * Function which calculates discounts on order level and where percentage
      * takes over precedence over flat amount.
      *
-     * @param $discount
+     * @param  $discount
      * @param  float  $noDeductiblesCost
      * @return float|int
      */
@@ -69,8 +69,8 @@ class Util
      * Function which calculates discounts on product level and where percentage
      * takes over precedence over flat amount.
      *
-     * @param $products
-     * @param $discount
+     * @param  $products
+     * @param  $discount
      * @return float|int
      */
     private static function _calculateProductDiscounts($products, $discount): float|int
@@ -90,8 +90,8 @@ class Util
     /**
      * Function which calculates taxes on product level.
      *
-     * @param $products
-     * @param $tax
+     * @param  $products
+     * @param  $tax
      * @return float|int
      */
     private static function _calculateProductTaxes($products, $tax): float|int
@@ -111,7 +111,7 @@ class Util
      * Function which calculates taxes on order level.
      *
      * @param  float  $noDeductiblesCost
-     * @param $tax
+     * @param  $tax
      * @return float|int
      */
     private static function _calculateOrderTaxes(float $noDeductiblesCost, $tax): float|int
