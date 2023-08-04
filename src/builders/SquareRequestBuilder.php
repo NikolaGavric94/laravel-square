@@ -55,7 +55,8 @@ class SquareRequestBuilder
         $money = new Money();
         $money->setCurrency($prepData['amount_money']['currency']);
         $money->setAmount($prepData['amount_money']['amount']);
-        $request = new CreatePaymentRequest($prepData['source_id'], $prepData['idempotency_key'], $money);
+        $request = new CreatePaymentRequest($prepData['source_id'], $prepData['idempotency_key']);
+        $request->setAmountMoney($money);
         $request->setAutocomplete($prepData['autocomplete']);
         $request->setLocationId($prepData['location_id']);
         $request->setNote($prepData['note']);
