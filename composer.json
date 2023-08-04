@@ -26,7 +26,7 @@
         "illuminate/filesystem": "10.x",
         "illuminate/support": "10.x",
         "nikolag/core": "2.7.x",
-        "square/square": "25.1.0.20230119"
+        "square/square": "29.0.0.20230720"
     },
     "require-dev": {
         "fakerphp/faker": "^1.13",
