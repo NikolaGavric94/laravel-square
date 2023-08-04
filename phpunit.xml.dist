@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        backupGlobals="false"
+<phpunit backupGlobals="false"
         colors="true"
         processIsolation="false"
         stopOnFailure="true"
         bootstrap="vendor/autoload.php"
-        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
         cacheDirectory=".phpunit.cache"
         backupStaticProperties="false">
     <coverage>
