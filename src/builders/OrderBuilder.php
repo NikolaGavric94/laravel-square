@@ -146,6 +146,7 @@ class OrderBuilder
         }
         // Eagerly load products, for future use
         $order->load('products', 'taxes', 'discounts');
+
         // Return order model, ready for use
         return $order;
     }

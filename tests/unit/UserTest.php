@@ -21,14 +21,14 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
         $customer = [
             'payment_service_id' => null,
-            'first_name'         => $this->faker->unique()->firstNameMale,
-            'last_name'          => $this->faker->unique()->lastName,
-            'company_name'       => $this->faker->unique()->address,
-            'nickname'           => $this->faker->unique()->firstNameFemale,
-            'email'              => $this->faker->unique()->companyEmail,
-            'phone'              => $this->faker->unique()->tollFreePhoneNumber,
-            'note'               => $this->faker->unique()->paragraph(5),
-            'owner_id'           => null,
+            'first_name' => $this->faker->unique()->firstNameMale,
+            'last_name' => $this->faker->unique()->lastName,
+            'company_name' => $this->faker->unique()->address,
+            'nickname' => $this->faker->unique()->firstNameFemale,
+            'email' => $this->faker->unique()->companyEmail,
+            'phone' => $this->faker->unique()->tollFreePhoneNumber,
+            'note' => $this->faker->unique()->paragraph(5),
+            'owner_id' => null,
         ];
 
         $user->saveCustomer($customer);

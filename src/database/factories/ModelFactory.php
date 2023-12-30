@@ -23,8 +23,8 @@ $factory = app(EloquentFactory::class);
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::TAX_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'name'       => $faker->unique()->company,
-        'type'       => Arr::random([Constants::TAX_ADDITIVE, Constants::TAX_INCLUSIVE]),
+        'name' => $faker->unique()->company,
+        'type' => Arr::random([Constants::TAX_ADDITIVE, Constants::TAX_INCLUSIVE]),
         'percentage' => $faker->randomFloat(2, 1, 100),
     ];
 });
@@ -53,7 +53,7 @@ $factory->define(Constants::ORDER_PRODUCT_NAMESPACE, function (Faker\Generator $
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'name'       => $faker->unique()->company,
+        'name' => $faker->unique()->company,
     ];
 });
 /* PERCENTAGE ONLY */
@@ -65,37 +65,37 @@ $factory->state(Constants::DISCOUNT_NAMESPACE, 'PERCENTAGE_ONLY', function (Fake
 /* AMOUNT ONLY */
 $factory->state(Constants::DISCOUNT_NAMESPACE, 'AMOUNT_ONLY', function (Faker\Generator $faker) {
     return [
-        'amount'     => $faker->numberBetween(1, 100),
+        'amount' => $faker->numberBetween(1, 100),
     ];
 });
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::PRODUCT_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'name'           => $faker->unique()->firstName,
-        'price'          => $faker->unique()->numberBetween(5000, 50000),
+        'name' => $faker->unique()->firstName,
+        'price' => $faker->unique()->numberBetween(5000, 50000),
         'variation_name' => $faker->realText(10),
-        'note'           => $faker->realText(50),
+        'note' => $faker->realText(50),
     ];
 });
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'first_name'   => $faker->unique()->firstNameMale,
-        'last_name'    => $faker->unique()->lastName,
+        'first_name' => $faker->unique()->firstNameMale,
+        'last_name' => $faker->unique()->lastName,
         'company_name' => $faker->unique()->address,
-        'nickname'     => $faker->unique()->firstNameFemale,
-        'email'        => $faker->unique()->companyEmail,
-        'phone'        => $faker->unique()->tollFreePhoneNumber,
-        'note'         => $faker->unique()->paragraph(5),
+        'nickname' => $faker->unique()->firstNameFemale,
+        'email' => $faker->unique()->companyEmail,
+        'phone' => $faker->unique()->tollFreePhoneNumber,
+        'note' => $faker->unique()->paragraph(5),
     ];
 });
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::TRANSACTION_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'status'   => Arr::random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
-        'amount'   => $faker->numberBetween(5000, 500000),
+        'status' => Arr::random([Constants::TRANSACTION_STATUS_OPENED, Constants::TRANSACTION_STATUS_PASSED, Constants::TRANSACTION_STATUS_FAILED]),
+        'amount' => $faker->numberBetween(5000, 500000),
         'currency' => 'USD',
     ];
 });
@@ -124,9 +124,9 @@ $factory->define(User::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
-        'name'           => $faker->name,
-        'email'          => $faker->unique()->safeEmail,
-        'password'       => $password ?: $password = bcrypt('secret'),
+        'name' => $faker->name,
+        'email' => $faker->unique()->safeEmail,
+        'password' => $password ?: $password = bcrypt('secret'),
         'remember_token' => Str::random(10),
     ];
 });

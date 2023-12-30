@@ -66,9 +66,9 @@ class TestCase extends BaseTestCase
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'square_test');
         $app['config']->set('database.connections.square_test', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
 //        $app['config']->set('database.default', 'square_test');
 //        $app['config']->set('database.connections.square_test', [

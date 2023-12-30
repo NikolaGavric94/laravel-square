@@ -220,8 +220,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $currency = array_key_exists('currency', $options) ? $options['currency'] : 'USD';
         $prepData = [
             'idempotency_key' => uniqid(),
-            'amount_money'    => [
-                'amount'   => $options['amount'],
+            'amount_money' => [
+                'amount' => $options['amount'],
                 'currency' => $currency,
             ],
             'autocomplete' => true,

@@ -37,10 +37,10 @@ return [
         |
         */
         'square' => [
-            'namespace'      => 'Nikolag\Square\SquareService',
+            'namespace' => 'Nikolag\Square\SquareService',
             'application_id' => env('SQUARE_APPLICATION_ID'),
-            'access_token'   => env('SQUARE_TOKEN'),
-            'sandbox'        => env('SQUARE_SANDBOX', false),
+            'access_token' => env('SQUARE_TOKEN'),
+            'sandbox' => env('SQUARE_SANDBOX', false),
 
             /*
             |--------------------------------------------------------------------------
@@ -54,7 +54,7 @@ return [
             |
             */
             'user' => [
-                'namespace'  => env('SQUARE_USER_NAMESPACE', '\App\User'),
+                'namespace' => env('SQUARE_USER_NAMESPACE', '\App\User'),
                 'identifier' => env('SQUARE_USER_IDENTIFIER', 'id'),
             ],
 
@@ -70,8 +70,8 @@ return [
             |
             */
             'order' => [
-                'namespace'          => env('SQUARE_ORDER_NAMESPACE', '\App\Order'),
-                'identifier'         => env('SQUARE_ORDER_IDENTIFIER', 'id'),
+                'namespace' => env('SQUARE_ORDER_NAMESPACE', '\App\Order'),
+                'identifier' => env('SQUARE_ORDER_IDENTIFIER', 'id'),
                 'service_identifier' => env('SQUARE_PAYMENT_IDENTIFIER', 'payment_service_id'),
             ],
         ],
