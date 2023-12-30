@@ -156,7 +156,6 @@ Transaction fields:
 - `Laravel 5.8` and `Lumen 5.8` support
 - `Laravel 6` support
 - Latest `orchestra/testbench` version (4.*)
-
 ### Changed
 - Improved `TravisCI` configuration
 
@@ -262,7 +261,11 @@ approach
 ### Added
 - Updated Square SDK version: [29.0.0.20230720](https://github.com/square/square-php-sdk/tree/29.0.0.20230720)
 
-[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.1...HEAD
+## [3.3.0] - 2023-12-30
+### Added
+- Updated PHP version: [8.2](https://www.php.net/releases/8.2/en.php)
+
+[Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.3.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.2...v1.0.3
@@ -287,3 +290,4 @@ approach
 [3.1.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.0.2...v3.1.0
 [3.2.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.1.0...v3.2.0
 [3.2.1]: https://github.com/NikolaGavric94/laravel-square/compare/v3.2.0...v3.2.1
+[3.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.2.1...v3.3.0

@@ -16,7 +16,7 @@
         "role": "Developer"
     }],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "doctrine/dbal": "^3.5",
         "illuminate/config": "10.x",
         "illuminate/console": "10.x",
@@ -25,7 +25,7 @@
         "illuminate/database": "10.x",
         "illuminate/filesystem": "10.x",
         "illuminate/support": "10.x",
-        "nikolag/core": "2.7.x",
+        "nikolag/core": "2.8.x",
         "square/square": "29.0.0.20230720"
     },
     "require-dev": {
@@ -74,7 +74,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.2.x-dev"
+            "dev-master": "3.3.x-dev"
         },
         "laravel": {
             "providers": [
