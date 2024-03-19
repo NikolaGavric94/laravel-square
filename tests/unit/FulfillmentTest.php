@@ -27,4 +27,22 @@ class FulfillmentTest extends TestCase
 
         $this->assertNotNull($fulfillment, 'Fulfillment is null.');
     }
+
+    /**
+     * Product persisting.
+     *
+     * @return void
+     */
+    public function test_fulfillment_create(): void
+    {
+        $name = $this->faker->name;
+
+        $fulfillment = factory(Fulfillment::class)->create([
+            'type' => Constants::FULFILLMENT_TYPE_PICKUP
+        ]);
+
+        $this->assertDatabaseHas('nikolag_fulfillments', [
+            'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+        ]);
+    }
 }

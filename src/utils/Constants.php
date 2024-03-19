@@ -50,9 +50,9 @@ class Constants extends CoreConstants
     const DEDUCTIBLE_SCOPE_PRODUCT = 'LINE_ITEM';
 
     // Fulfillment type constants
-    const FULFILLMENT_PICKUP = 'PICKUP';
-    const FULFILLMENT_SHIPMENT = 'SHIPMENT';
-    const FULFILLMENT_DELIVERY = 'DELIVERY';
+    const FULFILLMENT_TYPE_PICKUP = 'PICKUP';
+    const FULFILLMENT_TYPE_SHIPMENT = 'SHIPMENT';
+    const FULFILLMENT_TYPE_DELIVERY = 'DELIVERY';
 
     // Fulfillment state constants
     const FULFILLMENT_STATE_PROPOSED = 'PROPOSED';

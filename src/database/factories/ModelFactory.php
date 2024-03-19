@@ -124,7 +124,7 @@ $factory->define(Order::class, function (Faker\Generator $faker) {
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [
-        'type' => Constants::FULFILLMENT_PICKUP,
+        'type' => Constants::FULFILLMENT_TYPE_PICKUP,
         'state' => Constants::FULFILLMENT_STATE_PROPOSED,
         'uid' => Util::uid(),
     ];
