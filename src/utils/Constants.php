@@ -16,6 +16,10 @@ class Constants extends CoreConstants
     //Customer info
     const CUSTOMER_NAMESPACE = 'Nikolag\Square\Models\Customer';
     const CUSTOMER_IDENTIFIER = 'id';
+    //Fulfillment info
+    const ORDER_FULFILLMENT_NAMESPACE = 'Nikolag\Square\Models\OrderFulfillmentPivot';
+    const FULFILLMENT_NAMESPACE = 'Nikolag\Square\Models\Fulfillment';
+    const FULFILLMENT_IDENTIFIER = 'id';
     //Product info
     const ORDER_PRODUCT_NAMESPACE = 'Nikolag\Square\Models\OrderProductPivot';
     const PRODUCT_NAMESPACE = 'Nikolag\Square\Models\Product';
@@ -44,4 +48,17 @@ class Constants extends CoreConstants
     const DEDUCTIBLE_FIXED_AMOUNT = 'FIXED_AMOUNT';
     const DEDUCTIBLE_SCOPE_ORDER = 'ORDER';
     const DEDUCTIBLE_SCOPE_PRODUCT = 'LINE_ITEM';
+
+    // Fulfillment type constants
+    const FULFILLMENT_PICKUP = 'PICKUP';
+    const FULFILLMENT_SHIPMENT = 'SHIPMENT';
+    const FULFILLMENT_DELIVERY = 'DELIVERY';
+
+    // Fulfillment state constants
+    const FULFILLMENT_STATE_PROPOSED = 'PROPOSED';
+    const FULFILLMENT_STATE_RESERVED = 'RESERVED';
+    const FULFILLMENT_STATE_PREPARED = 'PREPARED';
+    const FULFILLMENT_STATE_COMPLETED = 'COMPLETED';
+    const FULFILLMENT_STATE_CANCELED = 'CANCELED';
+    const FULFILLMENT_STATE_FAILED = 'FAILED';
 }

@@ -3,9 +3,11 @@
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Nikolag\Square\Tests\Models\Fulfillment;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Utils\Util;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +118,15 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 $factory->define(Order::class, function (Faker\Generator $faker) {
     return [
         'payment_service_type' => 'square',
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Fulfillment::class, function (Faker\Generator $faker) {
+    return [
+        'type' => Constants::FULFILLMENT_PICKUP,
+        'state' => Constants::FULFILLMENT_STATE_PROPOSED,
+        'uid' => Util::uid(),
     ];
 });
 
