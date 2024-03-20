@@ -6,6 +6,8 @@ use Illuminate\Support\Str;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\Recipient;
+use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
@@ -119,7 +121,6 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
     return [
-        // 'recipient_id' => null, TODO: Add recipient_id
         'carrier' => $faker->company,
         'placed_at' => now(),
         'deliver_at' => $faker->dateTimeBetween('now', '+1 month'),
@@ -146,12 +147,33 @@ $factory->define(Order::class, function (Faker\Generator $faker) {
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(PickupDetails::class, function (Faker\Generator $faker) {
     return [
-        // 'recipient_id' => null, TODO: Add recipient_id
         'expires_at' => $faker->dateTimeBetween('now', '+1 day'),
         'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
         'pickup_at' => now(),
         'note' => $faker->realText(50),
         'placed_at' => now(),
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Recipient::class, function (Faker\Generator $faker) {
+    return [
+        'display_name' => $faker->name,
+        'email_address' => $faker->unique()->safeEmail,
+        'phone_number' => $faker->unique()->tollFreePhoneNumber,
+        'address' => $faker->address,
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(ShipmentDetails::class, function (Faker\Generator $faker) {
+    return [
+        'carrier' => $faker->company,
+        'placed_at' => now(),
+        'shipping_note' => $faker->realText(50),
+        'shipping_type' => Arr::random(['First Class', 'Priority', 'Express']),
+        'tracking_number' => $faker->unique()->randomNumber(9),
+        'tracking_url' => $faker->url,
     ];
 });
 

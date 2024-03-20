@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_recipients', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_id')->foreign('id')->on('customers');
+            $table->string('customer_id')->foreign('id')->on('customers')->nullable();
             $table->string('display_name')->nullable();
             $table->string('email_address')->nullable();
             $table->string('phone_number')->nullable();
