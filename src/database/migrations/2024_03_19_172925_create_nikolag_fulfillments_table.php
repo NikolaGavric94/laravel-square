@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('type');
             $table->string('state');
             $table->string('uid');
+            $table->unsignedBigInteger('fulfillment_details_id');
+            $table->string('fulfillment_details_type');
             $table->timestamps();
         });
 

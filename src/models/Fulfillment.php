@@ -4,7 +4,6 @@ namespace Nikolag\Square\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Utils\Constants;
 
 class Fulfillment extends Model
 {
@@ -65,6 +64,19 @@ class Fulfillment extends Model
             'id',
             'order_id'
         );
+    }
+
+    /**
+     * Returns the fulfillment details associated with this fulfillment.  The three associated models are:
+     * - \Nikolag\Square\Models\PickupDetails
+     * - \Nikolag\Square\Models\ShipmentDetails
+     * - \Nikolag\Square\Models\ShipmentDetails
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function fulfillmentDetails()
+    {
+        return $this->morphTo();
     }
 
     /**

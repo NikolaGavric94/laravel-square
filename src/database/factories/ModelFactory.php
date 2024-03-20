@@ -4,6 +4,8 @@ use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
@@ -115,9 +117,13 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 ]);
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(Order::class, function (Faker\Generator $faker) {
+$factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
     return [
-        'payment_service_type' => 'square',
+        // 'recipient_id' => null, TODO: Add recipient_id
+        'carrier' => $faker->company,
+        'placed_at' => now(),
+        'deliver_at' => $faker->dateTimeBetween('now', '+1 month'),
+        'note' => $faker->realText(50),
     ];
 });
 
@@ -127,6 +133,25 @@ $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
         'type' => Constants::FULFILLMENT_TYPE_PICKUP,
         'state' => Constants::FULFILLMENT_STATE_PROPOSED,
         'uid' => Util::uid(),
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Order::class, function (Faker\Generator $faker) {
+    return [
+        'payment_service_type' => 'square',
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(PickupDetails::class, function (Faker\Generator $faker) {
+    return [
+        // 'recipient_id' => null, TODO: Add recipient_id
+        'expires_at' => $faker->dateTimeBetween('now', '+1 day'),
+        'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+        'pickup_at' => now(),
+        'note' => $faker->realText(50),
+        'placed_at' => now(),
     ];
 });
 
