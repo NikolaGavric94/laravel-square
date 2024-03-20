@@ -3,7 +3,7 @@
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Nikolag\Square\Tests\Models\Fulfillment;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;

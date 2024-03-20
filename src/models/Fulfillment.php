@@ -9,18 +9,62 @@ use Nikolag\Square\Utils\Constants;
 class Fulfillment extends Model
 {
     /**
-     * Return a list of orders in which this product is included.
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'nikolag_fulfillments';
+
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'type',
+        'state',
+        'uid',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [
+        'id',
+    ];
+
+    /**
+     * Return the order associated with this fulfillment.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function orders()
+    public function order()
     {
         return $this->belongsTo(
             config('nikolag.connections.square.order.namespace'),
             'nikolag_fulfillment_order',
-            'fulfillment_id',
+            'id',
             'order_id'
-        )->using(Constants::ORDER_FULFILLMENT_NAMESPACE);
+        );
     }
 
     /**

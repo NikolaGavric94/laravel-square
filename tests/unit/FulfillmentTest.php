@@ -10,7 +10,8 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Tests\Models\Fulfillment;
+use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
 
@@ -44,5 +45,24 @@ class FulfillmentTest extends TestCase
         $this->assertDatabaseHas('nikolag_fulfillments', [
             'type' => Constants::FULFILLMENT_TYPE_PICKUP,
         ]);
+    }
+
+    /**
+     * Check fulfillment persisting with orders.
+     *
+     * @return void
+     */
+    public function test_fulfillment_create_with_orders(): void
+    {
+        $order = factory(Order::class)->create();
+
+        /** @var Fulfillment $fulfillment */
+        $fulfillment = factory(Fulfillment::class)->create([
+            'type' => Constants::FULFILLMENT_TYPE_PICKUP
+        ]);
+
+        $fulfillment->order()->associate($order);
+
+        $this->assertInstanceOf(Order::class, $fulfillment->order);
     }
 }
