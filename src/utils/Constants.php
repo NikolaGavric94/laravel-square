@@ -61,4 +61,8 @@ class Constants extends CoreConstants
     const FULFILLMENT_STATE_COMPLETED = 'COMPLETED';
     const FULFILLMENT_STATE_CANCELED = 'CANCELED';
     const FULFILLMENT_STATE_FAILED = 'FAILED';
+
+    // Fulfillment scheduled type constants
+    const SCHEDULED_TYPE_ASAP = 'ASAP';
+    const SCHEDULED_TYPE_SCHEDULED = 'SCHEDULED';
 }
