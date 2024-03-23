@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mbingham
- * Date: 3/19/24
- * Time: 17:06.
- */
 
 namespace Nikolag\Square\Tests\Unit;
 
@@ -29,7 +23,7 @@ class FulfillmentTest extends TestCase
     public function test_fulfillment_make(): void
     {
         try {
-            $fulfillment = factory(Fulfillment::class)->create();
+            factory(Fulfillment::class)->create();
         } catch (Throwable $e) {
             $integrityConstraintString = 'Integrity constraint violation';
             $this->assertStringContainsString($integrityConstraintString, $e->getMessage());
