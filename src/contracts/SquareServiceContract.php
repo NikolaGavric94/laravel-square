@@ -9,6 +9,23 @@ interface SquareServiceContract extends PaymentServiceContract
     /**
      * Add a product to the order.
      *
+     * @param  mixed  $fulfillment
+     * @param  string  $type
+     * @param  string  $currency
+     * @return self
+     */
+    public function addFulfillment(mixed $fulfillment, string $type): SquareServiceContract;
+
+    // /**
+    //  * Getter for fulfillment.
+    //  *
+    //  * @return mixed
+    //  */
+    // public function getFulfillment(): mixed;
+
+    /**
+     * Add a product to the order.
+     *
      * @param  mixed  $product
      * @param  int  $quantity
      * @param  string  $currency
