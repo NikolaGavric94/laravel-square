@@ -221,6 +221,22 @@ class Util
     }
 
     /**
+     * Check if source has fulfillment.
+     *
+     * @param  stdClass  $order
+     * @return bool
+     */
+    public static function hasFulfillment(stdClass $order): bool
+    {
+        $hasFulfillment = false;
+        if (property_exists($order, 'fulfillment')) {
+            $hasFulfillment = !is_null($order->fulfillment);
+        }
+
+        return $hasFulfillment;
+    }
+
+    /**
      * Check if source has product.
      *
      * @param  \Illuminate\Database\Eloquent\Collection|Collection  $source
