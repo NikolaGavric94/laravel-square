@@ -132,7 +132,7 @@ class FulfillmentBuilder
         // Check if order is present and if already has this fulfillment
         // or if fulfillment doesn't have property $id then create new fulfillment object
         if (
-            (!$order->hasFulfillment())
+            (!$order->hasFulfillment($fulfillment))
             || ! Arr::has($fulfillment, 'id')
         ) {
             // Get the details
