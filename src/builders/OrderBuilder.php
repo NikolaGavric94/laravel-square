@@ -20,6 +20,10 @@ class OrderBuilder
      */
     private DiscountBuilder $discountBuilder;
     /**
+     * @var FulfillmentBuilder
+     */
+    private FulfillmentBuilder $fulfillmentBuilder;
+    /**
      * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
@@ -218,6 +222,17 @@ class OrderBuilder
                 }
             }
 
+            // Create fulfillments Collection
+            $orderCopy->fulfillments = collect([]);
+            // Fulfillments
+            if ($order->fulfillments->isNotEmpty()) {
+                foreach ($order->fulfillments as $fulfillment) {
+                    // Create fulfillment
+                    $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromModel($fulfillment, $order);
+                    $orderCopy->fulfillments->push($fulfillmentTemp);
+                }
+            }
+
             return $orderCopy;
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
@@ -288,6 +303,15 @@ class OrderBuilder
                         }
                     }
                     $orderCopy->products->push($productTemp);
+                }
+            }
+            //Fulfillments
+            if (Arr::has($order, 'fulfillments') && $order['fulfillments'] != null) {
+                foreach ($order['fulfillments'] as $fulfillment) {
+                    // Create product
+                    $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromArray($fulfillment);
+
+                    $orderCopy->products->push($fulfillmentTemp);
                 }
             }
 
