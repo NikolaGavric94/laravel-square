@@ -60,9 +60,8 @@ class Fulfillment extends Model
     {
         return $this->belongsTo(
             config('nikolag.connections.square.order.namespace'),
-            'nikolag_fulfillment_order',
+            'order_id',
             'id',
-            'order_id'
         );
     }
 
