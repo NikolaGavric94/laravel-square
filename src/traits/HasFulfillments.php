@@ -2,7 +2,7 @@
 
 namespace Nikolag\Square\Traits;
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Nikolag\Square\Utils\Constants;
 
 trait HasFulfillments
@@ -24,17 +24,15 @@ trait HasFulfillments
 
     /**
      * Return a list of fulfillments which are associated with order.
-     *e
-     * @return BelongsToMany
+     *
+     * @return HasMany
      */
-    public function fulfillments(): BelongsToMany
+    public function fulfillments(): HasMany
     {
-        return $this->belongsToMany(
+        return $this->hasMany(
             Constants::FULFILLMENT_NAMESPACE,
-            'nikolag_fulfillment_order',
-            'order_id',
+            'id',
             'fulfillment_id'
-        )->using(Constants::ORDER_PRODUCT_NAMESPACE);
+        );
     }
-
 }
