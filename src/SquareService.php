@@ -468,6 +468,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         } elseif (is_array($order)) {
             $this->order = $this->orderBuilder->buildOrderModelFromArray($order, new $orderClass());
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
+        } else {
+            throw new InvalidSquareOrderException('Order must be an instance of ' . $orderClass . ' or an array', 500);
         }
 
         return $this;
