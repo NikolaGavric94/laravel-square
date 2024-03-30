@@ -4,6 +4,7 @@ namespace Nikolag\Square;
 
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
+use Nikolag\Square\Builders\FulfillmentBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
 use Nikolag\Square\Builders\SquareRequestBuilder;
@@ -48,6 +49,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     protected CustomerBuilder $customerBuilder;
     /**
+     * @var FulfillmentBuilder
+     */
+    private FulfillmentBuilder $fulfillmentBuilder;
+    /**
      * @var string
      */
     private string $locationId;
@@ -72,6 +77,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->squareBuilder = new SquareRequestBuilder();
         $this->productBuilder = new ProductBuilder();
         $this->customerBuilder = new CustomerBuilder();
+        $this->fulfillmentBuilder = new FulfillmentBuilder();
     }
 
     /**
@@ -336,6 +342,45 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $options['total'],
             $options['last_4'],
             $options['card_brand'])->getResult();
+    }
+
+    /**
+     * Add a fulfillment to the order.
+     *
+     * @param  mixed  $fulfillment
+     * @param  string $type
+     *
+     * @return self
+     */
+    public function addFulfillment(mixed $fulfillment): static
+    {
+        // Fulfillment class
+        $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
+
+        try {
+            if (is_a($fulfillment, $fulfillmentClass)) {
+                $fulfillmentCopy = $this->fulfillmentBuilder->createFulfillmentFromModel(
+                    $this->getOrder(),
+                    $fulfillment,
+                );
+            } else {
+                $fulfillmentCopy = $this->fulfillmentBuilder->createFulfillmentFromArray(
+                    $fulfillment,
+                    $this->getOrder(),
+                );
+            }
+
+            // Check if order already has this product
+            if (!Util::hasFulfillment($this->orderCopy->fulfillments, $fulfillmentCopy)) {
+                $this->orderCopy->fulfillments->push($fulfillmentCopy);
+            } else {
+                throw new AlreadyUsedSquareProductException('This order already has a fulfillment', 500);
+            }
+        } catch (MissingPropertyException $e) {
+            throw new MissingPropertyException('Required field is missing', 500, $e);
+        }
+
+        return $this;
     }
 
     /**
