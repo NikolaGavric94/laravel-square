@@ -75,7 +75,7 @@ class FulfillmentBuilder
      */
     public function createFulfillmentFromArray(
         array $fulfillment,
-        Model $order
+        Model $order = null
     ): Model|stdClass {
         $fulfillmentObj = new stdClass();
 
@@ -85,9 +85,9 @@ class FulfillmentBuilder
             throw new MissingPropertyException('"type" property for object Fulfillment is missing', 500);
         }
 
-        // Check if fulfillment is present and if already has this product
-        // or if product doesn't have property $id then create new Product object
-        if ((!$order->hasFulfillment($fulfillment)) || ! Arr::has($fulfillment, 'id')) {
+        // Check if order is present and if already has this fulfillment
+        // or if fulfillment doesn't have property $id then create new Fulfillment object
+        if (($order && !$order->hasFulfillment($fulfillment)) || ! Arr::has($fulfillment, 'id')) {
             $tempFulfillment = new Fulfillment($fulfillment);
         } else {
             $tempFulfillment = Fulfillment::find($fulfillment['id']);
