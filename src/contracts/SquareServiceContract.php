@@ -14,7 +14,7 @@ interface SquareServiceContract extends PaymentServiceContract
      * @param  string  $currency
      * @return self
      */
-    public function addFulfillment(mixed $fulfillment, string $type): SquareServiceContract;
+    public function addFulfillment(mixed $fulfillment): SquareServiceContract;
 
     // /**
     //  * Getter for fulfillment.
