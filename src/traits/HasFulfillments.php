@@ -24,7 +24,7 @@ trait HasFulfillments
 
     /**
      * Return a list of fulfillments which are associated with order.
-     *
+     *e
      * @return BelongsToMany
      */
     public function fulfillments(): BelongsToMany
