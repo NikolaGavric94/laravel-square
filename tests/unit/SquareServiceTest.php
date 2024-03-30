@@ -187,6 +187,36 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Add product for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_pickup_fulfillment(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->addFulfillment(
+                [
+                    'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
+                    'state'          => 'PROPOSED',
+                    'pickup_details' => [
+                        'scheduled_type' => 'ASAP',
+                        'placed_at'      => now()
+                    ]
+                ],
+            )
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        // Make sure the fulfillment exists on the order
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
+    }
+
+    /**
      * Order creation without location id, testing exception case.
      *
      * @return void
