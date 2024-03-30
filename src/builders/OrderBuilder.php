@@ -151,6 +151,29 @@ class OrderBuilder
         // Eagerly load products, for future use
         $order->load('products', 'taxes', 'discounts');
 
+        // Check if order has fulfillments
+        if ($orderCopy->fulfillments->isNotEmpty()) {
+            // For each fulfillment in order
+            foreach ($orderCopy->fulfillments as $fulfillment) {
+                // If order doesn't have fulfillment
+                if (! $order->hasFulfillment($fulfillment)) {
+                    // Create the fulfillment details
+                    $fulfillment->fulfillmentDetails->save();
+                    $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
+                    unset($fulfillment->fulfillmentDetails);
+
+                    // Associate order with the fulfillment
+                    $fulfillment->order()->associate($order);
+
+                    // Save the fulfillment
+                    $fulfillment->save();
+
+                    // Associate the order with the fulfillment
+                    $order->fulfillments->add($fulfillment);
+                }
+            }
+        }
+
         // Return order model, ready for use
         return $order;
     }
