@@ -24,6 +24,8 @@ return new class extends Migration
     {
         Schema::table('nikolag_orders', function (Blueprint $table) {
             $table->dropColumn('fulfillment_id');
+        });
+        Schema::table('nikolag_orders', function (Blueprint $table) {
             $table->dropColumn('fulfillment_type');
         });
     }
