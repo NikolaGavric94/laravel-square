@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Utils\Constants;
 
 class PickupDetails extends Model
 {
@@ -77,12 +78,15 @@ class PickupDetails extends Model
     ];
 
     /**
-     * Fulfillment relationship
+     * Get the fulfillment associated with the pickup.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function fulfillment()
     {
-        return $this->morphOne(Fulfillment::class, 'fulfillmentDetails');
+        return $this->morphOne(
+            Constants::FULFILLMENT_NAMESPACE,
+            'fulfillmentDetails'
+        );
     }
 }
