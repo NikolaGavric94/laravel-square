@@ -73,12 +73,15 @@ class ShipmentDetails extends Model
     ];
 
     /**
-     * Fulfillment relationship
+     * Get the fulfillment associated with the pickup.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function fulfillment()
     {
-        return $this->morphOne(Fulfillment::class, 'fulfillmentDetails');
+        return $this->morphOne(
+            Constants::FULFILLMENT_NAMESPACE,
+            'fulfillmentDetails'
+        );
     }
 }
