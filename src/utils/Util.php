@@ -5,6 +5,7 @@ namespace Nikolag\Square\Utils;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Fulfillment;
 use stdClass;
 
 class Util
@@ -226,14 +227,24 @@ class Util
      * @param  stdClass  $order
      * @return bool
      */
-    public static function hasFulfillment(stdClass $order): bool
-    {
-        $hasFulfillment = false;
-        if (property_exists($order, 'fulfillment')) {
-            $hasFulfillment = !is_null($order->fulfillment);
+    public static function hasFulfillment(
+        \Illuminate\Database\Eloquent\Collection|Collection $source,
+        Fulfillment|int|array|null $fulfillment
+    ): bool {
+        // Check if $fulfillment is either int, Model or array
+        if (is_a($fulfillment, Fulfillment::class)) {
+            return $source->contains($fulfillment);
+        } elseif (is_array($fulfillment)) {
+            if (array_key_exists('id', $fulfillment)) {
+                return $source->contains(Fulfillment::find($fulfillment['id']));
+            } elseif (array_key_exists('name', $fulfillment)) {
+                return $source->contains(Fulfillment::where('name', $fulfillment['name'])->first());
+            }
+        } elseif (is_int($fulfillment)) {
+            return $source->contains(Fulfillment::find($fulfillment));
         }
 
-        return $hasFulfillment;
+        return false;
     }
 
     /**
