@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentRequest;
+use Square\Models\Fulfillment;
+use Square\Models\FulfillmentPickupDetails;
 use Square\Models\Money;
 use Square\Models\Order;
 use Square\Models\OrderLineItem;
@@ -112,6 +115,7 @@ class SquareRequestBuilder
         $squareOrder->setLineItems($this->buildProducts($order->products, $currency));
         $squareOrder->setDiscounts($this->buildDiscounts($order->discounts, $currency));
         $squareOrder->setTaxes($this->buildTaxes($order->taxes));
+        $squareOrder->setFulfillments($this->buildFulfillments($order->fulfillments));
         $request = new CreateOrderRequest();
         $request->setOrder($squareOrder);
         $request->setIdempotencyKey(uniqid());
@@ -176,6 +180,54 @@ class SquareRequestBuilder
                 }
 
                 $temp[] = $tempDiscount;
+            }
+        }
+
+        return $temp;
+    }
+
+    /**
+     * Builds and returns array of \Square\Models\Fulfillment for order.
+     *
+     * @param  Collection  $fulfillments
+     * @return array<\Square\Models\Fulfillment>
+     *
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
+     */
+    public function buildFulfillments(Collection $fulfillments): array
+    {
+        $temp = [];
+        if ($fulfillments->isNotEmpty()) {
+            foreach ($fulfillments as $fulfillment) {
+                $tempFulfillment = new Fulfillment();
+
+                // Set the state
+                $tempFulfillment->setState($fulfillment->state);
+
+                // Set the type
+                $tempFulfillment->setType($fulfillment->type);
+
+                // Based on the type, set the appropriate details
+                if ($fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY) {
+                    $tempFulfillment->setDeliveryDetails($fulfillment->fulfillmentDetails);
+                } elseif ($fulfillment->type == Constants::FULFILLMENT_TYPE_PICKUP) {
+                    // Build the pickup details
+                    $tempPickupDetails = $this->buildPickupDetails($fulfillment->fulfillmentDetails);
+
+                    // Set the pickup details
+                    $tempFulfillment->setPickupDetails($tempPickupDetails);
+                } elseif ($fulfillment->type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
+                    $tempFulfillment->setShipmentDetails($fulfillment->fulfillmentDetails);
+                }
+
+                // TODO: Add support for line-item applications
+                // $tempFulfillment->setLineItemApplication($lineItemApplication);
+
+                // TODO: Add support for specifying line-item entries
+                // $tempFulfillment->setLineItemApplication($lineItemApplication);
+
+                $temp[] = $tempFulfillment;
             }
         }
 
@@ -267,6 +319,87 @@ class SquareRequestBuilder
         }
 
         return $temp;
+    }
+
+    /**
+     * Builds the fulfillment details for pickup fulfillment types.
+     *
+     * @param  PickupDetails  $fulfillmentDetails
+     * @return FulfillmentPickupDetails
+     *
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
+     */
+    public function buildPickupDetails(PickupDetails $fulfillmentDetails): FulfillmentPickupDetails
+    {
+        $pickupDetails = new FulfillmentPickupDetails();
+
+        // TODO: Add support for recipient details
+        // // Set the recipient
+        // $recipient = new FulfillmentRecipient();
+        // $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
+        // $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
+        // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
+        // $pickupDetails->setRecipient($recipient);
+
+        // Set the expiration time
+        $pickupDetails->setExpiresAt($fulfillmentDetails->expires_at);
+
+        // Set the auto-complete duration
+        $pickupDetails->setAutoCompleteDuration($fulfillmentDetails->auto_complete_duration);
+
+        // Set the schedule type
+        $pickupDetails->setScheduleType($fulfillmentDetails->schedule_type);
+
+        // Set the pickup time
+        $pickupDetails->setPickupAt($fulfillmentDetails->pickup_at);
+
+        // Set the pickup window duration
+        $pickupDetails->setPickupWindowDuration($fulfillmentDetails->pickup_window_duration);
+
+        // Set the prep time duration
+        $pickupDetails->setPrepTimeDuration($fulfillmentDetails->prep_time_duration);
+
+        // Set the note
+        $pickupDetails->setNote($fulfillmentDetails->note);
+
+        // Set the placed time
+        $pickupDetails->setPlacedAt($fulfillmentDetails->placed_at);
+
+        // Set the accepted time
+        $pickupDetails->setAcceptedAt($fulfillmentDetails->accepted_at);
+
+        // Set the rejected time
+        $pickupDetails->setRejectedAt($fulfillmentDetails->rejected_at);
+
+        // Set the ready time
+        $pickupDetails->setReadyAt($fulfillmentDetails->ready_at);
+
+        // Set the expired time
+        $pickupDetails->setExpiredAt($fulfillmentDetails->expired_at);
+
+        // Set the picked up time
+        $pickupDetails->setPickedUpAt($fulfillmentDetails->picked_up_at);
+
+        // Set the canceled time
+        $pickupDetails->setCanceledAt($fulfillmentDetails->canceled_at);
+
+        // Set the cancel reason
+        $pickupDetails->setCancelReason($fulfillmentDetails->cancel_reason);
+
+        // TODO: Enable curbside pickup
+        // Set the curbside pickup flag
+        // $pickupDetails->setIsCurbsidePickup($fulfillmentDetails->is_curbside_pickup);
+
+        // TODO: Enable curbside pickup details
+        // Set the curbside pickup details
+        // $curbsidePickupDetails = new FulfillmentPickupDetailsCurbsidePickupDetails();
+        // $curbsidePickupDetails->setCurbsideSpotId($fulfillmentDetails->curbside_pickup_details->curbside_spot_id);
+        // $curbsidePickupDetails->setCurbsideSpotName($fulfillmentDetails->curbside_pickup_details->curbside_spot_name);
+        // $curbsidePickupDetails->setCurbsideSpotDescription($fulfillmentDetails->curbside_pickup_details->curbside_spot_description);
+        // $pickupDetails->setCurbsidePickupDetails($curbsidePickupDetails);
+
+        return $pickupDetails;
     }
 
     /**
