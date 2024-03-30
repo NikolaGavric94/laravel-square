@@ -96,11 +96,11 @@ class FulfillmentBuilder
         // Determine which type of fulfillment details we need to create
         $type = $fulfillment['type'];
         if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
-            $fulfillmentDetailsCopy = $this->createDeliveryFulfillmentFromArray($fulfillment, $order);
+            $fulfillmentDetailsCopy = $this->createDeliveryDetailsFromArray($fulfillment);
         } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
-            $fulfillmentDetailsCopy = $this->createPickupFulfillmentFromArray($fulfillment, $order);
+            $fulfillmentDetailsCopy = $this->createPickupDetailsFromArray($fulfillment, $tempFulfillment);
         } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
-            $fulfillmentDetailsCopy = $this->createShipmentFulfillmentFromArray($fulfillment, $order);
+            $fulfillmentDetailsCopy = $this->createShipmentDetailsFromArray($fulfillment);
         } else {
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
         }
@@ -112,7 +112,7 @@ class FulfillmentBuilder
     }
 
     /**
-     * Create pickup fulfillment from array.
+     * Create pickup details from array.
      *
      * @param  array  $fulfillment
      * @param  Model  $order
@@ -120,42 +120,19 @@ class FulfillmentBuilder
      *
      * @throws MissingPropertyException
      */
-    public function createPickupFulfillmentFromArray(array $fulfillment, Model $order): PickupDetails|stdClass
+    public function createPickupDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): PickupDetails|stdClass
     {
-        $fulfillmentObj = new stdClass();
-        // If fulfillment doesn't have a state in the array
-        // throw new exception because every fulfillment should have a state
-        if (! Arr::has($fulfillment, 'state') || $fulfillment['state'] == null) {
-            throw new MissingPropertyException('"state" property for object Fulfillment is missing', 500);
+        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
+        // is currently supported
+        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
+            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
         }
 
-        // Check if order is present and if already has this fulfillment
-        // or if fulfillment doesn't have property $id then create new fulfillment object
-        if (
-            (!$order->hasFulfillment($fulfillment))
-            || ! Arr::has($fulfillment, 'id')
-        ) {
-            // Get the details
-            $pickupData = Arr::get($fulfillment, 'pickup_details');
-            if (!$pickupData) {
-                throw new MissingPropertyException('pickup_details property for object Fulfillment is missing', 500);
-            }
-
-            $tempFulfillment  = new PickupDetails($pickupData);
-            $fulfillmentPivot = new OrderFulfillmentPivot($pickupData);
-        } else {
-            $tempFulfillment  = PickupDetails::find($fulfillment['id']);
-            $fulfillmentPivot = OrderFulfillmentPivot::where('order_id', $order->id)
-                ->where('fulfillment_id', $tempFulfillment->id)
-                ->first();
-            if (! $fulfillmentPivot) {
-                $fulfillmentPivot = new OrderFulfillmentPivot($fulfillment);
-            }
+        // Get the details
+        $pickupData = Arr::get($fulfillment, 'pickup_details');
+        if (!$pickupData) {
+            throw new MissingPropertyException('pickup_details property for object Fulfillment is missing', 500);
         }
-
-        $fulfillmentObj = $tempFulfillment;
-        $fulfillmentObj->pivot = $fulfillmentPivot;
-
-        return $fulfillmentObj;
+        return new PickupDetails($pickupData);
     }
 }
