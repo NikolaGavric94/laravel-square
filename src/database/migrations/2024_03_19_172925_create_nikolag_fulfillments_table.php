@@ -17,9 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('type');
             $table->string('state');
-            $table->string('uid');
+            $table->string('uid')->nullable();
             $table->unsignedBigInteger('fulfillment_details_id');
             $table->string('fulfillment_details_type');
+            $table->string('order_id');
             $table->timestamps();
         });
 
