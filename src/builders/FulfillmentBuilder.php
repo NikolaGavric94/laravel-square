@@ -66,30 +66,49 @@ class FulfillmentBuilder
     /**
      * Add a fulfillment to the order from array as source.
      *
-     * @param  Model  $order
      * @param  array  $fulfillment
-     * @param  string  $type
+     * @param  Model  $order
      * @return Fulfillment|stdClass
      *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
     public function createFulfillmentFromArray(
-        Model $order,
         array $fulfillment,
-        string $type
+        Model $order
     ): Model|stdClass {
+        $fulfillmentObj = new stdClass();
+
+        // If fulfillment doesn't have a type in the array
+        // throw new exception because every fulfillment should have a type
+        if (! Arr::has($fulfillment, 'type') || $fulfillment['type'] == null) {
+            throw new MissingPropertyException('"type" property for object Fulfillment is missing', 500);
+        }
+
+        // Check if fulfillment is present and if already has this product
+        // or if product doesn't have property $id then create new Product object
+        if ((!$order->hasFulfillment($fulfillment)) || ! Arr::has($fulfillment, 'id')) {
+            $tempFulfillment = new Fulfillment($fulfillment);
+        } else {
+            $tempFulfillment = Fulfillment::find($fulfillment['id']);
+        }
+
+        // Determine which type of fulfillment details we need to create
+        $type = $fulfillment['type'];
         if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
-            $fulfillmentCopy = $this->createDeliveryFulfillmentFromArray($fulfillment, $order);
+            $fulfillmentDetailsCopy = $this->createDeliveryFulfillmentFromArray($fulfillment, $order);
         } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
-            $fulfillmentCopy = $this->createPickupFulfillmentFromArray($fulfillment, $order);
+            $fulfillmentDetailsCopy = $this->createPickupFulfillmentFromArray($fulfillment, $order);
         } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
-            $fulfillmentCopy = $this->createShipmentFulfillmentFromArray($fulfillment, $order);
+            $fulfillmentDetailsCopy = $this->createShipmentFulfillmentFromArray($fulfillment, $order);
         } else {
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
         }
 
-        return $fulfillmentCopy;
+        $fulfillmentObj = $tempFulfillment;
+        $fulfillmentObj->fulfillmentDetails = $fulfillmentDetailsCopy;
+
+        return $fulfillmentObj;
     }
 
     /**
