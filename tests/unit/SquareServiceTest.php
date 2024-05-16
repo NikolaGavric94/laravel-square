@@ -187,7 +187,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Add product for order.
+     * Add product and delivery fulfillment for order.
      *
      * @return void
      */
@@ -209,6 +209,26 @@ class SquareServiceTest extends TestCase
                     ]
                 ],
             )
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+    }
+
+    /**
+     * Add product and delivery fulfillment for order, from model.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_delivery_fulfillment_from_model(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->addFulfillment($this->data->pickupDetails)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
