@@ -8,6 +8,7 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\OrderFulfillmentPivot;
 use Nikolag\Square\Utils\Constants;
 use stdClass;
@@ -107,7 +108,7 @@ class FulfillmentBuilder
         // Determine which type of fulfillment details we need to create
         $type = $fulfillment['type'];
         if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
-            $fulfillmentDetailsCopy = $this->createDeliveryDetailsFromArray($fulfillment);
+            $fulfillmentDetailsCopy = $this->createDeliveryDetailsFromArray($fulfillment, $tempFulfillment);
         } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
             $fulfillmentDetailsCopy = $this->createPickupDetailsFromArray($fulfillment, $tempFulfillment);
         } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {

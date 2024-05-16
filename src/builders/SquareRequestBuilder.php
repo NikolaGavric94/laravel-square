@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
@@ -14,6 +15,7 @@ use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentRequest;
 use Square\Models\Fulfillment;
 use Square\Models\FulfillmentPickupDetails;
+use Square\Models\FulfillmentDeliveryDetails;
 use Square\Models\Money;
 use Square\Models\Order;
 use Square\Models\OrderLineItem;
@@ -210,7 +212,11 @@ class SquareRequestBuilder
 
                 // Based on the type, set the appropriate details
                 if ($fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY) {
-                    $tempFulfillment->setDeliveryDetails($fulfillment->fulfillmentDetails);
+                    // Build the pickup details
+                    $tempDeliveryDetails = $this->buildDeliveryDetails($fulfillment->fulfillmentDetails);
+
+                    // Set the delivery details
+                    $tempFulfillment->setDeliveryDetails($tempDeliveryDetails);
                 } elseif ($fulfillment->type == Constants::FULFILLMENT_TYPE_PICKUP) {
                     // Build the pickup details
                     $tempPickupDetails = $this->buildPickupDetails($fulfillment->fulfillmentDetails);
@@ -324,6 +330,53 @@ class SquareRequestBuilder
     /**
      * Builds the fulfillment details for pickup fulfillment types.
      *
+     * @param  DeliveryDetails  $deliveryDetails
+     * @return FulfillmentDeliveryDetails
+     *
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
+     */
+    public function buildDeliveryDetails(DeliveryDetails $fulfillmentDetails): FulfillmentDeliveryDetails
+    {
+        $deliveryDetails = new FulfillmentDeliveryDetails();
+
+        // TODO: Add support for recipient details
+        // // Set the recipient
+        // $recipient = new FulfillmentRecipient();
+        // $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
+        // $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
+        // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
+        // $deliveryDetails->setRecipient($recipient);
+
+        $deliveryDetails->setScheduleType($fulfillmentDetails->schedule_type);
+        $deliveryDetails->setPlacedAt($fulfillmentDetails->placed_at);
+        $deliveryDetails->setDeliverAt($fulfillmentDetails->deliver_at);
+        $deliveryDetails->setPrepTimeDuration($fulfillmentDetails->prep_time_duration);
+        $deliveryDetails->setDeliveryWindowDuration($fulfillmentDetails->delivery_window_duration);
+        $deliveryDetails->setNote($fulfillmentDetails->note);
+        $deliveryDetails->setCompletedAt($fulfillmentDetails->completed_at);
+        $deliveryDetails->setInProgressAt($fulfillmentDetails->in_progress_at);
+        $deliveryDetails->setRejectedAt($fulfillmentDetails->rejected_at);
+        $deliveryDetails->setReadyAt($fulfillmentDetails->ready_at);
+        $deliveryDetails->setDeliveredAt($fulfillmentDetails->delivered_at);
+        $deliveryDetails->setCanceledAt($fulfillmentDetails->canceled_at);
+        $deliveryDetails->setCancelReason($fulfillmentDetails->cancel_reason);
+        $deliveryDetails->setCourierPickupAt($fulfillmentDetails->courier_pickup_at);
+        $deliveryDetails->setCourierPickupWindowDuration($fulfillmentDetails->courier_pickup_window_duration);
+        $deliveryDetails->setIsNoContactDelivery($fulfillmentDetails->is_no_contact_delivery);
+        $deliveryDetails->setDropoffNotes($fulfillmentDetails->dropoff_notes);
+        $deliveryDetails->setCourierProviderName($fulfillmentDetails->courier_provider_name);
+        $deliveryDetails->setCourierSupportPhoneNumber($fulfillmentDetails->courier_support_phone_number);
+        $deliveryDetails->setSquareDeliveryId($fulfillmentDetails->square_delivery_id);
+        $deliveryDetails->setExternalDeliveryId($fulfillmentDetails->external_delivery_id);
+        $deliveryDetails->setManagedDelivery($fulfillmentDetails->managed_delivery);
+
+        return $deliveryDetails;
+    }
+
+    /**
+     * Builds the fulfillment details for pickup fulfillment types.
+     *
      * @param  PickupDetails  $fulfillmentDetails
      * @return FulfillmentPickupDetails
      *
@@ -342,49 +395,20 @@ class SquareRequestBuilder
         // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
         // $pickupDetails->setRecipient($recipient);
 
-        // Set the expiration time
         $pickupDetails->setExpiresAt($fulfillmentDetails->expires_at);
-
-        // Set the auto-complete duration
         $pickupDetails->setAutoCompleteDuration($fulfillmentDetails->auto_complete_duration);
-
-        // Set the schedule type
         $pickupDetails->setScheduleType($fulfillmentDetails->schedule_type);
-
-        // Set the pickup time
         $pickupDetails->setPickupAt($fulfillmentDetails->pickup_at);
-
-        // Set the pickup window duration
         $pickupDetails->setPickupWindowDuration($fulfillmentDetails->pickup_window_duration);
-
-        // Set the prep time duration
         $pickupDetails->setPrepTimeDuration($fulfillmentDetails->prep_time_duration);
-
-        // Set the note
         $pickupDetails->setNote($fulfillmentDetails->note);
-
-        // Set the placed time
         $pickupDetails->setPlacedAt($fulfillmentDetails->placed_at);
-
-        // Set the accepted time
         $pickupDetails->setAcceptedAt($fulfillmentDetails->accepted_at);
-
-        // Set the rejected time
         $pickupDetails->setRejectedAt($fulfillmentDetails->rejected_at);
-
-        // Set the ready time
         $pickupDetails->setReadyAt($fulfillmentDetails->ready_at);
-
-        // Set the expired time
         $pickupDetails->setExpiredAt($fulfillmentDetails->expired_at);
-
-        // Set the picked up time
         $pickupDetails->setPickedUpAt($fulfillmentDetails->picked_up_at);
-
-        // Set the canceled time
         $pickupDetails->setCanceledAt($fulfillmentDetails->canceled_at);
-
-        // Set the cancel reason
         $pickupDetails->setCancelReason($fulfillmentDetails->cancel_reason);
 
         // TODO: Enable curbside pickup

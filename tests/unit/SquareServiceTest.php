@@ -200,11 +200,12 @@ class SquareServiceTest extends TestCase
             ->addProduct($product2, 2)
             ->addFulfillment(
                 [
-                    'type'           => Constants::FULFILLMENT_TYPE_DELIVERY,
-                    'state'          => 'PROPOSED',
-                    'pickup_details' => [
+                    'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
+                    'state'            => 'PROPOSED',
+                    'delivery_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now()
+                        'placed_at'      => now(),
+                        'carrier'        => 'USPS',
                     ]
                 ],
             )
