@@ -8,6 +8,7 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\CreateCustomerRequest;
@@ -16,6 +17,7 @@ use Square\Models\CreatePaymentRequest;
 use Square\Models\Fulfillment;
 use Square\Models\FulfillmentPickupDetails;
 use Square\Models\FulfillmentDeliveryDetails;
+use Square\Models\FulfillmentShipmentDetails;
 use Square\Models\Money;
 use Square\Models\Order;
 use Square\Models\OrderLineItem;
@@ -212,7 +214,7 @@ class SquareRequestBuilder
 
                 // Based on the type, set the appropriate details
                 if ($fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY) {
-                    // Build the pickup details
+                    // Build the delivery details
                     $tempDeliveryDetails = $this->buildDeliveryDetails($fulfillment->fulfillmentDetails);
 
                     // Set the delivery details
@@ -224,7 +226,11 @@ class SquareRequestBuilder
                     // Set the pickup details
                     $tempFulfillment->setPickupDetails($tempPickupDetails);
                 } elseif ($fulfillment->type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
-                    $tempFulfillment->setShipmentDetails($fulfillment->fulfillmentDetails);
+                    // Build the shipment details
+                    $tempShipmentDetails = $this->buildShipmentDetails($fulfillment->fulfillmentDetails);
+
+                    // Set the shipment details
+                    $tempFulfillment->setShipmentDetails($tempShipmentDetails);
                 }
 
                 // TODO: Add support for line-item applications
@@ -475,5 +481,44 @@ class SquareRequestBuilder
         }
 
         return $temp;
+    }
+
+    /**
+     * Builds the fulfillment details for pickup fulfillment types.
+     *
+     * @param  DeliveryDetails  $deliveryDetails
+     * @return FulfillmentShipmentDetails
+     *
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
+     */
+    public function buildShipmentDetails(ShipmentDetails $fulfillmentDetails): FulfillmentShipmentDetails
+    {
+        $shipmentDetails = new FulfillmentShipmentDetails();
+
+        // TODO: Add support for recipient details
+        // // Set the recipient
+        // $recipient = new FulfillmentRecipient();
+        // $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
+        // $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
+        // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
+        // $deliveryDetails->setRecipient($recipient);
+
+        $shipmentDetails->setCarrier($fulfillmentDetails->carrier);
+        $shipmentDetails->setShippingNote($fulfillmentDetails->shipping_note);
+        $shipmentDetails->setShippingType($fulfillmentDetails->shipping_type);
+        $shipmentDetails->setTrackingNumber($fulfillmentDetails->tracking_number);
+        $shipmentDetails->setTrackingUrl($fulfillmentDetails->tracking_url);
+        $shipmentDetails->setPlacedAt($fulfillmentDetails->placed_at);
+        $shipmentDetails->setInProgressAt($fulfillmentDetails->in_progress_at);
+        $shipmentDetails->setPackagedAt($fulfillmentDetails->packaged_at);
+        $shipmentDetails->setExpectedShippedAt($fulfillmentDetails->expected_shipped_at);
+        $shipmentDetails->setShippedAt($fulfillmentDetails->shipped_at);
+        $shipmentDetails->setCanceledAt($fulfillmentDetails->canceled_at);
+        $shipmentDetails->setCancelReason($fulfillmentDetails->cancel_reason);
+        $shipmentDetails->setFailedAt($fulfillmentDetails->failed_at);
+        $shipmentDetails->setFailureReason($fulfillmentDetails->failure_reason);
+
+        return $shipmentDetails;
     }
 }

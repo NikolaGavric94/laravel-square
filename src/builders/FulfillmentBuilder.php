@@ -7,8 +7,9 @@ use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Fulfillment;
-use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Models\OrderFulfillmentPivot;
 use Nikolag\Square\Utils\Constants;
 use stdClass;
@@ -112,7 +113,7 @@ class FulfillmentBuilder
         } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
             $fulfillmentDetailsCopy = $this->createPickupDetailsFromArray($fulfillment, $tempFulfillment);
         } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
-            $fulfillmentDetailsCopy = $this->createShipmentDetailsFromArray($fulfillment);
+            $fulfillmentDetailsCopy = $this->createShipmentDetailsFromArray($fulfillment, $tempFulfillment);
         } else {
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
         }
@@ -171,5 +172,30 @@ class FulfillmentBuilder
             throw new MissingPropertyException('pickup_details property for object Fulfillment is missing', 500);
         }
         return new PickupDetails($pickupData);
+    }
+
+    /**
+     * Create shipment details from array.
+     *
+     * @param  array  $fulfillment
+     * @param  Model  $order
+     * @return ShipmentDetails
+     *
+     * @throws MissingPropertyException
+     */
+    public function createShipmentDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): ShipmentDetails
+    {
+        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
+        // is currently supported
+        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
+            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
+        }
+
+        // Get the details
+        $shipmentData = Arr::get($fulfillment, 'shipment_details');
+        if (!$shipmentData) {
+            throw new MissingPropertyException('shipment_details property for object Fulfillment is missing', 500);
+        }
+        return new ShipmentDetails($shipmentData);
     }
 }
