@@ -129,11 +129,25 @@ $factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
 });
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->unique()->company,
+    ];
+});
+
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [
-        'type' => Constants::FULFILLMENT_TYPE_PICKUP,
         'state' => Constants::FULFILLMENT_STATE_PROPOSED,
-        'uid' => Util::uid(),
+        'uid'   => Util::uid(),
+    ];
+});
+
+/* PICKUP */
+$factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_PICKUP, function () {
+    return [
+        'type' => Constants::FULFILLMENT_TYPE_PICKUP,
     ];
 });
 
