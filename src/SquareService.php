@@ -360,8 +360,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         try {
             if (is_a($fulfillment, $fulfillmentClass)) {
                 $fulfillmentCopy = $this->fulfillmentBuilder->createFulfillmentFromModel(
-                    $this->getOrder(),
                     $fulfillment,
+                    $this->getOrder(),
                 );
             } else {
                 $fulfillmentCopy = $this->fulfillmentBuilder->createFulfillmentFromArray(
