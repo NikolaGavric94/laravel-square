@@ -191,6 +191,35 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
+    public function test_square_order_add_product_and_delivery_fulfillment(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->addFulfillment(
+                [
+                    'type'           => Constants::FULFILLMENT_TYPE_DELIVERY,
+                    'state'          => 'PROPOSED',
+                    'pickup_details' => [
+                        'scheduled_type' => 'ASAP',
+                        'placed_at'      => now()
+                    ]
+                ],
+            )
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+    }
+
+    /**
+     * Add product for order.
+     *
+     * @return void
+     */
     public function test_square_order_add_product_and_pickup_fulfillment(): void
     {
         $product2 = factory(Product::class)->create();
@@ -214,6 +243,35 @@ class SquareServiceTest extends TestCase
 
         // Make sure the fulfillment exists on the order
         $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
+    }
+
+    /**
+     * Add product for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_shipment_fulfillment(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->addFulfillment(
+                [
+                    'state' => 'PROPOSED',
+                    'shipment_details' => [
+                        'carrier' => 'USPS',
+                        'tracking_number' => '1234567890'
+                    ],
+                ],
+                Constants::FULFILLMENT_TYPE_SHIPMENT
+            )
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
     }
 
     /**

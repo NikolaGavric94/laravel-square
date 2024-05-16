@@ -42,25 +42,36 @@ class FulfillmentBuilder
      */
     public function createFulfillmentFromModel(Model $order, Model $fulfillment): Fulfillment|stdClass
     {
-        try {
-            $productCopy = $this->createProductFromModel($product, $order, $quantity);
-            // Create discounts Collection
-            $productCopy->discounts = collect([]);
-            // //Discounts
-            if ($product->discounts && $product->discounts->isNotEmpty()) {
-                $productCopy->discounts = $this->discountBuilder->createDiscounts($product->discounts->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->product);
+        $fulfillmentObj = new stdClass();
+        dd('todo finish this - need to have pivot table solved for this');
+        //If product doesn't have quantity in pivot table
+        //throw new exception because every product should
+        //have at least 1 quantity
+        if (! $quantity) {
+            if (! $product->pivot->quantity || $product->pivot->quantity == null || $product->pivot->quantity == 0) {
+                throw new MissingPropertyException('$quantity property for object Product is missing', 500);
+            } else {
+                $quantity = $product->pivot->quantity;
             }
-            // Create taxes Collection
-            $productCopy->taxes = collect([]);
-            //Taxes
-            if ($product->taxes && $product->taxes->isNotEmpty()) {
-                $productCopy->taxes = $this->taxesBuilder->createTaxes($product->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->product);
-            }
-
-            return $productCopy;
-        } catch (MissingPropertyException $e) {
-            throw new MissingPropertyException('Required field is missing', 500, $e);
         }
+        // Check if order is present and if already has this product
+        // or if product doesn't have property $id then create new Product object
+        if (($order && ! $order->hasProduct($product)) && ! Arr::has($product->toArray(), 'id')) {
+            $tempProduct = new Product($product->toArray());
+            $productPivot = new OrderProductPivot($product->toArray());
+        } else {
+            $tempProduct = Product::find($product->id);
+            $productPivot = OrderProductPivot::where('order_id', $order->id)->where('product_id', $tempProduct->id)->first();
+            if (! $productPivot) {
+                $productPivot = new OrderProductPivot($product->toArray());
+            }
+        }
+
+        $productPivot->quantity = $quantity;
+        $fulfillmentObj = $tempProduct;
+        $fulfillmentObj->pivot = $productPivot;
+
+        return $fulfillmentObj;
     }
 
     /**
@@ -116,11 +127,36 @@ class FulfillmentBuilder
      *
      * @param  array  $fulfillment
      * @param  Model  $order
-     * @return PickupDetails|stdClass
+     * @return DeliveryDetails
      *
      * @throws MissingPropertyException
      */
-    public function createPickupDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): PickupDetails|stdClass
+    public function createDeliveryDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): DeliveryDetails
+    {
+        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
+        // is currently supported
+        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
+            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
+        }
+
+        // Get the details
+        $deliveryData = Arr::get($fulfillment, 'delivery_details');
+        if (!$deliveryData) {
+            throw new MissingPropertyException('delivery_details property for object Fulfillment is missing', 500);
+        }
+        return new DeliveryDetails($deliveryData);
+    }
+
+    /**
+     * Create pickup details from array.
+     *
+     * @param  array  $fulfillment
+     * @param  Model  $order
+     * @return PickupDetails
+     *
+     * @throws MissingPropertyException
+     */
+    public function createPickupDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): PickupDetails
     {
         // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
         // is currently supported
