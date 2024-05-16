@@ -32,51 +32,6 @@ class FulfillmentBuilder
     }
 
     /**
-     * Add a product to the order from model as source.
-     *
-     * @param  Model  $order
-     * @param  Model  $fulfillment
-     * @param  int  $quantity
-     * @return Fulfillment|stdClass
-     *
-     * @throws InvalidSquareOrderException
-     * @throws MissingPropertyException
-     */
-    public function createFulfillmentFromModel(Model $order, Model $fulfillment): Fulfillment|stdClass
-    {
-        $fulfillmentObj = new stdClass();
-        dd('todo finish this - need to have pivot table solved for this');
-        //If product doesn't have quantity in pivot table
-        //throw new exception because every product should
-        //have at least 1 quantity
-        if (! $quantity) {
-            if (! $product->pivot->quantity || $product->pivot->quantity == null || $product->pivot->quantity == 0) {
-                throw new MissingPropertyException('$quantity property for object Product is missing', 500);
-            } else {
-                $quantity = $product->pivot->quantity;
-            }
-        }
-        // Check if order is present and if already has this product
-        // or if product doesn't have property $id then create new Product object
-        if (($order && ! $order->hasProduct($product)) && ! Arr::has($product->toArray(), 'id')) {
-            $tempProduct = new Product($product->toArray());
-            $productPivot = new OrderProductPivot($product->toArray());
-        } else {
-            $tempProduct = Product::find($product->id);
-            $productPivot = OrderProductPivot::where('order_id', $order->id)->where('product_id', $tempProduct->id)->first();
-            if (! $productPivot) {
-                $productPivot = new OrderProductPivot($product->toArray());
-            }
-        }
-
-        $productPivot->quantity = $quantity;
-        $fulfillmentObj = $tempProduct;
-        $fulfillmentObj->pivot = $productPivot;
-
-        return $fulfillmentObj;
-    }
-
-    /**
      * Add a fulfillment to the order from array as source.
      *
      * @param  array  $fulfillment
