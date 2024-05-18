@@ -32,6 +32,59 @@ class FulfillmentBuilder
     }
 
     /**
+     * Add a fulfillment to the order from model as source.
+     *
+     * @param  Model  $fulfillment
+     * @param  Model  $order
+     * @return Fulfillment|stdClass
+     *
+     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException
+     */
+    public function createFulfillmentFromModel(Model $fulfillment, Model $order): Fulfillment|stdClass
+    {
+        $fulfillmentObj = new stdClass();
+
+        // Check if order is present and if already has this fulfillment
+        // or if fulfillment doesn't have property $id then create new Fulfillment object
+        if (($order && ! $order->hasFulfillment($fulfillment)) && ! Arr::has($fulfillment->toArray(), 'id')) {
+            $tempFulfillment = new Fulfillment($fulfillment->toArray());
+            $fulfillmentPivot = new OrderFulfillmentPivot($fulfillment->toArray());
+        } else {
+            $tempFulfillment = Fulfillment::find($fulfillment->id);
+            $fulfillmentPivot = OrderFulfillmentPivot::where('order_id', $order->id)->where('fulfillment_id', $tempFulfillment->id)->first();
+            if (! $fulfillmentPivot) {
+                $fulfillmentPivot = new OrderFulfillmentPivot($fulfillment->toArray());
+            }
+        }
+
+        // Validate that the type matches the details
+        if (
+            $fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY
+            && ! $fulfillment->fulfillmentDetails instanceof DeliveryDetails
+        ) {
+            throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
+        } elseif (
+            $fulfillment->type == Constants::FULFILLMENT_TYPE_PICKUP
+            && ! $fulfillment->fulfillmentDetails instanceof PickupDetails
+        ) {
+            throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
+        } elseif (
+            $fulfillment->type == Constants::FULFILLMENT_TYPE_SHIPMENT
+            && ! $fulfillment->fulfillmentDetails instanceof ShipmentDetails
+        ) {
+            throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
+        }
+
+
+        $fulfillmentObj = $tempFulfillment;
+        $fulfillmentObj->pivot = $fulfillmentPivot;
+        $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
+
+        return $fulfillmentObj;
+    }
+
+    /**
      * Add a fulfillment to the order from array as source.
      *
      * @param  array  $fulfillment
