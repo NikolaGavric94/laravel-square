@@ -5,7 +5,6 @@ namespace Nikolag\Square\Tests;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Fulfillment;
-use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Utils\Constants;
@@ -21,7 +20,9 @@ class TestDataHolder
         public ?User $merchant,
         public ?Tax $tax,
         public ?Discount $discount,
-        public ?Fulfillment $pickupDetails,
+        public ?Fulfillment $fulfillmentWithDeliveryDetails,
+        public ?Fulfillment $fulfillmentWithPickupDetails,
+        public ?Fulfillment $fulfillmentWithShipmentDetails,
     ) {
     }
 
@@ -34,7 +35,9 @@ class TestDataHolder
             factory(User::class)->make(),
             factory(Tax::class)->make(),
             factory(Discount::class)->states('AMOUNT_ONLY')->make(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make(),
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make(),
         );
     }
 
@@ -47,7 +50,9 @@ class TestDataHolder
             factory(User::class)->create(),
             factory(Tax::class)->create(),
             factory(Discount::class)->states('AMOUNT_ONLY')->create(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->create(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->create(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->create(),
         );
     }
 

@@ -7,6 +7,8 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
@@ -228,12 +230,17 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment($this->data->pickupDetails)
+            ->addFulfillment($this->data->fulfillmentWithDeliveryDetails)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
 
         $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof DeliveryDetails,
+            'Fulfillment details are not DeliveryDetails'
+        );
     }
 
     /**
@@ -267,6 +274,31 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Add product and pickup fulfillment for order, from model.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_pickup_fulfillment_from_model(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->addFulfillment($this->data->fulfillmentWithPickupDetails)
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof PickupDetails,
+            'Fulfillment details are not PickupDetails'
+        );
+    }
+
+    /**
      * Add product for order.
      *
      * @return void
@@ -294,6 +326,31 @@ class SquareServiceTest extends TestCase
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
 
         $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+    }
+
+    /**
+     * Add product and shipment fulfillment for order, from model.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_delivery_shipment_from_model(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->addFulfillment($this->data->fulfillmentWithShipmentDetails)
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof ShipmentDetails,
+            'Fulfillment details are not ShipmentDetails'
+        );
     }
 
     /**
