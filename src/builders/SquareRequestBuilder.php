@@ -17,6 +17,7 @@ use Square\Models\CreatePaymentRequest;
 use Square\Models\Fulfillment;
 use Square\Models\FulfillmentPickupDetails;
 use Square\Models\FulfillmentDeliveryDetails;
+use Square\Models\FulfillmentRecipient;
 use Square\Models\FulfillmentShipmentDetails;
 use Square\Models\Money;
 use Square\Models\Order;
@@ -346,13 +347,12 @@ class SquareRequestBuilder
     {
         $deliveryDetails = new FulfillmentDeliveryDetails();
 
-        // TODO: Add support for recipient details
-        // // Set the recipient
-        // $recipient = new FulfillmentRecipient();
-        // $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
-        // $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
-        // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
-        // $deliveryDetails->setRecipient($recipient);
+        // Set the recipient
+        $recipient = new FulfillmentRecipient();
+        $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
+        $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
+        $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
+        $deliveryDetails->setRecipient($recipient);
 
         $deliveryDetails->setScheduleType($fulfillmentDetails->schedule_type);
         $deliveryDetails->setPlacedAt($fulfillmentDetails->placed_at);
@@ -393,13 +393,12 @@ class SquareRequestBuilder
     {
         $pickupDetails = new FulfillmentPickupDetails();
 
-        // TODO: Add support for recipient details
-        // // Set the recipient
-        // $recipient = new FulfillmentRecipient();
-        // $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
-        // $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
-        // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
-        // $pickupDetails->setRecipient($recipient);
+        // Set the recipient
+        $recipient = new FulfillmentRecipient();
+        $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
+        $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
+        $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
+        $pickupDetails->setRecipient($recipient);
 
         $pickupDetails->setExpiresAt($fulfillmentDetails->expires_at);
         $pickupDetails->setAutoCompleteDuration($fulfillmentDetails->auto_complete_duration);
@@ -496,13 +495,12 @@ class SquareRequestBuilder
     {
         $shipmentDetails = new FulfillmentShipmentDetails();
 
-        // TODO: Add support for recipient details
-        // // Set the recipient
-        // $recipient = new FulfillmentRecipient();
-        // $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
-        // $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
-        // $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
-        // $deliveryDetails->setRecipient($recipient);
+        // Set the recipient
+        $recipient = new FulfillmentRecipient();
+        $recipient->setDisplayName($fulfillmentDetails->recipient->display_name);
+        $recipient->setEmailAddress($fulfillmentDetails->recipient->email_address);
+        $recipient->setPhoneNumber($fulfillmentDetails->recipient->phone_number);
+        $shipmentDetails->setRecipient($recipient);
 
         $shipmentDetails->setCarrier($fulfillmentDetails->carrier);
         $shipmentDetails->setShippingNote($fulfillmentDetails->shipping_note);

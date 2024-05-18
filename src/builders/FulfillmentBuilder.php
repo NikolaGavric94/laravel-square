@@ -80,6 +80,7 @@ class FulfillmentBuilder
         $fulfillmentObj = $tempFulfillment;
         $fulfillmentObj->pivot = $fulfillmentPivot;
         $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
+        $fulfillmentObj->recipient = $fulfillment->recipient;
 
         return $fulfillmentObj;
     }

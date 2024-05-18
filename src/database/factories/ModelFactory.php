@@ -153,17 +153,29 @@ $factory->afterCreating(Fulfillment::class, function ($fulfillment, $faker) {
     } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_SHIPMENT) {
         $fulfillment->fulfillmentDetails()->associate(factory(ShipmentDetails::class)->create());
     }
+
+    // Add a recipient
+    $fulfillment->recipient()->associate(factory(Recipient::class)->create());
 });
 
 $factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
+    // Make a recipient we can attach
+    $recipient = factory(Recipient::class)->make();
     // Determine the state of the factory
+    $fulfillmentDetails = null;
     if ($fulfillment->type === Constants::FULFILLMENT_TYPE_DELIVERY) {
-        $fulfillment->fulfillmentDetails()->associate(factory(DeliveryDetails::class)->make());
+        $fulfillmentDetails = factory(DeliveryDetails::class)->make();
     } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_PICKUP) {
-        $fulfillment->fulfillmentDetails()->associate(factory(PickupDetails::class)->make());
+        $fulfillmentDetails = factory(PickupDetails::class)->make();
     } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_SHIPMENT) {
-        $fulfillment->fulfillmentDetails()->associate(factory(ShipmentDetails::class)->make());
+        $fulfillmentDetails = factory(ShipmentDetails::class)->make();
     }
+
+    // Associate the recipient with the fulfillment details
+    $fulfillmentDetails->recipient()->associate($recipient);
+
+    // Associate the fulfillmentDetails with the fulfillment
+    $fulfillment->fulfillmentDetails()->associate($fulfillmentDetails);
 });
 
 /* DELIVERY fulfillment state */

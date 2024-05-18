@@ -157,6 +157,13 @@ class OrderBuilder
             foreach ($orderCopy->fulfillments as $fulfillment) {
                 // If order doesn't have fulfillment
                 if (! $order->hasFulfillment($fulfillment)) {
+                    // Create the recipient
+                    $recipient = $fulfillment->fulfillmentDetails->recipient;
+                    $recipient->save();
+
+                    // Associate the recipient with the fulfillment details
+                    $fulfillment->fulfillmentDetails->recipient()->associate($recipient);
+
                     // Create the fulfillment details
                     $fulfillment->fulfillmentDetails->save();
                     $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
