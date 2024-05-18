@@ -144,10 +144,46 @@ $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     ];
 });
 
-/* PICKUP */
+$factory->afterCreating(Fulfillment::class, function ($fulfillment, $faker) {
+    // Determine the state of the factory
+    if ($fulfillment->type === Constants::FULFILLMENT_TYPE_DELIVERY) {
+        $fulfillment->fulfillmentDetails()->associate(factory(DeliveryDetails::class)->create());
+    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_PICKUP) {
+        $fulfillment->fulfillmentDetails()->associate(factory(PickupDetails::class)->create());
+    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_SHIPMENT) {
+        $fulfillment->fulfillmentDetails()->associate(factory(ShipmentDetails::class)->create());
+    }
+});
+
+$factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
+    // Determine the state of the factory
+    if ($fulfillment->type === Constants::FULFILLMENT_TYPE_DELIVERY) {
+        $fulfillment->fulfillmentDetails()->associate(factory(DeliveryDetails::class)->make());
+    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_PICKUP) {
+        $fulfillment->fulfillmentDetails()->associate(factory(PickupDetails::class)->make());
+    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_SHIPMENT) {
+        $fulfillment->fulfillmentDetails()->associate(factory(ShipmentDetails::class)->make());
+    }
+});
+
+/* DELIVERY fulfillment state */
+$factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_DELIVERY, function () {
+    return [
+        'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+    ];
+});
+
+/* PICKUP fulfillment state */
 $factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_PICKUP, function () {
     return [
         'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+    ];
+});
+
+/* SHIPMENT fulfillment state */
+$factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_SHIPMENT, function () {
+    return [
+        'type' => Constants::FULFILLMENT_TYPE_SHIPMENT,
     ];
 });
 
