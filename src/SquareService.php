@@ -370,7 +370,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 );
             }
 
-            // Check if order already has this product
+            // Check if order already has this fulfillment
             if (!Util::hasFulfillment($this->orderCopy->fulfillments, $fulfillmentCopy)) {
                 $this->orderCopy->fulfillments->push($fulfillmentCopy);
             } else {
