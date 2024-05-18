@@ -165,9 +165,6 @@ class OrderBuilder
                     // Associate order with the fulfillment
                     $fulfillment->order()->associate($order);
 
-                    // Save the fulfillment
-                    $fulfillment->save();
-
                     // Associate the order with the fulfillment
                     $order->fulfillments->add($fulfillment);
                 }
