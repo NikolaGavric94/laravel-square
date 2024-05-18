@@ -169,7 +169,7 @@ $factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
 /* DELIVERY fulfillment state */
 $factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_DELIVERY, function () {
     return [
-        'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+        'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
     ];
 });
 
