@@ -171,9 +171,6 @@ $factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
         $fulfillmentDetails = factory(ShipmentDetails::class)->make();
     }
 
-    // Associate the recipient with the fulfillment details
-    $fulfillmentDetails->recipient()->associate($recipient);
-
     // Associate the fulfillmentDetails with the fulfillment
     $fulfillment->fulfillmentDetails()->associate($fulfillmentDetails);
 });

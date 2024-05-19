@@ -6,6 +6,7 @@ use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Tests\Models\Order;
@@ -23,6 +24,7 @@ class TestDataHolder
         public ?Fulfillment $fulfillmentWithDeliveryDetails,
         public ?Fulfillment $fulfillmentWithPickupDetails,
         public ?Fulfillment $fulfillmentWithShipmentDetails,
+        public ?Recipient $fulfillmentRecipient,
     ) {
     }
 
@@ -38,6 +40,7 @@ class TestDataHolder
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make(),
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make(),
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make(),
+            factory(Recipient::class)->make(),
         );
     }
 
@@ -53,6 +56,7 @@ class TestDataHolder
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->create(),
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->create(),
             factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->create(),
+            factory(Recipient::class)->create(),
         );
     }
 

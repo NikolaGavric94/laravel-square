@@ -238,6 +238,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment($this->data->fulfillmentWithDeliveryDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -304,6 +305,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment($this->data->fulfillmentWithPickupDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -371,6 +373,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment($this->data->fulfillmentWithShipmentDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');

@@ -416,7 +416,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             throw new MissingPropertyException('Fulfillment must be added before adding a fulfillment recipient', 500);
         }
 
-        $recipientClass = Constants::CUSTOMER_NAMESPACE;
+        $recipientClass = Constants::RECIPIENT_NAMESPACE;
 
         if (is_a($recipient, $recipientClass)) {
             $this->fulfillmentRecipient = $this->recipientBuilder->load($recipient->toArray());
