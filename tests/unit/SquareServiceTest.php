@@ -10,6 +10,7 @@ use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
@@ -217,6 +218,11 @@ class SquareServiceTest extends TestCase
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
 
         $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
+            'Fulfillment details recipient is not Recipient'
+        );
     }
 
     /**
@@ -273,6 +279,11 @@ class SquareServiceTest extends TestCase
 
         // Make sure the fulfillment exists on the order
         $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
+            'Fulfillment details recipient is not Recipient'
+        );
     }
 
     /**
@@ -329,6 +340,11 @@ class SquareServiceTest extends TestCase
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
 
         $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
+            'Fulfillment details recipient is not Recipient'
+        );
     }
 
     /**
