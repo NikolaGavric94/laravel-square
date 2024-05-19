@@ -200,7 +200,7 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment(
+            ->setFulfillment(
                 [
                     'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
                     'state'            => 'PROPOSED',
@@ -211,6 +211,7 @@ class SquareServiceTest extends TestCase
                     ]
                 ],
             )
+            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -230,7 +231,7 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment($this->data->fulfillmentWithDeliveryDetails)
+            ->setFulfillment($this->data->fulfillmentWithDeliveryDetails)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -255,7 +256,7 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment(
+            ->setFulfillment(
                 [
                     'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
                     'state'          => 'PROPOSED',
@@ -265,6 +266,7 @@ class SquareServiceTest extends TestCase
                     ]
                 ],
             )
+            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -285,7 +287,7 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment($this->data->fulfillmentWithPickupDetails)
+            ->setFulfillment($this->data->fulfillmentWithPickupDetails)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -310,7 +312,7 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment(
+            ->setFulfillment(
                 [
                     'type'             => Constants::FULFILLMENT_TYPE_SHIPMENT,
                     'state'            => 'PROPOSED',
@@ -321,6 +323,7 @@ class SquareServiceTest extends TestCase
                 ],
                 Constants::FULFILLMENT_TYPE_SHIPMENT
             )
+            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -340,7 +343,7 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->addFulfillment($this->data->fulfillmentWithShipmentDetails)
+            ->setFulfillment($this->data->fulfillmentWithShipmentDetails)
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
