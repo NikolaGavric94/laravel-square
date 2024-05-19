@@ -84,4 +84,25 @@ class TestDataHolder
 
         return compact('product', 'productDiscount', 'orderDiscount', 'orderDiscountFixed', 'taxAdditive', 'taxInclusive');
     }
+
+    /**
+     * Builds a recipient array for the order.
+     *
+     * @return array
+     */
+    public static function buildRecipientArray(): array
+    {
+        return [
+            'display_name'  => 'John Doe',
+            'email_address' => 'johndoe@test.com',
+            'phone_number'  => '1234567890',
+            'address'       => [
+                'address_line_1'                  => '123 Main St',
+                'locality'                        => 'San Francisco',
+                'administrative_district_level_1' => 'CA',
+                'postal_code'                     => '94114',
+                'country'                         => 'US',
+            ],
+        ];
+    }
 }
