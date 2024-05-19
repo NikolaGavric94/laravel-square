@@ -7,6 +7,7 @@ use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\FulfillmentBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
+use Nikolag\Square\Builders\RecipientBuilder;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
@@ -53,6 +54,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private FulfillmentBuilder $fulfillmentBuilder;
     /**
+     * @var RecipientBuilder
+     */
+    private RecipientBuilder $recipientBuilder;
+    /**
      * @var string
      */
     private string $locationId;
@@ -60,6 +65,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @var string
      */
     private string $currency;
+    /**
+     * @var mixed
+     */
+    protected mixed $fulfillmentRecipient = null;
     /**
      * @var CreateOrderRequest
      */
@@ -78,6 +87,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->productBuilder = new ProductBuilder();
         $this->customerBuilder = new CustomerBuilder();
         $this->fulfillmentBuilder = new FulfillmentBuilder();
+        $this->recipientBuilder = new RecipientBuilder();
     }
 
     /**
@@ -352,7 +362,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @return self
      */
-    public function addFulfillment(mixed $fulfillment): static
+    public function setFulfillment(mixed $fulfillment): static
     {
         // Fulfillment class
         $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
@@ -378,6 +388,41 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             }
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required field is missing', 500, $e);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a recipient the fulfillment associated with an order.
+     * @param  mixed  $recipient
+     * @return self
+     *
+     * @throws MissingPropertyException
+     */
+    public function setFulfillmentRecipient(mixed $recipient): static
+    {
+        // Make sure we have a fulfillment
+        if (!$this->getFulfillment()) {
+            throw new MissingPropertyException('Fulfillment must be added before adding a fulfillment recipient', 500);
+        }
+
+        $recipientClass = Constants::CUSTOMER_NAMESPACE;
+
+        if (is_a($recipient, $recipientClass)) {
+            $this->fulfillmentRecipient = $this->recipientBuilder->load($recipient->toArray());
+        } elseif (is_array($recipient)) {
+            $this->fulfillmentRecipient = $this->recipientBuilder->load($recipient);
+        }
+
+        // Check if this order's fulfillment details already has a recipient
+        if (!$this->getFulfillmentDetails()->recipient) {
+            $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->fulfillmentRecipient;
+        } else {
+            throw new AlreadyUsedSquareProductException(
+                'This order\'s fulfillment details already has a recipient',
+                500
+            );
         }
 
         return $this;
@@ -425,6 +470,30 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function getCreateCustomerRequest(): UpdateCustomerRequest|CreateCustomerRequest
     {
         return $this->createCustomerRequest;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFulfillment(): mixed
+    {
+        return $this->orderCopy->fulfillments->first();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFulfillmentDetails(): mixed
+    {
+        return $this->orderCopy->fulfillments->first()->fulfillmentDetails;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFulfillmentRecipient(): mixed
+    {
+        return $this->fulfillmentRecipient;
     }
 
     /**
