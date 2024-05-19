@@ -160,6 +160,7 @@ class OrderBuilder
                     // Create the recipient
                     $recipient = $fulfillment->fulfillmentDetails->recipient;
                     $recipient->save();
+                    unset($fulfillment->fulfillmentDetails->recipient);
 
                     // Associate the recipient with the fulfillment details
                     $fulfillment->fulfillmentDetails->recipient()->associate($recipient);
