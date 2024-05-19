@@ -23,19 +23,21 @@ trait HasRecipient
     }
 
     /**
-     * Retrieve recipient if he exists, otherwise return false.
+     * Retrieve recipient if they exist, otherwise return false.
      *
-     * @param  string  $key   The column to search by.
-     * @param  string  $value The value to search for.
+     * @param  mixed  $recipient   The recipient to search for.
      *
-     * @return mixed
+     * @return bool
      */
-    public function hasRecipient(string $key, string $value): mixed
+    public function hasRecipient(mixed $recipient): mixed
     {
-        $query = $this->recipients()->where($key, $value);
+        if (is_array($recipient) && array_key_exists('id', $recipient)) {
+            $val = Recipient::find($recipient['id']);
+        } else {
+            $val = $recipient;
+        }
 
-        return $query->exists() ?
-            $query->first() : false;
+        return $this->products()->get()->contains($val);
     }
 
     /**
