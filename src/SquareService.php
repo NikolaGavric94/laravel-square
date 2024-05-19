@@ -68,6 +68,14 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * @var mixed
      */
+    protected mixed $fulfillment = null;
+    /**
+     * @var mixed
+     */
+    protected mixed $fulfillmentDetails = null;
+    /**
+     * @var mixed
+     */
     protected mixed $fulfillmentRecipient = null;
     /**
      * @var CreateOrderRequest
@@ -369,20 +377,21 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         try {
             if (is_a($fulfillment, $fulfillmentClass)) {
-                $fulfillmentCopy = $this->fulfillmentBuilder->createFulfillmentFromModel(
+                $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
                     $fulfillment,
                     $this->getOrder(),
                 );
             } else {
-                $fulfillmentCopy = $this->fulfillmentBuilder->createFulfillmentFromArray(
+                $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromArray(
                     $fulfillment,
                     $this->getOrder(),
                 );
             }
 
             // Check if order already has this fulfillment
-            if (!Util::hasFulfillment($this->orderCopy->fulfillments, $fulfillmentCopy)) {
-                $this->orderCopy->fulfillments->push($fulfillmentCopy);
+            if (!Util::hasFulfillment($this->orderCopy->fulfillments, $this->getFulfillment())) {
+                // Add the fulfillment to the order
+                $this->orderCopy->fulfillments->push($this->getFulfillment());
             } else {
                 throw new AlreadyUsedSquareProductException('This order already has a fulfillment', 500);
             }
@@ -417,7 +426,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         // Check if this order's fulfillment details already has a recipient
         if (!$this->getFulfillmentDetails()->recipient) {
-            $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->fulfillmentRecipient;
+            $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->getFulfillmentRecipient();
         } else {
             throw new AlreadyUsedSquareProductException(
                 'This order\'s fulfillment details already has a recipient',
@@ -477,7 +486,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function getFulfillment(): mixed
     {
-        return $this->orderCopy->fulfillments->first();
+        return $this->fulfillment;
     }
 
     /**
@@ -485,7 +494,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function getFulfillmentDetails(): mixed
     {
-        return $this->orderCopy->fulfillments->first()->fulfillmentDetails;
+        return $this->fulfillment->fulfillmentDetails;
     }
 
     /**
