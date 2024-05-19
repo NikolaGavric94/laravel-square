@@ -248,6 +248,11 @@ class SquareServiceTest extends TestCase
             $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof DeliveryDetails,
             'Fulfillment details are not DeliveryDetails'
         );
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
+            'Fulfillment details recipient is not Recipient'
+        );
     }
 
     /**
@@ -309,6 +314,12 @@ class SquareServiceTest extends TestCase
             $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof PickupDetails,
             'Fulfillment details are not PickupDetails'
         );
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
+            'Fulfillment details recipient is not Recipient'
+        );
+    }
     }
 
     /**
@@ -369,6 +380,11 @@ class SquareServiceTest extends TestCase
         $this->assertTrue(
             $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof ShipmentDetails,
             'Fulfillment details are not ShipmentDetails'
+        );
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
+            'Fulfillment details recipient is not Recipient'
         );
     }
 
