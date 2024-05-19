@@ -16,19 +16,8 @@ use stdClass;
 
 class FulfillmentBuilder
 {
-    /**
-     * @var DiscountBuilder
-     */
-    private DiscountBuilder $discountBuilder;
-    /**
-     * @var TaxesBuilder
-     */
-    private TaxesBuilder $taxesBuilder;
-
     public function __construct()
     {
-        $this->discountBuilder = new DiscountBuilder();
-        $this->taxesBuilder    = new TaxesBuilder();
     }
 
     /**
