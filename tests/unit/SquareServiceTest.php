@@ -9,6 +9,7 @@ use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\Transaction;
@@ -257,7 +258,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Add product for order.
+     * Add product and pickup fulfillment for order.
      *
      * @return void
      */
@@ -324,7 +325,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Add product for order.
+     * Add product and pickup fulfillment with curbside pickup details for order.
      *
      * @return void
      */
@@ -389,7 +390,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Add product for order.
+     * Add product and shipment fulfillment for order.
      *
      * @return void
      */
