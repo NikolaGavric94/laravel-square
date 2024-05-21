@@ -336,7 +336,7 @@ class OrderBuilder
             //Fulfillments
             if (Arr::has($order, 'fulfillments') && $order['fulfillments'] != null) {
                 foreach ($order['fulfillments'] as $fulfillment) {
-                    // Create product
+                    // Create fulfillment from array
                     $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromArray($fulfillment);
 
                     $orderCopy->products->push($fulfillmentTemp);
