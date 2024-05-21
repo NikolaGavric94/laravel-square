@@ -10,7 +10,6 @@ use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\ShipmentDetails;
-use Nikolag\Square\Models\OrderFulfillmentPivot;
 use Nikolag\Square\Utils\Constants;
 use stdClass;
 
@@ -28,23 +27,17 @@ class FulfillmentBuilder
      * @return Fulfillment|stdClass
      *
      * @throws InvalidSquareOrderException
-     * @throws MissingPropertyException
      */
     public function createFulfillmentFromModel(Model $fulfillment, Model $order): Fulfillment|stdClass
     {
         $fulfillmentObj = new stdClass();
 
-        // Check if order is present and if already has this fulfillment
+        // Check if the order is present and if it already has this fulfillment
         // or if fulfillment doesn't have property $id then create new Fulfillment object
         if (($order && ! $order->hasFulfillment($fulfillment)) && ! Arr::has($fulfillment->toArray(), 'id')) {
             $tempFulfillment = new Fulfillment($fulfillment->toArray());
-            $fulfillmentPivot = new OrderFulfillmentPivot($fulfillment->toArray());
         } else {
             $tempFulfillment = Fulfillment::find($fulfillment->id);
-            $fulfillmentPivot = OrderFulfillmentPivot::where('order_id', $order->id)->where('fulfillment_id', $tempFulfillment->id)->first();
-            if (! $fulfillmentPivot) {
-                $fulfillmentPivot = new OrderFulfillmentPivot($fulfillment->toArray());
-            }
         }
 
         // Validate that the type matches the details
@@ -65,11 +58,8 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         }
 
-
         $fulfillmentObj = $tempFulfillment;
-        $fulfillmentObj->pivot = $fulfillmentPivot;
         $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
-        $fulfillmentObj->recipient = $fulfillment->recipient;
 
         return $fulfillmentObj;
     }
@@ -81,8 +71,8 @@ class FulfillmentBuilder
      * @param  Model  $order
      * @return Fulfillment|stdClass
      *
-     * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
+     * @throws InvalidSquareOrderException
      */
     public function createFulfillmentFromArray(
         array $fulfillment,
@@ -90,13 +80,12 @@ class FulfillmentBuilder
     ): Model|stdClass {
         $fulfillmentObj = new stdClass();
 
-        // If fulfillment doesn't have a type in the array
-        // throw new exception because every fulfillment should have a type
+        // If fulfillment doesn't have a type in the array throw new exception - every fulfillment should have a type.
         if (! Arr::has($fulfillment, 'type') || $fulfillment['type'] == null) {
             throw new MissingPropertyException('"type" property for object Fulfillment is missing', 500);
         }
 
-        // Check if order is present and if already has this fulfillment
+        // Check if the order is present and if it already has this fulfillment
         // or if fulfillment doesn't have property $id then create new Fulfillment object
         if (($order && !$order->hasFulfillment($fulfillment)) || ! Arr::has($fulfillment, 'id')) {
             $tempFulfillment = new Fulfillment($fulfillment);

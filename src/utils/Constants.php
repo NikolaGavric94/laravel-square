@@ -17,7 +17,6 @@ class Constants extends CoreConstants
     const CUSTOMER_NAMESPACE = 'Nikolag\Square\Models\Customer';
     const CUSTOMER_IDENTIFIER = 'id';
     //Fulfillment info
-    const ORDER_FULFILLMENT_NAMESPACE = 'Nikolag\Square\Models\OrderFulfillmentPivot';
     const FULFILLMENT_NAMESPACE = 'Nikolag\Square\Models\Fulfillment';
     const FULFILLMENT_IDENTIFIER = 'id';
     //Product info
