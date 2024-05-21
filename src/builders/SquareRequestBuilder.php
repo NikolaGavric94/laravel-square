@@ -263,10 +263,9 @@ class SquareRequestBuilder
                     $tempFulfillment->setShipmentDetails($tempShipmentDetails);
                 }
 
-                // TODO: Add support for line-item applications
+                // UNSUPPORTED: Line-item separated fulfillments
+                // Currently only one fulfillment per order is supported
                 // $tempFulfillment->setLineItemApplication($lineItemApplication);
-
-                // TODO: Add support for specifying line-item entries
                 // $tempFulfillment->setLineItemApplication($lineItemApplication);
 
                 $temp[] = $tempFulfillment;
