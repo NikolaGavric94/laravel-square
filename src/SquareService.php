@@ -364,9 +364,13 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
     /**
      * Add a fulfillment to the order.
+     * NOTE: This currently supports ONE fulfillment per order.  While the Square API supports multiple fulfillments per
+     * order, the standard UI does not, so this is limited to a single fulfillment.
      *
      * @param  mixed  $fulfillment
      * @param  string $type
+     *
+     * @throws Exception If the order already has a fulfillment.
      *
      * @return self
      */
@@ -375,39 +379,38 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         // Fulfillment class
         $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
 
-        try {
-            if (is_a($fulfillment, $fulfillmentClass)) {
-                $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
-                    $fulfillment,
-                    $this->getOrder(),
-                );
-            } else {
-                $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromArray(
-                    $fulfillment,
-                    $this->getOrder(),
-                );
-            }
+        if (is_a($fulfillment, $fulfillmentClass)) {
+            $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
+                $fulfillment,
+                $this->getOrder(),
+            );
+        } else {
+            $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromArray(
+                $fulfillment,
+                $this->getOrder(),
+            );
+        }
 
-            // Check if order already has this fulfillment
-            if (!Util::hasFulfillment($this->orderCopy->fulfillments, $this->getFulfillment())) {
-                // Add the fulfillment to the order
-                $this->orderCopy->fulfillments->push($this->getFulfillment());
-            } else {
-                throw new AlreadyUsedSquareProductException('This order already has a fulfillment', 500);
-            }
-        } catch (MissingPropertyException $e) {
-            throw new MissingPropertyException('Required field is missing', 500, $e);
+        // Check if order already has this fulfillment
+        if (!Util::hasFulfillment($this->orderCopy->fulfillments, $this->getFulfillment())) {
+            // Add the fulfillment to the order
+            $this->orderCopy->fulfillments->push($this->getFulfillment());
+        } else {
+            throw new Exception('This order already has a fulfillment', 500);
         }
 
         return $this;
     }
 
     /**
-     * Add a recipient the fulfillment associated with an order.
+     * Add a recipient to the fulfillment details.
+     * NOTE: This currently supports ONE recipient per fulfillment.  While the Square API supports multiple fulfillments
+     * which would allow multiple recipients, the standard UI does not, so this is limited to a single recipient.
+     *
      * @param  mixed  $recipient
      * @return self
      *
-     * @throws MissingPropertyException
+     * @throws Exception If the order's fulfillment details already has a recipient.
      */
     public function setFulfillmentRecipient(mixed $recipient): static
     {
@@ -428,10 +431,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         if (!$this->getFulfillmentDetails()->recipient) {
             $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->getFulfillmentRecipient();
         } else {
-            throw new AlreadyUsedSquareProductException(
-                'This order\'s fulfillment details already has a recipient',
-                500
-            );
+            throw new Exception('This order\'s fulfillment details already has a recipient', 500);
         }
 
         return $this;

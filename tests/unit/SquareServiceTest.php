@@ -353,7 +353,6 @@ class SquareServiceTest extends TestCase
             ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
-
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
 
         // Make sure the fulfillment exists on the order
