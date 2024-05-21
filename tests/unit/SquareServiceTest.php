@@ -322,6 +322,71 @@ class SquareServiceTest extends TestCase
             'Fulfillment details recipient is not Recipient'
         );
     }
+
+    /**
+     * Add product for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_pickup_fulfillment_width_curbside_pickup_details(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment(
+                [
+                    'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
+                    'state'          => 'PROPOSED',
+                    'pickup_details' => [
+                        'scheduled_type'          => 'ASAP',
+                        'placed_at'               => now(),
+                        'is_curbside_pickup'      => true,
+                        'curbside_pickup_details' => [
+                            'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
+                            'buyer_arrived_at' => null,
+                        ]
+                    ]
+                ],
+            )
+            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->save();
+
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        // Make sure the fulfillment exists on the order
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
+
+        // Make sure the fulfillment details are PickupDetails
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof PickupDetails,
+            'Fulfillment details are not PickupDetails'
+        );
+
+        // Make sure the curbside pickup data flag is set to true
+        $this->assertTrue(
+            !empty($square->getOrder()->fulfillments->first()->fulfillmentDetails->is_curbside_pickup),
+            'Curbside pickup flag is not set to true'
+        );
+
+        // Make sure the curbside data is present
+        $this->assertNotNull(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->curbside_pickup_details,
+            'Curbside pickup details are not set'
+        );
+
+        $this->assertNull(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->curbside_pickup_details->buyer_arrived_at,
+            'Buyer arrived at is not null'
+        );
+
+        $this->assertEquals(
+            'Mazda CX5, Black, License Plate: 1234567',
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->curbside_pickup_details->curbside_details,
+            'Curbside details are not the same'
+        );
     }
 
     /**
