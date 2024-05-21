@@ -53,9 +53,10 @@ class TestDataHolder
             factory(User::class)->create(),
             factory(Tax::class)->create(),
             factory(Discount::class)->states('AMOUNT_ONLY')->create(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->create(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->create(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->create(),
+            // NOTE: The following factories are not created because they are not associated with the order
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make(),
+            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make(),
             factory(Recipient::class)->create(),
         );
     }
