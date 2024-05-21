@@ -8,7 +8,7 @@ use Nikolag\Square\Utils\Constants;
 trait HasFulfillments
 {
     /**
-     * Does an order have a product.
+     * Checks if this model already has a specific fulfillment.
      *
      * @param  mixed  $product
      * @return bool
@@ -23,7 +23,7 @@ trait HasFulfillments
     }
 
     /**
-     * Return a list of fulfillments which are associated with order.
+     * Return the fulfillments associated with this model.
      *
      * @return HasMany
      */

@@ -9,7 +9,7 @@ use Nikolag\Square\Utils\Constants;
 trait HasRecipient
 {
     /**
-     * Retrieve merchant recipients.
+     * Retrieve recipients related to this model.
      *
      * @return BelongsTo
      */
@@ -41,7 +41,7 @@ trait HasRecipient
     }
 
     /**
-     * All fulfillments.
+     * All fulfillments associated with this recipient.
      *
      * @return HasMany
      */

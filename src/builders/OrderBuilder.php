@@ -152,7 +152,10 @@ class OrderBuilder
         $order->load('products', 'taxes', 'discounts');
 
         // Check if order has fulfillments
-        if ($orderCopy->fulfillments->isNotEmpty()) {
+        if (
+            property_exists($orderCopy, 'fulfillments')
+            && $orderCopy->fulfillments->isNotEmpty()
+        ) {
             // For each fulfillment in order
             foreach ($orderCopy->fulfillments as $fulfillment) {
                 // If order doesn't have fulfillment

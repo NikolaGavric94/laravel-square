@@ -76,7 +76,7 @@ class ShipmentDetails extends Model
     ];
 
     /**
-     * Get the fulfillment associated with the pickup.
+     * Get the fulfillment associated with the shipment.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
