@@ -41,6 +41,8 @@ class FulfillmentBuilder
         }
 
         // Validate that the type matches the details
+        // Due to the nature of the relationship between Fulfillment and FulfillmentDetails, the fulfillment details
+        // should already be a model associated with the fulfillment at this point
         if (
             $fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY
             && ! $fulfillment->fulfillmentDetails instanceof DeliveryDetails
@@ -112,7 +114,7 @@ class FulfillmentBuilder
     }
 
     /**
-     * Create pickup details from array.
+     * Create delivery details from array.
      *
      * @param  array  $fulfillment
      * @param  Model  $order
