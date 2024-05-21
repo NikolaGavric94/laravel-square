@@ -67,8 +67,8 @@ class Fulfillment extends Model
 
     /**
      * Returns the fulfillment details associated with this fulfillment.  The three associated models are:
+     * - \Nikolag\Square\Models\DeliveryDetails
      * - \Nikolag\Square\Models\PickupDetails
-     * - \Nikolag\Square\Models\ShipmentDetails
      * - \Nikolag\Square\Models\ShipmentDetails
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
