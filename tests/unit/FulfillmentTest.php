@@ -42,8 +42,13 @@ class FulfillmentTest extends TestCase
 
         // Create the fulfillment - associate the pickup before saving!
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->make();
+        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make();
         $fulfillment->fulfillmentDetails()->associate($pickup);
+
+        // Make an order and associate it with the fulfillment
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
+
         $fulfillment->save();
 
         $this->assertInstanceOf(PickupDetails::class, $fulfillment->fresh()->fulfillmentDetails);
@@ -61,8 +66,13 @@ class FulfillmentTest extends TestCase
 
         // Create the fulfillment - associate the delivery before saving!
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->make();
+        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make();
         $fulfillment->fulfillmentDetails()->associate($delivery);
+
+        // Make an order and associate it with the fulfillment
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
+
         $fulfillment->save();
 
         $this->assertInstanceOf(DeliveryDetails::class, $fulfillment->fresh()->fulfillmentDetails);
@@ -80,8 +90,13 @@ class FulfillmentTest extends TestCase
 
         // Create the fulfillment - associate the shipment before saving!
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->make();
+        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make();
         $fulfillment->fulfillmentDetails()->associate($shipment);
+
+        // Make an order and associate it with the fulfillment
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
+
         $fulfillment->save();
 
         $this->assertInstanceOf(ShipmentDetails::class, $fulfillment->fresh()->fulfillmentDetails);
@@ -98,12 +113,20 @@ class FulfillmentTest extends TestCase
 
         // Create a fulfillment with pickup details
         $pickup = factory(PickupDetails::class)->create();
+
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->make();
+        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make();
         $fulfillment->fulfillmentDetails()->associate($pickup);
+
+        // Make an order and associate it with the fulfillment
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
         $fulfillment->save();
 
         $fulfillment->order()->associate($order);
+
+        // Save the order
+        $order->save();
 
         $this->assertInstanceOf(Order::class, $fulfillment->order);
     }
