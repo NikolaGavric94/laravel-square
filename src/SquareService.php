@@ -23,6 +23,7 @@ use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
 use Square\Models\ListLocationsResponse;
+use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\UpdateCustomerRequest;
 use stdClass;
@@ -108,6 +109,20 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function locations(): ListLocationsResponse
     {
         return $this->config->locationsAPI()->listLocations()->getResult();
+    }
+
+    /**
+     * Retrieves a specific location.
+     *
+     * @param string $locationId The location ID.
+     *
+     * @return RetrieveLocationResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveLocation(string $locationId): RetrieveLocationResponse
+    {
+        return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
     }
 
     /**

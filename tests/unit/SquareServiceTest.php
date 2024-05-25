@@ -487,6 +487,19 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests retrieving a specific location.
+     *
+     * @return void
+     */
+    public function test_square_retrieve_location(): void
+    {
+        $transactions = Square::retrieveLocation('main');
+
+        $this->assertNotNull($transactions);
+        $this->assertInstanceOf('\Square\Models\RetrieveLocationResponse', $transactions);
+    }
+
+    /**
      * Save an order through facade.
      *
      * @return void
