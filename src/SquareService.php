@@ -22,6 +22,7 @@ use Square\Http\ApiResponse;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
+use Square\Models\ListCatalogResponse;
 use Square\Models\ListLocationsResponse;
 use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListPaymentsResponse;
@@ -123,6 +124,18 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function retrieveLocation(string $locationId): RetrieveLocationResponse
     {
         return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
+    }
+
+    /**
+     * Lists the entire catalog.
+     *
+     * @return ListCatalogResponse
+     *
+     * @throws ApiException
+     */
+    public function listCatalog(): ListCatalogResponse
+    {
+        return $this->config->catalogApi()->listCatalog()->getResult();
     }
 
     /**

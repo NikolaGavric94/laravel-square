@@ -491,6 +491,19 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
+    public function test_square_list_catalog(): void
+    {
+        $catalog = Square::listCatalog();
+
+        $this->assertNotNull($catalog);
+        $this->assertInstanceOf('\Square\Models\ListCatalogResponse', $catalog);
+    }
+
+    /**
+     * Tests retrieving a specific location.
+     *
+     * @return void
+     */
     public function test_square_retrieve_location(): void
     {
         $transactions = Square::retrieveLocation('main');
