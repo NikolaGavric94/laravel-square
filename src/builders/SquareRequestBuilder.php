@@ -31,6 +31,8 @@ use Square\Models\OrderLineItemAppliedDiscount;
 use Square\Models\OrderLineItemAppliedTax;
 use Square\Models\OrderLineItemDiscount;
 use Square\Models\OrderLineItemTax;
+use Square\Models\TaxCalculationPhase;
+use Square\Models\TaxInclusionType;
 use Square\Models\UpdateCustomerRequest;
 use Square\Models\Builders\CatalogCategoryBuilder;
 use Square\Models\Builders\CatalogImageBuilder;
@@ -134,6 +136,46 @@ class SquareRequestBuilder
         )
             ->presentAtAllLocations($allLocations)
             ->itemData($catalogItemBuilder->build())
+            ->build();
+    }
+
+    /**
+     * Builds a tax catalog object item.
+     *
+     * @param string  $name                   The name of the tax.
+     * @param string  $percentage             The percentage of the tax.
+     * @param string  $calculationPhase       The calculation phase of the tax.
+     * @param string  $inclusionType          The inclusion type of the tax.
+     * @param boolean $appliesToCustomAmounts Whether the tax applies to custom amounts.
+     * @param boolean $enabled                Whether the tax is enabled.
+     * @param boolean $allLocations           Whether the tax is present at all locations.
+     *
+     * @return CatalogObject
+     */
+    public function buildTaxCatalogObject(
+        string $name,
+        string $percentage,
+        string $calculationPhase = TaxCalculationPhase::TAX_TOTAL_PHASE,
+        string $inclusionType = TaxInclusionType::ADDITIVE,
+        bool $appliesToCustomAmounts = true,
+        bool $enabled = true,
+        bool $allLocations = true
+    ): CatalogObject {
+        return CatalogObjectBuilder::init(
+            CatalogObjectType::TAX,
+            '#' . $name
+        )
+            ->presentAtAllLocations($allLocations)
+            ->taxData(
+                CatalogTaxBuilder::init()
+                    ->name($name)
+                    ->calculationPhase($calculationPhase)
+                    ->inclusionType($inclusionType)
+                    ->percentage($percentage)
+                    ->appliesToCustomAmounts($appliesToCustomAmounts)
+                    ->enabled($enabled)
+                    ->build()
+            )
             ->build();
     }
 

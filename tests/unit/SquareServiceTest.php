@@ -101,7 +101,30 @@ class SquareServiceTest extends TestCase
         $this->assertEquals($description, $item->getItemData()->getDescription());
         $this->assertEquals($variation, $item->getItemData()->getVariations()[0]);
         $this->assertEquals($category->getId(), $item->getItemData()->getCategoryId());
+    }
 
+    /**
+     * Tests the buildTaxCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_tax_catalog_object(): void
+    {
+        // Set up the variables
+        $name = 'Test Tax Description';
+        $rate = 0.1;
+
+        // Build the tax object
+        $tax = Square::getSquareBuilder()->buildTaxCatalogObject(
+            $name,
+            $rate
+        );
+
+        $this->assertNotNull($tax);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $tax);
+        $this->assertEquals('TAX', $tax->getType());
+        $this->assertEquals($name, $tax->getTaxData()->getName());
+        $this->assertEquals($rate, $tax->getTaxData()->getPercentage());
     }
 
     /**
