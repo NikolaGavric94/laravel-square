@@ -101,6 +101,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Retrieves the Square API request builder.
+     *
+     * @return SquareRequestBuilder
+     */
+    public function getSquareBuilder(): SquareRequestBuilder
+    {
+        return $this->squareBuilder;
+    }
+
+    /**
      * List locations.
      *
      * @return ListLocationsResponse
