@@ -58,13 +58,43 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildVariationCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_variation_catalog_object(): void
+    {
+        // Set up the variables
+        $id     = 'Variation #1';
+        $name   = 'Test Item Description';
+        $itemID = 'Item #1';
+        $money  = Square::getSquareBuilder()->buildMoney(1000, Square::getCurrency());
+
+        // Build the item object
+        $item = Square::getSquareBuilder()->buildVariationCatalogObject(
+            $name,
+            $id,
+            $itemID,
+            $money
+        );
+
+        $this->assertNotNull($item);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
+        $this->assertEquals('ITEM_VARIATION', $item->getType());
+        $this->assertEquals($id, $item->getId());
+        $this->assertEquals($name, $item->getItemVariationData()->getName());
+        $this->assertEquals($itemID, $item->getItemVariationData()->getItemId());
+        $this->assertEquals($money, $item->getItemVariationData()->getPriceMoney());
+    }
+
+    /**
      * Tests the buildMoney method.
      *
      * @return void
      */
     public function test_build_money(): void
     {
-        $amount = 1000;
+        $amount   = 1000;
         $currency = 'USD';
 
         $money = Square::getSquareBuilder()->buildMoney($amount, $currency);
