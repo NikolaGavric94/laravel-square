@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Builders;
 
+use Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
@@ -233,6 +234,42 @@ class SquareRequestBuilder
             ->build();
     }
 
+    /**
+     * Uploads an image file to be represented by a CatalogImage object that can be linked to an existing CatalogObject
+     * instance. The resulting CatalogImage is unattached to any CatalogObject if the object_id is not specified.
+     *
+     * This CreateCatalogImage endpoint accepts HTTP multipart/form-data requests with a JSON part and an image file
+     * part in JPEG, PJPEG, PNG, or GIF format. The maximum file size is 15MB.
+     *
+     * @param string $catalogObjectId The ID of the object to which the image is attached.
+     * @param string $caption         The caption of the image.
+     * @param bool   $isPrimary       Whether the image is the primary image.
+     *
+     * @return CreateCatalogImageRequest
+     */
+    public function buildCatalogImageRequest(
+        string $catalogObjectId,
+        string $caption = '',
+        bool $isPrimary = true
+    ): CreateCatalogImageRequest {
+        $builder =  CreateCatalogImageRequestBuilder::init(
+            (string) Str::uuid(), // Generate an idempotencyKey
+            CatalogObjectBuilder::init(
+                CatalogObjectType::IMAGE,
+                '#TEMP_ID'
+            )
+                ->imageData(
+                    CatalogImageBuilder::init()
+                        ->caption($caption)
+                        ->build()
+                )
+                ->build()
+        )
+        ->isPrimary($isPrimary)
+        ->objectId($catalogObjectId);
+
+        return $builder->build();
+    }
 
     /**
      * Adds curb side pickup details to the pickup details.

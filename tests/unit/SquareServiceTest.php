@@ -34,6 +34,33 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildCatalogImageRequest method.
+     *
+     * @return void
+     */
+    public function test_build_catalog_image_request(): void
+    {
+        // Set up the variables
+        $catalogObjectID = 'Catalog Object ID';
+        $caption         = 'Test Caption';
+
+        // Build the image request
+        $imageRequest = Square::getSquareBuilder()->buildCatalogImageRequest(
+            $catalogObjectID,
+            $caption
+        );
+
+        $this->assertNotNull($imageRequest);
+        $this->assertInstanceOf(\Square\Models\CreateCatalogImageRequest::class, $imageRequest);
+
+        $this->assertNotNull($imageRequest->getIdempotencyKey());
+        $this->assertEquals($catalogObjectID, $imageRequest->getObjectId());
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $imageRequest->getImage());
+        $this->assertEquals($caption, $imageRequest->getImage()->getImageData()->getCaption());
+        $this->assertTrue($imageRequest->getIsPrimary());
+    }
+
+    /**
      * Tests the buildCategoryCatalogObject method.
      *
      * @return void
