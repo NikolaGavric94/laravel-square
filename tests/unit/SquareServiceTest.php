@@ -34,6 +34,20 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildCategoryCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_category_catalog_object(): void
+    {
+        $category = Square::getSquareBuilder()->buildCategoryCatalogObject('Test Category');
+
+        $this->assertNotNull($category);
+        $this->assertInstanceOf(CatalogObject::class, $category);
+        $this->assertEquals('Test Category', $category->getCategoryData()->getName());
+    }
+
+    /**
      * Returns the square request builder.
      *
      * @return void
