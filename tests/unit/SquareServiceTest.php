@@ -76,6 +76,19 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the getCurrency method.
+     *
+     * @return void
+     */
+    public function test_get_currency(): void
+    {
+        $currency = Square::getCurrency();
+
+        $this->assertNotNull($currency);
+        $this->assertEquals('USD', $currency);
+    }
+
+    /**
      * Returns the square request builder.
      *
      * @return void
