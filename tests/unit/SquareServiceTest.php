@@ -58,6 +58,24 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildMoney method.
+     *
+     * @return void
+     */
+    public function test_build_money(): void
+    {
+        $amount = 1000;
+        $currency = 'USD';
+
+        $money = Square::getSquareBuilder()->buildMoney($amount, $currency);
+
+        $this->assertNotNull($money);
+        $this->assertInstanceOf(\Square\Models\Money::class, $money);
+        $this->assertEquals($amount, $money->getAmount());
+        $this->assertEquals($currency, $money->getCurrency());
+    }
+
+    /**
      * Returns the square request builder.
      *
      * @return void

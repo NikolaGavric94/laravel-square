@@ -92,6 +92,25 @@ class SquareRequestBuilder
     }
 
     /**
+     * Builds a money object.
+     *
+     * @param integer $amount   The amount of the money.
+     * @param string  $currency The currency of the money.
+     *
+     * @return Money
+     */
+    public function buildMoney(
+        int $amount,
+        string $currency
+    ): Money {
+        return MoneyBuilder::init()
+            ->amount($amount)
+            ->currency($currency)
+            ->build();
+    }
+
+
+    /**
      * Adds curb side pickup details to the pickup details.
      *
      * @param  PickupDetails  $fulfillmentDetails
