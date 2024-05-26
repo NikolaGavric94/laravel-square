@@ -109,6 +109,42 @@ class SquareRequestBuilder
             ->build();
     }
 
+    /**
+     * Builds a variation catalog object item.
+     *
+     * @param string  $name         The name of the variation.
+     * @param string  $variationID  The variation ID of the variation.
+     * @param string  $itemID       The item ID of the item for which the variation is being built.
+     * @param Money   $priceMoney   The price money of the variation.
+     * @param string  $pricingType  The pricing type of the variation.
+     * @param boolean $allLocations Whether the variation is present at all locations.
+     *
+     * @return CatalogObject
+     */
+    public function buildVariationCatalogObject(
+        string $name,
+        string $variationID,
+        string $itemID,
+        Money $priceMoney,
+        string $pricingType = CatalogPricingType::FIXED_PRICING,
+        bool $allLocations = true
+    ): CatalogObject {
+        return CatalogObjectBuilder::init(
+            CatalogObjectType::ITEM_VARIATION,
+            $variationID
+        )
+            ->presentAtAllLocations($allLocations)
+            ->itemVariationData(
+                CatalogItemVariationBuilder::init()
+                    ->itemId($itemID)
+                    ->name($name)
+                    ->pricingType($pricingType)
+                    ->priceMoney($priceMoney)
+                    ->build()
+            )
+            ->build();
+    }
+
 
     /**
      * Adds curb side pickup details to the pickup details.
