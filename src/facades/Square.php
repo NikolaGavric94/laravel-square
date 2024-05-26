@@ -4,15 +4,18 @@ namespace Nikolag\Square\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Nikolag\Square\Contracts\SquareServiceContract;
+use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareService;
+use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\RetrieveLocationResponse;
 
 /**
  * @method static SquareService save()
- * @method static SquareService locations()
- * @method static SquareService retrieveLocation(string $locationId)
- * @method static SquareService getSquareBuilder()
+ * @method static ListLocationsResponse locations()
+ * @method static RetrieveLocationResponse retrieveLocation(string $locationId)
+ * @method static SquareRequestBuilder getSquareBuilder()
  * @method static SquareService listCatalog()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)

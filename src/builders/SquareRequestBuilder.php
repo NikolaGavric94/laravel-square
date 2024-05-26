@@ -14,6 +14,9 @@ use Nikolag\Square\Utils\Util;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentRequest;
+use Square\Models\CatalogObject;
+use Square\Models\CatalogObjectType;
+use Square\Models\CreateCatalogImageRequest;
 use Square\Models\Fulfillment;
 use Square\Models\FulfillmentPickupDetails;
 use Square\Models\FulfillmentPickupDetailsCurbsidePickupDetails;
@@ -28,6 +31,14 @@ use Square\Models\OrderLineItemAppliedTax;
 use Square\Models\OrderLineItemDiscount;
 use Square\Models\OrderLineItemTax;
 use Square\Models\UpdateCustomerRequest;
+use Square\Models\Builders\CatalogCategoryBuilder;
+use Square\Models\Builders\CatalogImageBuilder;
+use Square\Models\Builders\CatalogItemBuilder;
+use Square\Models\Builders\CatalogItemVariationBuilder;
+use Square\Models\Builders\CatalogObjectBuilder;
+use Square\Models\Builders\CatalogTaxBuilder;
+use Square\Models\Builders\CreateCatalogImageRequestBuilder;
+use Square\Models\Builders\MoneyBuilder;
 
 class SquareRequestBuilder
 {
