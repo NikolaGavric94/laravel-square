@@ -54,6 +54,33 @@ class SquareRequestBuilder
     }
 
     /**
+     * Builds a category catalog object item.
+     *
+     * @param string  $id           The ID of the category.
+     * @param string  $name         The name of the category.
+     * @param boolean $allLocations Whether the category is present at all locations.
+     *
+     * @return CatalogObject
+     */
+    public function buildCategoryCatalogObject(
+        string $id,
+        string $name,
+        bool $allLocations = true
+    ): CatalogObject {
+        return CatalogObjectBuilder::init(
+            CatalogObjectType::CATEGORY,
+            $id
+        )
+            ->presentAtAllLocations($allLocations)
+            ->categoryData(
+                CatalogCategoryBuilder::init()
+                    ->name($name)
+                    ->build()
+            )
+            ->build();
+    }
+
+    /**
      * Adds curb side pickup details to the pickup details.
      *
      * @param  PickupDetails  $fulfillmentDetails

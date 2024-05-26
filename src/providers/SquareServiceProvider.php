@@ -45,5 +45,9 @@ class SquareServiceProvider extends ServiceProvider
 
         //Facades
         $this->app->alias(SquareService::class, 'square');
+
+        if ($this->app->isLocal()) {
+            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+        }
     }
 }
