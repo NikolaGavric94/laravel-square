@@ -101,6 +101,20 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Helper function to get the appropriate currency to be used based on the location ID provided.
+     *
+     * @param string|null $locationId The location ID.
+     *
+     *
+     * @return string The currency code
+     */
+    public function getCurrency($locationId = 'main')
+    {
+        // Get the currency for the location
+        return $this->retrieveLocation($locationId)->getLocation()->getCurrency();
+    }
+
+    /**
      * Retrieves the Square API request builder.
      *
      * @return SquareRequestBuilder
