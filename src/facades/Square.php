@@ -13,6 +13,7 @@ use Square\Models\RetrieveLocationResponse;
 
 /**
  * @method static SquareService save()
+ * @method static string getCurrency()
  * @method static ListLocationsResponse locations()
  * @method static RetrieveLocationResponse retrieveLocation(string $locationId)
  * @method static SquareRequestBuilder getSquareBuilder()
