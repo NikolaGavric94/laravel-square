@@ -58,6 +58,53 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildItemCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_item_catalog_object(): void
+    {
+        // Set up the variables
+        $name        = 'Test Item Name';
+        $taxIDs      = [1, 2, 3];
+        $description = 'Test Item Description';
+        $money       = Square::getSquareBuilder()->buildMoney(1000, Square::getCurrency());
+
+        // First, create the default variation and category objects
+        $variation = Square::getSquareBuilder()->buildVariationCatalogObject(
+            'Variation Name',
+            'Variation #1',
+            'Item ID',
+            $money
+        );
+        $category = Square::getSquareBuilder()->buildCategoryCatalogObject(
+            1,
+            'Category Name'
+        );
+
+        // Build the item object
+        $item = Square::getSquareBuilder()->buildItemCatalogObject(
+            $name,
+            $taxIDs,
+            $description,
+            [$variation],
+            $category->getId()
+        );
+
+        $this->assertNotNull($item);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
+        $this->assertEquals('ITEM', $item->getType());
+        // Make sure the ID is the name with a preceding "#" character
+        $this->assertEquals('#' . $name, $item->getId());
+        $this->assertEquals($name, $item->getItemData()->getName());
+        $this->assertEquals($taxIDs, $item->getItemData()->getTaxIds());
+        $this->assertEquals($description, $item->getItemData()->getDescription());
+        $this->assertEquals($variation, $item->getItemData()->getVariations()[0]);
+        $this->assertEquals($category->getId(), $item->getItemData()->getCategoryId());
+
+    }
+
+    /**
      * Tests the buildVariationCatalogObject method.
      *
      * @return void

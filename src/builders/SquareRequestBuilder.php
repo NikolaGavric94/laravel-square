@@ -13,6 +13,7 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
+use Square\Models\CatalogPricingType;
 use Square\Models\CreatePaymentRequest;
 use Square\Models\CatalogObject;
 use Square\Models\CatalogObjectType;
@@ -88,6 +89,51 @@ class SquareRequestBuilder
                     ->name($name)
                     ->build()
             )
+            ->build();
+    }
+
+    /**
+     * Builds an item catalog object item.
+     *
+     * @param string               $name         The name of the item.
+     * @param array                $taxIDs       The tax IDs of the item.
+     * @param string               $description  The description of the item.
+     * @param array<CatalogObject> $variations   The variations of the item.
+     * @param string               $categoryID   The category of the item.
+     * @param boolean              $allLocations Whether the item is present at all locations.
+     *
+     * @return CatalogObject
+     */
+    public function buildItemCatalogObject(
+        string $name,
+        array $taxIDs,
+        string $description,
+        array $variations,
+        string $categoryID,
+        bool $allLocations = true
+    ): CatalogObject {
+        // Create a catalog item builder
+        $catalogItemBuilder = CatalogItemBuilder::init()
+            ->name($name)
+            ->taxIds($taxIDs)
+            ->variations($variations)
+            ->categoryId($categoryID);
+
+        // Add the description to the catalog item builder
+        if (!empty($description)) {
+            if ($description != strip_tags($description)) {
+                $catalogItemBuilder->descriptionHtml($description);
+            } else {
+                $catalogItemBuilder->description($description);
+            }
+        }
+
+        return CatalogObjectBuilder::init(
+            CatalogObjectType::ITEM,
+            '#' . $name
+        )
+            ->presentAtAllLocations($allLocations)
+            ->itemData($catalogItemBuilder->build())
             ->build();
     }
 
