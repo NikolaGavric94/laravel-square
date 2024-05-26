@@ -34,6 +34,19 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Returns the square request builder.
+     *
+     * @return void
+     */
+    public function test_get_square_builder(): void
+    {
+        $builder = Square::getSquareBuilder();
+
+        $this->assertNotNull($builder);
+        $this->assertInstanceOf('\Nikolag\Square\Builders\SquareRequestBuilder', $builder);
+    }
+
+    /**
      * Charge OK.
      *
      * @return void

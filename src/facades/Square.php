@@ -12,6 +12,7 @@ use Square\Models\ListPaymentsResponse;
  * @method static SquareService save()
  * @method static SquareService locations()
  * @method static SquareService retrieveLocation(string $locationId)
+ * @method static SquareService getBuilder()
  * @method static SquareService listCatalog()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)
