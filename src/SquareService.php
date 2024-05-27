@@ -199,10 +199,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function locations(): ListLocationsResponse
     {
-        $response = $this->config->locationsAPI()->listLocations()->getResult();
-        if (is_array($response)) {
-            dd($response);
-        }
         return $this->config->locationsAPI()->listLocations()->getResult();
     }
 
