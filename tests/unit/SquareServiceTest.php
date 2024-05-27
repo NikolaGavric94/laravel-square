@@ -23,6 +23,7 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Utils\FileWrapper;
 
 class SquareServiceTest extends TestCase
 {
@@ -224,6 +225,27 @@ class SquareServiceTest extends TestCase
         $this->assertInstanceOf(\Square\Models\Money::class, $money);
         $this->assertEquals($amount, $money->getAmount());
         $this->assertEquals($currency, $money->getCurrency());
+    }
+
+    /**
+     * Tests the createCatalogImage method.
+     *
+     * @return void
+     */
+    public function test_create_catalog_image(): void
+    {
+        // Create a mocked file
+        $fileName = 'image.jpg';
+        $file     = \Illuminate\Http\UploadedFile::fake()->create($fileName, 100);
+        $filePath = $file->getPathname();
+
+        $request = Square::getSquareBuilder()->buildCatalogImageRequest('Fake ID', 'Test caption');
+
+        // The request below will be invalid, so make sure it throws an exception.
+        $this->expectException(Exception::class);
+
+        // Call the method we're testing
+        $result = Square::createCatalogImage($request, $filePath);
     }
 
     /**
