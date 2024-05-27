@@ -65,10 +65,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private RecipientBuilder $recipientBuilder;
     /**
-     * @var SquareConfig
-     */
-    private string $config;
-    /**
      * @var string
      */
     private string $locationId;
