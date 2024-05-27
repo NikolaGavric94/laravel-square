@@ -29,7 +29,6 @@
         "square/square": "29.0.0.20230720"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^3.0",
         "fakerphp/faker": "^1.13",
         "laravel/legacy-factories": "^1.3",
         "orchestra/testbench": "8.x",
