@@ -65,6 +65,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private RecipientBuilder $recipientBuilder;
     /**
+     * @var SquareConfig
+     */
+    private string $config;
+    /**
      * @var string
      */
     private string $locationId;
@@ -104,7 +108,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->fulfillmentBuilder = new FulfillmentBuilder();
         $this->recipientBuilder = new RecipientBuilder();
     }
-
 
     /**
      * Uploads the items, and adds images, when creating new items for the catalog.
@@ -193,11 +196,13 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * List locations.
      *
      * @return ListLocationsResponse
-     *
-     * @throws ApiException
      */
     public function locations(): ListLocationsResponse
     {
+        $response = $this->config->locationsAPI()->listLocations()->getResult();
+        if (is_array($response)) {
+            dd($response);
+        }
         return $this->config->locationsAPI()->listLocations()->getResult();
     }
 
