@@ -2,6 +2,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Str;
+use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
@@ -19,6 +21,8 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\BatchUpsertCatalogObjectsRequest;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
 
 class SquareServiceTest extends TestCase
 {
@@ -31,6 +35,26 @@ class SquareServiceTest extends TestCase
     {
         parent::setUp();
         $this->data = TestDataHolder::make();
+    }
+
+    /**
+     * Tests the batchUpsertCatalogObjectsRequest
+     *
+     * @return void
+     */
+    public function test_batch_upsert_catalog_objects_request()
+    {
+        // Use the BatchUpsertCatalogObjectsRequestBuilder to create the request.
+        $request = \Square\Models\Builders\BatchUpsertCatalogObjectsRequestBuilder::init(
+            (string) Str::uuid(),
+            [\Square\Models\Builders\CatalogObjectBatchBuilder::init([])->build()]
+        )->build();
+
+        // The request below will be invalid, so make sure it throws an exception.
+        $this->expectException(Exception::class);
+
+        // Call the method we're testing
+        Square::batchUpsertCatalog($request);
     }
 
     /**

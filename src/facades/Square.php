@@ -7,6 +7,7 @@ use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareService;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\RetrieveLocationResponse;
@@ -14,6 +15,7 @@ use Square\Models\RetrieveLocationResponse;
 /**
  * @method static SquareService save()
  * @method static string getCurrency()
+ * @method static BatchUpsertCatalogObjectsResponse batchUpsertCatalog(BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest)
  * @method static ListLocationsResponse locations()
  * @method static RetrieveLocationResponse retrieveLocation(string $locationId)
  * @method static SquareRequestBuilder getSquareBuilder()

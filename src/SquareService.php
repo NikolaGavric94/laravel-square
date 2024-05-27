@@ -19,6 +19,8 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
+use Square\Models\BatchUpsertCatalogObjectsRequest;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
@@ -98,6 +100,32 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->customerBuilder = new CustomerBuilder();
         $this->fulfillmentBuilder = new FulfillmentBuilder();
         $this->recipientBuilder = new RecipientBuilder();
+    }
+
+
+    /**
+     * Uploads the items, and adds images, when creating new items for the catalog.
+     *
+     * @param BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest The request to upload the items.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return BatchUpsertCatalogObjectsResponse
+     */
+    public function batchUpsertCatalog(BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest)
+    {
+        // We call the Catalog API function batchUpsertCatalogObjects to upload all our
+        // items at once.
+        $apiResponse = $this->config->catalogAPI()->batchUpsertCatalogObjects($batchUpsertCatalogRequest);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var BatchUpsertCatalogObjectsResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
     }
 
     /**
