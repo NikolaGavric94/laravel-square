@@ -24,11 +24,14 @@ use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
+use Square\Models\CreateCatalogImageRequest;
+use Square\Models\CreateCatalogImageResponse;
 use Square\Models\ListCatalogResponse;
 use Square\Models\ListLocationsResponse;
 use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\UpdateCustomerRequest;
+use Square\Utils\FileWrapper;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -120,6 +123,40 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         if ($apiResponse->isSuccess()) {
             /** @var BatchUpsertCatalogObjectsResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
+    }
+
+    /**
+     * Creates a catalog image.
+     *
+     * @param CreateCatalogImageRequest $createCatalogImageRequest The request to create the image.
+     * @param string                    $filePath                  The image to upload.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return CreateCatalogImageResponse
+     */
+    public function createCatalogImage(
+        CreateCatalogImageRequest $createCatalogImageRequest,
+        string $filePath
+    ) {
+        // Check to see if the file exists
+        if (!file_exists($filePath)) {
+            throw new Exception('The file does not exist');
+        }
+        // Create a file wrapper
+        $fileWrapper = FileWrapper::createFromPath($filePath);
+
+        // Call the Catalog API function createCatalogImage to upload the image
+        $apiResponse = $this->config->catalogAPI()->createCatalogImage($createCatalogImageRequest, $fileWrapper);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var CreateCatalogImageResponse $results */
             $results = $apiResponse->getResult();
 
             return $results;
