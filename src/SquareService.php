@@ -19,12 +19,19 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
+use Square\Models\BatchUpsertCatalogObjectsRequest;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
+use Square\Models\CreateCatalogImageRequest;
+use Square\Models\CreateCatalogImageResponse;
+use Square\Models\ListCatalogResponse;
 use Square\Models\ListLocationsResponse;
+use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\UpdateCustomerRequest;
+use Square\Utils\FileWrapper;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -99,15 +106,122 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Uploads the items, and adds images, when creating new items for the catalog.
+     *
+     * @param BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest The request to upload the items.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return BatchUpsertCatalogObjectsResponse
+     */
+    public function batchUpsertCatalog(BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest)
+    {
+        // We call the Catalog API function batchUpsertCatalogObjects to upload all our
+        // items at once.
+        $apiResponse = $this->config->catalogAPI()->batchUpsertCatalogObjects($batchUpsertCatalogRequest);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var BatchUpsertCatalogObjectsResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
+    }
+
+    /**
+     * Creates a catalog image.
+     *
+     * @param CreateCatalogImageRequest $createCatalogImageRequest The request to create the image.
+     * @param string                    $filePath                  The image to upload.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return CreateCatalogImageResponse
+     */
+    public function createCatalogImage(
+        CreateCatalogImageRequest $createCatalogImageRequest,
+        string $filePath
+    ) {
+        // Check to see if the file exists
+        if (!file_exists($filePath)) {
+            throw new Exception('The file does not exist');
+        }
+        // Create a file wrapper
+        $fileWrapper = FileWrapper::createFromPath($filePath);
+
+        // Call the Catalog API function createCatalogImage to upload the image
+        $apiResponse = $this->config->catalogAPI()->createCatalogImage($createCatalogImageRequest, $fileWrapper);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var CreateCatalogImageResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
+    }
+
+    /**
+     * Helper function to get the appropriate currency to be used based on the location ID provided.
+     *
+     * @param string|null $locationId The location ID.
+     *
+     *
+     * @return string The currency code
+     */
+    public function getCurrency($locationId = 'main')
+    {
+        // Get the currency for the location
+        return $this->retrieveLocation($locationId)->getLocation()->getCurrency();
+    }
+
+    /**
+     * Retrieves the Square API request builder.
+     *
+     * @return SquareRequestBuilder
+     */
+    public function getSquareBuilder(): SquareRequestBuilder
+    {
+        return $this->squareBuilder;
+    }
+
+    /**
      * List locations.
      *
      * @return ListLocationsResponse
-     *
-     * @throws ApiException
      */
     public function locations(): ListLocationsResponse
     {
         return $this->config->locationsAPI()->listLocations()->getResult();
+    }
+
+    /**
+     * Retrieves a specific location.
+     *
+     * @param string $locationId The location ID.
+     *
+     * @return RetrieveLocationResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveLocation(string $locationId): RetrieveLocationResponse
+    {
+        return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
+    }
+
+    /**
+     * Lists the entire catalog.
+     *
+     * @return ListCatalogResponse
+     *
+     * @throws ApiException
+     */
+    public function listCatalog(): ListCatalogResponse
+    {
+        return $this->config->catalogApi()->listCatalog()->getResult();
     }
 
     /**

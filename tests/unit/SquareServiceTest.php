@@ -2,6 +2,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Str;
+use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
@@ -19,6 +21,9 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\BatchUpsertCatalogObjectsRequest;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Utils\FileWrapper;
 
 class SquareServiceTest extends TestCase
 {
@@ -31,6 +36,253 @@ class SquareServiceTest extends TestCase
     {
         parent::setUp();
         $this->data = TestDataHolder::make();
+    }
+
+    /**
+     * Tests the batchUpsertCatalogObjectsRequest
+     *
+     * @return void
+     */
+    public function test_batch_upsert_catalog_objects_request()
+    {
+        // Use the BatchUpsertCatalogObjectsRequestBuilder to create the request.
+        $request = \Square\Models\Builders\BatchUpsertCatalogObjectsRequestBuilder::init(
+            (string) Str::uuid(),
+            [\Square\Models\Builders\CatalogObjectBatchBuilder::init([])->build()]
+        )->build();
+
+        // The request below will be invalid, so make sure it throws an exception.
+        $this->expectException(Exception::class);
+
+        // Call the method we're testing
+        Square::batchUpsertCatalog($request);
+    }
+
+    /**
+     * Tests the buildCatalogImageRequest method.
+     *
+     * @return void
+     */
+    public function test_build_catalog_image_request(): void
+    {
+        // Set up the variables
+        $catalogObjectID = 'Catalog Object ID';
+        $caption         = 'Test Caption';
+
+        // Build the image request
+        $imageRequest = Square::getSquareBuilder()->buildCatalogImageRequest([
+            'catalog_object_id' => $catalogObjectID,
+            'caption'           => $caption
+        ]);
+
+        $this->assertNotNull($imageRequest);
+        $this->assertInstanceOf(\Square\Models\CreateCatalogImageRequest::class, $imageRequest);
+
+        $this->assertNotNull($imageRequest->getIdempotencyKey());
+        $this->assertEquals($catalogObjectID, $imageRequest->getObjectId());
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $imageRequest->getImage());
+        $this->assertEquals($caption, $imageRequest->getImage()->getImageData()->getCaption());
+        $this->assertTrue($imageRequest->getIsPrimary());
+    }
+
+    /**
+     * Tests the buildCategoryCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_category_catalog_object(): void
+    {
+        // Set up the variables
+        $id   = 1;
+        $name = 'Test Category Description';
+
+        // Build the category object
+        $category = Square::getSquareBuilder()->buildCategoryCatalogObject([
+            'id'   => $id,
+            'name' => $name
+        ]);
+
+        $this->assertNotNull($category);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $category);
+        $this->assertEquals('CATEGORY', $category->getType());
+        $this->assertEquals($id, $category->getId());
+        $this->assertEquals($name, $category->getCategoryData()->getName());
+    }
+
+    /**
+     * Tests the buildItemCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_item_catalog_object(): void
+    {
+        // Set up the variables
+        $name        = 'Test Item Name';
+        $taxIDs      = [1, 2, 3];
+        $description = 'Test Item Description';
+        $money       = Square::getSquareBuilder()->buildMoney([
+            'amount'   => 1000,
+            'currency' => Square::getCurrency()
+        ]);
+
+        // First, create the default variation and category objects
+        $variation = Square::getSquareBuilder()->buildVariationCatalogObject([
+            'name'         => 'Variation Name',
+            'variation_id' => 'Variation #1',
+            'item_id'      => 'Item ID',
+            'price_money'  => $money
+        ]);
+        $category  = Square::getSquareBuilder()->buildCategoryCatalogObject([
+            'id'   => 1,
+            'name' => 'Category Name',
+        ]);
+
+        // Build the item object
+        $item = Square::getSquareBuilder()->buildItemCatalogObject([
+            'name'        => $name,
+            'tax_ids'     => $taxIDs,
+            'description' => $description,
+            'variations'  => [$variation],
+            'category_id' => $category->getId()
+        ]);
+
+        $this->assertNotNull($item);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
+        $this->assertEquals('ITEM', $item->getType());
+        // Make sure the ID is the name with a preceding "#" character
+        $this->assertEquals('#' . $name, $item->getId());
+        $this->assertEquals($name, $item->getItemData()->getName());
+        $this->assertEquals($taxIDs, $item->getItemData()->getTaxIds());
+        $this->assertEquals($description, $item->getItemData()->getDescription());
+        $this->assertEquals($variation, $item->getItemData()->getVariations()[0]);
+        $this->assertEquals($category->getId(), $item->getItemData()->getCategoryId());
+    }
+
+    /**
+     * Tests the buildTaxCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_tax_catalog_object(): void
+    {
+        // Set up the variables
+        $name = 'Test Tax Description';
+        $rate = 0.1;
+
+        // Build the tax object
+        $tax = Square::getSquareBuilder()->buildTaxCatalogObject([
+            'name'       => $name,
+            'percentage' => $rate
+        ]);
+
+        $this->assertNotNull($tax);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $tax);
+        $this->assertEquals('TAX', $tax->getType());
+        $this->assertEquals($name, $tax->getTaxData()->getName());
+        $this->assertEquals($rate, $tax->getTaxData()->getPercentage());
+    }
+
+    /**
+     * Tests the buildVariationCatalogObject method.
+     *
+     * @return void
+     */
+    public function test_build_variation_catalog_object(): void
+    {
+        // Set up the variables
+        $id     = 'Variation #1';
+        $name   = 'Test Item Description';
+        $itemID = 'Item #1';
+        $money       = Square::getSquareBuilder()->buildMoney([
+            'amount'   => 1000,
+            'currency' => Square::getCurrency()
+        ]);
+
+        // Build the item object
+        $item = Square::getSquareBuilder()->buildVariationCatalogObject([
+            'name'         => $name,
+            'variation_id' => $id,
+            'item_id'      => $itemID,
+            'price_money'  => $money
+        ]);
+
+        $this->assertNotNull($item);
+        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
+        $this->assertEquals('ITEM_VARIATION', $item->getType());
+        $this->assertEquals($id, $item->getId());
+        $this->assertEquals($name, $item->getItemVariationData()->getName());
+        $this->assertEquals($itemID, $item->getItemVariationData()->getItemId());
+        $this->assertEquals($money, $item->getItemVariationData()->getPriceMoney());
+    }
+
+    /**
+     * Tests the buildMoney method.
+     *
+     * @return void
+     */
+    public function test_build_money(): void
+    {
+        $amount   = 1000;
+        $currency = 'USD';
+        $money    = Square::getSquareBuilder()->buildMoney([
+            'amount'   => $amount,
+            'currency' => $currency
+        ]);
+
+        $this->assertNotNull($money);
+        $this->assertInstanceOf(\Square\Models\Money::class, $money);
+        $this->assertEquals($amount, $money->getAmount());
+        $this->assertEquals($currency, $money->getCurrency());
+    }
+
+    /**
+     * Tests the createCatalogImage method.
+     *
+     * @return void
+     */
+    public function test_create_catalog_image(): void
+    {
+        // Create a mocked file
+        $fileName = 'image.jpg';
+        $file     = \Illuminate\Http\UploadedFile::fake()->create($fileName, 100);
+        $filePath = $file->getPathname();
+
+        $request = Square::getSquareBuilder()->buildCatalogImageRequest([
+            'catalog_object_id' => 'Fake ID',
+            'caption'           => 'Test caption'
+        ]);
+
+        // The request below will be invalid, so make sure it throws an exception.
+        $this->expectException(Exception::class);
+
+        // Call the method we're testing
+        $result = Square::createCatalogImage($request, $filePath);
+    }
+
+    /**
+     * Tests the getCurrency method.
+     *
+     * @return void
+     */
+    public function test_get_currency(): void
+    {
+        $currency = Square::getCurrency();
+
+        $this->assertNotNull($currency);
+        $this->assertEquals('USD', $currency);
+    }
+
+    /**
+     * Returns the square request builder.
+     *
+     * @return void
+     */
+    public function test_get_square_builder(): void
+    {
+        $builder = Square::getSquareBuilder();
+
+        $this->assertNotNull($builder);
+        $this->assertInstanceOf('\Nikolag\Square\Builders\SquareRequestBuilder', $builder);
     }
 
     /**
@@ -484,6 +736,32 @@ class SquareServiceTest extends TestCase
 
         $this->assertNotNull($transactions);
         $this->assertInstanceOf('\Square\Models\ListLocationsResponse', $transactions);
+    }
+
+    /**
+     * Tests retrieving a specific location.
+     *
+     * @return void
+     */
+    public function test_square_list_catalog(): void
+    {
+        $catalog = Square::listCatalog();
+
+        $this->assertNotNull($catalog);
+        $this->assertInstanceOf('\Square\Models\ListCatalogResponse', $catalog);
+    }
+
+    /**
+     * Tests retrieving a specific location.
+     *
+     * @return void
+     */
+    public function test_square_retrieve_location(): void
+    {
+        $transactions = Square::retrieveLocation('main');
+
+        $this->assertNotNull($transactions);
+        $this->assertInstanceOf('\Square\Models\RetrieveLocationResponse', $transactions);
     }
 
     /**
