@@ -231,7 +231,7 @@ class SquareRequestBuilder
     public function buildVariationCatalogObject(array $data): CatalogObject
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['name', 'variation_id', 'item_id', 'price_money', 'pricing_type']);
+        $this->validateRequiredFields($data, ['name', 'variation_id', 'item_id', 'price_money']);
         $name        = $data['name'];
         $variationID = $data['variation_id'];
         $itemID      = $data['item_id'];
