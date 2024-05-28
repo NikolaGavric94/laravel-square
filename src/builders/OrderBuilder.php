@@ -20,6 +20,10 @@ class OrderBuilder
      */
     private DiscountBuilder $discountBuilder;
     /**
+     * @var FulfillmentBuilder
+     */
+    private FulfillmentBuilder $fulfillmentBuilder;
+    /**
      * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
@@ -147,6 +151,37 @@ class OrderBuilder
         // Eagerly load products, for future use
         $order->load('products', 'taxes', 'discounts');
 
+        // Check if order has fulfillments
+        if (
+            property_exists($orderCopy, 'fulfillments')
+            && $orderCopy->fulfillments->isNotEmpty()
+        ) {
+            // For each fulfillment in order
+            foreach ($orderCopy->fulfillments as $fulfillment) {
+                // If order doesn't have fulfillment
+                if (! $order->hasFulfillment($fulfillment)) {
+                    // Create the recipient
+                    $recipient = $fulfillment->fulfillmentDetails->recipient;
+                    $recipient->save();
+                    unset($fulfillment->fulfillmentDetails->recipient);
+
+                    // Associate the recipient with the fulfillment details
+                    $fulfillment->fulfillmentDetails->recipient()->associate($recipient);
+
+                    // Create the fulfillment details
+                    $fulfillment->fulfillmentDetails->save();
+                    $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
+                    unset($fulfillment->fulfillmentDetails);
+
+                    // Associate order with the fulfillment
+                    $fulfillment->order()->associate($order);
+
+                    // Associate the order with the fulfillment
+                    $order->fulfillments->add($fulfillment);
+                }
+            }
+        }
+
         // Return order model, ready for use
         return $order;
     }
@@ -215,6 +250,17 @@ class OrderBuilder
                         }
                     }
                     $orderCopy->products->push($productTemp);
+                }
+            }
+
+            // Create fulfillments Collection
+            $orderCopy->fulfillments = collect([]);
+            // Fulfillments
+            if ($order->fulfillments->isNotEmpty()) {
+                foreach ($order->fulfillments as $fulfillment) {
+                    // Create fulfillment
+                    $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromModel($fulfillment, $order);
+                    $orderCopy->fulfillments->push($fulfillmentTemp);
                 }
             }
 
@@ -288,6 +334,15 @@ class OrderBuilder
                         }
                     }
                     $orderCopy->products->push($productTemp);
+                }
+            }
+            //Fulfillments
+            if (Arr::has($order, 'fulfillments') && $order['fulfillments'] != null) {
+                foreach ($order['fulfillments'] as $fulfillment) {
+                    // Create fulfillment from array
+                    $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromArray($fulfillment);
+
+                    $orderCopy->products->push($fulfillmentTemp);
                 }
             }
 

@@ -16,10 +16,16 @@ class Constants extends CoreConstants
     //Customer info
     const CUSTOMER_NAMESPACE = 'Nikolag\Square\Models\Customer';
     const CUSTOMER_IDENTIFIER = 'id';
+    //Fulfillment info
+    const FULFILLMENT_NAMESPACE = 'Nikolag\Square\Models\Fulfillment';
+    const FULFILLMENT_IDENTIFIER = 'id';
     //Product info
     const ORDER_PRODUCT_NAMESPACE = 'Nikolag\Square\Models\OrderProductPivot';
     const PRODUCT_NAMESPACE = 'Nikolag\Square\Models\Product';
     const PRODUCT_IDENTIFIER = 'id';
+    //Customer info
+    const RECIPIENT_NAMESPACE = 'Nikolag\Square\Models\Recipient';
+    const RECIPIENT_IDENTIFIER = 'id';
     //Discount info
     const DISCOUNT_NAMESPACE = 'Nikolag\Square\Models\Discount';
     const DISCOUNT_IDENTIFIER = 'id';
@@ -44,4 +50,21 @@ class Constants extends CoreConstants
     const DEDUCTIBLE_FIXED_AMOUNT = 'FIXED_AMOUNT';
     const DEDUCTIBLE_SCOPE_ORDER = 'ORDER';
     const DEDUCTIBLE_SCOPE_PRODUCT = 'LINE_ITEM';
+
+    // Fulfillment type constants
+    const FULFILLMENT_TYPE_PICKUP = 'PICKUP';
+    const FULFILLMENT_TYPE_SHIPMENT = 'SHIPMENT';
+    const FULFILLMENT_TYPE_DELIVERY = 'DELIVERY';
+
+    // Fulfillment state constants
+    const FULFILLMENT_STATE_PROPOSED = 'PROPOSED';
+    const FULFILLMENT_STATE_RESERVED = 'RESERVED';
+    const FULFILLMENT_STATE_PREPARED = 'PREPARED';
+    const FULFILLMENT_STATE_COMPLETED = 'COMPLETED';
+    const FULFILLMENT_STATE_CANCELED = 'CANCELED';
+    const FULFILLMENT_STATE_FAILED = 'FAILED';
+
+    // Fulfillment scheduled type constants
+    const SCHEDULED_TYPE_ASAP = 'ASAP';
+    const SCHEDULED_TYPE_SCHEDULED = 'SCHEDULED';
 }

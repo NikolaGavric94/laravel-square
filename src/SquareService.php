@@ -4,8 +4,10 @@ namespace Nikolag\Square;
 
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
+use Nikolag\Square\Builders\FulfillmentBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
+use Nikolag\Square\Builders\RecipientBuilder;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
@@ -48,6 +50,14 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     protected CustomerBuilder $customerBuilder;
     /**
+     * @var FulfillmentBuilder
+     */
+    private FulfillmentBuilder $fulfillmentBuilder;
+    /**
+     * @var RecipientBuilder
+     */
+    private RecipientBuilder $recipientBuilder;
+    /**
      * @var string
      */
     private string $locationId;
@@ -55,6 +65,18 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @var string
      */
     private string $currency;
+    /**
+     * @var mixed
+     */
+    protected mixed $fulfillment = null;
+    /**
+     * @var mixed
+     */
+    protected mixed $fulfillmentDetails = null;
+    /**
+     * @var mixed
+     */
+    protected mixed $fulfillmentRecipient = null;
     /**
      * @var CreateOrderRequest
      */
@@ -72,6 +94,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->squareBuilder = new SquareRequestBuilder();
         $this->productBuilder = new ProductBuilder();
         $this->customerBuilder = new CustomerBuilder();
+        $this->fulfillmentBuilder = new FulfillmentBuilder();
+        $this->recipientBuilder = new RecipientBuilder();
     }
 
     /**
@@ -339,6 +363,81 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Add a fulfillment to the order.
+     * NOTE: This currently supports ONE fulfillment per order.  While the Square API supports multiple fulfillments per
+     * order, the standard UI does not, so this is limited to a single fulfillment.
+     *
+     * @param  mixed  $fulfillment
+     * @param  string $type
+     *
+     * @throws Exception If the order already has a fulfillment.
+     *
+     * @return self
+     */
+    public function setFulfillment(mixed $fulfillment): static
+    {
+        // Fulfillment class
+        $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
+
+        if (is_a($fulfillment, $fulfillmentClass)) {
+            $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
+                $fulfillment,
+                $this->getOrder(),
+            );
+        } else {
+            $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromArray(
+                $fulfillment,
+                $this->getOrder(),
+            );
+        }
+
+        // Check if order already has this fulfillment
+        if (!Util::hasFulfillment($this->orderCopy->fulfillments, $this->getFulfillment())) {
+            // Add the fulfillment to the order
+            $this->orderCopy->fulfillments->push($this->getFulfillment());
+        } else {
+            throw new Exception('This order already has a fulfillment', 500);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a recipient to the fulfillment details.
+     * NOTE: This currently supports ONE recipient per fulfillment.  While the Square API supports multiple fulfillments
+     * which would allow multiple recipients, the standard UI does not, so this is limited to a single recipient.
+     *
+     * @param  mixed  $recipient
+     * @return self
+     *
+     * @throws Exception If the order's fulfillment details already has a recipient.
+     */
+    public function setFulfillmentRecipient(mixed $recipient): static
+    {
+        // Make sure we have a fulfillment
+        if (!$this->getFulfillment()) {
+            throw new MissingPropertyException('Fulfillment must be added before adding a fulfillment recipient', 500);
+        }
+
+        $recipientClass = Constants::RECIPIENT_NAMESPACE;
+
+        if (is_a($recipient, $recipientClass)) {
+            $this->fulfillmentRecipient = $this->recipientBuilder->load($recipient->toArray());
+        } elseif (is_array($recipient)) {
+            $this->fulfillmentRecipient = $this->recipientBuilder->load($recipient);
+        }
+
+        // Check if this order's fulfillment details already has a recipient
+        if (!$this->getFulfillmentDetails()->recipient) {
+            $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->getFulfillmentRecipient();
+        } else {
+            throw new Exception('This order\'s fulfillment details already has a recipient', 500);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a product to the order.
      *
      * @param  mixed  $product
@@ -380,6 +479,30 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function getCreateCustomerRequest(): UpdateCustomerRequest|CreateCustomerRequest
     {
         return $this->createCustomerRequest;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFulfillment(): mixed
+    {
+        return $this->fulfillment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFulfillmentDetails(): mixed
+    {
+        return $this->fulfillment->fulfillmentDetails;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFulfillmentRecipient(): mixed
+    {
+        return $this->fulfillmentRecipient;
     }
 
     /**
@@ -468,6 +591,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         } elseif (is_array($order)) {
             $this->order = $this->orderBuilder->buildOrderModelFromArray($order, new $orderClass());
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
+        } else {
+            throw new InvalidSquareOrderException('Order must be an instance of ' . $orderClass . ' or an array', 500);
         }
 
         return $this;
