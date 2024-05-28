@@ -70,6 +70,9 @@ class SquareConfig extends CoreConfig
     /**
      * Api for transactions.
      *
+     * @deprecated cf. https://developer.squareup.com/docs/build-basics/api-lifecycle#deprecated
+     * @see https://developer.squareup.com/docs/payments-api/migrate-from-transactions-api
+     *
      * @return TransactionsApi
      */
     public function transactionsAPI(): TransactionsApi
