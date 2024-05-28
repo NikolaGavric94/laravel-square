@@ -70,10 +70,10 @@ class SquareServiceTest extends TestCase
         $caption         = 'Test Caption';
 
         // Build the image request
-        $imageRequest = Square::getSquareBuilder()->buildCatalogImageRequest(
-            $catalogObjectID,
-            $caption
-        );
+        $imageRequest = Square::getSquareBuilder()->buildCatalogImageRequest([
+            'catalog_object_id' => $catalogObjectID,
+            'caption'           => $caption
+        ]);
 
         $this->assertNotNull($imageRequest);
         $this->assertInstanceOf(\Square\Models\CreateCatalogImageRequest::class, $imageRequest);
@@ -97,10 +97,10 @@ class SquareServiceTest extends TestCase
         $name = 'Test Category Description';
 
         // Build the category object
-        $category = Square::getSquareBuilder()->buildCategoryCatalogObject(
-            $id,
-            $name
-        );
+        $category = Square::getSquareBuilder()->buildCategoryCatalogObject([
+            'id'   => $id,
+            'name' => $name
+        ]);
 
         $this->assertNotNull($category);
         $this->assertInstanceOf(\Square\Models\CatalogObject::class, $category);
@@ -120,28 +120,31 @@ class SquareServiceTest extends TestCase
         $name        = 'Test Item Name';
         $taxIDs      = [1, 2, 3];
         $description = 'Test Item Description';
-        $money       = Square::getSquareBuilder()->buildMoney(1000, Square::getCurrency());
+        $money       = Square::getSquareBuilder()->buildMoney([
+            'amount'   => 1000,
+            'currency' => Square::getCurrency()
+        ]);
 
         // First, create the default variation and category objects
-        $variation = Square::getSquareBuilder()->buildVariationCatalogObject(
-            'Variation Name',
-            'Variation #1',
-            'Item ID',
-            $money
-        );
-        $category = Square::getSquareBuilder()->buildCategoryCatalogObject(
-            1,
-            'Category Name'
-        );
+        $variation = Square::getSquareBuilder()->buildVariationCatalogObject([
+            'name'         => 'Variation Name',
+            'variation_id' => 'Variation #1',
+            'item_id'      => 'Item ID',
+            'price_money'  => $money
+        ]);
+        $category  = Square::getSquareBuilder()->buildCategoryCatalogObject([
+            'id'   => 1,
+            'name' => 'Category Name',
+        ]);
 
         // Build the item object
-        $item = Square::getSquareBuilder()->buildItemCatalogObject(
-            $name,
-            $taxIDs,
-            $description,
-            [$variation],
-            $category->getId()
-        );
+        $item = Square::getSquareBuilder()->buildItemCatalogObject([
+            'name'        => $name,
+            'tax_ids'     => $taxIDs,
+            'description' => $description,
+            'variations'  => [$variation],
+            'category_id' => $category->getId()
+        ]);
 
         $this->assertNotNull($item);
         $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
@@ -167,10 +170,10 @@ class SquareServiceTest extends TestCase
         $rate = 0.1;
 
         // Build the tax object
-        $tax = Square::getSquareBuilder()->buildTaxCatalogObject(
-            $name,
-            $rate
-        );
+        $tax = Square::getSquareBuilder()->buildTaxCatalogObject([
+            'name'       => $name,
+            'percentage' => $rate
+        ]);
 
         $this->assertNotNull($tax);
         $this->assertInstanceOf(\Square\Models\CatalogObject::class, $tax);
@@ -190,15 +193,18 @@ class SquareServiceTest extends TestCase
         $id     = 'Variation #1';
         $name   = 'Test Item Description';
         $itemID = 'Item #1';
-        $money  = Square::getSquareBuilder()->buildMoney(1000, Square::getCurrency());
+        $money       = Square::getSquareBuilder()->buildMoney([
+            'amount'   => 1000,
+            'currency' => Square::getCurrency()
+        ]);
 
         // Build the item object
-        $item = Square::getSquareBuilder()->buildVariationCatalogObject(
-            $name,
-            $id,
-            $itemID,
-            $money
-        );
+        $item = Square::getSquareBuilder()->buildVariationCatalogObject([
+            'name'         => $name,
+            'variation_id' => $id,
+            'item_id'      => $itemID,
+            'price_money'  => $money
+        ]);
 
         $this->assertNotNull($item);
         $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
@@ -218,8 +224,10 @@ class SquareServiceTest extends TestCase
     {
         $amount   = 1000;
         $currency = 'USD';
-
-        $money = Square::getSquareBuilder()->buildMoney($amount, $currency);
+        $money    = Square::getSquareBuilder()->buildMoney([
+            'amount'   => $amount,
+            'currency' => $currency
+        ]);
 
         $this->assertNotNull($money);
         $this->assertInstanceOf(\Square\Models\Money::class, $money);
@@ -239,7 +247,10 @@ class SquareServiceTest extends TestCase
         $file     = \Illuminate\Http\UploadedFile::fake()->create($fileName, 100);
         $filePath = $file->getPathname();
 
-        $request = Square::getSquareBuilder()->buildCatalogImageRequest('Fake ID', 'Test caption');
+        $request = Square::getSquareBuilder()->buildCatalogImageRequest([
+            'catalog_object_id' => 'Fake ID',
+            'caption'           => 'Test caption'
+        ]);
 
         // The request below will be invalid, so make sure it throws an exception.
         $this->expectException(Exception::class);

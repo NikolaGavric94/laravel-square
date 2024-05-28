@@ -69,19 +69,41 @@ class SquareRequestBuilder
     }
 
     /**
+     * Validates that the required fields are present in the data array.
+     *
+     * @param array $data
+     * @param array $requiredFields
+     *
+     * @throws MissingPropertyException
+     *
+     * @return void
+     */
+    public function validateRequiredFields(array $data, array $requiredFields): void
+    {
+        foreach ($requiredFields as $field) {
+            if (!array_key_exists($field, $data) || empty($data[$field])) {
+                throw new MissingPropertyException("The $field field is required", 500);
+            }
+        }
+    }
+
+    /**
      * Builds a category catalog object item.
      *
-     * @param string  $id           The ID of the category.
-     * @param string  $name         The name of the category.
-     * @param boolean $allLocations Whether the category is present at all locations.
+     * @param array $data
      *
      * @return CatalogObject
      */
-    public function buildCategoryCatalogObject(
-        string $id,
-        string $name,
-        bool $allLocations = true
-    ): CatalogObject {
+    public function buildCategoryCatalogObject(array $data): CatalogObject
+    {
+        // Get the required fields
+        $this->validateRequiredFields($data, ['id', 'name']);
+        $id   = $data['id'];
+        $name = $data['name'];
+
+        // Get the optional fields
+        $allLocations = $data['all_locations'] ?? true;
+
         return CatalogObjectBuilder::init(
             CatalogObjectType::CATEGORY,
             $id
@@ -98,23 +120,23 @@ class SquareRequestBuilder
     /**
      * Builds an item catalog object item.
      *
-     * @param string               $name         The name of the item.
-     * @param array                $taxIDs       The tax IDs of the item.
-     * @param string               $description  The description of the item.
-     * @param array<CatalogObject> $variations   The variations of the item.
-     * @param string               $categoryID   The category of the item.
-     * @param boolean              $allLocations Whether the item is present at all locations.
+     * @param array $data
      *
      * @return CatalogObject
      */
-    public function buildItemCatalogObject(
-        string $name,
-        array $taxIDs,
-        string $description,
-        array $variations,
-        string $categoryID,
-        bool $allLocations = true
-    ): CatalogObject {
+    public function buildItemCatalogObject(array $data): CatalogObject
+    {
+        // Get the required fields
+        $this->validateRequiredFields($data, ['name', 'tax_ids', 'description', 'variations', 'category_id']);
+        $name        = $data['name'];
+        $taxIDs      = $data['tax_ids'];
+        $description = $data['description'];
+        $variations  = $data['variations'];
+        $categoryID  = $data['category_id'];
+
+        // Get the optional fields
+        $allLocations = $data['all_locations'] ?? true;
+
         // Create a catalog item builder
         $catalogItemBuilder = CatalogItemBuilder::init()
             ->name($name)
@@ -143,25 +165,24 @@ class SquareRequestBuilder
     /**
      * Builds a tax catalog object item.
      *
-     * @param string  $name                   The name of the tax.
-     * @param string  $percentage             The percentage of the tax.
-     * @param string  $calculationPhase       The calculation phase of the tax.
-     * @param string  $inclusionType          The inclusion type of the tax.
-     * @param boolean $appliesToCustomAmounts Whether the tax applies to custom amounts.
-     * @param boolean $enabled                Whether the tax is enabled.
-     * @param boolean $allLocations           Whether the tax is present at all locations.
+     * @param array $data
      *
      * @return CatalogObject
      */
-    public function buildTaxCatalogObject(
-        string $name,
-        string $percentage,
-        string $calculationPhase = TaxCalculationPhase::TAX_TOTAL_PHASE,
-        string $inclusionType = TaxInclusionType::ADDITIVE,
-        bool $appliesToCustomAmounts = true,
-        bool $enabled = true,
-        bool $allLocations = true
-    ): CatalogObject {
+    public function buildTaxCatalogObject(array $data): CatalogObject
+    {
+        // Get the required fields
+        $this->validateRequiredFields($data, ['name', 'percentage']);
+        $name       = $data['name'];
+        $percentage = $data['percentage'];
+
+        // Get the optional fields
+        $calculationPhase       = $data['calculation_phase'] ?? TaxCalculationPhase::TAX_TOTAL_PHASE;
+        $inclusionType          = $data['inclusion_type'] ?? TaxInclusionType::ADDITIVE;
+        $appliesToCustomAmounts = $data['applies_to_custom_amounts'] ?? true;
+        $enabled                = $data['enabled'] ?? true;
+        $allLocations           = $data['all_locations'] ?? true;
+
         return CatalogObjectBuilder::init(
             CatalogObjectType::TAX,
             '#' . $name
@@ -183,15 +204,17 @@ class SquareRequestBuilder
     /**
      * Builds a money object.
      *
-     * @param integer $amount   The amount of the money.
-     * @param string  $currency The currency of the money.
+     * @param array $data
      *
      * @return Money
      */
-    public function buildMoney(
-        int $amount,
-        string $currency
-    ): Money {
+    public function buildMoney(array $data): Money
+    {
+        // Get the required fields
+        $this->validateRequiredFields($data, ['amount', 'currency']);
+        $amount   = $data['amount'];
+        $currency = $data['currency'];
+
         return MoneyBuilder::init()
             ->amount($amount)
             ->currency($currency)
@@ -201,23 +224,26 @@ class SquareRequestBuilder
     /**
      * Builds a variation catalog object item.
      *
-     * @param string  $name         The name of the variation.
-     * @param string  $variationID  The variation ID of the variation.
-     * @param string  $itemID       The item ID of the item for which the variation is being built.
-     * @param Money   $priceMoney   The price money of the variation.
-     * @param string  $pricingType  The pricing type of the variation.
-     * @param boolean $allLocations Whether the variation is present at all locations.
+     * @param array $data
      *
      * @return CatalogObject
      */
-    public function buildVariationCatalogObject(
-        string $name,
-        string $variationID,
-        string $itemID,
-        Money $priceMoney,
-        string $pricingType = CatalogPricingType::FIXED_PRICING,
-        bool $allLocations = true
-    ): CatalogObject {
+    public function buildVariationCatalogObject(array $data): CatalogObject
+    {
+        // Get the required fields
+        $this->validateRequiredFields($data, ['name', 'variation_id', 'item_id', 'price_money', 'pricing_type']);
+        $name        = $data['name'];
+        $variationID = $data['variation_id'];
+        $itemID      = $data['item_id'];
+        $priceMoney  = $data['price_money'];
+        if (!$priceMoney instanceof Money) {
+            throw new MissingPropertyException('The price_money field must be an instance of Money', 500);
+        }
+
+        // Get the optional fields
+        $pricingType  = $data['pricing_type'] ?? CatalogPricingType::FIXED_PRICING;
+        $allLocations = $data['all_locations'] ?? true;
+
         return CatalogObjectBuilder::init(
             CatalogObjectType::ITEM_VARIATION,
             $variationID
@@ -241,17 +267,21 @@ class SquareRequestBuilder
      * This CreateCatalogImage endpoint accepts HTTP multipart/form-data requests with a JSON part and an image file
      * part in JPEG, PJPEG, PNG, or GIF format. The maximum file size is 15MB.
      *
-     * @param string $catalogObjectId The ID of the object to which the image is attached.
-     * @param string $caption         The caption of the image.
-     * @param bool   $isPrimary       Whether the image is the primary image.
+     * @param array $data
      *
      * @return CreateCatalogImageRequest
      */
-    public function buildCatalogImageRequest(
-        string $catalogObjectId,
-        string $caption = '',
-        bool $isPrimary = true
-    ): CreateCatalogImageRequest {
+    public function buildCatalogImageRequest(array $data): CreateCatalogImageRequest
+    {
+        // Get the required fields
+        $this->validateRequiredFields($data, ['catalog_object_id' ]);
+        $catalogObjectId = $data['catalog_object_id'];
+
+        // Get the optional fields
+        $caption   = $data['caption'] ?? null;
+        $isPrimary = $data['is_primary'] ?? true;
+
+        // Create the catalog image request builder
         $builder =  CreateCatalogImageRequestBuilder::init(
             (string) Str::uuid(), // Generate an idempotencyKey
             CatalogObjectBuilder::init(
