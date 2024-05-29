@@ -160,6 +160,10 @@ class OrderBuilder
             foreach ($orderCopy->fulfillments as $fulfillment) {
                 // If order doesn't have fulfillment
                 if (! $order->hasFulfillment($fulfillment)) {
+                    // A fulfillment cannot exist without a recipient - make sure it's present
+                    if (!property_exists($fulfillment->fulfillmentDetails, 'recipient')) {
+                        throw new MissingPropertyException('Recipient is missing from fulfillment details');
+                    }
                     // Create the recipient
                     $recipient = $fulfillment->fulfillmentDetails->recipient;
                     $recipient->save();
