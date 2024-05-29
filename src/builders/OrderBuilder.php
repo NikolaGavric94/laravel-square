@@ -340,6 +340,8 @@ class OrderBuilder
                     $orderCopy->products->push($productTemp);
                 }
             }
+            // Create fulfillments Collection
+            $orderCopy->fulfillments = collect([]);
             //Fulfillments
             if (Arr::has($order, 'fulfillments') && $order['fulfillments'] != null) {
                 foreach ($order['fulfillments'] as $fulfillment) {
