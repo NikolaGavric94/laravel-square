@@ -67,6 +67,23 @@ class ShipmentDetails extends Model
     ];
 
     /**
+     * Rules for validation
+     *
+     * @var array
+     */
+    public static $rules = [
+        'placed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'in_progress_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'packaged_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'expected_shipped_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'shipped_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'canceled_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'failed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'created_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'updated_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+    ];
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array

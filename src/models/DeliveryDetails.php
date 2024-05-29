@@ -77,6 +77,25 @@ class DeliveryDetails extends Model
     ];
 
     /**
+     * Rules for validation
+     *
+     * @var array
+     */
+    public static $rules = [
+        'placed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'deliver_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'completed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'in_progress_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'rejected_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'ready_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'delivered_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'canceled_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'courier_picked_up_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'created_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+        'updated_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
+    ]
+
+    /**
      * The attributes that aren't mass assignable.
      *
      * @var array
