@@ -12,6 +12,7 @@ use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\BatchDeleteCatalogObjectsRequest;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\CatalogPricingType;
@@ -35,6 +36,7 @@ use Square\Models\OrderLineItemTax;
 use Square\Models\TaxCalculationPhase;
 use Square\Models\TaxInclusionType;
 use Square\Models\UpdateCustomerRequest;
+use Square\Models\Builders\BatchDeleteCatalogObjectsRequestBuilder;
 use Square\Models\Builders\CatalogCategoryBuilder;
 use Square\Models\Builders\CatalogImageBuilder;
 use Square\Models\Builders\CatalogItemBuilder;
@@ -85,6 +87,20 @@ class SquareRequestBuilder
                 throw new MissingPropertyException("The $field field is required", 500);
             }
         }
+    }
+
+    /**
+     * Builds a batch delete category objects request
+     *
+     * @param array<string> $catalogObjectIds The catalog object IDs to delete.
+     *
+     * @return BatchDeleteCatalogObjectsRequest
+     */
+    public function buildBatchDeleteCategoryObjectsRequest(array $catalogObjectIds): BatchDeleteCatalogObjectsRequest
+    {
+        return BatchDeleteCatalogObjectsRequestBuilder::init()
+                ->objectIds($catalogObjectIds)
+                ->build();
     }
 
     /**

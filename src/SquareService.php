@@ -19,7 +19,7 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
-use Square\Models\BatchDeleteCatalogObjectsRequest;
+use Square\Models\BatchDeleteCatalogObjectsResponse;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CreateCustomerRequest;
@@ -109,17 +109,18 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Batch deletes catalog objects.
      *
-     * @param BatchDeleteCatalogObjectsRequest $batchDeleteCatalogRequest The request to delete the items.
+     * @param array<string> $catalogObjectIds The catalog object IDs to delete.
      *
      * @throws Exception When an error occurs.
      *
      * @return BatchDeleteCatalogObjectsResponse
      */
-    public function batchDeleteCatalog(BatchDeleteCatalogObjectsRequest $batchDeleteCatalogRequest)
+    public function batchDeleteCatalogObjects(array $catalogObjectIds)
     {
-        // We call the Catalog API function batchDeleteCatalogObjects to delete all our
-        // items at once.
-        $apiResponse = $this->config->catalogAPI()->batchDeleteCatalogObjects($batchDeleteCatalogRequest);
+        $request = $this->getSquareBuilder()->buildBatchDeleteCategoryObjectsRequest($catalogObjectIds);
+
+        // Call the Catalog API function batchDeleteCatalogObjects to delete all our items at once.
+        $apiResponse = $this->config->catalogAPI()->batchDeleteCatalogObjects($request);
 
         if ($apiResponse->isSuccess()) {
             /** @var BatchDeleteCatalogObjectsResponse $results */
