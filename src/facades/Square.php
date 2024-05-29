@@ -17,8 +17,13 @@ use Square\Models\RetrieveLocationResponse;
 /**
  * @method static SquareService save()
  * @method static string getCurrency()
- * @method static CreateCatalogImageResponse createCatalogImage(CreateCatalogImageRequest $createCatalogImageRequest, string $filePath)
- * @method static BatchUpsertCatalogObjectsResponse batchUpsertCatalog(BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest)
+ * @method static CreateCatalogImageResponse createCatalogImage(
+ *     CreateCatalogImageRequest $createCatalogImageRequest,
+ *     string $filePath
+ * )
+ * @method static BatchUpsertCatalogObjectsResponse batchUpsertCatalog(
+ *     BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest
+ * )
  * @method static ListLocationsResponse locations()
  * @method static RetrieveLocationResponse retrieveLocation(string $locationId)
  * @method static SquareRequestBuilder getSquareBuilder()
