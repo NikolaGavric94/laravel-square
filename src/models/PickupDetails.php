@@ -103,6 +103,6 @@ class PickupDetails extends Model
      */
     protected function serializeDate(DateTimeInterface $date)
     {
-        return $date->format('Y-m-d\TH:i:sP');
+        return $date->format(Constants::DATE_FORMAT);
     }
 }

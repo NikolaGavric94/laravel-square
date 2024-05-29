@@ -5,6 +5,7 @@ namespace Nikolag\Square\Models;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Traits\HasRecipient;
+use Nikolag\Square\Utils\Constants;
 
 class DeliveryDetails extends Model
 {
@@ -107,6 +108,6 @@ class DeliveryDetails extends Model
      */
     protected function serializeDate(DateTimeInterface $date)
     {
-        return $date->format('Y-m-d\TH:i:sP');
+        return $date->format(Constants::DATE_FORMAT);
     }
 }
