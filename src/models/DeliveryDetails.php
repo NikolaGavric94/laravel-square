@@ -93,7 +93,7 @@ class DeliveryDetails extends Model
         'courier_picked_up_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
         'created_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
         'updated_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-    ]
+    ];
 
     /**
      * The attributes that aren't mass assignable.
