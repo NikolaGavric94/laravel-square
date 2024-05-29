@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Traits\HasRecipient;
 
@@ -67,23 +68,6 @@ class ShipmentDetails extends Model
     ];
 
     /**
-     * Rules for validation
-     *
-     * @var array
-     */
-    public static $rules = [
-        'placed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'in_progress_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'packaged_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'expected_shipped_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'shipped_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'canceled_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'failed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'created_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'updated_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-    ];
-
-    /**
      * The attributes that aren't mass assignable.
      *
      * @var array
@@ -103,5 +87,16 @@ class ShipmentDetails extends Model
             Constants::FULFILLMENT_NAMESPACE,
             'fulfillmentDetails'
         );
+    }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d\TH:i:sP');
     }
 }

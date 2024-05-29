@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Traits\HasRecipient;
 use Nikolag\Square\Utils\Constants;
@@ -72,26 +73,6 @@ class PickupDetails extends Model
         'curbside_pickup_details' => 'object',
     ];
 
-
-    /**
-     * Rules for validation
-     *
-     * @var array
-     */
-    public static $rules = [
-        'expires_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'pickup_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'placed_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'accepted_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'rejected_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'ready_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'expired_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'picked_up_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'canceled_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'created_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-        'updated_at' => 'sometimes|date_format:Y-m-d\TH:i:sP',
-    ];
-
     /**
      * The attributes that aren't mass assignable.
      *
@@ -112,5 +93,16 @@ class PickupDetails extends Model
             Constants::FULFILLMENT_NAMESPACE,
             'fulfillmentDetails'
         );
+    }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d\TH:i:sP');
     }
 }

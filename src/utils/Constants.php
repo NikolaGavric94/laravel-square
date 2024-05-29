@@ -69,5 +69,5 @@ class Constants extends CoreConstants
     const SCHEDULED_TYPE_SCHEDULED = 'SCHEDULED';
 
     // Date format (RFC3339 - which complies with Square's API requirements)
-    const DATE_FORMAT = 'Y-m-d\TH:i:sP';
+    const DATE_FORMAT = 'Y-m-d H:i:s';
 }

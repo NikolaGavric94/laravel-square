@@ -4,7 +4,6 @@ namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Fulfillment;
@@ -136,13 +135,7 @@ class FulfillmentBuilder
         if (!$deliveryData) {
             throw new MissingPropertyException('delivery_details property for object Fulfillment is missing', 500);
         }
-        // Create a new model
-        $deliveryDetails = new DeliveryDetails($deliveryData);
-
-        // Validate that the type matches the details
-        Validator::make($deliveryDetails->toArray(), DeliveryDetails::$rules)->validate();
-
-        return $deliveryDetails;
+        return new DeliveryDetails($deliveryData);
     }
 
     /**
@@ -167,14 +160,7 @@ class FulfillmentBuilder
         if (!$pickupData) {
             throw new MissingPropertyException('pickup_details property for object Fulfillment is missing', 500);
         }
-
-        // Create a new model
-        $pickupDetails = new PickupDetails($pickupData);
-
-        // Validate that the type matches the details
-        Validator::make($pickupDetails->toArray(), PickupDetails::$rules)->validate();
-
-        return $pickupDetails;
+        return new PickupDetails($pickupData);
     }
 
     /**
@@ -199,11 +185,6 @@ class FulfillmentBuilder
         if (!$shipmentData) {
             throw new MissingPropertyException('shipment_details property for object Fulfillment is missing', 500);
         }
-        $shipmentDetails = new ShipmentDetails($shipmentData);
-
-        // Validate that the type matches the details
-        Validator::make($shipmentDetails->toArray(), ShipmentDetails::$rules)->validate();
-
-        return $shipmentDetails;
+        return new ShipmentDetails($shipmentData);
     }
 }
