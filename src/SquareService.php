@@ -133,11 +133,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private function _saveOrder(bool $saveToSquare = false): void
     {
-        $this->order = $this->orderBuilder->buildOrderFromOrderCopy($this->getOrder(), $this->orderCopy);
         //If property locationId doesn't exist throw error
         if (! $this->locationId) {
             throw new MissingPropertyException('$locationId property is missing', 500);
         }
+        // Add location id to the order copy
+        $this->orderCopy->location_id = $this->locationId;
+
+        $this->order = $this->orderBuilder->buildOrderFromOrderCopy($this->getOrder(), $this->orderCopy);
+
         //If order doesn't have any products throw error
         if ($this->getOrder()->products()->count() == 0) {
             throw new InvalidSquareOrderException('Object Order must have at least 1 Product', 500);
