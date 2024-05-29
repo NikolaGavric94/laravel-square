@@ -127,22 +127,26 @@ class SquareRequestBuilder
     public function buildItemCatalogObject(array $data): CatalogObject
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['name', 'tax_ids', 'description', 'variations', 'category_id']);
+        $this->validateRequiredFields($data, ['name', 'tax_ids', 'description', 'variations']);
         $name        = $data['name'];
         $taxIDs      = $data['tax_ids'];
         $description = $data['description'];
         $variations  = $data['variations'];
-        $categoryID  = $data['category_id'];
 
         // Get the optional fields
+        $categoryID  = $data['category_id'] ?? null;
         $allLocations = $data['all_locations'] ?? true;
 
         // Create a catalog item builder
         $catalogItemBuilder = CatalogItemBuilder::init()
             ->name($name)
             ->taxIds($taxIDs)
-            ->variations($variations)
-            ->categoryId($categoryID);
+            ->variations($variations);
+
+        // Add the category ID to the catalog item builder
+        if (!empty($categoryID)) {
+            $catalogItemBuilder->categoryId($categoryID);
+        }
 
         // Add the description to the catalog item builder
         if (!empty($description)) {
