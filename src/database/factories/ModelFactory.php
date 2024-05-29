@@ -116,6 +116,7 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 $factory->define(Order::class, function (Faker\Generator $faker) {
     return [
         'payment_service_type' => 'square',
+        'location_id' => env('SQUARE_LOCATION'),
     ];
 });
 
