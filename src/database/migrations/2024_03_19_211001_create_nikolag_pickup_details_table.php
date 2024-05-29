@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('pickup_window_duration')->nullable();
             $table->string('prep_time_duration')->nullable();
             $table->string('note', 500)->nullable();
-            $table->timestamp('placed_at');
+            $table->timestamp('placed_at')->nullable();
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
             $table->timestamp('ready_at')->nullable();

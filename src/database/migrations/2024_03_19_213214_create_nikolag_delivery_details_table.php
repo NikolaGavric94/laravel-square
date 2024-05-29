@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('recipient_id')->nullable();
             $table->string('carrier', 50);
-            $table->timestamp('placed_at');
+            $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();
             $table->string('prep_time_duration')->nullable();
             $table->string('delivery_window_duration')->nullable();

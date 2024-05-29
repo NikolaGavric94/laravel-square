@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('shipping_type', 50)->nullable();
             $table->string('tracking_number', 100)->nullable();
             $table->string('tracking_url', 2000)->nullable();
-            $table->timestamp('placed_at');
+            $table->timestamp('placed_at')->nullable();
             $table->timestamp('in_progress_at')->nullable();
             $table->timestamp('packaged_at')->nullable();
             $table->timestamp('expected_shipped_at')->nullable();
