@@ -208,7 +208,7 @@ class SquareServiceTest extends TestCase
                     'state'            => 'PROPOSED',
                     'delivery_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now(),
+                        'placed_at'      => now()->format(Constants::DATE_FORMAT),
                         'carrier'        => 'USPS',
                     ]
                 ],
@@ -275,7 +275,7 @@ class SquareServiceTest extends TestCase
                     'state'          => 'PROPOSED',
                     'pickup_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now()
+                        'placed_at'      => now()->format(Constants::DATE_FORMAT)
                     ]
                 ],
             )
@@ -342,7 +342,7 @@ class SquareServiceTest extends TestCase
                     'state'          => 'PROPOSED',
                     'pickup_details' => [
                         'scheduled_type'          => 'ASAP',
-                        'placed_at'               => now(),
+                        'placed_at'               => now()->format(Constants::DATE_FORMAT),
                         'is_curbside_pickup'      => true,
                         'curbside_pickup_details' => [
                             'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
@@ -407,7 +407,7 @@ class SquareServiceTest extends TestCase
                     'state'            => 'PROPOSED',
                     'shipment_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now()
+                        'placed_at'      => now()->format(Constants::DATE_FORMAT)
                     ]
                 ],
                 Constants::FULFILLMENT_TYPE_SHIPMENT
@@ -479,7 +479,7 @@ class SquareServiceTest extends TestCase
                     'state'            => 'PROPOSED',
                     'delivery_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now(),
+                        'placed_at'      => now()->format(Constants::DATE_FORMAT),
                         'carrier'        => 'USPS',
                     ]
                 ],
