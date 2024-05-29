@@ -161,7 +161,7 @@ class OrderBuilder
                 // If order doesn't have fulfillment
                 if (! $order->hasFulfillment($fulfillment)) {
                     // A fulfillment cannot exist without a recipient - make sure it's present
-                    if (!property_exists($fulfillment->fulfillmentDetails, 'recipient')) {
+                    if (!$fulfillment->fulfillmentDetails->recipient) {
                         throw new MissingPropertyException('Recipient is missing from fulfillment details');
                     }
                     // Create the recipient

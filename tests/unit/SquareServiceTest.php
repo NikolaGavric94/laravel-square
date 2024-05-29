@@ -457,6 +457,38 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Makes sure the Square Order throws an error when a fulfillment is present but no recipient is set.
+     *
+     * @return void
+     */
+    public function test_square_order_fulfillment_with_no_recipient(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        // Set up the error expectations
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Required fields are missing');
+        $this->expectExceptionCode(500);
+
+        Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment(
+                [
+                    'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
+                    'state'            => 'PROPOSED',
+                    'delivery_details' => [
+                        'scheduled_type' => 'ASAP',
+                        'placed_at'      => now(),
+                        'carrier'        => 'USPS',
+                    ]
+                ],
+            )
+            // ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray()) // Commented out to test the error
+            ->save();
+    }
+
+    /**
      * Order creation without location id, testing exception case.
      *
      * @return void
