@@ -19,6 +19,7 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
+use Square\Models\BatchDeleteCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CreateCustomerRequest;
@@ -103,6 +104,31 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->customerBuilder = new CustomerBuilder();
         $this->fulfillmentBuilder = new FulfillmentBuilder();
         $this->recipientBuilder = new RecipientBuilder();
+    }
+
+    /**
+     * Batch deletes catalog objects.
+     *
+     * @param BatchDeleteCatalogObjectsRequest $batchDeleteCatalogRequest The request to delete the items.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return BatchDeleteCatalogObjectsResponse
+     */
+    public function batchDeleteCatalog(BatchDeleteCatalogObjectsRequest $batchDeleteCatalogRequest)
+    {
+        // We call the Catalog API function batchDeleteCatalogObjects to delete all our
+        // items at once.
+        $apiResponse = $this->config->catalogAPI()->batchDeleteCatalogObjects($batchDeleteCatalogRequest);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var BatchDeleteCatalogObjectsResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
     }
 
     /**
@@ -215,13 +241,35 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Lists the entire catalog.
      *
-     * @return ListCatalogResponse
+     * @param string $types The types of objects to list.
+     *
+     * @return array<\Square\Models\CatalogObject> The catalog items.
      *
      * @throws ApiException
      */
-    public function listCatalog(): ListCatalogResponse
+    public function listCatalog(?string $types = null): array
     {
-        return $this->config->catalogApi()->listCatalog()->getResult();
+        $catalogItems   = [];
+        $cursor         = null;
+        $pagesRetrieved = 0;
+
+        do {
+            $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
+
+            if ($apiResponse->isSuccess()) {
+                /** @var ListCatalogResponse $results */
+                $results      = $apiResponse->getResult();
+                $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
+                $cursor       = $results->getCursor();
+            } else {
+                throw $this->handleApiResponseErrors($apiResponse);
+            }
+
+            // Increment the pages retrieved
+            $pagesRetrieved++;
+        } while ($cursor);
+
+        return $catalogItems;
     }
 
     /**
