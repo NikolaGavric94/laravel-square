@@ -52,6 +52,10 @@ class OrderBuilder
         $orderClass = config('nikolag.connections.square.order.namespace');
         // Set payment type to square
         $order->payment_service_type = 'square';
+
+        // Add the location_id to the order
+        $order->location_id = $orderCopy->location_id;
+
         // Save order first
         $order->save();
 
