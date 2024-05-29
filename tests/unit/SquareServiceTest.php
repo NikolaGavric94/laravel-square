@@ -54,7 +54,7 @@ class SquareServiceTest extends TestCase
         $this->expectException(Exception::class);
 
         // Call the method we're testing
-        Square::batchDeleteCatalog($request);
+        Square::batchDeleteCatalogObjects($request);
     }
 
     /**
