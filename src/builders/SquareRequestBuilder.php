@@ -231,7 +231,7 @@ class SquareRequestBuilder
      */
     public function buildFulfillments(Collection $fulfillments): array
     {
-        $temp = [];
+        $tempFulfillment = null;
         if ($fulfillments->isNotEmpty()) {
             foreach ($fulfillments as $fulfillment) {
                 $tempFulfillment = new Fulfillment();
@@ -267,12 +267,11 @@ class SquareRequestBuilder
                 // Currently only one fulfillment per order is supported
                 // $tempFulfillment->setLineItemApplication($lineItemApplication);
                 // $tempFulfillment->setLineItemApplication($lineItemApplication);
-
-                $temp[] = $tempFulfillment;
             }
         }
 
-        return $temp;
+        // Only one fulfillment per order is supported
+        return [$tempFulfillment];
     }
 
     /**
