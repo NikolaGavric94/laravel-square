@@ -43,18 +43,13 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
-    public function test_batch_delete_catalog()
+    public function test_batch_delete_catalog_objects()
     {
-        // Use the BatchDeleteCatalogObjectsRequestBuilder to create the request.
-        $request = \Square\Models\Builders\BatchDeleteCatalogObjectsRequestBuilder::init()
-            ->objectIds([])
-            ->build();
-
         // The request below will be invalid, so make sure it throws an exception.
         $this->expectException(Exception::class);
 
         // Call the method we're testing
-        Square::batchDeleteCatalogObjects($request);
+        Square::batchDeleteCatalogObjects([]);
     }
 
     /**
