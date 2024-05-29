@@ -78,6 +78,26 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildBatchDeleteCategoryObjectsRequest method.
+     *
+     * @return void
+     */
+    public function test_build_batch_delete_category_objects_request(): void
+    {
+        $catalogObjectID = 'Catalog Object ID';
+
+        // Build the image request
+        $batchDeleteRequest = Square::getSquareBuilder()->buildBatchDeleteCategoryObjectsRequest([
+            $catalogObjectID
+        ]);
+
+        $this->assertNotNull($batchDeleteRequest);
+        $this->assertInstanceOf(\Square\Models\BatchDeleteCatalogObjectsRequest::class, $batchDeleteRequest);
+
+        $this->assertEquals([$catalogObjectID], $batchDeleteRequest->getObjectIds());
+    }
+
+    /**
      * Tests the buildCatalogImageRequest method.
      *
      * @return void
