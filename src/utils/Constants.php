@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Utils;
 
+use DateTime;
 use Nikolag\Core\Utils\Constants as CoreConstants;
 
 class Constants extends CoreConstants
@@ -69,5 +70,5 @@ class Constants extends CoreConstants
     const SCHEDULED_TYPE_SCHEDULED = 'SCHEDULED';
 
     // Date format (RFC3339 - which complies with Square's API requirements)
-    const DATE_FORMAT = 'Y-m-d H:i:s';
+    const DATE_FORMAT = DateTime::RFC3339;
 }
