@@ -650,28 +650,41 @@ class SquareRequestBuilder
         $recipient->setPhoneNumber($deliveryDetails->recipient->phone_number);
         $fulfillmentDeliveryDetails->setRecipient($recipient);
 
+        // Time-based details
+        $fulfillmentDeliveryDetails->setCompletedAt($deliveryDetails->completed_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentDeliveryDetails->setDeliverAt($deliveryDetails->deliver_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentDeliveryDetails->setDeliveredAt($deliveryDetails->delivered_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentDeliveryDetails->setInProgressAt($deliveryDetails->in_progress_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentDeliveryDetails->setPlacedAt($deliveryDetails->placed_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentDeliveryDetails->setReadyAt($deliveryDetails->ready_at?->format(Constants::DATE_FORMAT));
         $fulfillmentDeliveryDetails->setScheduleType($deliveryDetails->schedule_type);
-        $fulfillmentDeliveryDetails->setPlacedAt($deliveryDetails->placed_at);
-        $fulfillmentDeliveryDetails->setDeliverAt($deliveryDetails->deliver_at);
-        $fulfillmentDeliveryDetails->setPrepTimeDuration($deliveryDetails->prep_time_duration);
+
+        // Duration-based details
         $fulfillmentDeliveryDetails->setDeliveryWindowDuration($deliveryDetails->delivery_window_duration);
+        $fulfillmentDeliveryDetails->setPrepTimeDuration($deliveryDetails->prep_time_duration);
+
+        // Note
         $fulfillmentDeliveryDetails->setNote($deliveryDetails->note);
-        $fulfillmentDeliveryDetails->setCompletedAt($deliveryDetails->completed_at);
-        $fulfillmentDeliveryDetails->setInProgressAt($deliveryDetails->in_progress_at);
-        $fulfillmentDeliveryDetails->setRejectedAt($deliveryDetails->rejected_at);
-        $fulfillmentDeliveryDetails->setReadyAt($deliveryDetails->ready_at);
-        $fulfillmentDeliveryDetails->setDeliveredAt($deliveryDetails->delivered_at);
-        $fulfillmentDeliveryDetails->setCanceledAt($deliveryDetails->canceled_at);
-        $fulfillmentDeliveryDetails->setCancelReason($deliveryDetails->cancel_reason);
-        $fulfillmentDeliveryDetails->setCourierPickupAt($deliveryDetails->courier_pickup_at);
-        $fulfillmentDeliveryDetails->setCourierPickupWindowDuration($deliveryDetails->courier_pickup_window_duration);
-        $fulfillmentDeliveryDetails->setIsNoContactDelivery($deliveryDetails->is_no_contact_delivery);
+
+        // Delivery-type details
         $fulfillmentDeliveryDetails->setDropoffNotes($deliveryDetails->dropoff_notes);
+        $fulfillmentDeliveryDetails->setExternalDeliveryId($deliveryDetails->external_delivery_id);
+        $fulfillmentDeliveryDetails->setIsNoContactDelivery($deliveryDetails->is_no_contact_delivery);
+        $fulfillmentDeliveryDetails->setManagedDelivery($deliveryDetails->managed_delivery);
+        $fulfillmentDeliveryDetails->setSquareDeliveryId($deliveryDetails->square_delivery_id);
+
+        // Courier details
+        $fulfillmentDeliveryDetails->setCourierPickupAt(
+            $deliveryDetails->courier_pickup_at?->format(Constants::DATE_FORMAT)
+        );
+        $fulfillmentDeliveryDetails->setCourierPickupWindowDuration($deliveryDetails->courier_pickup_window_duration);
         $fulfillmentDeliveryDetails->setCourierProviderName($deliveryDetails->courier_provider_name);
         $fulfillmentDeliveryDetails->setCourierSupportPhoneNumber($deliveryDetails->courier_support_phone_number);
-        $fulfillmentDeliveryDetails->setSquareDeliveryId($deliveryDetails->square_delivery_id);
-        $fulfillmentDeliveryDetails->setExternalDeliveryId($deliveryDetails->external_delivery_id);
-        $fulfillmentDeliveryDetails->setManagedDelivery($deliveryDetails->managed_delivery);
+
+        // Cancellation/rejection data
+        $fulfillmentDeliveryDetails->setCanceledAt($deliveryDetails->canceled_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentDeliveryDetails->setCancelReason($deliveryDetails->cancel_reason);
+        $fulfillmentDeliveryDetails->setRejectedAt($deliveryDetails->rejected_at?->format(Constants::DATE_FORMAT));
 
         return $fulfillmentDeliveryDetails;
     }
@@ -697,21 +710,30 @@ class SquareRequestBuilder
         $recipient->setPhoneNumber($pickupDetails->recipient->phone_number);
         $fulfillmentPickupDetails->setRecipient($recipient);
 
-        $fulfillmentPickupDetails->setExpiresAt($pickupDetails->expires_at);
-        $fulfillmentPickupDetails->setAutoCompleteDuration($pickupDetails->auto_complete_duration);
+        // Pickup schedule type
         $fulfillmentPickupDetails->setScheduleType($pickupDetails->schedule_type);
-        $fulfillmentPickupDetails->setPickupAt($pickupDetails->pickup_at);
+
+        // Time-based details
+        $fulfillmentPickupDetails->setAcceptedAt($pickupDetails->accepted_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setExpiresAt($pickupDetails->expires_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setExpiredAt($pickupDetails->expired_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setPickedUpAt($pickupDetails->picked_up_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setPickupAt($pickupDetails->pickup_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setPlacedAt($pickupDetails->placed_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setReadyAt($pickupDetails->ready_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentPickupDetails->setRejectedAt($pickupDetails->rejected_at?->format(Constants::DATE_FORMAT));
+
+        // Note
+        $fulfillmentPickupDetails->setNote($pickupDetails->note);
+
+        // Duration-based details
+        $fulfillmentPickupDetails->setAutoCompleteDuration($pickupDetails->auto_complete_duration);
         $fulfillmentPickupDetails->setPickupWindowDuration($pickupDetails->pickup_window_duration);
         $fulfillmentPickupDetails->setPrepTimeDuration($pickupDetails->prep_time_duration);
-        $fulfillmentPickupDetails->setNote($pickupDetails->note);
-        $fulfillmentPickupDetails->setPlacedAt($pickupDetails->placed_at);
-        $fulfillmentPickupDetails->setAcceptedAt($pickupDetails->accepted_at);
-        $fulfillmentPickupDetails->setRejectedAt($pickupDetails->rejected_at);
-        $fulfillmentPickupDetails->setReadyAt($pickupDetails->ready_at);
-        $fulfillmentPickupDetails->setExpiredAt($pickupDetails->expired_at);
-        $fulfillmentPickupDetails->setPickedUpAt($pickupDetails->picked_up_at);
-        $fulfillmentPickupDetails->setCanceledAt($pickupDetails->canceled_at);
+
+        // Cancellation/rejection data
         $fulfillmentPickupDetails->setCancelReason($pickupDetails->cancel_reason);
+        $fulfillmentPickupDetails->setCanceledAt($pickupDetails->canceled_at?->format(Constants::DATE_FORMAT));
 
         // Add curbside pickup details
         $this->addCurbsidePickupDetails($fulfillmentPickupDetails, $pickupDetails);
@@ -773,7 +795,7 @@ class SquareRequestBuilder
     /**
      * Builds the fulfillment details for pickup fulfillment types.
      *
-     * @param  DeliveryDetails  $shipmentDetails
+     * @param  ShipmentDetails  $shipmentDetails
      * @return FulfillmentShipmentDetails
      *
      * @throws InvalidSquareOrderException
@@ -790,19 +812,26 @@ class SquareRequestBuilder
         $recipient->setPhoneNumber($shipmentDetails->recipient->phone_number);
         $fulfillmentShipmentDetails->setRecipient($recipient);
 
+        // Time-based details
+        $fulfillmentShipmentDetails->setPlacedAt($shipmentDetails->placed_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentShipmentDetails->setInProgressAt($shipmentDetails->in_progress_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentShipmentDetails->setPackagedAt($shipmentDetails->packaged_at?->format(Constants::DATE_FORMAT));
+        $fulfillmentShipmentDetails->setExpectedShippedAt(
+            $shipmentDetails->expected_shipped_at?->format(Constants::DATE_FORMAT)
+        );
+        $fulfillmentShipmentDetails->setShippedAt($shipmentDetails->shipped_at?->format(Constants::DATE_FORMAT));
+
+        // Carrier/shipment-type/tracking details
         $fulfillmentShipmentDetails->setCarrier($shipmentDetails->carrier);
         $fulfillmentShipmentDetails->setShippingNote($shipmentDetails->shipping_note);
         $fulfillmentShipmentDetails->setShippingType($shipmentDetails->shipping_type);
         $fulfillmentShipmentDetails->setTrackingNumber($shipmentDetails->tracking_number);
         $fulfillmentShipmentDetails->setTrackingUrl($shipmentDetails->tracking_url);
-        $fulfillmentShipmentDetails->setPlacedAt($shipmentDetails->placed_at);
-        $fulfillmentShipmentDetails->setInProgressAt($shipmentDetails->in_progress_at);
-        $fulfillmentShipmentDetails->setPackagedAt($shipmentDetails->packaged_at);
-        $fulfillmentShipmentDetails->setExpectedShippedAt($shipmentDetails->expected_shipped_at);
-        $fulfillmentShipmentDetails->setShippedAt($shipmentDetails->shipped_at);
-        $fulfillmentShipmentDetails->setCanceledAt($shipmentDetails->canceled_at);
+
+        // Cancellation/failure data
+        $fulfillmentShipmentDetails->setCanceledAt($shipmentDetails->canceled_at?->format(Constants::DATE_FORMAT));
         $fulfillmentShipmentDetails->setCancelReason($shipmentDetails->cancel_reason);
-        $fulfillmentShipmentDetails->setFailedAt($shipmentDetails->failed_at);
+        $fulfillmentShipmentDetails->setFailedAt($shipmentDetails->failed_at?->format(Constants::DATE_FORMAT));
         $fulfillmentShipmentDetails->setFailureReason($shipmentDetails->failure_reason);
 
         return $fulfillmentShipmentDetails;

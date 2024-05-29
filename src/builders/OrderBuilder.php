@@ -352,7 +352,7 @@ class OrderBuilder
                     // Create fulfillment from array
                     $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromArray($fulfillment);
 
-                    $orderCopy->products->push($fulfillmentTemp);
+                    $orderCopy->fulfillments->push($fulfillmentTemp);
                 }
             }
 
