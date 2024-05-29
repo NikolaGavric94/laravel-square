@@ -2,8 +2,10 @@
 
 namespace Nikolag\Square\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nikolag\Square\Traits\HasRecipient;
+use Nikolag\Square\Utils\Constants;
 
 class DeliveryDetails extends Model
 {
@@ -96,5 +98,16 @@ class DeliveryDetails extends Model
             Constants::FULFILLMENT_NAMESPACE,
             'fulfillmentDetails'
         );
+    }
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format(Constants::DATE_FORMAT);
     }
 }

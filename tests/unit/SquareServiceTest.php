@@ -561,7 +561,7 @@ class SquareServiceTest extends TestCase
                     'state'          => 'PROPOSED',
                     'pickup_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now()
+                        'placed_at'      => now()->format(Constants::DATE_FORMAT)
                     ]
                 ],
             )
@@ -693,7 +693,7 @@ class SquareServiceTest extends TestCase
                     'state'            => 'PROPOSED',
                     'shipment_details' => [
                         'scheduled_type' => 'ASAP',
-                        'placed_at'      => now()
+                        'placed_at'      => now(),
                     ]
                 ],
                 Constants::FULFILLMENT_TYPE_SHIPMENT
