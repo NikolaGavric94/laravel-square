@@ -7,7 +7,7 @@ use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareService;
-use Square\Models\CreateCatalogImageRequest;
+use Square\Models\BatchDeleteCatalogObjectsResponse;
 use Square\Models\CreateCatalogImageResponse;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\ListLocationsResponse;
@@ -17,6 +17,7 @@ use Square\Models\RetrieveLocationResponse;
 /**
  * @method static SquareService save()
  * @method static string getCurrency()
+ * @method static BatchDeleteCatalogObjectsResponse batchDeleteCatalogObjects(array $catalogObjectIds)
  * @method static CreateCatalogImageResponse createCatalogImage(
  *     CreateCatalogImageRequest $createCatalogImageRequest,
  *     string $filePath

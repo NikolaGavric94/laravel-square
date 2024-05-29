@@ -92,7 +92,7 @@ class SquareRequestBuilder
     /**
      * Builds a batch delete category objects request
      *
-     * @param array<string> $catalogObjectIds
+     * @param array<string> $catalogObjectIds The catalog object IDs to delete.
      *
      * @return BatchDeleteCatalogObjectsRequest
      */
