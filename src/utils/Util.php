@@ -93,16 +93,23 @@ class Util
      *
      * @param  $products
      * @param  $tax
+     * @param  Collection  $discounts
      * @return float|int
      */
-    private static function _calculateProductTaxes($products, $tax): float|int
+    private static function _calculateProductTaxes($products, $tax, $discounts): float|int
     {
         $product = $products->first(function ($product) use ($tax) {
             return $product->pivot->taxes->contains($tax) || $product->taxes->contains($tax);
         });
 
+        // Get the total product cost (price * quantity)
+        $totalCost = $product->price * $product->pivot->quantity;
+
+        // Calculate order discounts as this will impact the taxes calculated
+        $totalCost -= self::_calculateDiscounts($discounts, $totalCost, $products);
+
         if ($product) {
-            return $product->price * $product->pivot->quantity * $tax->percentage / 100;
+            return $totalCost * ($tax->percentage / 100);
         } else {
             return 0;
         }
@@ -127,21 +134,22 @@ class Util
      * @param  Collection  $taxes
      * @param  float  $noDeductiblesCost
      * @param  Collection  $products
+     * @param  Collection  $discounts
      * @return float|int
      */
-    private static function _calculateTaxes(Collection $taxes, float $noDeductiblesCost, Collection $products): float|int
+    private static function _calculateTaxes(Collection $taxes, float $noDeductiblesCost, Collection $products, Collection $discounts): float|int
     {
         $totalTaxes = 0;
         if ($taxes->isNotEmpty() && $products->isNotEmpty()) {
             $totalTaxes = $taxes->filter(function ($tax) {
                 return $tax->type === Constants::TAX_ADDITIVE;
-            })->map(function ($taxTwo) use ($products, $noDeductiblesCost) {
+            })->map(function ($taxTwo) use ($products, $noDeductiblesCost, $discounts) {
                 if ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
                     ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
-                    return self::_calculateProductTaxes($products, $taxTwo);
+                    return self::_calculateProductTaxes($products, $taxTwo, $discounts);
                 } elseif ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
                     ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
-                    return self::_calculateOrderTaxes($noDeductiblesCost, $taxTwo);
+                    return self::_calculateOrderTaxes($noDeductiblesCost, $taxTwo, $discounts);
                 }
 
                 return 0;
