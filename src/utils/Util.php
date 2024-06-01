@@ -175,12 +175,14 @@ class Util
             $lineItemDiscounts = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_PRODUCT, $discounts);
             $orderDiscounts = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_ORDER, $discounts);
         }
+        $allDiscounts = $lineItemDiscounts->flatten()->merge($orderDiscounts->flatten())->flatten();
 
         // Calculate order level taxes scoped with either ORDER or LINE_ITEM
         if ($taxes->isNotEmpty()) {
             $lineItemTaxes = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_PRODUCT, $taxes);
             $orderTaxes = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_ORDER, $taxes);
         }
+        $allTaxes = $lineItemTaxes->merge($orderTaxes)->flatten();
 
         // Calculate base total
         if ($products->isNotEmpty()) {
@@ -191,8 +193,8 @@ class Util
             });
         }
 
-        $finalCost -= self::_calculateDiscounts($lineItemDiscounts->flatten()->merge($orderDiscounts->flatten())->flatten(), $noDeductiblesCost, $products);
-        $finalCost -= self::_calculateTaxes($lineItemTaxes->merge($orderTaxes)->flatten(), $finalCost, $products);
+        $finalCost -= self::_calculateDiscounts($allDiscounts, $noDeductiblesCost, $products);
+        $finalCost += self::_calculateTaxes($allTaxes, $finalCost, $products, $allDiscounts);
 
         return $finalCost;
     }
