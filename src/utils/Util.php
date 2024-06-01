@@ -201,8 +201,11 @@ class Util
             });
         }
 
-        $finalCost -= self::_calculateDiscounts($allDiscounts, $noDeductiblesCost, $products);
-        $finalCost += self::_calculateTaxes($allTaxes, $finalCost, $products, $allDiscounts);
+        // Calculate cost based on discounts
+        $discountCost = $noDeductiblesCost - self::_calculateDiscounts($allDiscounts, $noDeductiblesCost, $products);
+
+        // Calculate cost based on taxes
+        $finalCost = $discountCost + self::_calculateTaxes($allTaxes, $discountCost, $products, $allDiscounts);
 
         return $finalCost;
     }
