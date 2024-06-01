@@ -11,6 +11,7 @@ use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 
@@ -25,6 +26,17 @@ class UtilTest extends TestCase
      * @var Product
      */
     protected $product;
+
+    private TestDataHolder $data;
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->data = TestDataHolder::make();
+    }
 
     /**
      * Performs assertions shared by all tests of a test case.
@@ -85,6 +97,31 @@ class UtilTest extends TestCase
         $actual = Util::calculateTotalOrderCostByModel($square->getOrder());
 
         $this->assertEquals($expected, $actual, 'Util::calculateTotalOrderCost didn\'t calculate properly.');
+    }
+
+    /**
+     * Test if the total calculation is done right.
+     *
+     * @return void
+     */
+    public function test_calculate_total_order_with_product_discount(): void
+    {
+        extract($this->data->modify(prodFac: 'make', prodDiscFac: 'make', orderDisFac: 'make', taxAddFac: 'make'));
+        $orderArr = $this->data->order->toArray();
+        $orderArr['discounts'] = [$orderDiscount->toArray()];
+        $productArr = $product->toArray();
+        $productArr['discounts'] = [$productDiscount->toArray()];
+        $productArr['taxes'] = [$taxAdditive->toArray()];
+
+        // Create a square order with all sorts of discounts and taxes.
+        $square = Square::setMerchant($this->data->merchant)
+            ->setCustomer($this->data->customer)
+            ->setOrder($orderArr, env('SQUARE_LOCATION'))
+            ->addProduct($productArr)
+            ->save();
+
+        // The expected total is 935.
+        $this->assertEquals(935, Util::calculateTotalOrderCostByModel($square->getOrder()));
     }
 
     /**
