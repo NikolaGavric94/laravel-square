@@ -125,6 +125,30 @@ class UtilTest extends TestCase
     }
 
     /**
+     * Test if the total calculation is done right.
+     *
+     * @return void
+     */
+    public function test_calculate_total_order_with_order_discount(): void
+    {
+        extract($this->data->modify(prodFac: 'make', prodDiscFac: 'make', orderDisFac: 'make', taxAddFac: 'make'));
+        $orderArr = $this->data->order->toArray();
+        $orderArr['discounts'] = [$orderDiscount->toArray()];
+        $orderArr['taxes'] = [$taxAdditive->toArray()];
+        $productArr = $product->toArray();
+
+        // Create a square order with all sorts of discounts and taxes.
+        $square = Square::setMerchant($this->data->merchant)
+            ->setCustomer($this->data->customer)
+            ->setOrder($orderArr, env('SQUARE_LOCATION'))
+            ->addProduct($productArr)
+            ->save();
+
+        // The expected total is 990.
+        $this->assertEquals(990, Util::calculateTotalOrderCostByModel($square->getOrder()));
+    }
+
+    /**
      * Test if the order does have the product when added through square service.
      *
      * @return void
