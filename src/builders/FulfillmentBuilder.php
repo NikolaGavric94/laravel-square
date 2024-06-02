@@ -43,6 +43,24 @@ class FulfillmentBuilder
     }
 
     /**
+     * Checks if the fulfillment details are already set.
+     *
+     * @param mixed $fulfillmentModel
+     *
+     * @throws InvalidSquareOrderException
+     *
+     * @return void
+     */
+    private function checkFulfillmentDetails(mixed $fulfillmentModel): void
+    {
+        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
+        // is currently supported
+        if (!empty($fulfillmentModel->fulfillmentDetails)) {
+            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
+        }
+    }
+
+    /**
      * Add a fulfillment to the order from model as source.
      *
      * @param  Model  $fulfillment
@@ -150,11 +168,8 @@ class FulfillmentBuilder
      */
     public function createDeliveryDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): DeliveryDetails
     {
-        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
-        // is currently supported
-        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
-            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
-        }
+        // Make sure the fulfillment details are not already set
+        $this->checkFulfillmentDetails($fulfillmentModel);
 
         // Get the details
         $deliveryData = Arr::get($fulfillment, $this->deliveryDetailsKey);
@@ -178,11 +193,8 @@ class FulfillmentBuilder
      */
     public function createPickupDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): PickupDetails
     {
-        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
-        // is currently supported
-        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
-            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
-        }
+        // Make sure the fulfillment details are not already set
+        $this->checkFulfillmentDetails($fulfillmentModel);
 
         // Get the details
         $pickupData = Arr::get($fulfillment, $this->pickupDetailsKey);
@@ -206,11 +218,8 @@ class FulfillmentBuilder
      */
     public function createShipmentDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): ShipmentDetails
     {
-        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
-        // is currently supported
-        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
-            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
-        }
+        // Make sure the fulfillment details are not already set
+        $this->checkFulfillmentDetails($fulfillmentModel);
 
         // Get the details
         $shipmentData = Arr::get($fulfillment, $this->shipmentDetailsKey);
