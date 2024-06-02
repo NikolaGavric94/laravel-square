@@ -212,8 +212,6 @@ class Util
      */
     private static function _calculateTotalCost(Collection $discounts, Collection $taxes, Collection $products): float|int
     {
-        $noDeductiblesCost = 0;
-        $finalCost = 0;
         $lineItemDiscounts = collect([]);
         $lineItemTaxes = collect([]);
         $orderDiscounts = collect([]);
