@@ -35,6 +35,7 @@ class OrderBuilder
     {
         $this->productBuilder = new ProductBuilder();
         $this->discountBuilder = new DiscountBuilder();
+        $this->fulfillmentBuilder = new FulfillmentBuilder();
         $this->taxesBuilder = new TaxesBuilder();
     }
 
