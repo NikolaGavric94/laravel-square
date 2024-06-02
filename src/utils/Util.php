@@ -175,31 +175,37 @@ class Util
      */
     private static function _calculateTaxes(Collection $taxes, float $discountCost, Collection $products, Collection $discounts): float|int
     {
-        $totalTaxes = 0;
-        if ($taxes->isNotEmpty() && $products->isNotEmpty()) {
-            // Get all the inclusive taxes
-            $inclusiveTaxes = $taxes->filter(function ($tax) {
-                return $tax->type === Constants::TAX_INCLUSIVE;
-            });
-
-            $totalTaxes = $taxes->filter(function ($tax) {
-                return $tax->type === Constants::TAX_ADDITIVE;
-            })->map(function ($taxTwo) use ($products, $discountCost, $discounts, $inclusiveTaxes) {
-                if ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
-                    ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
-                    return self::_calculateProductTaxes($products, $taxTwo, $inclusiveTaxes, $discounts);
-                } elseif ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
-                    ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
-                    return self::_calculateOrderTaxes($discountCost, $taxTwo, $inclusiveTaxes);
-                }
-
-                return 0;
-            })->pipe(function ($total) {
-                return $total->sum();
-            });
+        // If there are no taxes or products, return 0
+        if ($taxes->isEmpty() || $products->isEmpty()) {
+            return 0;
         }
 
-        return $totalTaxes;
+        // Get all the inclusive taxes
+        $inclusiveTaxes = $taxes->filter(function ($tax) {
+            return $tax->type === Constants::TAX_INCLUSIVE;
+        });
+
+        return $taxes->filter(function ($tax) {
+            return $tax->type === Constants::TAX_ADDITIVE;
+        })->map(function ($taxTwo) use ($products, $discountCost, $discounts, $inclusiveTaxes) {
+            $isProductScope = $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT;
+            $isOrderScope = $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER;
+
+            if ($taxTwo->pivot) {
+                $isProductScope = $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT;
+                $isOrderScope = $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER;
+            }
+
+            if ($isProductScope) {
+                return self::_calculateProductTaxes($products, $taxTwo, $inclusiveTaxes, $discounts);
+            }
+
+            if ($isOrderScope) {
+                return self::_calculateOrderTaxes($discountCost, $taxTwo, $inclusiveTaxes);
+            }
+
+            return 0;
+        })->sum();
     }
 
     /**
