@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Builders\RecipientBuilder;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
@@ -15,8 +16,29 @@ use stdClass;
 
 class FulfillmentBuilder
 {
+    /**
+     * @var RecipientBuilder
+     */
+    private RecipientBuilder $recipientBuilder;
+
+    /**
+     * @var string $deliveryDetailsKey
+     */
+    private string $deliveryDetailsKey = 'delivery_details';
+
+    /**
+     * @var string $pickupDetailsKey
+     */
+    private string $pickupDetailsKey = 'pickup_details';
+
+    /**
+     * @var string $shipmentDetailsKey
+     */
+    private string $shipmentDetailsKey = 'shipment_details';
+
     public function __construct()
     {
+        $this->recipientBuilder = new RecipientBuilder();
     }
 
     /**
@@ -58,6 +80,15 @@ class FulfillmentBuilder
             && ! $fulfillment->fulfillmentDetails instanceof ShipmentDetails
         ) {
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
+        }
+
+        // Check for recipient
+        $recipientClass = Constants::RECIPIENT_NAMESPACE;
+
+        if ($fulfillment->fulfillmentDetails->recipient instanceof $recipientClass) {
+            $fulfillment->fulfillmentDetails->recipient = $this->recipientBuilder->load(
+                $fulfillment->fulfillmentDetails->recipient->toArray()
+            );
         }
 
         $fulfillmentObj = $tempFulfillment;
@@ -107,6 +138,12 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
         }
 
+        // Check for recipient
+        $recipient = $this->getRecipientDataFromFulfillment($fulfillment, $type);
+        if ($recipient) {
+            $fulfillmentDetailsCopy->fulfillmentRecipient = $this->recipientBuilder->load($recipient);
+        }
+
         $fulfillmentObj = $tempFulfillment;
         $fulfillmentObj->fulfillmentDetails = $fulfillmentDetailsCopy;
 
@@ -131,9 +168,12 @@ class FulfillmentBuilder
         }
 
         // Get the details
-        $deliveryData = Arr::get($fulfillment, 'delivery_details');
+        $deliveryData = Arr::get($fulfillment, $this->deliveryDetailsKey);
         if (!$deliveryData) {
-            throw new MissingPropertyException('delivery_details property for object Fulfillment is missing', 500);
+            throw new MissingPropertyException(
+                $this->deliveryDetailsKey . ' property for object Fulfillment is missing',
+                500
+            );
         }
         return new DeliveryDetails($deliveryData);
     }
@@ -156,9 +196,12 @@ class FulfillmentBuilder
         }
 
         // Get the details
-        $pickupData = Arr::get($fulfillment, 'pickup_details');
+        $pickupData = Arr::get($fulfillment, $this->pickupDetailsKey);
         if (!$pickupData) {
-            throw new MissingPropertyException('pickup_details property for object Fulfillment is missing', 500);
+            throw new MissingPropertyException(
+                $this->pickupDetailsKey . ' property for object Fulfillment is missing',
+                500
+            );
         }
         return new PickupDetails($pickupData);
     }
@@ -181,10 +224,43 @@ class FulfillmentBuilder
         }
 
         // Get the details
-        $shipmentData = Arr::get($fulfillment, 'shipment_details');
+        $shipmentData = Arr::get($fulfillment, $this->shipmentDetailsKey);
         if (!$shipmentData) {
-            throw new MissingPropertyException('shipment_details property for object Fulfillment is missing', 500);
+            throw new MissingPropertyException(
+                $this->shipmentDetailsKey . ' property for object Fulfillment is missing',
+                500
+            );
         }
         return new ShipmentDetails($shipmentData);
+    }
+
+    /**
+     * Get recipient data from fulfillment.
+     *
+     * @param  array  $fulfillment The fulfillment data.
+     * @param  string $type        The type of the fulfillment.
+     *
+     * @return array|null
+     */
+    private function getRecipientDataFromFulfillment(array $fulfillment, string $type): array
+    {
+        if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
+            $fulfillmentDetails = Arr::get($fulfillment, $this->deliveryDetailsKey);
+        } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
+            $fulfillmentDetails = Arr::get($fulfillment, $this->pickupDetailsKey);
+        } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
+            $fulfillmentDetails = Arr::get($fulfillment, $this->shipmentDetailsKey);
+        } else {
+            throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
+        }
+
+        // Check if the recipient is present
+        if (Arr::has($fulfillmentDetails, 'recipient')) {
+            $recipient = $fulfillmentDetails['recipient'];
+        } else {
+            $recipient = null;
+        }
+
+        return $recipient;
     }
 }
