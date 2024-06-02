@@ -196,15 +196,16 @@ class Util
                 $isOrderScope = $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER;
             }
 
+            // Calculate taxes based on scope
             if ($isProductScope) {
-                return self::_calculateProductTaxes($products, $taxTwo, $inclusiveTaxes, $discounts);
+                $calculatedTaxes = self::_calculateProductTaxes($products, $taxTwo, $inclusiveTaxes, $discounts);
+            } elseif ($isOrderScope) {
+                $calculatedTaxes = self::_calculateOrderTaxes($discountCost, $taxTwo, $inclusiveTaxes);
+            } else {
+                $calculatedTaxes = 0;
             }
 
-            if ($isOrderScope) {
-                return self::_calculateOrderTaxes($discountCost, $taxTwo, $inclusiveTaxes);
-            }
-
-            return 0;
+            return $calculatedTaxes;
         })->sum();
     }
 
