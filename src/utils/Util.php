@@ -127,15 +127,15 @@ class Util
             return $product->pivot->taxes->contains($tax) || $product->taxes->contains($tax);
         });
 
-        // Get the total product cost (price * quantity)
-        $totalCost = $product->price * $product->pivot->quantity;
-
-        // Calculate order discounts as this will impact the taxes calculated
-        $discountCost = $totalCost - self::_calculateDiscounts($discounts, $totalCost, $products);
-
-        $netPrice = self::_calculateNetPrice($discountCost, $inclusiveTaxes);
-
         if ($product) {
+            // Get the total product cost (price * quantity)
+            $totalCost = $product->price * $product->pivot->quantity;
+
+            // Calculate order discounts as this will impact the taxes calculated
+            $discountCost = $totalCost - self::_calculateDiscounts($discounts, $totalCost, $products);
+
+            $netPrice = self::_calculateNetPrice($discountCost, $inclusiveTaxes);
+
             // Calculate and round the product taxes
             $productTaxes = $netPrice * ($tax->percentage / 100);
             return round($productTaxes);
