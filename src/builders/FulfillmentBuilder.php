@@ -82,15 +82,6 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         }
 
-        // Check for recipient
-        $recipientClass = Constants::RECIPIENT_NAMESPACE;
-
-        if ($fulfillment->fulfillmentDetails->recipient instanceof $recipientClass) {
-            $fulfillment->fulfillmentDetails->recipient = $this->recipientBuilder->load(
-                $fulfillment->fulfillmentDetails->recipient->toArray()
-            );
-        }
-
         $fulfillmentObj = $tempFulfillment;
         $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
 
