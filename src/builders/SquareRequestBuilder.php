@@ -366,7 +366,11 @@ class SquareRequestBuilder
         $request->setLocationId($prepData['location_id']);
         $request->setNote($prepData['note']);
         $request->setReferenceId($prepData['reference_id']);
-        $request->setOrderId($prepData['order_id']);
+
+        // Set an order id (this, along with a fulfillment is required for Orders to appear in the Square Dashboard)
+        if (array_key_exists('order_id', $prepData)) {
+            $request->setOrderId($prepData['order_id']);
+        }
 
         if (array_key_exists('verification_token', $prepData)) {
             $request->setVerificationToken($prepData['verification_token']);

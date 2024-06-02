@@ -1009,9 +1009,10 @@ class SquareServiceTest extends TestCase
             ->setCustomer($this->data->customer)
             ->setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->save();
+
         $calculatedCost = Util::calculateTotalOrderCostByModel($square->getOrder());
 
-        $this->assertEquals(585, $calculatedCost);
+        $this->assertEquals(707, $calculatedCost);
     }
 
     /**
@@ -1028,9 +1029,12 @@ class SquareServiceTest extends TestCase
         $productArr['discounts'] = [$productDiscount->toArray()];
         $productArr['taxes'] = [$taxAdditive->toArray()];
 
-        $transaction = Square::setMerchant($this->data->merchant)->setCustomer($this->data->customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
-            ['amount' => 750, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
-        );
+        $transaction = Square::setMerchant($this->data->merchant)->setCustomer($this->data->customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)
+            ->charge([
+                'amount' => 935,
+                'source_id' => 'cnon:card-nonce-ok',
+                'location_id' => env('SQUARE_LOCATION')
+            ]);
 
         $transaction = $transaction->load('merchant', 'customer');
 
