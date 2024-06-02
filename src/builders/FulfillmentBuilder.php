@@ -242,7 +242,7 @@ class FulfillmentBuilder
      *
      * @return array|null
      */
-    private function getRecipientDataFromFulfillment(array $fulfillment, string $type): array
+    private function getRecipientDataFromFulfillment(array $fulfillment, string $type): array|null
     {
         if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
             $fulfillmentDetails = Arr::get($fulfillment, $this->deliveryDetailsKey);
