@@ -10,6 +10,7 @@ use Nikolag\Square\Builders\RecipientBuilder;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Utils\Constants;
 use stdClass;
@@ -130,10 +131,7 @@ class FulfillmentBuilder
         }
 
         // Check for recipient
-        $recipient = $this->getRecipientDataFromFulfillment($fulfillment, $type);
-        if ($recipient) {
-            $fulfillmentDetailsCopy->fulfillmentRecipient = $this->recipientBuilder->load($recipient);
-        }
+        $fulfillmentDetailsCopy->recipient = $this->getRecipientFromFulfillmentArray($fulfillment, $type);
 
         $fulfillmentObj = $tempFulfillment;
         $fulfillmentObj->fulfillmentDetails = $fulfillmentDetailsCopy;
@@ -231,9 +229,9 @@ class FulfillmentBuilder
      * @param  array  $fulfillment The fulfillment data.
      * @param  string $type        The type of the fulfillment.
      *
-     * @return array|null
+     * @return Recipient|null
      */
-    private function getRecipientDataFromFulfillment(array $fulfillment, string $type): array|null
+    private function getRecipientFromFulfillmentArray(array $fulfillment, string $type): Recipient|null
     {
         if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
             $fulfillmentDetails = Arr::get($fulfillment, $this->deliveryDetailsKey);
@@ -246,6 +244,11 @@ class FulfillmentBuilder
         }
 
         // Return the recipient data, otherwise null
-        return $fulfillmentDetails['recipient'] ?? null;
+        $recipient = null;
+        if (Arr::has($fulfillmentDetails, 'recipient')) {
+            $recipient = $this->recipientBuilder->load($fulfillmentDetails['recipient']);
+        }
+
+        return $recipient;
     }
 }
