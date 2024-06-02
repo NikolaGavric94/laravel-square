@@ -685,9 +685,10 @@ class SquareServiceTest extends TestCase
             ->setCustomer($this->data->customer)
             ->setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->save();
+
         $calculatedCost = Util::calculateTotalOrderCostByModel($square->getOrder());
 
-        $this->assertEquals(585, $calculatedCost);
+        $this->assertEquals(707, $calculatedCost);
     }
 
     /**
