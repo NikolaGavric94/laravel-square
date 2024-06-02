@@ -254,13 +254,7 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
         }
 
-        // Check if the recipient is present
-        if (Arr::has($fulfillmentDetails, 'recipient')) {
-            $recipient = $fulfillmentDetails['recipient'];
-        } else {
-            $recipient = null;
-        }
-
-        return $recipient;
+        // Return the recipient data, otherwise null
+        return $fulfillmentDetails['recipient'] ?? null;
     }
 }
