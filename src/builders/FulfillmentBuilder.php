@@ -101,10 +101,10 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         }
 
-        $fulfillmentObj = $tempFulfillment;
-        $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
+        // Add the fulfillment details to the fulfillment object
+        $tempFulfillment->fulfillmentDetails = $tempFulfillment->fulfillmentDetails;
 
-        return $fulfillmentObj;
+        return $tempFulfillment;
     }
 
     /**
@@ -151,10 +151,10 @@ class FulfillmentBuilder
         // Check for recipient
         $fulfillmentDetailsCopy->recipient = $this->getRecipientFromFulfillmentArray($fulfillment, $type);
 
-        $fulfillmentObj = $tempFulfillment;
-        $fulfillmentObj->fulfillmentDetails = $fulfillmentDetailsCopy;
+        // Add the fulfillment details to the fulfillment object
+        $tempFulfillment->fulfillmentDetails = $fulfillmentDetailsCopy;
 
-        return $fulfillmentObj;
+        return $tempFulfillment;
     }
 
     /**
