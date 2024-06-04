@@ -56,7 +56,7 @@ class DeliveryDetails extends Model
         'courier_support_phone_number',
         'square_delivery_id',
         'external_delivery_id',
-        'managed_deliver',
+        'managed_delivery',
     ];
 
     /**

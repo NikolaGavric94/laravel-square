@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('courier_support_phone_number', 17)->nullable();
             $table->string('square_delivery_id', 50)->nullable();
             $table->string('external_delivery_id', 50)->nullable();
-            $table->boolean('managed_deliver')->default(false);
+            $table->boolean('managed_delivery')->default(false);
             $table->timestamps();
         });
     }
