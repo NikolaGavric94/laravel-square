@@ -34,28 +34,17 @@ class DeliveryDetails extends Model
      * @var array
      */
     protected $fillable = [
-        'recipient_id',
         'carrier',
-        'placed_at',
-        'deliver_at',
         'prep_time_duration',
         'delivery_window_duration',
         'note',
-        'completed_at',
-        'in_progress_at',
-        'rejected_at',
-        'ready_at',
-        'delivered_at',
         'canceled_at',
         'cancel_reason',
-        'courier_picked_up_at',
         'courier_pickup_window_duration',
         'is_no_contact_delivery',
         'dropoff_notes',
         'courier_provider_name',
         'courier_support_phone_number',
-        'square_delivery_id',
-        'external_delivery_id',
         'managed_delivery',
     ];
 
