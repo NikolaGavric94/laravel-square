@@ -34,20 +34,12 @@ class PickupDetails extends Model
      * @var array
      */
     protected $fillable = [
-        'recipient_id',
         'expires_at',
         'scheduled_type',
         'pickup_at',
         'pickup_window_duration',
         'prep_time_duration',
         'note',
-        'placed_at',
-        'accepted_at',
-        'rejected_at',
-        'ready_at',
-        'expired_at',
-        'picked_up_at',
-        'canceled_at',
         'cancel_reason',
         'is_curbside_pickup',
         'curbside_pickup_details',
