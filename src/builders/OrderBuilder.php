@@ -168,6 +168,8 @@ class OrderBuilder
                     // Create the recipient
                     $recipient = $fulfillment->fulfillmentDetails->recipient;
                     $recipient->save();
+
+                    // Unset the recipient from the fulfillment details (due to many-to-one relationship)
                     unset($fulfillment->fulfillmentDetails->recipient);
 
                     // Associate the recipient with the fulfillment details
