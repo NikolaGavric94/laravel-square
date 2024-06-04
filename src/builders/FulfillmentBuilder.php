@@ -76,9 +76,9 @@ class FulfillmentBuilder
         // Check if the order is present and if it already has this fulfillment
         // or if fulfillment doesn't have property $id then create new Fulfillment object
         if (($order && ! $order->hasFulfillment($fulfillment)) && ! Arr::has($fulfillment->toArray(), 'id')) {
-            $tempFulfillment = new Fulfillment($fulfillment->toArray());
+            $fulfillmentObj = new Fulfillment($fulfillment->toArray());
         } else {
-            $tempFulfillment = Fulfillment::find($fulfillment->id);
+            $fulfillmentObj = Fulfillment::find($fulfillment->id);
         }
 
         // Validate that the type matches the details
@@ -101,10 +101,9 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         }
 
-        // Add the fulfillment details to the fulfillment object
-        $tempFulfillment->fulfillmentDetails = $tempFulfillment->fulfillmentDetails;
+        $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
 
-        return $tempFulfillment;
+        return $fulfillmentObj;
     }
 
     /**
