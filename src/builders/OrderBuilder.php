@@ -178,7 +178,6 @@ class OrderBuilder
                     // Create the fulfillment details
                     $fulfillment->fulfillmentDetails->save();
                     $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
-                    unset($fulfillment->fulfillmentDetails);
 
                     // Associate order with the fulfillment
                     $fulfillment->order()->associate($order);
