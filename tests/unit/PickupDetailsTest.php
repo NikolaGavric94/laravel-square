@@ -20,6 +20,36 @@ class PickupDetailsTest extends TestCase
     }
 
     /**
+     * Pickup Details creation.
+     *
+     * @return void
+     */
+    public function test_pickup_details_make(): void
+    {
+        $pickupDetails = factory(PickupDetails::class)->create();
+
+        $this->assertNotNull($pickupDetails, 'Pickup Details is null.');
+    }
+
+    /**
+     * Pickup Details persisting
+     *
+     * @return void
+     */
+    public function test_pickup_details_create(): void
+    {
+        $fakeNote = 'Delivery for ' . $this->faker->name;
+
+        factory(PickupDetails::class)->create([
+            'note' => $fakeNote,
+        ]);
+
+        $this->assertDatabaseHas('nikolag_pickup_details', [
+            'note' => $fakeNote,
+        ]);
+    }
+
+    /**
      * Check fulfillment with pickup and recipient
      *
      * @return void

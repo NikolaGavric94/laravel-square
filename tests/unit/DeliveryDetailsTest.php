@@ -20,6 +20,36 @@ class DeliveryDetailsTest extends TestCase
     }
 
     /**
+     * Delivery details creation.
+     *
+     * @return void
+     */
+    public function test_delivery_details_make(): void
+    {
+        $deliveryDetails = factory(DeliveryDetails::class)->create();
+
+        $this->assertNotNull($deliveryDetails, 'Delivery Details is null.');
+    }
+
+    /**
+     * Delivery details persisting
+     *
+     * @return void
+     */
+    public function test_delivery_details_create(): void
+    {
+        $fakeNote = 'Delivery for ' . $this->faker->name;
+
+        factory(DeliveryDetails::class)->create([
+            'note' => $fakeNote,
+        ]);
+
+        $this->assertDatabaseHas('nikolag_delivery_details', [
+            'note' => $fakeNote,
+        ]);
+    }
+
+    /**
      * Check fulfillment with delivery and recipient
      *
      * @return void
