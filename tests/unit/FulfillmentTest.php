@@ -2,8 +2,6 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
@@ -109,8 +107,6 @@ class FulfillmentTest extends TestCase
      */
     public function test_fulfillment_create_with_orders(): void
     {
-        $order = factory(Order::class)->create();
-
         // Create a fulfillment with pickup details
         $pickup = factory(PickupDetails::class)->create();
 
@@ -129,5 +125,19 @@ class FulfillmentTest extends TestCase
         $order->save();
 
         $this->assertInstanceOf(Order::class, $fulfillment->order);
+    }
+
+    /**
+     * Check fulfillment persisting with orders.
+     *
+     * @return void
+     */
+    public function test_fulfillment_create_without_details(): void
+    {
+        // Expect an exception where fulfillment_details_id cannot be NULL
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->create();
     }
 }
