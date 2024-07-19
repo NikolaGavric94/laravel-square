@@ -5,6 +5,8 @@ namespace Nikolag\Square\Tests\Unit;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\Models\Order;
+use Throwable;
 
 class PickupDetailsTest extends TestCase
 {

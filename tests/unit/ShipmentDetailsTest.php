@@ -5,6 +5,8 @@ namespace Nikolag\Square\Tests\Unit;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\Models\Order;
+use Throwable;
 
 class ShipmentDetailsTest extends TestCase
 {
@@ -41,11 +43,11 @@ class ShipmentDetailsTest extends TestCase
         $fakeNote = 'Shipment for ' . $this->faker->name;
 
         factory(ShipmentDetails::class)->create([
-            'note' => $fakeNote,
+            'shipping_note' => $fakeNote,
         ]);
 
         $this->assertDatabaseHas('nikolag_shipment_details', [
-            'note' => $fakeNote,
+            'shipping_note' => $fakeNote,
         ]);
     }
 
