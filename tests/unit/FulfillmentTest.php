@@ -35,12 +35,11 @@ class FulfillmentTest extends TestCase
      */
     public function test_fulfillment_make(): void
     {
-        try {
-            factory(Fulfillment::class)->create();
-        } catch (Throwable $e) {
-            $integrityConstraintString = 'Integrity constraint violation';
-            $this->assertStringContainsString($integrityConstraintString, $e->getMessage());
-        }
+        // Expect an exception where fulfillment_details_id cannot be NULL
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        factory(Fulfillment::class)->create();
     }
 
     /**
