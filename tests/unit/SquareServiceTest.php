@@ -488,6 +488,29 @@ class SquareServiceTest extends TestCase
             ->save();
     }
 
+
+    /**
+     * Pickup creation without order, testing exception case.
+     *
+     * @return void
+     */
+    public function test_square_order_fulfillment_with_no_order(): void
+    {
+        $fulfillmentDetails = [
+            'delivery_details' => $this->data->fulfillmentWithDeliveryDetails,
+            'pickup_details'   => $this->data->fulfillmentWithPickupDetails,
+            'shipment_details' => $this->data->fulfillmentWithShipmentDetails,
+        ];
+        foreach ($fulfillmentDetails as $fulfillmentType => $fulfillment) {
+            // Retrieve the fulfillment with Shipment Details
+            $this->expectException(InvalidSquareOrderException::class);
+            $this->expectExceptionMessage('Fulfillment cannot be set without an order.');
+            $this->expectExceptionCode(500);
+
+            Square::setFulfillment($fulfillment);
+        }
+    }
+
     /**
      * Order creation without location id, testing exception case.
      *
