@@ -186,7 +186,7 @@ class FulfillmentTest extends TestCase
     {
 
         $this->expectException(InvalidSquareOrderException::class);
-        $this->expectExceptionMessage('This order already has a fulfillment.');
+        $this->expectExceptionMessage('This order already has a fulfillment');
         $this->expectExceptionCode(500);
 
         $product = factory(Product::class)->create();
