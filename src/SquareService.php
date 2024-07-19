@@ -404,7 +404,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             // Add the fulfillment to the order
             $this->orderCopy->fulfillments->push($this->getFulfillment());
         } else {
-            throw new Exception('This order already has a fulfillment', 500);
+            throw new InvalidSquareOrderException('This order already has a fulfillment', 500);
         }
 
         return $this;
