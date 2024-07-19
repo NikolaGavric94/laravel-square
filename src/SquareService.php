@@ -382,6 +382,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         // Fulfillment class
         $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
 
+        // Validate the order exists
+        if (!$this->getOrder()) {
+            throw new InvalidSquareOrderException('Fulfillment cannot be set without an order.', 500);
+        }
+
         if (is_a($fulfillment, $fulfillmentClass)) {
             $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
                 $fulfillment,
