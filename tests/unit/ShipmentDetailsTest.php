@@ -38,7 +38,7 @@ class ShipmentDetailsTest extends TestCase
      */
     public function test_shipment_details_create(): void
     {
-        $fakeNote = 'Delivery for ' . $this->faker->name;
+        $fakeNote = 'Shipment for ' . $this->faker->name;
 
         factory(ShipmentDetails::class)->create([
             'note' => $fakeNote,
@@ -72,5 +72,26 @@ class ShipmentDetailsTest extends TestCase
         $fulfillment->save();
 
         $this->assertInstanceOf(ShipmentDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+    }
+
+    /**
+     * Check shipment cannot be associated directly to the order
+     *
+     * @return void
+     */
+    public function test_shipment_associate_with_order(): void
+    {
+        $order = factory(Order::class)->create();
+
+        // Retrieve the fulfillment with shipment details
+        $shipmentDetails = $this->data->fulfillmentWithShipmentDetails;
+
+        // Make sure the shipment details cannot be associated with an order without the fulfillment
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        // Fulfillment to the order
+        $shipmentDetails->order()->associate($order);
+        $shipmentDetails->save();
     }
 }

@@ -3,8 +3,10 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Tests\TestCase;
+use Throwable;
 
 class DeliveryDetailsTest extends TestCase
 {
@@ -72,5 +74,26 @@ class DeliveryDetailsTest extends TestCase
         $fulfillment->save();
 
         $this->assertInstanceOf(DeliveryDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+    }
+
+    /**
+     * Check delivery cannot be associated directly to the order
+     *
+     * @return void
+     */
+    public function test_delivery_associate_with_order(): void
+    {
+        $order = factory(Order::class)->create();
+
+        // Retrieve the fulfillment with delivery details
+        $deliveryDetails = $this->data->fulfillmentWithDeliveryDetails;
+
+        // Make sure the delivery details cannot be associated with an order without the fulfillment
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        // Fulfillment to the order
+        $deliveryDetails->order()->associate($order);
+        $deliveryDetails->save();
     }
 }

@@ -38,7 +38,7 @@ class PickupDetailsTest extends TestCase
      */
     public function test_pickup_details_create(): void
     {
-        $fakeNote = 'Delivery for ' . $this->faker->name;
+        $fakeNote = 'Pickup for ' . $this->faker->name;
 
         factory(PickupDetails::class)->create([
             'note' => $fakeNote,
@@ -73,4 +73,32 @@ class PickupDetailsTest extends TestCase
 
         $this->assertInstanceOf(PickupDetails::class, $fulfillment->fresh()->fulfillmentDetails);
     }
+
+    /**
+     * Check pickup cannot be associated directly to the order
+     *
+     * @return void
+     */
+    public function test_pickup_associate_with_order(): void
+    {
+        $order = factory(Order::class)->create();
+
+        // Retrieve the fulfillment with pickup details
+        $pickupDetails = $this->data->fulfillmentWithPickupDetails;
+
+        // Make sure the pickup details cannot be associated with an order without the fulfillment
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        // Fulfillment to the order
+        $pickupDetails->order()->associate($order);
+        $pickupDetails->save();
+    }
+
+    // TODO: Add 2 more tests (might not be in this file for certain:)
+    // 1. Add test validating createFulfillmentFromArray that throws an invalid type
+    // 2. Add test that throws 'This order already has a fulfillment' in setFulfillment
+    // 3. Add test that throws 'Fulfillment must be added before adding a fulfillment recipient' in setFulfillmentRecipient
+    // 4. Add test that throws 'This order\'s fulfillment details already has a recipient'
+    // 5. Add test for Utils::hasFulfillment (if one doesn't exist)
 }
