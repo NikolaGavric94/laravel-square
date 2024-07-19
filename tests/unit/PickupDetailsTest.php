@@ -79,7 +79,7 @@ class PickupDetailsTest extends TestCase
      *
      * @return void
      */
-    public function test_pickup_associate_with_order(): void
+    public function test_pickup_associate_with_order_missing_fulfillment(): void
     {
         $order = factory(Order::class)->create();
 
@@ -94,11 +94,4 @@ class PickupDetailsTest extends TestCase
         $pickupDetails->order()->associate($order);
         $pickupDetails->save();
     }
-
-    // TODO: Add 2 more tests (might not be in this file for certain:)
-    // 1. Add test validating createFulfillmentFromArray that throws an invalid type
-    // 2. Add test that throws 'This order already has a fulfillment' in setFulfillment
-    // 3. Add test that throws 'Fulfillment must be added before adding a fulfillment recipient' in setFulfillmentRecipient
-    // 4. Add test that throws 'This order\'s fulfillment details already has a recipient'
-    // 5. Add test for Utils::hasFulfillment (if one doesn't exist)
 }

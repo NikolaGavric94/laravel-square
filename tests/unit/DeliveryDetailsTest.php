@@ -81,7 +81,7 @@ class DeliveryDetailsTest extends TestCase
      *
      * @return void
      */
-    public function test_delivery_associate_with_order(): void
+    public function test_delivery_associate_with_order_missing_fulfillment(): void
     {
         $order = factory(Order::class)->create();
 
