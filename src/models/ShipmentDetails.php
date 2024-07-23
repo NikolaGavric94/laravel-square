@@ -34,20 +34,12 @@ class ShipmentDetails extends Model
      * @var array
      */
     protected $fillable = [
-        'recipient_id',
         'carrier',
         'shipping_note',
         'shipping_type',
         'tracking_number',
         'tracking_url',
-        'placed_at',
-        'in_progress_at',
-        'packaged_at',
-        'expected_shipped_at',
-        'shipped_at',
-        'canceled_at',
         'cancel_reason',
-        'failed_at',
         'failure_reason',
     ];
 

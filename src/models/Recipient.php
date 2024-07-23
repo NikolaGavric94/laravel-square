@@ -26,7 +26,6 @@ class Recipient extends Model
      * @var array
      */
     protected $fillable = [
-        'customer_id',
         'display_name',
         'email_address',
         'phone_number',
