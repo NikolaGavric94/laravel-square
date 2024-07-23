@@ -150,7 +150,7 @@ class SquareRequestBuilder
         $variations  = $data['variations'];
 
         // Get the optional fields
-        $categoryID  = $data['category_id'] ?? null;
+        $categoryID   = $data['category_id'] ?? null;
         $allLocations = $data['all_locations'] ?? true;
 
         // Create a catalog item builder
@@ -173,10 +173,7 @@ class SquareRequestBuilder
             }
         }
 
-        return CatalogObjectBuilder::init(
-            CatalogObjectType::ITEM,
-            '#' . $name
-        )
+        return CatalogObjectBuilder::init(CatalogObjectType::ITEM, '#' . $name)
             ->presentAtAllLocations($allLocations)
             ->itemData($catalogItemBuilder->build())
             ->build();
