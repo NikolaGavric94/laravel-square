@@ -815,6 +815,40 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Test the syncing of the product catalog.
+     *
+     * @return void
+     */
+    public function test_square_sync_products(): void
+    {
+        // Delete all products from the database
+        Product::truncate();
+        $this->assertCount(0, Product::all(), 'There are products in the database after truncating');
+
+        // Sync the products
+        Square::syncProducts();
+
+        // Make sure there are products
+        $products = Product::all();
+        $this->assertGreaterThan(0, $products->count(), 'There are no products in the database');
+
+        foreach ($products as $product) {
+            // Make sure every reference_type is set to square
+            $this->assertEquals(
+                Constants::SQUARE,
+                $product->reference_type,
+                'Reference type is not square. Product: ' . $product->toJson()
+            );
+
+            // Make sure every product has a price
+            $this->assertNotNull($product->price, 'Product has no price. Product: ' . $product->toJson());
+
+            // Make sure every product has a name
+            $this->assertNotNull($product->name, 'Product has no name. Product: ' . $product->toJson());
+        }
+    }
+
+    /**
      * Tests retrieving a specific location.
      *
      * @return void
