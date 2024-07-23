@@ -5,6 +5,8 @@ namespace Nikolag\Square\Tests\Unit;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\Models\Order;
+use Throwable;
 
 class PickupDetailsTest extends TestCase
 {
@@ -17,6 +19,36 @@ class PickupDetailsTest extends TestCase
     {
         parent::setUp();
         $this->data = TestDataHolder::create();
+    }
+
+    /**
+     * Pickup Details creation.
+     *
+     * @return void
+     */
+    public function test_pickup_details_make(): void
+    {
+        $pickupDetails = factory(PickupDetails::class)->create();
+
+        $this->assertNotNull($pickupDetails, 'Pickup Details is null.');
+    }
+
+    /**
+     * Pickup Details persisting
+     *
+     * @return void
+     */
+    public function test_pickup_details_create(): void
+    {
+        $fakeNote = 'Pickup for ' . $this->faker->name;
+
+        factory(PickupDetails::class)->create([
+            'note' => $fakeNote,
+        ]);
+
+        $this->assertDatabaseHas('nikolag_pickup_details', [
+            'note' => $fakeNote,
+        ]);
     }
 
     /**
@@ -42,5 +74,26 @@ class PickupDetailsTest extends TestCase
         $fulfillment->save();
 
         $this->assertInstanceOf(PickupDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+    }
+
+    /**
+     * Check pickup cannot be associated directly to the order
+     *
+     * @return void
+     */
+    public function test_pickup_associate_with_order_missing_fulfillment(): void
+    {
+        $order = factory(Order::class)->create();
+
+        // Retrieve the fulfillment with pickup details
+        $pickupDetails = $this->data->fulfillmentWithPickupDetails;
+
+        // Make sure the pickup details cannot be associated with an order without the fulfillment
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        // Fulfillment to the order
+        $pickupDetails->order()->associate($order);
+        $pickupDetails->save();
     }
 }

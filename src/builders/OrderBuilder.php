@@ -172,6 +172,8 @@ class OrderBuilder
                     // Create the recipient
                     $recipient = $fulfillment->fulfillmentDetails->recipient;
                     $recipient->save();
+
+                    // Unset the recipient from the fulfillment details (due to many-to-one relationship)
                     unset($fulfillment->fulfillmentDetails->recipient);
 
                     // Associate the recipient with the fulfillment details
@@ -180,7 +182,6 @@ class OrderBuilder
                     // Create the fulfillment details
                     $fulfillment->fulfillmentDetails->save();
                     $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
-                    unset($fulfillment->fulfillmentDetails);
 
                     // Associate order with the fulfillment
                     $fulfillment->order()->associate($order);

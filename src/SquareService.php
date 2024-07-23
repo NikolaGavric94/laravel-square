@@ -548,6 +548,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         // Fulfillment class
         $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
 
+        // Validate the order exists
+        if (!$this->getOrder()) {
+            throw new InvalidSquareOrderException('Fulfillment cannot be set without an order.', 500);
+        }
+
         if (is_a($fulfillment, $fulfillmentClass)) {
             $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
                 $fulfillment,
@@ -565,7 +570,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             // Add the fulfillment to the order
             $this->orderCopy->fulfillments->push($this->getFulfillment());
         } else {
-            throw new Exception('This order already has a fulfillment', 500);
+            throw new InvalidSquareOrderException('This order already has a fulfillment', 500);
         }
 
         return $this;
