@@ -5,6 +5,7 @@ namespace Nikolag\Square\Builders;
 use Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Nikolag\Square\Builders\Validate;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\DeliveryDetails;
@@ -71,25 +72,6 @@ class SquareRequestBuilder
     }
 
     /**
-     * Validates that the required fields are present in the data array.
-     *
-     * @param array $data
-     * @param array $requiredFields
-     *
-     * @throws MissingPropertyException
-     *
-     * @return void
-     */
-    public function validateRequiredFields(array $data, array $requiredFields): void
-    {
-        foreach ($requiredFields as $field) {
-            if (!array_key_exists($field, $data) || empty($data[$field])) {
-                throw new MissingPropertyException("The $field field is required", 500);
-            }
-        }
-    }
-
-    /**
      * Builds a batch delete category objects request
      *
      * @param array<string> $catalogObjectIds The catalog object IDs to delete.
@@ -113,7 +95,7 @@ class SquareRequestBuilder
     public function buildCategoryCatalogObject(array $data): CatalogObject
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['id', 'name']);
+        Validate::validateRequiredFields($data, ['id', 'name']);
         $id   = $data['id'];
         $name = $data['name'];
 
@@ -143,7 +125,7 @@ class SquareRequestBuilder
     public function buildItemCatalogObject(array $data): CatalogObject
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['name', 'tax_ids', 'description', 'variations']);
+        Validate::validateRequiredFields($data, ['name', 'tax_ids', 'description', 'variations']);
         $name        = $data['name'];
         $taxIDs      = $data['tax_ids'];
         $description = $data['description'];
@@ -189,7 +171,7 @@ class SquareRequestBuilder
     public function buildTaxCatalogObject(array $data): CatalogObject
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['name', 'percentage']);
+        Validate::validateRequiredFields($data, ['name', 'percentage']);
         $name       = $data['name'];
         $percentage = $data['percentage'];
 
@@ -228,7 +210,7 @@ class SquareRequestBuilder
     public function buildMoney(array $data): Money
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['amount', 'currency']);
+        Validate::validateRequiredFields($data, ['amount', 'currency']);
         $amount   = $data['amount'];
         $currency = $data['currency'];
 
@@ -248,7 +230,7 @@ class SquareRequestBuilder
     public function buildVariationCatalogObject(array $data): CatalogObject
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['name', 'variation_id', 'item_id', 'price_money']);
+        Validate::validateRequiredFields($data, ['name', 'variation_id', 'item_id', 'price_money']);
         $name        = $data['name'];
         $variationID = $data['variation_id'];
         $itemID      = $data['item_id'];
@@ -291,7 +273,7 @@ class SquareRequestBuilder
     public function buildCatalogImageRequest(array $data): CreateCatalogImageRequest
     {
         // Get the required fields
-        $this->validateRequiredFields($data, ['catalog_object_id' ]);
+        Validate::validateRequiredFields($data, ['catalog_object_id' ]);
         $catalogObjectId = $data['catalog_object_id'];
 
         // Get the optional fields
