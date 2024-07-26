@@ -14,6 +14,7 @@ use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
@@ -22,6 +23,7 @@ use Square\Http\ApiResponse;
 use Square\Models\BatchDeleteCatalogObjectsResponse;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Models\CatalogObject;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
@@ -271,6 +273,45 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         } while ($cursor);
 
         return $catalogItems;
+    }
+
+    /**
+     * Sync all products and their variations to the products table.
+     *
+     * @return void
+     */
+    public function syncProducts(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $items = self::listCatalog('ITEM');
+
+        // Track the updated IDs
+        $updatedSquareIds = [];
+
+        foreach ($items as $item) {
+            // Sync the variations to the database
+            foreach ($item->getItemData()->getVariations() as $variation) {
+                $itemData = [
+                    'name'           => $item->getItemData()->getName(),
+                    'note'           => $item->getItemData()->getDescriptionHtml(),
+                    'variation_name' => $variation->getItemVariationData()->getName(),
+                    'description'    => $item->getItemData()->getDescription(),
+                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
+                ];
+
+                $squareID = $item->getId();
+
+                // Create or update the product
+                Product::updateOrCreate(['reference_id' => $squareID], $itemData);
+
+                // Track the updated IDs
+                $updatedSquareIds[] = $squareID;
+            }
+        }
+
+        // Run one more query to update the non-fillable reference_type
+        Product::query()->whereIn('reference_id', $updatedSquareIds)->update(['reference_type' => Constants::SQUARE]);
     }
 
     /**
