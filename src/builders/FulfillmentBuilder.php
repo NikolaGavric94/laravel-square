@@ -6,17 +6,58 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Builders\RecipientBuilder;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Utils\Constants;
 use stdClass;
 
 class FulfillmentBuilder
 {
+    /**
+     * @var RecipientBuilder
+     */
+    private RecipientBuilder $recipientBuilder;
+
+    /**
+     * @var string $deliveryDetailsKey
+     */
+    private string $deliveryDetailsKey = 'delivery_details';
+
+    /**
+     * @var string $pickupDetailsKey
+     */
+    private string $pickupDetailsKey = 'pickup_details';
+
+    /**
+     * @var string $shipmentDetailsKey
+     */
+    private string $shipmentDetailsKey = 'shipment_details';
+
     public function __construct()
     {
+        $this->recipientBuilder = new RecipientBuilder();
+    }
+
+    /**
+     * Checks if the fulfillment details are already set.
+     *
+     * @param mixed $fulfillmentModel
+     *
+     * @throws InvalidSquareOrderException
+     *
+     * @return void
+     */
+    private function checkFulfillmentDetails(mixed $fulfillmentModel): void
+    {
+        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
+        // is currently supported
+        if (!empty($fulfillmentModel->fulfillmentDetails)) {
+            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
+        }
     }
 
     /**
@@ -35,9 +76,9 @@ class FulfillmentBuilder
         // Check if the order is present and if it already has this fulfillment
         // or if fulfillment doesn't have property $id then create new Fulfillment object
         if (($order && ! $order->hasFulfillment($fulfillment)) && ! Arr::has($fulfillment->toArray(), 'id')) {
-            $tempFulfillment = new Fulfillment($fulfillment->toArray());
+            $fulfillmentObj = new Fulfillment($fulfillment->toArray());
         } else {
-            $tempFulfillment = Fulfillment::find($fulfillment->id);
+            $fulfillmentObj = Fulfillment::find($fulfillment->id);
         }
 
         // Validate that the type matches the details
@@ -60,7 +101,6 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         }
 
-        $fulfillmentObj = $tempFulfillment;
         $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
 
         return $fulfillmentObj;
@@ -107,10 +147,13 @@ class FulfillmentBuilder
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
         }
 
-        $fulfillmentObj = $tempFulfillment;
-        $fulfillmentObj->fulfillmentDetails = $fulfillmentDetailsCopy;
+        // Check for recipient
+        $fulfillmentDetailsCopy->recipient = $this->getRecipientFromFulfillmentArray($fulfillment, $type);
 
-        return $fulfillmentObj;
+        // Add the fulfillment details to the fulfillment object
+        $tempFulfillment->fulfillmentDetails = $fulfillmentDetailsCopy;
+
+        return $tempFulfillment;
     }
 
     /**
@@ -124,16 +167,16 @@ class FulfillmentBuilder
      */
     public function createDeliveryDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): DeliveryDetails
     {
-        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
-        // is currently supported
-        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
-            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
-        }
+        // Make sure the fulfillment details are not already set
+        $this->checkFulfillmentDetails($fulfillmentModel);
 
         // Get the details
-        $deliveryData = Arr::get($fulfillment, 'delivery_details');
+        $deliveryData = Arr::get($fulfillment, $this->deliveryDetailsKey);
         if (!$deliveryData) {
-            throw new MissingPropertyException('delivery_details property for object Fulfillment is missing', 500);
+            throw new MissingPropertyException(
+                $this->deliveryDetailsKey . ' property for object Fulfillment is missing',
+                500
+            );
         }
         return new DeliveryDetails($deliveryData);
     }
@@ -149,16 +192,16 @@ class FulfillmentBuilder
      */
     public function createPickupDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): PickupDetails
     {
-        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
-        // is currently supported
-        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
-            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
-        }
+        // Make sure the fulfillment details are not already set
+        $this->checkFulfillmentDetails($fulfillmentModel);
 
         // Get the details
-        $pickupData = Arr::get($fulfillment, 'pickup_details');
+        $pickupData = Arr::get($fulfillment, $this->pickupDetailsKey);
         if (!$pickupData) {
-            throw new MissingPropertyException('pickup_details property for object Fulfillment is missing', 500);
+            throw new MissingPropertyException(
+                $this->pickupDetailsKey . ' property for object Fulfillment is missing',
+                500
+            );
         }
         return new PickupDetails($pickupData);
     }
@@ -174,17 +217,46 @@ class FulfillmentBuilder
      */
     public function createShipmentDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): ShipmentDetails
     {
-        // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
-        // is currently supported
-        if ((!empty($fulfillmentModel->fulfillmentDetails))) {
-            throw new InvalidSquareOrderException('Fulfillment already has details', 500);
-        }
+        // Make sure the fulfillment details are not already set
+        $this->checkFulfillmentDetails($fulfillmentModel);
 
         // Get the details
-        $shipmentData = Arr::get($fulfillment, 'shipment_details');
+        $shipmentData = Arr::get($fulfillment, $this->shipmentDetailsKey);
         if (!$shipmentData) {
-            throw new MissingPropertyException('shipment_details property for object Fulfillment is missing', 500);
+            throw new MissingPropertyException(
+                $this->shipmentDetailsKey . ' property for object Fulfillment is missing',
+                500
+            );
         }
         return new ShipmentDetails($shipmentData);
+    }
+
+    /**
+     * Get recipient data from fulfillment.
+     *
+     * @param  array  $fulfillment The fulfillment data.
+     * @param  string $type        The type of the fulfillment.
+     *
+     * @return Recipient|null
+     */
+    private function getRecipientFromFulfillmentArray(array $fulfillment, string $type): Recipient|null
+    {
+        if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
+            $fulfillmentDetails = Arr::get($fulfillment, $this->deliveryDetailsKey);
+        } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
+            $fulfillmentDetails = Arr::get($fulfillment, $this->pickupDetailsKey);
+        } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
+            $fulfillmentDetails = Arr::get($fulfillment, $this->shipmentDetailsKey);
+        } else {
+            throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
+        }
+
+        // Return the recipient data, otherwise null
+        $recipient = null;
+        if (Arr::has($fulfillmentDetails, 'recipient')) {
+            $recipient = $this->recipientBuilder->load($fulfillmentDetails['recipient']);
+        }
+
+        return $recipient;
     }
 }

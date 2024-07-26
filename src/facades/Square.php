@@ -29,6 +29,7 @@ use Square\Models\RetrieveLocationResponse;
  * @method static RetrieveLocationResponse retrieveLocation(string $locationId)
  * @method static SquareRequestBuilder getSquareBuilder()
  * @method static array listCatalog(?string $types)
+ * @method static void syncProducts()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)
  * @method static mixed getCustomer()

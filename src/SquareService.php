@@ -14,6 +14,7 @@ use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
@@ -22,6 +23,7 @@ use Square\Http\ApiResponse;
 use Square\Models\BatchDeleteCatalogObjectsResponse;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Models\CatalogObject;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
@@ -274,6 +276,45 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Sync all products and their variations to the products table.
+     *
+     * @return void
+     */
+    public function syncProducts(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $items = self::listCatalog('ITEM');
+
+        // Track the updated IDs
+        $updatedSquareIds = [];
+
+        foreach ($items as $item) {
+            // Sync the variations to the database
+            foreach ($item->getItemData()->getVariations() as $variation) {
+                $itemData = [
+                    'name'           => $item->getItemData()->getName(),
+                    'note'           => $item->getItemData()->getDescriptionHtml(),
+                    'variation_name' => $variation->getItemVariationData()->getName(),
+                    'description'    => $item->getItemData()->getDescription(),
+                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
+                ];
+
+                $squareID = $item->getId();
+
+                // Create or update the product
+                Product::updateOrCreate(['reference_id' => $squareID], $itemData);
+
+                // Track the updated IDs
+                $updatedSquareIds[] = $squareID;
+            }
+        }
+
+        // Run one more query to update the non-fillable reference_type
+        Product::query()->whereIn('reference_id', $updatedSquareIds)->update(['reference_type' => Constants::SQUARE]);
+    }
+
+    /**
      * Save a customer.
      *
      * @return void
@@ -383,11 +424,14 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (MissingPropertyException $e) {
-            throw new MissingPropertyException('Required fields are missing', 500, $e);
+            $message = 'Required fields are missing: ' . $e->getMessage();
+            throw new MissingPropertyException($message, 500, $e);
         } catch (InvalidSquareOrderException $e) {
-            throw new MissingPropertyException('Required column is missing from the table', 500, $e);
+            $message = 'Required column is missing from the table: ' . $e->getMessage();
+            throw new MissingPropertyException($message, 500, $e);
         } catch (Exception|ApiException $e) {
-            throw new Exception('There was an error with the api request', 500, $e);
+            $message = 'There was an error with the api request: ' . $e->getMessage();
+            throw new Exception($message, 500, $e);
         }
 
         return $this;
@@ -545,6 +589,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         // Fulfillment class
         $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
 
+        // Validate the order exists
+        if (!$this->getOrder()) {
+            throw new InvalidSquareOrderException('Fulfillment cannot be set without an order.', 500);
+        }
+
         if (is_a($fulfillment, $fulfillmentClass)) {
             $this->fulfillment = $this->fulfillmentBuilder->createFulfillmentFromModel(
                 $fulfillment,
@@ -562,7 +611,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             // Add the fulfillment to the order
             $this->orderCopy->fulfillments->push($this->getFulfillment());
         } else {
-            throw new Exception('This order already has a fulfillment', 500);
+            throw new InvalidSquareOrderException('This order already has a fulfillment', 500);
         }
 
         return $this;
