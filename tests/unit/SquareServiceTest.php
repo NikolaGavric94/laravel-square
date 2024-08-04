@@ -488,18 +488,15 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->setFulfillment(
-                [
-                    'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
-                    'state'            => 'PROPOSED',
-                    'delivery_details' => [
-                        'scheduled_type' => 'ASAP',
-                        'placed_at'      => now(),
-                        'carrier'        => 'USPS',
-                    ]
-                ],
-            )
-            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->setFulfillment([
+                'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
+                'state'            => 'PROPOSED',
+                'delivery_details' => [
+                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'placed_at'      => now(),
+                    'carrier'        => 'USPS',
+                ]
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -555,17 +552,14 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->setFulfillment(
-                [
-                    'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
-                    'state'          => 'PROPOSED',
-                    'pickup_details' => [
-                        'scheduled_type' => 'ASAP',
-                        'placed_at'      => now()->format(Constants::DATE_FORMAT)
-                    ]
-                ],
-            )
-            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->setFulfillment([
+                'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
+                'state'          => 'PROPOSED',
+                'pickup_details' => [
+                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'placed_at'      => now()->format(Constants::DATE_FORMAT)
+                ]
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -622,22 +616,19 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->setFulfillment(
-                [
-                    'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
-                    'state'          => 'PROPOSED',
-                    'pickup_details' => [
-                        'scheduled_type'          => 'ASAP',
-                        'placed_at'               => now(),
-                        'is_curbside_pickup'      => true,
-                        'curbside_pickup_details' => [
-                            'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
-                            'buyer_arrived_at' => null,
-                        ]
+            ->setFulfillment([
+                'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
+                'state'          => 'PROPOSED',
+                'pickup_details' => [
+                    'scheduled_type'          => Constants::SCHEDULED_TYPE_ASAP,
+                    'placed_at'               => now(),
+                    'is_curbside_pickup'      => true,
+                    'curbside_pickup_details' => [
+                        'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
+                        'buyer_arrived_at' => null,
                     ]
-                ],
-            )
-            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+                ]
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -687,18 +678,14 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->setFulfillment(
-                [
-                    'type'             => Constants::FULFILLMENT_TYPE_SHIPMENT,
-                    'state'            => 'PROPOSED',
-                    'shipment_details' => [
-                        'scheduled_type' => 'ASAP',
-                        'placed_at'      => now(),
-                    ]
-                ],
-                Constants::FULFILLMENT_TYPE_SHIPMENT
-            )
-            ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->setFulfillment([
+                'type'             => Constants::FULFILLMENT_TYPE_SHIPMENT,
+                'state'            => 'PROPOSED',
+                'shipment_details' => [
+                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'placed_at'      => now(),
+                ]
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
@@ -759,17 +746,15 @@ class SquareServiceTest extends TestCase
         Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
-            ->setFulfillment(
-                [
-                    'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
-                    'state'            => 'PROPOSED',
-                    'delivery_details' => [
-                        'scheduled_type' => 'ASAP',
-                        'placed_at'      => now(),
-                        'carrier'        => 'USPS',
-                    ]
-                ],
-            )
+            ->setFulfillment([
+                'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
+                'state'            => 'PROPOSED',
+                'delivery_details' => [
+                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'placed_at'      => now(),
+                    'carrier'        => 'USPS',
+                ]
+            ])
             // ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray()) // Commented out to test the error
             ->save();
     }
@@ -826,6 +811,40 @@ class SquareServiceTest extends TestCase
         foreach ($catalogItems as $item) {
             $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
             $this->assertEquals('ITEM', $item->getType());
+        }
+    }
+
+    /**
+     * Test the syncing of the product catalog.
+     *
+     * @return void
+     */
+    public function test_square_sync_products(): void
+    {
+        // Delete all products from the database
+        Product::truncate();
+        $this->assertCount(0, Product::all(), 'There are products in the database after truncating');
+
+        // Sync the products
+        Square::syncProducts();
+
+        // Make sure there are products
+        $products = Product::all();
+        $this->assertGreaterThan(0, $products->count(), 'There are no products in the database');
+
+        foreach ($products as $product) {
+            // Make sure every reference_type is set to square
+            $this->assertEquals(
+                Constants::SQUARE,
+                $product->reference_type,
+                'Reference type is not square. Product: ' . $product->toJson()
+            );
+
+            // Make sure every product has a price
+            $this->assertNotNull($product->price, 'Product has no price. Product: ' . $product->toJson());
+
+            // Make sure every product has a name
+            $this->assertNotNull($product->name, 'Product has no name. Product: ' . $product->toJson());
         }
     }
 
@@ -1066,9 +1085,10 @@ class SquareServiceTest extends TestCase
             ->setCustomer($this->data->customer)
             ->setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->save();
+
         $calculatedCost = Util::calculateTotalOrderCostByModel($square->getOrder());
 
-        $this->assertEquals(585, $calculatedCost);
+        $this->assertEquals(707, $calculatedCost);
     }
 
     /**
@@ -1085,9 +1105,12 @@ class SquareServiceTest extends TestCase
         $productArr['discounts'] = [$productDiscount->toArray()];
         $productArr['taxes'] = [$taxAdditive->toArray()];
 
-        $transaction = Square::setMerchant($this->data->merchant)->setCustomer($this->data->customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)->charge(
-            ['amount' => 750, 'source_id' => 'cnon:card-nonce-ok', 'location_id' => env('SQUARE_LOCATION')]
-        );
+        $transaction = Square::setMerchant($this->data->merchant)->setCustomer($this->data->customer)->setOrder($orderArr, env('SQUARE_LOCATION'))->addProduct($productArr)
+            ->charge([
+                'amount' => 935,
+                'source_id' => 'cnon:card-nonce-ok',
+                'location_id' => env('SQUARE_LOCATION')
+            ]);
 
         $transaction = $transaction->load('merchant', 'customer');
 

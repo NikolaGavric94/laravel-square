@@ -7,6 +7,8 @@ use Nikolag\Core\Utils\Constants as CoreConstants;
 
 class Constants extends CoreConstants
 {
+    const SQUARE = 'square';
+
     //Transaction info
     const TRANSACTION_NAMESPACE = 'Nikolag\Square\Models\Transaction';
     const TRANSACTION_IDENTIFIER = 'id';

@@ -35,6 +35,7 @@ class OrderBuilder
     {
         $this->productBuilder = new ProductBuilder();
         $this->discountBuilder = new DiscountBuilder();
+        $this->fulfillmentBuilder = new FulfillmentBuilder();
         $this->taxesBuilder = new TaxesBuilder();
     }
 
@@ -178,6 +179,8 @@ class OrderBuilder
                     // Create the recipient
                     $recipient = $fulfillment->fulfillmentDetails->recipient;
                     $recipient->save();
+
+                    // Unset the recipient from the fulfillment details (due to many-to-one relationship)
                     unset($fulfillment->fulfillmentDetails->recipient);
 
                     // Associate the recipient with the fulfillment details
@@ -186,7 +189,6 @@ class OrderBuilder
                     // Create the fulfillment details
                     $fulfillment->fulfillmentDetails->save();
                     $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
-                    unset($fulfillment->fulfillmentDetails);
 
                     // Associate order with the fulfillment
                     $fulfillment->order()->associate($order);
@@ -217,7 +219,7 @@ class OrderBuilder
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
             if ($order->taxes->isNotEmpty()) {
-                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order->taxes->toArray(), $order);
+                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_ORDER, $order);
             }
             // Create discounts Collection
             $orderCopy->discounts = collect([]);

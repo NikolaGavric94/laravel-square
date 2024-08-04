@@ -74,7 +74,8 @@ class RecipientBuilder
         if (!$hasCustomerID) {
             Validator::make($recipient->toArray(), $individualFieldsRules)->validate();
         } else {
-            // As long as the customer_id is present, we're good
+            // As long as the customer_id is present, we're good - Square requires either customer_id or the details
+            // cf. https://github.com/square/square-php-sdk/blob/master/doc/models/fulfillment-recipient.md
         }
 
         return true;
