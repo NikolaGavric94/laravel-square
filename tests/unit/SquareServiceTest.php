@@ -272,6 +272,27 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Save an order through facade with conflicting location ids.
+     *
+     * @return void
+     */
+    public function test_square_order_facade_save_location_conflict(): void
+    {
+        $order = $this->data->order->toArray();
+        $product = $this->data->product->toArray();
+        $product['quantity'] = 1;
+        $order['products'] = [$product];
+
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Invalid order data');
+        $this->expectExceptionCode(500);
+
+        // Save an order with a non-existing location id - while the location id is set in the order data, causign a
+        // conflict
+        Square::setOrder($order, 123456789)->save();
+    }
+
+    /**
      * Save and charge an order through facade.
      *
      * @return void
