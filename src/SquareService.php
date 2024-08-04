@@ -328,6 +328,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $this->orderCopy->location_id = $this->locationId;
 
         $this->order = $this->orderBuilder->buildOrderFromOrderCopy($this->getOrder(), $this->orderCopy);
+
         //If order doesn't have any products throw error
         if ($this->getOrder()->products()->count() == 0) {
             throw new InvalidSquareOrderException('Object Order must have at least 1 Product', 500);
@@ -385,7 +386,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         } catch (MissingPropertyException $e) {
             throw new MissingPropertyException('Required fields are missing', 500, $e);
         } catch (InvalidSquareOrderException $e) {
-            throw new MissingPropertyException('Required column is missing from the table', 500, $e);
+            throw new MissingPropertyException('Invalid order data', 500, $e);
         } catch (Exception|ApiException $e) {
             throw new Exception('There was an error with the api request', 500, $e);
         }
@@ -467,7 +468,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             } catch (MissingPropertyException $e) {
                 throw new MissingPropertyException('Required field is missing', 500, $e);
             } catch (InvalidSquareOrderException $e) {
-                throw new MissingPropertyException('Required column is missing from the table', 500, $e);
+                throw new MissingPropertyException('Invalid order data', 500, $e);
             } catch (Exception $e) {
                 throw new Exception('There was an error with the api request', 500, $e);
             }
