@@ -236,6 +236,42 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Save an order through facade, inputting a simple example (the one currently used in the wiki).
+     *
+     * @return void
+     */
+    public function test_square_order_facade_save_simple_array(): void
+    {
+        $products = [
+            [
+                'name' => 'Shirt',
+                'variation_name' => 'Large white',
+                'note' => 'This note can have maximum of 50 characters.',
+                'price' => 440.99,
+                'quantity' => 2,
+                'reference_id' => '5' //An optional ID to associate the product with an entity ID in your own table
+            ],
+            [
+                'name' => 'Shirt',
+                'variation_name' => 'Mid-size yellow',
+                'note' => 'This note can have maximum of 50 characters.',
+                'quantity' => 1,
+                'price' => 118.02
+            ],
+        ];
+
+        $order = [
+            'products' => $products
+        ];
+
+        $square = Square::setOrder($order, env('SQUARE_LOCATION'))->save();
+
+        $this->assertCount(1, Order::all(), 'There is not enough orders');
+        $this->assertEquals($square->getOrder()->id, Order::find(1)->id, 'Order is not the same as in charge');
+        $this->assertNull($square->getOrder()->payment_service_id, 'Payment service identifier is null');
+    }
+
+    /**
      * Save and charge an order through facade.
      *
      * @return void
