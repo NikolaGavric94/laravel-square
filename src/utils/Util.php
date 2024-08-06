@@ -4,8 +4,8 @@ namespace Nikolag\Square\Utils;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Models\Product;
 use stdClass;
 
 class Util

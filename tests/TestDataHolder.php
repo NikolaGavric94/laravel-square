@@ -8,9 +8,9 @@ use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\Tax;
-use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
+use Nikolag\Square\Utils\Constants;
 
 class TestDataHolder
 {
@@ -101,12 +101,12 @@ class TestDataHolder
             'display_name'  => 'John Doe',
             'email_address' => 'johndoe@test.com',
             'phone_number'  => '1234567890',
-            'address'       => [
-                'address_line_1'                  => '123 Main St',
-                'locality'                        => 'San Francisco',
+            'address' => [
+                'address_line_1' => '123 Main St',
+                'locality' => 'San Francisco',
                 'administrative_district_level_1' => 'CA',
-                'postal_code'                     => '94114',
-                'country'                         => 'US',
+                'postal_code' => '94114',
+                'country'     => 'US',
             ],
         ];
     }

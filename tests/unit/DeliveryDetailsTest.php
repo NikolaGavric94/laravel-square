@@ -4,8 +4,8 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Tests\Models\Order;
-use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\TestDataHolder;
 use Throwable;
 
 class DeliveryDetailsTest extends TestCase
@@ -34,13 +34,13 @@ class DeliveryDetailsTest extends TestCase
     }
 
     /**
-     * Delivery details persisting
+     * Delivery details persisting.
      *
      * @return void
      */
     public function test_delivery_details_create(): void
     {
-        $fakeNote = 'Delivery for ' . $this->faker->name;
+        $fakeNote = 'Delivery for '.$this->faker->name;
 
         factory(DeliveryDetails::class)->create([
             'note' => $fakeNote,
@@ -52,7 +52,7 @@ class DeliveryDetailsTest extends TestCase
     }
 
     /**
-     * Check fulfillment with delivery and recipient
+     * Check fulfillment with delivery and recipient.
      *
      * @return void
      */
@@ -77,7 +77,7 @@ class DeliveryDetailsTest extends TestCase
     }
 
     /**
-     * Check delivery cannot be associated directly to the order
+     * Check delivery cannot be associated directly to the order.
      *
      * @return void
      */

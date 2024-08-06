@@ -4,8 +4,8 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -43,7 +43,7 @@ class FulfillmentTest extends TestCase
     }
 
     /**
-     * Check fulfillment with pickup
+     * Check fulfillment with pickup.
      *
      * @return void
      */
@@ -67,7 +67,7 @@ class FulfillmentTest extends TestCase
     }
 
     /**
-     * Check fulfillment with delivery
+     * Check fulfillment with delivery.
      *
      * @return void
      */
@@ -164,7 +164,7 @@ class FulfillmentTest extends TestCase
     {
         $fulfillmentDetails = [
             'delivery_details' => $this->data->fulfillmentWithDeliveryDetails,
-            'pickup_details'   => $this->data->fulfillmentWithPickupDetails,
+            'pickup_details' => $this->data->fulfillmentWithPickupDetails,
             'shipment_details' => $this->data->fulfillmentWithShipmentDetails,
         ];
         foreach ($fulfillmentDetails as $fulfillmentType => $fulfillment) {

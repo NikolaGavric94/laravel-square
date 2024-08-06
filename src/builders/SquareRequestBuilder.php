@@ -15,9 +15,9 @@ use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentRequest;
 use Square\Models\Fulfillment;
+use Square\Models\FulfillmentDeliveryDetails;
 use Square\Models\FulfillmentPickupDetails;
 use Square\Models\FulfillmentPickupDetailsCurbsidePickupDetails;
-use Square\Models\FulfillmentDeliveryDetails;
 use Square\Models\FulfillmentRecipient;
 use Square\Models\FulfillmentShipmentDetails;
 use Square\Models\Money;
@@ -65,7 +65,7 @@ class SquareRequestBuilder
         PickupDetails $pickupDetails
     ): void {
         // Check if it's a curbside pickup
-        if (!$pickupDetails->is_curbside_pickup) {
+        if (! $pickupDetails->is_curbside_pickup) {
             return;
         }
 

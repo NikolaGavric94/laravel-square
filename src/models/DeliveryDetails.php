@@ -10,7 +10,7 @@ use Nikolag\Square\Utils\Constants;
 class DeliveryDetails extends Model
 {
     /**
-     * Traits
+     * Traits.
      */
     use HasRecipient;
 

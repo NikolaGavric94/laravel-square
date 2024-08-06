@@ -71,7 +71,7 @@ class RecipientBuilder
         // If the recipient has a customer_id, we don't need the individual fields
         $hasCustomerID = Arr::has($recipientData, 'customer_id') && $recipientData['customer_id'] != null;
 
-        if (!$hasCustomerID) {
+        if (! $hasCustomerID) {
             Validator::make($recipient->toArray(), $individualFieldsRules)->validate();
         } else {
             // As long as the customer_id is present, we're good - Square requires either customer_id or the details

@@ -3,8 +3,8 @@
 namespace Nikolag\Square\Traits;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Utils\Constants;
 
 trait HasFulfillments
 {

@@ -3,8 +3,8 @@
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -140,7 +140,7 @@ $factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [
         'state' => Constants::FULFILLMENT_STATE_PROPOSED,
-        'uid'   => Util::uid(),
+        'uid' => Util::uid(),
     ];
 });
 

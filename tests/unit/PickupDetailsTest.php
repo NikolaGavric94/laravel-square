@@ -3,9 +3,9 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Models\PickupDetails;
-use Nikolag\Square\Tests\TestDataHolder;
-use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\TestDataHolder;
 use Throwable;
 
 class PickupDetailsTest extends TestCase
@@ -34,13 +34,13 @@ class PickupDetailsTest extends TestCase
     }
 
     /**
-     * Pickup Details persisting
+     * Pickup Details persisting.
      *
      * @return void
      */
     public function test_pickup_details_create(): void
     {
-        $fakeNote = 'Pickup for ' . $this->faker->name;
+        $fakeNote = 'Pickup for '.$this->faker->name;
 
         factory(PickupDetails::class)->create([
             'note' => $fakeNote,
@@ -52,7 +52,7 @@ class PickupDetailsTest extends TestCase
     }
 
     /**
-     * Check fulfillment with pickup and recipient
+     * Check fulfillment with pickup and recipient.
      *
      * @return void
      */
@@ -77,7 +77,7 @@ class PickupDetailsTest extends TestCase
     }
 
     /**
-     * Check pickup cannot be associated directly to the order
+     * Check pickup cannot be associated directly to the order.
      *
      * @return void
      */

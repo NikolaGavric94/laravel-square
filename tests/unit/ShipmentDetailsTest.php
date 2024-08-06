@@ -3,9 +3,9 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Models\ShipmentDetails;
-use Nikolag\Square\Tests\TestDataHolder;
-use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Models\Order;
+use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\TestDataHolder;
 use Throwable;
 
 class ShipmentDetailsTest extends TestCase
@@ -34,13 +34,13 @@ class ShipmentDetailsTest extends TestCase
     }
 
     /**
-     * Shipment Details persisting
+     * Shipment Details persisting.
      *
      * @return void
      */
     public function test_shipment_details_create(): void
     {
-        $fakeNote = 'Shipment for ' . $this->faker->name;
+        $fakeNote = 'Shipment for '.$this->faker->name;
 
         factory(ShipmentDetails::class)->create([
             'shipping_note' => $fakeNote,
@@ -52,7 +52,7 @@ class ShipmentDetailsTest extends TestCase
     }
 
     /**
-     * Check fulfillment with shipment and recipient
+     * Check fulfillment with shipment and recipient.
      *
      * @return void
      */
