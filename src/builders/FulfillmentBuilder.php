@@ -170,6 +170,7 @@ class FulfillmentBuilder
                 500
             );
         }
+
         return new DeliveryDetails($deliveryData);
     }
 
@@ -195,6 +196,7 @@ class FulfillmentBuilder
                 500
             );
         }
+
         return new PickupDetails($pickupData);
     }
 
@@ -220,6 +222,7 @@ class FulfillmentBuilder
                 500
             );
         }
+
         return new ShipmentDetails($shipmentData);
     }
 
@@ -228,7 +231,6 @@ class FulfillmentBuilder
      *
      * @param  array  $fulfillment  The fulfillment data.
      * @param  string  $type  The type of the fulfillment.
-     *
      * @return Recipient|null
      */
     private function getRecipientFromFulfillmentArray(array $fulfillment, string $type): Recipient|null
