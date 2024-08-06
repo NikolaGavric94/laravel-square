@@ -694,7 +694,7 @@ class SquareServiceTest extends TestCase
             ->charge([
                 'amount' => 935,
                 'source_id' => 'cnon:card-nonce-ok',
-                'location_id' => env('SQUARE_LOCATION')
+                'location_id' => env('SQUARE_LOCATION'),
             ]);
 
         $transaction = $transaction->load('merchant', 'customer');
