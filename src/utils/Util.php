@@ -137,6 +137,7 @@ class Util
 
             // Calculate and round the product taxes
             $productTaxes = $netPrice * ($tax->percentage / 100);
+
             return round($productTaxes);
         } else {
             return 0;
