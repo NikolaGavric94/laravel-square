@@ -77,7 +77,7 @@ class ShipmentDetailsTest extends TestCase
     }
 
     /**
-     * Check shipment cannot be associated directly to the order
+     * Check shipment cannot be associated directly to the order.
      *
      * @return void
      */

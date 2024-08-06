@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Builders\RecipientBuilder;
-use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -39,7 +38,7 @@ class FulfillmentBuilder
     /**
      * Checks if the fulfillment details are already set.
      *
-     * @param  mixed $fulfillmentModel
+     * @param  mixed  $fulfillmentModel
      * @return void
      *
      * @throws InvalidSquareOrderException
@@ -227,8 +226,8 @@ class FulfillmentBuilder
     /**
      * Get recipient data from fulfillment.
      *
-     * @param  array  $fulfillment The fulfillment data.
-     * @param  string  $type The type of the fulfillment.
+     * @param  array  $fulfillment  The fulfillment data.
+     * @param  string  $type  The type of the fulfillment.
      *
      * @return Recipient|null
      */

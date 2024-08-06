@@ -135,7 +135,6 @@ $factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker
     ];
 });
 
-
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [

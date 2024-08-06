@@ -57,7 +57,6 @@ class SquareRequestBuilder
      * Adds curb side pickup details to the pickup details.
      *
      * @param  PickupDetails  $fulfillmentDetails
-     *
      * @return void
      */
     public function addCurbsidePickupDetails(

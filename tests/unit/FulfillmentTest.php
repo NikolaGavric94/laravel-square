@@ -184,7 +184,6 @@ class FulfillmentTest extends TestCase
      */
     public function test_square_order_fulfillment_with_multiple_fulfillments(): void
     {
-
         $this->expectException(InvalidSquareOrderException::class);
         $this->expectExceptionMessage('This order already has a fulfillment');
         $this->expectExceptionCode(500);

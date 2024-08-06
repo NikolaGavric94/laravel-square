@@ -371,7 +371,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * order, the standard UI does not, so this is limited to a single fulfillment.
      *
      * @param  mixed  $fulfillment
-     * @param  string $type
+     * @param  string  $type
      * @return self
      *
      * @throws Exception If the order already has a fulfillment.

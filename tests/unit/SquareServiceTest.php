@@ -271,7 +271,7 @@ class SquareServiceTest extends TestCase
                 'state' => 'PROPOSED',
                 'pickup_details' => [
                     'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
-                    'placed_at' => now()->format(Constants::DATE_FORMAT)
+                    'placed_at' => now()->format(Constants::DATE_FORMAT),
                 ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
@@ -340,7 +340,7 @@ class SquareServiceTest extends TestCase
                     'curbside_pickup_details' => [
                         'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
                         'buyer_arrived_at' => null,
-                    ]
+                    ],
                 ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
