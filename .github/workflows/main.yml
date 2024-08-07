@@ -39,8 +39,6 @@ jobs:
     environment: sandbox
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: '3.3.x'
 
       # Setup php
       - name: Setup PHP with PECL extension
