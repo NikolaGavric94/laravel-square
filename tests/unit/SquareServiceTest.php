@@ -208,7 +208,6 @@ class SquareServiceTest extends TestCase
                 'delivery_details' => [
                     'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
                     'placed_at' => now(),
-                    'carrier' => 'USPS',
                 ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
