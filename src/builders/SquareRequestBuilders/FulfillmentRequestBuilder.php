@@ -2,9 +2,13 @@
 
 namespace Nikolag\Square\Builders\SquareRequestBuilders;
 
+use Illuminate\Support\Collection;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\ShipmentDetails;
+use Nikolag\Square\Utils\Constants;
 use Square\Models\Fulfillment;
 use Square\Models\FulfillmentDeliveryDetails;
 use Square\Models\FulfillmentPickupDetails;
