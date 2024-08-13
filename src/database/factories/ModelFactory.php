@@ -121,7 +121,7 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
     return [
-        'carrier' => $faker->company,
+        'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
         'placed_at' => now(),
         'deliver_at' => $faker->dateTimeBetween('now', '+1 month'),
         'note' => $faker->realText(50),
