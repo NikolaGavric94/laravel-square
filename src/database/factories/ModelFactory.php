@@ -206,7 +206,7 @@ $factory->define(Order::class, function (Faker\Generator $faker) {
 $factory->define(PickupDetails::class, function (Faker\Generator $faker) {
     return [
         'expires_at' => $faker->dateTimeBetween('now', '+1 day'),
-        'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+        'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
         'pickup_at' => now(),
         'note' => $faker->realText(50),
         'placed_at' => now(),

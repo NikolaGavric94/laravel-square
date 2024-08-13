@@ -66,8 +66,8 @@ class Constants extends CoreConstants
     const FULFILLMENT_STATE_FAILED = 'FAILED';
 
     // Fulfillment scheduled type constants
-    const SCHEDULED_TYPE_ASAP = 'ASAP';
-    const SCHEDULED_TYPE_SCHEDULED = 'SCHEDULED';
+    const SCHEDULE_TYPE_ASAP = 'ASAP';
+    const SCHEDULE_TYPE_SCHEDULED = 'SCHEDULED';
 
     // Date format (RFC3339 - which complies with Square's API requirements)
     const DATE_FORMAT = DateTime::RFC3339;

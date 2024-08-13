@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('recipient_id')->nullable();
             $table->timestamp('expires_at')->nullable();
-            $table->string('scheduled_type');
+            $table->string('schedule_type');
             $table->timestamp('pickup_at')->nullable();
             $table->string('pickup_window_duration')->nullable();
             $table->string('prep_time_duration')->nullable();
