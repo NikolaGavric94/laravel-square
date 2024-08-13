@@ -206,7 +206,7 @@ class SquareServiceTest extends TestCase
                 'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
                 'state' => 'PROPOSED',
                 'delivery_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
                     'placed_at' => now(),
                     'carrier' => 'USPS',
                 ],
@@ -270,7 +270,7 @@ class SquareServiceTest extends TestCase
                 'type' => Constants::FULFILLMENT_TYPE_PICKUP,
                 'state' => 'PROPOSED',
                 'pickup_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
                     'placed_at' => now()->format(Constants::DATE_FORMAT),
                 ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
@@ -334,7 +334,7 @@ class SquareServiceTest extends TestCase
                 'type' => Constants::FULFILLMENT_TYPE_PICKUP,
                 'state' => 'PROPOSED',
                 'pickup_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
                     'placed_at' => now(),
                     'is_curbside_pickup' => true,
                     'curbside_pickup_details' => [
@@ -396,7 +396,7 @@ class SquareServiceTest extends TestCase
                 'type' => Constants::FULFILLMENT_TYPE_SHIPMENT,
                 'state' => 'PROPOSED',
                 'shipment_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
                     'placed_at' => now(),
                 ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
@@ -464,7 +464,7 @@ class SquareServiceTest extends TestCase
                 'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
                 'state' => 'PROPOSED',
                 'delivery_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
                     'placed_at' => now(),
                     'carrier' => 'USPS',
                 ],

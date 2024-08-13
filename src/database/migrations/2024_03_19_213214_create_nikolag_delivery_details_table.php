@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('nikolag_delivery_details', function (Blueprint $table) {
             $table->id();
             $table->string('recipient_id')->nullable();
-            $table->string('carrier', 50);
+            $table->string('schedule_type', 255);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();
             $table->string('prep_time_duration')->nullable();
