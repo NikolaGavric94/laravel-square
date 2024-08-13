@@ -34,7 +34,7 @@ class DeliveryDetails extends Model
      * @var array
      */
     protected $fillable = [
-        'carrier',
+        'schedule_type',
         'prep_time_duration',
         'delivery_window_duration',
         'note',

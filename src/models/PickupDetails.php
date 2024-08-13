@@ -35,6 +35,7 @@ class PickupDetails extends Model
      */
     protected $fillable = [
         'expires_at',
+        'auto_complete_duration',
         'schedule_type',
         'pickup_at',
         'pickup_window_duration',
