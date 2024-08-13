@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Builders\RecipientBuilder;
-use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -22,19 +21,13 @@ class FulfillmentBuilder
      */
     private RecipientBuilder $recipientBuilder;
 
-    /**
-     * @var string $deliveryDetailsKey
-     */
+    /** @var string */
     private string $deliveryDetailsKey = 'delivery_details';
 
-    /**
-     * @var string $pickupDetailsKey
-     */
+    /** @var string */
     private string $pickupDetailsKey = 'pickup_details';
 
-    /**
-     * @var string $shipmentDetailsKey
-     */
+    /** @var string */
     private string $shipmentDetailsKey = 'shipment_details';
 
     public function __construct()
@@ -45,17 +38,16 @@ class FulfillmentBuilder
     /**
      * Checks if the fulfillment details are already set.
      *
-     * @param mixed $fulfillmentModel
+     * @param  mixed  $fulfillmentModel
+     * @return void
      *
      * @throws InvalidSquareOrderException
-     *
-     * @return void
      */
     private function checkFulfillmentDetails(mixed $fulfillmentModel): void
     {
         // If this fulfillment already has details, throw an error - only one fulfillment details per fulfillment
         // is currently supported
-        if (!empty($fulfillmentModel->fulfillmentDetails)) {
+        if (! empty($fulfillmentModel->fulfillmentDetails)) {
             throw new InvalidSquareOrderException('Fulfillment already has details', 500);
         }
     }
@@ -129,7 +121,7 @@ class FulfillmentBuilder
 
         // Check if the order is present and if it already has this fulfillment
         // or if fulfillment doesn't have property $id then create new Fulfillment object
-        if (($order && !$order->hasFulfillment($fulfillment)) || ! Arr::has($fulfillment, 'id')) {
+        if (($order && ! $order->hasFulfillment($fulfillment)) || ! Arr::has($fulfillment, 'id')) {
             $tempFulfillment = new Fulfillment($fulfillment);
         } else {
             $tempFulfillment = Fulfillment::find($fulfillment['id']);
@@ -172,12 +164,13 @@ class FulfillmentBuilder
 
         // Get the details
         $deliveryData = Arr::get($fulfillment, $this->deliveryDetailsKey);
-        if (!$deliveryData) {
+        if (! $deliveryData) {
             throw new MissingPropertyException(
-                $this->deliveryDetailsKey . ' property for object Fulfillment is missing',
+                $this->deliveryDetailsKey.' property for object Fulfillment is missing',
                 500
             );
         }
+
         return new DeliveryDetails($deliveryData);
     }
 
@@ -197,12 +190,13 @@ class FulfillmentBuilder
 
         // Get the details
         $pickupData = Arr::get($fulfillment, $this->pickupDetailsKey);
-        if (!$pickupData) {
+        if (! $pickupData) {
             throw new MissingPropertyException(
-                $this->pickupDetailsKey . ' property for object Fulfillment is missing',
+                $this->pickupDetailsKey.' property for object Fulfillment is missing',
                 500
             );
         }
+
         return new PickupDetails($pickupData);
     }
 
@@ -222,21 +216,21 @@ class FulfillmentBuilder
 
         // Get the details
         $shipmentData = Arr::get($fulfillment, $this->shipmentDetailsKey);
-        if (!$shipmentData) {
+        if (! $shipmentData) {
             throw new MissingPropertyException(
-                $this->shipmentDetailsKey . ' property for object Fulfillment is missing',
+                $this->shipmentDetailsKey.' property for object Fulfillment is missing',
                 500
             );
         }
+
         return new ShipmentDetails($shipmentData);
     }
 
     /**
      * Get recipient data from fulfillment.
      *
-     * @param  array  $fulfillment The fulfillment data.
-     * @param  string $type        The type of the fulfillment.
-     *
+     * @param  array  $fulfillment  The fulfillment data.
+     * @param  string  $type  The type of the fulfillment.
      * @return Recipient|null
      */
     private function getRecipientFromFulfillmentArray(array $fulfillment, string $type): Recipient|null

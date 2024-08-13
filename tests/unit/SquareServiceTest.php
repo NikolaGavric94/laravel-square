@@ -11,9 +11,9 @@ use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\PickupDetails;
-use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Recipient;
+use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
@@ -489,13 +489,12 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
-                'state'            => 'PROPOSED',
+                'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
+                'state' => 'PROPOSED',
                 'delivery_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
-                    'placed_at'      => now(),
-                    'carrier'        => 'USPS',
-                ]
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
@@ -553,12 +552,12 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
-                'state'          => 'PROPOSED',
+                'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+                'state' => 'PROPOSED',
                 'pickup_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
-                    'placed_at'      => now()->format(Constants::DATE_FORMAT)
-                ]
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now()->format(Constants::DATE_FORMAT),
+                ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
@@ -617,17 +616,17 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type'           => Constants::FULFILLMENT_TYPE_PICKUP,
-                'state'          => 'PROPOSED',
+                'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+                'state' => 'PROPOSED',
                 'pickup_details' => [
-                    'scheduled_type'          => Constants::SCHEDULED_TYPE_ASAP,
-                    'placed_at'               => now(),
-                    'is_curbside_pickup'      => true,
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                    'is_curbside_pickup' => true,
                     'curbside_pickup_details' => [
                         'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
                         'buyer_arrived_at' => null,
-                    ]
-                ]
+                    ],
+                ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
@@ -644,7 +643,7 @@ class SquareServiceTest extends TestCase
 
         // Make sure the curbside pickup data flag is set to true
         $this->assertTrue(
-            !empty($square->getOrder()->fulfillments->first()->fulfillmentDetails->is_curbside_pickup),
+            ! empty($square->getOrder()->fulfillments->first()->fulfillmentDetails->is_curbside_pickup),
             'Curbside pickup flag is not set to true'
         );
 
@@ -679,12 +678,12 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type'             => Constants::FULFILLMENT_TYPE_SHIPMENT,
-                'state'            => 'PROPOSED',
+                'type' => Constants::FULFILLMENT_TYPE_SHIPMENT,
+                'state' => 'PROPOSED',
                 'shipment_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
-                    'placed_at'      => now(),
-                ]
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                ],
             ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
             ->save();
 
@@ -747,13 +746,13 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type'             => Constants::FULFILLMENT_TYPE_DELIVERY,
-                'state'            => 'PROPOSED',
+                'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
+                'state' => 'PROPOSED',
                 'delivery_details' => [
-                    'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
-                    'placed_at'      => now(),
-                    'carrier'        => 'USPS',
-                ]
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                    'carrier' => 'USPS',
+                ],
             ])
             // ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray()) // Commented out to test the error
             ->save();
@@ -1109,7 +1108,7 @@ class SquareServiceTest extends TestCase
             ->charge([
                 'amount' => 935,
                 'source_id' => 'cnon:card-nonce-ok',
-                'location_id' => env('SQUARE_LOCATION')
+                'location_id' => env('SQUARE_LOCATION'),
             ]);
 
         $transaction = $transaction->load('merchant', 'customer');

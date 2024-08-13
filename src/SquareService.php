@@ -425,12 +425,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (MissingPropertyException $e) {
-            $message = 'Required fields are missing: ' . $e->getMessage();
+            $message = 'Required fields are missing: '.$e->getMessage();
             throw new MissingPropertyException($message, 500, $e);
         } catch (InvalidSquareOrderException $e) {
             throw new MissingPropertyException('Invalid order data', 500, $e);
         } catch (Exception|ApiException $e) {
-            $message = 'There was an error with the api request: ' . $e->getMessage();
+            $message = 'There was an error with the api request: '.$e->getMessage();
             throw new Exception($message, 500, $e);
         }
 
@@ -578,11 +578,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * order, the standard UI does not, so this is limited to a single fulfillment.
      *
      * @param  mixed  $fulfillment
-     * @param  string $type
+     * @param  string  $type
+     * @return self
      *
      * @throws Exception If the order already has a fulfillment.
-     *
-     * @return self
      */
     public function setFulfillment(mixed $fulfillment): static
     {
@@ -590,7 +589,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $fulfillmentClass = Constants::FULFILLMENT_NAMESPACE;
 
         // Validate the order exists
-        if (!$this->getOrder()) {
+        if (! $this->getOrder()) {
             throw new InvalidSquareOrderException('Fulfillment cannot be set without an order.', 500);
         }
 
@@ -607,7 +606,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         // Check if order already has this fulfillment
-        if (!Util::hasFulfillment($this->orderCopy->fulfillments, $this->getFulfillment())) {
+        if (! Util::hasFulfillment($this->orderCopy->fulfillments, $this->getFulfillment())) {
             // Add the fulfillment to the order
             $this->orderCopy->fulfillments->push($this->getFulfillment());
         } else {
@@ -630,7 +629,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function setFulfillmentRecipient(mixed $recipient): static
     {
         // Make sure we have a fulfillment
-        if (!$this->getFulfillment()) {
+        if (! $this->getFulfillment()) {
             throw new MissingPropertyException('Fulfillment must be added before adding a fulfillment recipient', 500);
         }
 
@@ -643,7 +642,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         // Check if this order's fulfillment details already has a recipient
-        if (!$this->getFulfillmentDetails()->recipient) {
+        if (! $this->getFulfillmentDetails()->recipient) {
             $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->getFulfillmentRecipient();
         } else {
             throw new Exception('This order\'s fulfillment details already has a recipient', 500);
@@ -807,7 +806,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $this->order = $this->orderBuilder->buildOrderModelFromArray($order, new $orderClass());
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
         } else {
-            throw new InvalidSquareOrderException('Order must be an instance of ' . $orderClass . ' or an array', 500);
+            throw new InvalidSquareOrderException('Order must be an instance of '.$orderClass.' or an array', 500);
         }
 
         return $this;

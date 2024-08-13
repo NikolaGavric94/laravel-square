@@ -10,7 +10,7 @@ use Nikolag\Square\Utils\Constants;
 class PickupDetails extends Model
 {
     /**
-     * Traits
+     * Traits.
      */
     use HasRecipient;
 
@@ -35,7 +35,8 @@ class PickupDetails extends Model
      */
     protected $fillable = [
         'expires_at',
-        'scheduled_type',
+        'auto_complete_duration',
+        'schedule_type',
         'pickup_at',
         'pickup_window_duration',
         'prep_time_duration',

@@ -3,8 +3,8 @@
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -121,7 +121,7 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
     return [
-        'carrier' => $faker->company,
+        'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
         'placed_at' => now(),
         'deliver_at' => $faker->dateTimeBetween('now', '+1 month'),
         'note' => $faker->realText(50),
@@ -135,12 +135,11 @@ $factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker
     ];
 });
 
-
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [
         'state' => Constants::FULFILLMENT_STATE_PROPOSED,
-        'uid'   => Util::uid(),
+        'uid' => Util::uid(),
     ];
 });
 
@@ -208,7 +207,7 @@ $factory->define(Order::class, function (Faker\Generator $faker) {
 $factory->define(PickupDetails::class, function (Faker\Generator $faker) {
     return [
         'expires_at' => $faker->dateTimeBetween('now', '+1 day'),
-        'scheduled_type' => Constants::SCHEDULED_TYPE_ASAP,
+        'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
         'pickup_at' => now(),
         'note' => $faker->realText(50),
         'placed_at' => now(),
