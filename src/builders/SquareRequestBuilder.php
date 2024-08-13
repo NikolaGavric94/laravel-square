@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Builders\SquareRequestBuilders\FulfillmentRequestBuilder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\CreateCustomerRequest;
