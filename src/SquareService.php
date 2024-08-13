@@ -408,7 +408,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         return $this;
     }
-
     /**
      * Add a recipient to the fulfillment details.
      * NOTE: This currently supports ONE recipient per fulfillment.  While the Square API supports multiple fulfillments
