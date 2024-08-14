@@ -219,7 +219,14 @@ $factory->define(Recipient::class, function (Faker\Generator $faker) {
         'display_name' => $faker->name,
         'email_address' => $faker->unique()->safeEmail,
         'phone_number' => $faker->unique()->tollFreePhoneNumber,
-        'address' => $faker->address,
+        'address' => [
+            'address_line_1' => $faker->streetAddress,
+            'address_line_2' => $faker->secondaryAddress,
+            'locality' => $faker->city,
+            'administrative_district_level_1' => $faker->state,
+            'postal_code' => $faker->postcode,
+            'country' => $faker->country,
+        ],
     ];
 });
 
