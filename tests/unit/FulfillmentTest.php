@@ -43,6 +43,38 @@ class FulfillmentTest extends TestCase
     }
 
     /**
+     * Creates an order using the square facade and checks if the fulfillment is created.
+     *
+     * @return void
+     */
+    public function test_fulfillment_order_relationship(): void
+    {
+        // Create an order with a pickup fulfillment
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->setFulfillment($this->data->fulfillmentWithPickupDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
+            ->save();
+
+        // Get the order id
+        $orderId = $square->getOrder()->id;
+
+        // Query the fulfillments table
+        $fulfillment = Fulfillment::where('order_id', $orderId)->first();
+
+        // Make sure the fulfillment is created
+        $this->assertNotNull($fulfillment);
+
+        // Make sure the fulfillment is associated with the order and has the correct details
+        $this->assertInstanceOf(Order::class, $fulfillment->order);
+        $this->assertInstanceOf(PickupDetails::class, $fulfillment->fulfillmentDetails);
+
+        // Re-query the order and make sure the fulfillment is associated with it
+        $order = Order::find($orderId);
+        $this->assertInstanceOf(Fulfillment::class, $order->fulfillments->first());
+    }
+
+    /**
      * Check fulfillment with pickup.
      *
      * @return void

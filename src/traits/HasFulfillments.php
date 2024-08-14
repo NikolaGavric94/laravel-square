@@ -30,10 +30,6 @@ trait HasFulfillments
      */
     public function fulfillments(): HasMany
     {
-        return $this->hasMany(
-            Constants::FULFILLMENT_NAMESPACE,
-            'id',
-            'fulfillment_id'
-        );
+        return $this->hasMany(Constants::FULFILLMENT_NAMESPACE);
     }
 }
