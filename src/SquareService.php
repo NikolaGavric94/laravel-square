@@ -197,7 +197,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         } catch (InvalidSquareOrderException $e) {
             throw new MissingPropertyException('Required column is missing from the table', 500, $e);
         } catch (Exception|ApiException $e) {
-            throw new Exception('There was an error with the api request', 500, $e);
+            $apiErrorMessage = $e->getMessage();
+            throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
         }
 
         return $this;
