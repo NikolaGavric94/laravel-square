@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Exception;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
@@ -146,6 +147,20 @@ class UtilTest extends TestCase
 
         // The expected total is 990.
         $this->assertEquals(990, Util::calculateTotalOrderCostByModel($square->getOrder()));
+    }
+
+    /**
+     * Test missing attributes for the calculation.
+     *
+     * @return void
+     */
+    public function test_calculate_total_order_cost_missing_data(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Total cost cannot be calculated without products.');
+
+        // Run the calculation with missing products
+        Util::calculateTotalOrderCostByModel($this->order);
     }
 
     /**
