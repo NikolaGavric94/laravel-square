@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('uid', 60)->nullable();
             $table->unsignedBigInteger('fulfillment_details_id');
             $table->enum('fulfillment_details_type', ['PICKUP', 'SHIPMENT', 'DELIVERY']);
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->string('order_id');
             $table->timestamps();
         });
 
