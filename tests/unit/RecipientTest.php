@@ -2,12 +2,9 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
-use Nikolag\Square\Models\PickupDetails;
-use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Square\Models\Address;
-use Throwable;
 
 class RecipientTest extends TestCase
 {
