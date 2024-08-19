@@ -28,7 +28,7 @@ return new class extends Migration
             $table->timestamp('delivered_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
             $table->string('cancel_reason', 100)->nullable();
-            $table->timestamp('courier_picked_up_at')->nullable();
+            $table->timestamp('courier_pickup_at')->nullable();
             $table->string('courier_pickup_window_duration')->nullable();
             $table->boolean('is_no_contact_delivery')->default(false);
             $table->string('dropoff_notes', 550)->nullable();
