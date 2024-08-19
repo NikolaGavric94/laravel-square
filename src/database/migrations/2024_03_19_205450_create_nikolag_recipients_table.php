@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('nikolag_recipients', function (Blueprint $table) {
             $table->id();
             $table->string('customer_id')->foreign('id')->on('customers')->nullable();
-            $table->string('display_name')->nullable();
-            $table->string('email_address')->nullable();
-            $table->string('phone_number')->nullable();
+            $table->string('square_customer_id', 191)->nullable();
+            $table->string('display_name', 255)->nullable();
+            $table->string('email_address', 255)->nullable();
+            $table->string('phone_number', 17)->nullable();
             $table->string('address')->nullable();
             $table->timestamps();
         });
