@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_pickup_details', function (Blueprint $table) {
             $table->id();
+            $table->string('fulfillment_uid', 255)->nullable()->unique();
             $table->string('recipient_id')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->string('auto_complete_duration', 500)->nullable();
@@ -37,6 +38,7 @@ return new class extends Migration
         // Add indexes
         Schema::table('nikolag_pickup_details', function (Blueprint $table) {
             $table->index('recipient_id');
+            $table->index('fulfillment_uid');
         });
     }
 

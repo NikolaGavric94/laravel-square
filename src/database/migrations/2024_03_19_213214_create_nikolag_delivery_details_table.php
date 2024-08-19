@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_delivery_details', function (Blueprint $table) {
             $table->id();
+            $table->string('fulfillment_uid', 255)->nullable()->unique();
             $table->string('recipient_id')->nullable();
             $table->string('schedule_type', 255);
             $table->timestamp('placed_at')->nullable();
@@ -37,6 +38,12 @@ return new class extends Migration
             $table->string('external_delivery_id', 50)->nullable();
             $table->boolean('managed_delivery')->default(false);
             $table->timestamps();
+        });
+
+        // Add indexes
+        Schema::table('nikolag_delivery_details', function (Blueprint $table) {
+            $table->index('recipient_id');
+            $table->index('fulfillment_uid');
         });
     }
 
