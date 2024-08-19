@@ -62,7 +62,7 @@ class DeliveryDetails extends Model
         'ready_at' => 'datetime',
         'delivered_at' => 'datetime',
         'canceled_at' => 'datetime',
-        'courier_picked_up_at' => 'datetime',
+        'courier_pickup_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
