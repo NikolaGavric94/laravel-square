@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('nikolag_delivery_details', function (Blueprint $table) {
             $table->id();
-            $table->string('fulfillment_uid', 255)->nullable()->unique();
-            $table->string('recipient_id')->nullable();
-            $table->string('schedule_type', 255);
+            $table->string('fulfillment_uid', 60)->nullable()->unique();
+            $table->string('recipient_id', 191)->nullable();
+            $table->enum('schedule_type', ['SCHEDULED', 'ASAP']);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();
             $table->string('prep_time_duration')->nullable();
