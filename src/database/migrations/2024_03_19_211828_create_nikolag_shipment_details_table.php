@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('nikolag_shipment_details', function (Blueprint $table) {
             $table->id();
-            $table->string('fulfillment_uid', 255)->nullable()->unique();
-            $table->string('recipient_id')->nullable();
+            $table->string('fulfillment_uid', 60)->nullable()->unique();
+            $table->string('recipient_id', 191)->nullable();
             $table->string('carrier', 50)->nullable();
             $table->string('shipping_note', 500)->nullable();
             $table->string('shipping_type', 50)->nullable();
