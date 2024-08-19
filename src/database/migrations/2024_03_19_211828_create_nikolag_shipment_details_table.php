@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_shipment_details', function (Blueprint $table) {
             $table->id();
+            $table->string('fulfillment_uid', 255)->nullable()->unique();
             $table->string('recipient_id')->nullable();
             $table->string('carrier', 50)->nullable();
             $table->string('shipping_note', 500)->nullable();
@@ -29,6 +30,12 @@ return new class extends Migration
             $table->timestamp('failed_at')->nullable();
             $table->string('failure_reason', 100)->nullable();
             $table->timestamps();
+        });
+
+        // Add indexes
+        Schema::table('nikolag_shipment_details', function (Blueprint $table) {
+            $table->index('recipient_id');
+            $table->index('fulfillment_uid');
         });
     }
 
