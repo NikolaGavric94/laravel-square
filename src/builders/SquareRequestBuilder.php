@@ -764,6 +764,7 @@ class SquareRequestBuilder
                 $tempProduct->setName($product->name);
                 $tempProduct->setBasePriceMoney($money);
                 $tempProduct->setQuantity((string) $quantity);
+                $tempProduct->setCatalogObjectId($product->square_catalog_object_id);
                 $tempProduct->setVariationName($product->variation_name);
                 $tempProduct->setNote($product->note);
                 $tempProduct->setAppliedDiscounts($this->buildAppliedDiscounts($discounts));
