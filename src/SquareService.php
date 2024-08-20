@@ -14,7 +14,9 @@ use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
@@ -276,6 +278,32 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Sync all discounts to the discount table.
+     *
+     * @return void
+     */
+    public function syncDiscounts(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $discountCatalogObjects = self::listCatalog('DISCOUNT');
+
+        foreach ($discountCatalogObjects as $discountObject) {
+            $discountData = $discountObject->getDiscountData();
+            $itemData = [
+                'name' => $discountData->getName(),
+                'percentage' => $discountData->getPercentage(),
+                'amount' => $discountData->getAmountMoney()?->getAmount(),
+            ];
+
+            $squareID = $discountObject->getId();
+
+            // Create or update the product
+            Discount::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+        }
+    }
+
+    /**
      * Sync all products and their variations to the products table.
      *
      * @return void
@@ -284,19 +312,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         // Retrieve the main location (since we're seeding for tests, just base it on the main location)
         /** @var array<CatalogObject> */
-        $items = self::listCatalog('ITEM');
+        $itemCatalogObjects = self::listCatalog('ITEM');
 
-        // Track the updated IDs
-        $updatedSquareIds = [];
-
-        foreach ($items as $item) {
+        foreach ($itemCatalogObjects as $itemObject) {
             // Sync the variations to the database
-            foreach ($item->getItemData()->getVariations() as $variation) {
+            foreach ($itemObject->getItemData()->getVariations() as $variation) {
                 $itemData = [
                     'name'           => $item->getItemData()->getName(),
                     'description'    => $item->getItemData()->getDescriptionHtml(),
                     'variation_name' => $variation->getItemVariationData()->getName(),
-                    'description'    => $item->getItemData()->getDescription(),
+                    'description'    => $itemObject->getItemData()->getDescription(),
                     'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
                 ];
 
@@ -304,10 +329,34 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
                 // Create or update the product
                 Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
-
-                // Track the updated IDs
-                $updatedSquareIds[] = $squareID;
             }
+        }
+    }
+
+    /**
+     * Sync all taxes to the taxes table.
+     *
+     * @return void
+     */
+    public function syncTaxes(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $taxCatalogObjects = self::listCatalog('TAX');
+
+        foreach ($taxCatalogObjects as $taxObject) {
+            $taxData = $taxObject->getTaxData();
+
+            $itemData = [
+                'name'       => $taxData->getName(),
+                'type'       => $taxData->getInclusionType(),
+                'percentage' => $taxData->getPercentage(),
+            ];
+
+            $squareID = $taxObject->getId();
+
+            // Create or update the product
+            Tax::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
         }
     }
 

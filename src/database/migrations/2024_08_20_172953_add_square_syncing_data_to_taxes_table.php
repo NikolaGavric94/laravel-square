@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('nikolag_taxes', function (Blueprint $table) {
             $table->string('square_catalog_object_id', 192)->nullable();
+            $table->dateTime('square_created_at')->nullable();
+            $table->dateTime('square_updated_at')->nullable();
         });
     }
 
@@ -27,6 +29,12 @@ return new class extends Migration
     {
         Schema::table('nikolag_taxes', function (Blueprint $table) {
             $table->dropColumn('square_catalog_object_id');
+        });
+        Schema::table('nikolag_taxes', function (Blueprint $table) {
+            $table->dropColumn('square_created_at');
+        });
+        Schema::table('nikolag_taxes', function (Blueprint $table) {
+            $table->dropColumn('square_updated_at');
         });
     }
 };
