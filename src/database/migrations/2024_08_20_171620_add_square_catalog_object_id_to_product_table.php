@@ -26,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('nikolag_products', function (Blueprint $table) {
-            $table->string('square_catalog_object_id', 192)->nullable();
+            $table->dropColumn('square_catalog_object_id');
         });
     }
 };
