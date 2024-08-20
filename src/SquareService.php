@@ -318,8 +318,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             // Sync the variations to the database
             foreach ($itemObject->getItemData()->getVariations() as $variation) {
                 $itemData = [
-                    'name'           => $item->getItemData()->getName(),
-                    'description'    => $item->getItemData()->getDescriptionHtml(),
+                    'name'           => $itemObject->getItemData()->getName(),
+                    'description'    => $itemObject->getItemData()->getDescriptionHtml(),
                     'variation_name' => $variation->getItemVariationData()->getName(),
                     'description'    => $itemObject->getItemData()->getDescription(),
                     'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
