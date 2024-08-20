@@ -15,6 +15,7 @@ use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Recipient;
+use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
@@ -840,7 +841,7 @@ class SquareServiceTest extends TestCase
                 'Catalog Object ID not synced for product: ' . $discount->toJson()
             );
 
-            // Make sure every product has a percentage or amount
+            // Make sure every discount has a percentage or amount
             $this->assertNotNull(
                 $discount->percentage || $discount->amount,
                 'Discount has no percentage or amount. Discount: ' . $discount->toJson()
@@ -878,6 +879,39 @@ class SquareServiceTest extends TestCase
 
             // Make sure every product has a name
             $this->assertNotNull($product->name, 'Product has no name. Product: ' . $product->toJson());
+        }
+    }
+
+    /**
+     * Test the syncing of the product catalog for discounts.
+     *
+     * @return void
+     */
+    public function test_square_sync_taxes(): void
+    {
+        // Delete all discounts from the database
+        Tax::truncate();
+        $this->assertCount(0, Tax::all(), 'There are taxes in the database after truncating');
+
+        // Sync the products
+        Square::syncTaxes();
+
+        // Make sure there are products
+        $taxes = Tax::all();
+        $this->assertGreaterThan(0, $taxes->count(), 'There are no taxes in the database');
+
+        foreach ($taxes as $tax) {
+            // Make sure every reference_type is set to square
+            $this->assertNotEmpty(
+                $tax->square_catalog_object_id,
+                'Catalog Object ID not synced for product: ' . $tax->toJson()
+            );
+
+            // Make sure every product has a percentage or amount
+            $this->assertNotNull(
+                $tax->percentage || $tax->amount,
+                'Discount has no percentage or amount. Discount: ' . $taxes->toJson()
+            );
         }
     }
 
