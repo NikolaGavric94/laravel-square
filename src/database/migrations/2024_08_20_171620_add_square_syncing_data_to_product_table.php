@@ -30,10 +30,10 @@ return new class extends Migration
         Schema::table('nikolag_products', function (Blueprint $table) {
             $table->dropColumn('square_catalog_object_id');
         });
-        Schema::table('nikolag_discounts', function (Blueprint $table) {
+        Schema::table('nikolag_products', function (Blueprint $table) {
             $table->dropColumn('square_created_at');
         });
-        Schema::table('nikolag_discounts', function (Blueprint $table) {
+        Schema::table('nikolag_products', function (Blueprint $table) {
             $table->dropColumn('square_updated_at');
         });
     }
