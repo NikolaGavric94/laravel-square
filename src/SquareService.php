@@ -303,15 +303,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $squareID = $item->getId();
 
                 // Create or update the product
-                Product::updateOrCreate(['reference_id' => $squareID], $itemData);
+                Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
 
                 // Track the updated IDs
                 $updatedSquareIds[] = $squareID;
             }
         }
-
-        // Run one more query to update the non-fillable reference_type
-        Product::query()->whereIn('reference_id', $updatedSquareIds)->update(['reference_type' => Constants::SQUARE]);
     }
 
     /**

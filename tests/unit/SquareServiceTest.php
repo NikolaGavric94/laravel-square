@@ -833,10 +833,9 @@ class SquareServiceTest extends TestCase
 
         foreach ($products as $product) {
             // Make sure every reference_type is set to square
-            $this->assertEquals(
-                Constants::SQUARE,
-                $product->reference_type,
-                'Reference type is not square. Product: ' . $product->toJson()
+            $this->assertNotEmpty(
+                $product->square_catalog_object_id,
+                'Catalog Object ID not synced for product: ' . $product->toJson()
             );
 
             // Make sure every product has a price
