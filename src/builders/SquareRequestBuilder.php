@@ -440,6 +440,7 @@ class SquareRequestBuilder
                 $tempDiscount->setUid(Util::uid());
                 $tempDiscount->setName($discount->name);
                 $tempDiscount->setScope($discount->pivot->scope);
+                $tempDiscount->setCatalogObjectId($discount->square_catalog_object_id);
 
                 // If it's LINE ITEM then assign proper UID
                 if ($discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
@@ -570,6 +571,7 @@ class SquareRequestBuilder
                 $tempTax->setUid(Util::uid());
                 $tempTax->setName($tax->name);
                 $tempTax->setType($tax->type);
+                $tempTax->setCatalogObjectId($tax->square_catalog_object_id);
                 $tempTax->setPercentage((string) $percentage);
                 $tempTax->setScope($tax->pivot->scope);
 
