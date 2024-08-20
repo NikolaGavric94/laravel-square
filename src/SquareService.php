@@ -14,6 +14,7 @@ use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
