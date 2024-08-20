@@ -300,7 +300,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                     'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
                 ];
 
-                $squareID = $item->getId();
+                $squareID = $variation->getId();
 
                 // Create or update the product
                 Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
