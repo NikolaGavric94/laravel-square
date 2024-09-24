@@ -58,7 +58,6 @@ class DeliveryDetailsTest extends TestCase
      */
     public function test_delivery_create_with_recipient(): void
     {
-        dump(config('nikolag.connections.square'));
         // Retrieve the fulfillment with delivery details
         $fulfillment = $this->data->fulfillmentWithDeliveryDetails;
 
