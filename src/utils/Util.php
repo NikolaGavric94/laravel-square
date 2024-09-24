@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Utils;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Models\Fulfillment;
@@ -240,13 +241,15 @@ class Util
         $allTaxes = $lineItemTaxes->merge($orderTaxes)->flatten();
 
         // Calculate base total
-        if ($products->isNotEmpty()) {
-            $finalCost = $noDeductiblesCost = $products->map(function ($product) {
-                return $product->price * $product->pivot->quantity;
-            })->pipe(function ($total) {
-                return $total->sum();
-            });
+        if ($products->isEmpty()) {
+            throw new Exception('Total cost cannot be calculated without products.');
         }
+
+        $noDeductiblesCost = $products->map(function ($product) {
+            return $product->price * $product->pivot->quantity;
+        })->pipe(function ($total) {
+            return $total->sum();
+        });
 
         // Calculate cost based on discounts
         $discountCost = $noDeductiblesCost - self::_calculateDiscounts($allDiscounts, $noDeductiblesCost, $products);
