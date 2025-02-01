@@ -15,10 +15,12 @@ return new class extends Migration
         Schema::create('nikolag_pickup_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('nikolag_fulfillment_id')->constrained('nikolag_fulfillments')->cascadeOnDelete();
+
+            // Square Order Fulfillment Pickup Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
             $table->string('recipient_id', 191)->nullable();
             $table->timestamp('expires_at')->nullable();
-            $table->string('auto_complete_duration', 500)->nullable();
+            $table->string('auto_complete_duration')->nullable();
             $table->enum('schedule_type', [
                 OrderFulfillmentPickupDetailsScheduleType::SCHEDULED,
                 OrderFulfillmentPickupDetailsScheduleType::ASAP
@@ -36,7 +38,7 @@ return new class extends Migration
             $table->timestamp('canceled_at')->nullable();
             $table->string('cancel_reason', 100)->nullable();
             $table->boolean('is_curbside_pickup')->default(false);
-            $table->string('curbside_pickup_details', 250)->nullable();
+            $table->json('curbside_pickup_details')->nullable();
             $table->timestamp('buyer_arrived_at')->nullable();
             $table->timestamps();
         });
