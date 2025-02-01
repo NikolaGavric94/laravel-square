@@ -12,6 +12,7 @@ use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\FulfillmentState;
 use Square\Models\FulfillmentType;
 
 /*
@@ -139,7 +140,7 @@ $factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [
-        'state' => Constants::FULFILLMENT_STATE_PROPOSED,
+        'state' => FulfillmentState::PROPOSED,
         'uid' => Util::uid(),
     ];
 });

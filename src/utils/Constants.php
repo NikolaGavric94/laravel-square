@@ -52,14 +52,6 @@ class Constants extends CoreConstants
     const DEDUCTIBLE_SCOPE_ORDER = 'ORDER';
     const DEDUCTIBLE_SCOPE_PRODUCT = 'LINE_ITEM';
 
-    // Fulfillment state constants
-    const FULFILLMENT_STATE_PROPOSED = 'PROPOSED';
-    const FULFILLMENT_STATE_RESERVED = 'RESERVED';
-    const FULFILLMENT_STATE_PREPARED = 'PREPARED';
-    const FULFILLMENT_STATE_COMPLETED = 'COMPLETED';
-    const FULFILLMENT_STATE_CANCELED = 'CANCELED';
-    const FULFILLMENT_STATE_FAILED = 'FAILED';
-
     // Fulfillment scheduled type constants
     const SCHEDULE_TYPE_ASAP = 'ASAP';
     const SCHEDULE_TYPE_SCHEDULED = 'SCHEDULED';
