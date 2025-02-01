@@ -22,11 +22,6 @@ return new class extends Migration
             $table->json('address')->nullable();
             $table->timestamps();
         });
-
-        // Add indexes
-        Schema::table('nikolag_recipients', function (Blueprint $table) {
-            $table->index('customer_id');
-        });
     }
 
     /**
