@@ -53,6 +53,17 @@ class OrderBuilder
         $orderClass = config('nikolag.connections.square.order.namespace');
         // Set payment type to square
         $order->payment_service_type = 'square';
+        // Set location if it's not included in the order
+        if (!$order->location_id) {
+            $order->location_id = $orderCopy->location_id;
+        } elseif ($order->location_id != $orderCopy->location_id) {
+            throw new InvalidSquareOrderException(
+                'Location ID conflict.  Order Data: ' . $order->location_id
+                    . '. Order Copy: ' . $orderCopy->location_id,
+                500
+            );
+        }
+
         // Save order first
         $order->save();
 

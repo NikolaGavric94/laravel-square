@@ -14,17 +14,29 @@ use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
+use Square\Models\BatchDeleteCatalogObjectsResponse;
+use Square\Models\BatchUpsertCatalogObjectsRequest;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Models\CatalogObject;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
+use Square\Models\CreateCatalogImageRequest;
+use Square\Models\CreateCatalogImageResponse;
+use Square\Models\ListCatalogResponse;
 use Square\Models\ListLocationsResponse;
+use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\UpdateCustomerRequest;
+use Square\Utils\FileWrapper;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -99,15 +111,253 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Batch deletes catalog objects.
+     *
+     * @param array<string> $catalogObjectIds The catalog object IDs to delete.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return BatchDeleteCatalogObjectsResponse
+     */
+    public function batchDeleteCatalogObjects(array $catalogObjectIds)
+    {
+        $request = $this->getSquareBuilder()->buildBatchDeleteCategoryObjectsRequest($catalogObjectIds);
+
+        // Call the Catalog API function batchDeleteCatalogObjects to delete all our items at once.
+        $apiResponse = $this->config->catalogAPI()->batchDeleteCatalogObjects($request);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var BatchDeleteCatalogObjectsResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
+    }
+
+    /**
+     * Uploads the items, and adds images, when creating new items for the catalog.
+     *
+     * @param BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest The request to upload the items.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return BatchUpsertCatalogObjectsResponse
+     */
+    public function batchUpsertCatalog(BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest)
+    {
+        // We call the Catalog API function batchUpsertCatalogObjects to upload all our
+        // items at once.
+        $apiResponse = $this->config->catalogAPI()->batchUpsertCatalogObjects($batchUpsertCatalogRequest);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var BatchUpsertCatalogObjectsResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
+    }
+
+    /**
+     * Creates a catalog image.
+     *
+     * @param CreateCatalogImageRequest $createCatalogImageRequest The request to create the image.
+     * @param string                    $filePath                  The image to upload.
+     *
+     * @throws Exception When an error occurs.
+     *
+     * @return CreateCatalogImageResponse
+     */
+    public function createCatalogImage(
+        CreateCatalogImageRequest $createCatalogImageRequest,
+        string $filePath
+    ) {
+        // Check to see if the file exists
+        if (!file_exists($filePath)) {
+            throw new Exception('The file does not exist');
+        }
+        // Create a file wrapper
+        $fileWrapper = FileWrapper::createFromPath($filePath);
+
+        // Call the Catalog API function createCatalogImage to upload the image
+        $apiResponse = $this->config->catalogAPI()->createCatalogImage($createCatalogImageRequest, $fileWrapper);
+
+        if ($apiResponse->isSuccess()) {
+            /** @var CreateCatalogImageResponse $results */
+            $results = $apiResponse->getResult();
+
+            return $results;
+        } else {
+            throw $this->_handleApiResponseErrors($apiResponse);
+        }
+    }
+
+    /**
+     * Helper function to get the appropriate currency to be used based on the location ID provided.
+     *
+     * @param string|null $locationId The location ID.
+     *
+     *
+     * @return string The currency code
+     */
+    public function getCurrency($locationId = 'main')
+    {
+        // Get the currency for the location
+        return $this->retrieveLocation($locationId)->getLocation()->getCurrency();
+    }
+
+    /**
+     * Retrieves the Square API request builder.
+     *
+     * @return SquareRequestBuilder
+     */
+    public function getSquareBuilder(): SquareRequestBuilder
+    {
+        return $this->squareBuilder;
+    }
+
+    /**
      * List locations.
      *
      * @return ListLocationsResponse
-     *
-     * @throws ApiException
      */
     public function locations(): ListLocationsResponse
     {
         return $this->config->locationsAPI()->listLocations()->getResult();
+    }
+
+    /**
+     * Retrieves a specific location.
+     *
+     * @param string $locationId The location ID.
+     *
+     * @return RetrieveLocationResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveLocation(string $locationId): RetrieveLocationResponse
+    {
+        return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
+    }
+
+    /**
+     * Lists the entire catalog.
+     *
+     * @param string $types The types of objects to list.
+     *
+     * @return array<\Square\Models\CatalogObject> The catalog items.
+     *
+     * @throws ApiException
+     */
+    public function listCatalog(?string $types = null): array
+    {
+        $catalogItems   = [];
+        $cursor         = null;
+        $pagesRetrieved = 0;
+
+        do {
+            $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
+
+            if ($apiResponse->isSuccess()) {
+                /** @var ListCatalogResponse $results */
+                $results      = $apiResponse->getResult();
+                $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
+                $cursor       = $results->getCursor();
+            } else {
+                throw $this->handleApiResponseErrors($apiResponse);
+            }
+
+            // Increment the pages retrieved
+            $pagesRetrieved++;
+        } while ($cursor);
+
+        return $catalogItems;
+    }
+
+    /**
+     * Sync all discounts to the discount table.
+     *
+     * @return void
+     */
+    public function syncDiscounts(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $discountCatalogObjects = self::listCatalog('DISCOUNT');
+
+        foreach ($discountCatalogObjects as $discountObject) {
+            $discountData = $discountObject->getDiscountData();
+            $itemData = [
+                'name' => $discountData->getName(),
+                'percentage' => $discountData->getPercentage(),
+                'amount' => $discountData->getAmountMoney()?->getAmount(),
+            ];
+
+            $squareID = $discountObject->getId();
+
+            // Create or update the product
+            Discount::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+        }
+    }
+
+    /**
+     * Sync all products and their variations to the products table.
+     *
+     * @return void
+     */
+    public function syncProducts(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $itemCatalogObjects = self::listCatalog('ITEM');
+
+        foreach ($itemCatalogObjects as $itemObject) {
+            // Sync the variations to the database
+            foreach ($itemObject->getItemData()->getVariations() as $variation) {
+                $itemData = [
+                    'name'           => $itemObject->getItemData()->getName(),
+                    'description'    => $itemObject->getItemData()->getDescriptionHtml(),
+                    'variation_name' => $variation->getItemVariationData()->getName(),
+                    'description'    => $itemObject->getItemData()->getDescription(),
+                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
+                ];
+
+                $squareID = $variation->getId();
+
+                // Create or update the product
+                Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+            }
+        }
+    }
+
+    /**
+     * Sync all taxes to the taxes table.
+     *
+     * @return void
+     */
+    public function syncTaxes(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $taxCatalogObjects = self::listCatalog('TAX');
+
+        foreach ($taxCatalogObjects as $taxObject) {
+            $taxData = $taxObject->getTaxData();
+
+            $itemData = [
+                'name'       => $taxData->getName(),
+                'type'       => $taxData->getInclusionType(),
+                'percentage' => $taxData->getPercentage(),
+            ];
+
+            $squareID = $taxObject->getId();
+
+            // Create or update the product
+            Tax::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+        }
     }
 
     /**
@@ -157,11 +407,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     private function _saveOrder(bool $saveToSquare = false): void
     {
-        $this->order = $this->orderBuilder->buildOrderFromOrderCopy($this->getOrder(), $this->orderCopy);
         //If property locationId doesn't exist throw error
         if (! $this->locationId) {
             throw new MissingPropertyException('$locationId property is missing', 500);
         }
+        // Add location id to the order copy
+        $this->orderCopy->location_id = $this->locationId;
+
+        $this->order = $this->orderBuilder->buildOrderFromOrderCopy($this->getOrder(), $this->orderCopy);
+
         //If order doesn't have any products throw error
         if ($this->getOrder()->products()->count() == 0) {
             throw new InvalidSquareOrderException('Object Order must have at least 1 Product', 500);
@@ -220,8 +474,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $message = 'Required fields are missing: '.$e->getMessage();
             throw new MissingPropertyException($message, 500, $e);
         } catch (InvalidSquareOrderException $e) {
-            $message = 'Required column is missing from the table: '.$e->getMessage();
-            throw new MissingPropertyException($message, 500, $e);
+            throw new MissingPropertyException('Invalid order data', 500, $e);
         } catch (Exception|ApiException $e) {
             $apiErrorMessage = $e->getMessage();
             throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
@@ -305,7 +558,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             } catch (MissingPropertyException $e) {
                 throw new MissingPropertyException('Required field is missing', 500, $e);
             } catch (InvalidSquareOrderException $e) {
-                throw new MissingPropertyException('Required column is missing from the table', 500, $e);
+                throw new MissingPropertyException('Invalid order data', 500, $e);
             } catch (Exception $e) {
                 $apiErrorMessage = $e->getMessage();
                 throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
