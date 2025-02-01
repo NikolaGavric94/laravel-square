@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Square\Models\FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType;
+use Square\Models\FulfillmentPickupDetailsScheduleType as PickupScheduleType;
 
 return new class extends Migration
 {
@@ -22,10 +22,7 @@ return new class extends Migration
             $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->timestamp('expires_at')->nullable();
             $table->string('auto_complete_duration')->nullable();
-            $table->enum('schedule_type', [
-                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::SCHEDULED,
-                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::ASAP
-            ]);
+            $table->enum('schedule_type', [PickupScheduleType::SCHEDULED, PickupScheduleType::ASAP]);
             $table->timestamp('pickup_at')->nullable();
             $table->string('pickup_window_duration')->nullable();
             $table->string('prep_time_duration')->nullable();
@@ -46,8 +43,8 @@ return new class extends Migration
 
         // Add indexes
         Schema::table('nikolag_pickup_details', function (Blueprint $table) {
-            $table->index('recipient_id');
-            $table->index('fulfillment_uid');
+            $table->index('placed_at');
+            $table->index('pickup_at');
         });
     }
 

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Square\Models\FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType;
+use Square\Models\FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType as DeliveryScheduleType;
 
 return new class extends Migration
 {
@@ -20,10 +20,7 @@ return new class extends Migration
             // Square Order Fulfillment Delivery Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
             $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
-            $table->enum('schedule_type', [
-                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::SCHEDULED,
-                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::ASAP
-            ]);
+            $table->enum('schedule_type', [DeliveryScheduleType::SCHEDULED, DeliveryScheduleType::ASAP]);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();
             $table->string('prep_time_duration')->nullable();
@@ -50,8 +47,8 @@ return new class extends Migration
 
         // Add indexes
         Schema::table('nikolag_delivery_details', function (Blueprint $table) {
-            $table->index('recipient_id');
-            $table->index('fulfillment_uid');
+            $table->index('placed_at');
+            $table->index('deliver_at');
         });
     }
 

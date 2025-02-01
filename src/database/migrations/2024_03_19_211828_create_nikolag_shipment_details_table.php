@@ -38,8 +38,8 @@ return new class extends Migration
 
         // Add indexes
         Schema::table('nikolag_shipment_details', function (Blueprint $table) {
-            $table->index('recipient_id');
-            $table->index('fulfillment_uid');
+            $table->index('placed_at');
+            $table->index('shipped_at');
         });
     }
 
