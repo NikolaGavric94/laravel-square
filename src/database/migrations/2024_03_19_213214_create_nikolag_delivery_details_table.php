@@ -43,10 +43,8 @@ return new class extends Migration
             $table->string('external_delivery_id', 50)->nullable();
             $table->boolean('managed_delivery')->default(false);
             $table->timestamps();
-        });
 
-        // Add indexes
-        Schema::table('nikolag_delivery_details', function (Blueprint $table) {
+            // Add indexes
             $table->index('placed_at');
             $table->index('deliver_at');
         });

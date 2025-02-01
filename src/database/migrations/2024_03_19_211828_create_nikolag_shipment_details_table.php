@@ -34,10 +34,8 @@ return new class extends Migration
             $table->timestamp('failed_at')->nullable();
             $table->string('failure_reason', 100)->nullable();
             $table->timestamps();
-        });
 
-        // Add indexes
-        Schema::table('nikolag_shipment_details', function (Blueprint $table) {
+            // Add indexes
             $table->index('placed_at');
             $table->index('shipped_at');
         });

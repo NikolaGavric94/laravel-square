@@ -39,10 +39,8 @@ return new class extends Migration
             $table->json('curbside_pickup_details')->nullable();
             $table->timestamp('buyer_arrived_at')->nullable();
             $table->timestamps();
-        });
 
-        // Add indexes
-        Schema::table('nikolag_pickup_details', function (Blueprint $table) {
+            // Add indexes
             $table->index('placed_at');
             $table->index('pickup_at');
         });
