@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('nikolag_fulfillments', function (Blueprint $table) {
             $table->id();
+            $table->string('order_id');
             $table->enum('type', ['PICKUP', 'SHIPMENT', 'DELIVERY']);
             $table->enum('state', ['PROPOSED', 'RESERVED', 'PREPARED', 'COMPLETED', 'CANCELED', 'FAILED'])->nullable();
             $table->string('uid', 60)->nullable();
-            $table->unsignedBigInteger('fulfillment_details_id');
-            $table->string('fulfillment_details_type');
-            $table->string('order_id');
+            // Adds fulfillment_details_id and fulfillment_details_type columns and index
+            $table->morphs('fulfillment_details');
             $table->timestamps();
         });
 
