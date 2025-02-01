@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Square\Models\FulfillmentPickupDetailsScheduleType as PickupScheduleType;
 
 return new class extends Migration
 {
@@ -13,11 +14,15 @@ return new class extends Migration
     {
         Schema::create('nikolag_pickup_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('nikolag_fulfillment_id')->nullable()
+                ->constrained('nikolag_fulfillments')->cascadeOnDelete();
+
+            // Square Order Fulfillment Pickup Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->string('recipient_id', 191)->nullable();
+            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->timestamp('expires_at')->nullable();
-            $table->string('auto_complete_duration', 500)->nullable();
-            $table->enum('schedule_type', ['SCHEDULED', 'ASAP']);
+            $table->string('auto_complete_duration')->nullable();
+            $table->enum('schedule_type', [PickupScheduleType::SCHEDULED, PickupScheduleType::ASAP]);
             $table->timestamp('pickup_at')->nullable();
             $table->string('pickup_window_duration')->nullable();
             $table->string('prep_time_duration')->nullable();
@@ -31,15 +36,13 @@ return new class extends Migration
             $table->timestamp('canceled_at')->nullable();
             $table->string('cancel_reason', 100)->nullable();
             $table->boolean('is_curbside_pickup')->default(false);
-            $table->string('curbside_pickup_details', 250)->nullable();
+            $table->json('curbside_pickup_details')->nullable();
             $table->timestamp('buyer_arrived_at')->nullable();
             $table->timestamps();
-        });
 
-        // Add indexes
-        Schema::table('nikolag_pickup_details', function (Blueprint $table) {
-            $table->index('recipient_id');
-            $table->index('fulfillment_uid');
+            // Add indexes
+            $table->index('placed_at');
+            $table->index('pickup_at');
         });
     }
 

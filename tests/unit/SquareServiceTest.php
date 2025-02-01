@@ -23,6 +23,7 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\FulfillmentType;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Utils\FileWrapper;
@@ -491,7 +492,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
+                'type' => FulfillmentType::DELIVERY,
                 'state' => 'PROPOSED',
                 'delivery_details' => [
                     'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
@@ -554,7 +555,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+                'type' => FulfillmentType::PICKUP,
                 'state' => 'PROPOSED',
                 'pickup_details' => [
                     'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
@@ -618,7 +619,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+                'type' => FulfillmentType::PICKUP,
                 'state' => 'PROPOSED',
                 'pickup_details' => [
                     'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
@@ -680,7 +681,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type' => Constants::FULFILLMENT_TYPE_SHIPMENT,
+                'type' => FulfillmentType::SHIPMENT,
                 'state' => 'PROPOSED',
                 'shipment_details' => [
                     'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
@@ -748,7 +749,7 @@ class SquareServiceTest extends TestCase
             ->addProduct($this->data->product, 1)
             ->addProduct($product2, 2)
             ->setFulfillment([
-                'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
+                'type' => FulfillmentType::DELIVERY,
                 'state' => 'PROPOSED',
                 'delivery_details' => [
                     'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,

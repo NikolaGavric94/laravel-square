@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Square\Models\FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType as DeliveryScheduleType;
 
 return new class extends Migration
 {
@@ -13,9 +14,13 @@ return new class extends Migration
     {
         Schema::create('nikolag_delivery_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('nikolag_fulfillment_id')->nullable()
+                ->constrained('nikolag_fulfillments')->cascadeOnDelete();
+
+            // Square Order Fulfillment Delivery Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->string('recipient_id', 191)->nullable();
-            $table->enum('schedule_type', ['SCHEDULED', 'ASAP']);
+            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
+            $table->enum('schedule_type', [DeliveryScheduleType::SCHEDULED, DeliveryScheduleType::ASAP]);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();
             $table->string('prep_time_duration')->nullable();
@@ -38,12 +43,10 @@ return new class extends Migration
             $table->string('external_delivery_id', 50)->nullable();
             $table->boolean('managed_delivery')->default(false);
             $table->timestamps();
-        });
 
-        // Add indexes
-        Schema::table('nikolag_delivery_details', function (Blueprint $table) {
-            $table->index('recipient_id');
-            $table->index('fulfillment_uid');
+            // Add indexes
+            $table->index('placed_at');
+            $table->index('deliver_at');
         });
     }
 

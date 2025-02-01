@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Square\Models\FulfillmentState;
+use Square\Models\FulfillmentType;
 
 return new class extends Migration
 {
@@ -15,17 +17,25 @@ return new class extends Migration
     {
         Schema::create('nikolag_fulfillments', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['PICKUP', 'SHIPMENT', 'DELIVERY']);
-            $table->enum('state', ['PROPOSED', 'RESERVED', 'PREPARED', 'COMPLETED', 'CANCELED', 'FAILED'])->nullable();
-            $table->string('uid', 60)->nullable();
-            $table->unsignedBigInteger('fulfillment_details_id');
-            $table->string('fulfillment_details_type');
-            $table->string('order_id');
-            $table->timestamps();
-        });
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
 
-        // Add indexes
-        Schema::table('nikolag_fulfillments', function (Blueprint $table) {
+            // Square-specific fields
+            $table->string('uid', 60)->nullable();
+            $table->enum('type', [FulfillmentType::PICKUP, FulfillmentType::SHIPMENT, FulfillmentType::DELIVERY]);
+            $table->enum('state', [
+                FulfillmentState::PROPOSED,
+                FulfillmentState::RESERVED,
+                FulfillmentState::PREPARED,
+                FulfillmentState::COMPLETED,
+                FulfillmentState::CANCELED,
+                FulfillmentState::FAILED
+            ])->nullable();
+
+            // Adds fulfillment_details_id, fulfillment_details_type columns and index
+            $table->morphs('fulfillment_details');
+            $table->timestamps();
+
+            // Add indexes - these will be frequently queried
             $table->index('type');
             $table->index('state');
         });

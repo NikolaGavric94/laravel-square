@@ -13,18 +13,14 @@ return new class extends Migration
     {
         Schema::create('nikolag_recipients', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_id')->foreign('id')->on('customers')->nullable();
-            $table->string('square_customer_id', 191)->nullable();
+            $table->foreignID('customer_id')->nullable()->constrained('customers');
+
             $table->string('display_name', 255)->nullable();
+            $table->string('square_customer_id', 191)->nullable();
             $table->string('email_address', 255)->nullable();
             $table->string('phone_number', 17)->nullable();
-            $table->string('address')->nullable();
+            $table->json('address')->nullable();
             $table->timestamps();
-        });
-
-        // Add indexes
-        Schema::table('nikolag_recipients', function (Blueprint $table) {
-            $table->index('customer_id');
         });
     }
 

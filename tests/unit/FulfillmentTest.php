@@ -12,7 +12,7 @@ use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
-use Nikolag\Square\Utils\Constants;
+use Square\Models\FulfillmentType;
 use Throwable;
 
 class FulfillmentTest extends TestCase
@@ -86,7 +86,7 @@ class FulfillmentTest extends TestCase
 
         // Create the fulfillment - associate the pickup before saving!
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make();
         $fulfillment->fulfillmentDetails()->associate($pickup);
 
         // Make an order and associate it with the fulfillment
@@ -110,7 +110,7 @@ class FulfillmentTest extends TestCase
 
         // Create the fulfillment - associate the delivery before saving!
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make();
         $fulfillment->fulfillmentDetails()->associate($delivery);
 
         // Make an order and associate it with the fulfillment
@@ -134,7 +134,7 @@ class FulfillmentTest extends TestCase
 
         // Create the fulfillment - associate the shipment before saving!
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make();
         $fulfillment->fulfillmentDetails()->associate($shipment);
 
         // Make an order and associate it with the fulfillment
@@ -157,7 +157,7 @@ class FulfillmentTest extends TestCase
         $pickup = factory(PickupDetails::class)->create();
 
         /** @var Fulfillment $fulfillment */
-        $fulfillment = factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make();
         $fulfillment->fulfillmentDetails()->associate($pickup);
 
         // Make an order and associate it with the fulfillment
@@ -184,7 +184,7 @@ class FulfillmentTest extends TestCase
         $this->expectException(Throwable::class);
         $this->expectExceptionMessageMatches('/Integrity constraint violation/');
 
-        factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->create();
+        factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->create();
     }
 
     /**

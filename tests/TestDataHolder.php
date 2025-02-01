@@ -10,7 +10,7 @@ use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
-use Nikolag\Square\Utils\Constants;
+use Square\Models\FulfillmentType;
 
 class TestDataHolder
 {
@@ -37,9 +37,9 @@ class TestDataHolder
             factory(User::class)->make(),
             factory(Tax::class)->make(),
             factory(Discount::class)->states('AMOUNT_ONLY')->make(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make(),
+            factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make(),
+            factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make(),
+            factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make(),
             factory(Recipient::class)->make(),
         );
     }
@@ -54,9 +54,9 @@ class TestDataHolder
             factory(Tax::class)->create(),
             factory(Discount::class)->states('AMOUNT_ONLY')->create(),
             // NOTE: The following factories are not created because they are not associated with the order
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_DELIVERY)->make(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_PICKUP)->make(),
-            factory(Fulfillment::class)->states(Constants::FULFILLMENT_TYPE_SHIPMENT)->make(),
+            factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make(),
+            factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make(),
+            factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make(),
             factory(Recipient::class)->create(),
         );
     }

@@ -11,7 +11,7 @@ use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
-use Nikolag\Square\Utils\Constants;
+use Square\Models\FulfillmentType;
 use stdClass;
 
 class FulfillmentBuilder
@@ -77,17 +77,17 @@ class FulfillmentBuilder
         // Due to the nature of the relationship between Fulfillment and FulfillmentDetails, the fulfillment details
         // should already be a model associated with the fulfillment at this point
         if (
-            $fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY
+            $fulfillment->type == FulfillmentType::DELIVERY
             && ! $fulfillment->fulfillmentDetails instanceof DeliveryDetails
         ) {
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         } elseif (
-            $fulfillment->type == Constants::FULFILLMENT_TYPE_PICKUP
+            $fulfillment->type == FulfillmentType::PICKUP
             && ! $fulfillment->fulfillmentDetails instanceof PickupDetails
         ) {
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
         } elseif (
-            $fulfillment->type == Constants::FULFILLMENT_TYPE_SHIPMENT
+            $fulfillment->type == FulfillmentType::SHIPMENT
             && ! $fulfillment->fulfillmentDetails instanceof ShipmentDetails
         ) {
             throw new InvalidSquareOrderException('Fulfillment type does not match details', 500);
@@ -129,11 +129,11 @@ class FulfillmentBuilder
 
         // Determine which type of fulfillment details we need to create
         $type = $fulfillment['type'];
-        if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
+        if ($type == FulfillmentType::DELIVERY) {
             $fulfillmentDetailsCopy = $this->createDeliveryDetailsFromArray($fulfillment, $tempFulfillment);
-        } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
+        } elseif ($type == FulfillmentType::PICKUP) {
             $fulfillmentDetailsCopy = $this->createPickupDetailsFromArray($fulfillment, $tempFulfillment);
-        } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
+        } elseif ($type == FulfillmentType::SHIPMENT) {
             $fulfillmentDetailsCopy = $this->createShipmentDetailsFromArray($fulfillment, $tempFulfillment);
         } else {
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
@@ -235,11 +235,11 @@ class FulfillmentBuilder
      */
     private function getRecipientFromFulfillmentArray(array $fulfillment, string $type): Recipient|null
     {
-        if ($type == Constants::FULFILLMENT_TYPE_DELIVERY) {
+        if ($type == FulfillmentType::DELIVERY) {
             $fulfillmentDetails = Arr::get($fulfillment, $this->deliveryDetailsKey);
-        } elseif ($type == Constants::FULFILLMENT_TYPE_PICKUP) {
+        } elseif ($type == FulfillmentType::PICKUP) {
             $fulfillmentDetails = Arr::get($fulfillment, $this->pickupDetailsKey);
-        } elseif ($type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
+        } elseif ($type == FulfillmentType::SHIPMENT) {
             $fulfillmentDetails = Arr::get($fulfillment, $this->shipmentDetailsKey);
         } else {
             throw new InvalidSquareOrderException('Invalid fulfillment type', 500);
