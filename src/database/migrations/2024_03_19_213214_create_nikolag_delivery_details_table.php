@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Square\Models\OrderFulfillmentDeliveryDetailsScheduleType;
 
 return new class extends Migration
 {
@@ -15,7 +16,10 @@ return new class extends Migration
             $table->id();
             $table->string('fulfillment_uid', 60)->nullable()->unique();
             $table->string('recipient_id', 191)->nullable();
-            $table->enum('schedule_type', ['SCHEDULED', 'ASAP']);
+            $table->enum('schedule_type', [
+                OrderFulfillmentDeliveryDetailsScheduleType::SCHEDULED,
+                FulfillmentPickupDetailsScheduleType::ASAP
+            ]);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();
             $table->string('prep_time_duration')->nullable();
