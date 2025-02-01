@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_delivery_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('nikolag_fulfillment_id')->constrained('nikolag_fulfillments')->cascadeOnDelete();
             $table->string('fulfillment_uid', 60)->nullable()->unique();
             $table->string('recipient_id', 191)->nullable();
             $table->enum('schedule_type', [
