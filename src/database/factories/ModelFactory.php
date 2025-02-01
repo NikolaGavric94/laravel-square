@@ -12,6 +12,7 @@ use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\FulfillmentType;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,11 +146,11 @@ $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
 
 $factory->afterCreating(Fulfillment::class, function ($fulfillment, $faker) {
     // Determine the state of the factory
-    if ($fulfillment->type === Constants::FULFILLMENT_TYPE_DELIVERY) {
+    if ($fulfillment->type === FulfillmentType::DELIVERY) {
         $fulfillment->fulfillmentDetails()->associate(factory(DeliveryDetails::class)->create());
-    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_PICKUP) {
+    } elseif ($fulfillment->type === FulfillmentType::PICKUP) {
         $fulfillment->fulfillmentDetails()->associate(factory(PickupDetails::class)->create());
-    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_SHIPMENT) {
+    } elseif ($fulfillment->type === FulfillmentType::SHIPMENT) {
         $fulfillment->fulfillmentDetails()->associate(factory(ShipmentDetails::class)->create());
     }
 
@@ -162,11 +163,11 @@ $factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
     $recipient = factory(Recipient::class)->make();
     // Determine the state of the factory
     $fulfillmentDetails = null;
-    if ($fulfillment->type === Constants::FULFILLMENT_TYPE_DELIVERY) {
+    if ($fulfillment->type === FulfillmentType::DELIVERY) {
         $fulfillmentDetails = factory(DeliveryDetails::class)->make();
-    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_PICKUP) {
+    } elseif ($fulfillment->type === FulfillmentType::PICKUP) {
         $fulfillmentDetails = factory(PickupDetails::class)->make();
-    } elseif ($fulfillment->type === Constants::FULFILLMENT_TYPE_SHIPMENT) {
+    } elseif ($fulfillment->type === FulfillmentType::SHIPMENT) {
         $fulfillmentDetails = factory(ShipmentDetails::class)->make();
     }
 
@@ -175,23 +176,23 @@ $factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
 });
 
 /* DELIVERY fulfillment state */
-$factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_DELIVERY, function () {
+$factory->state(Fulfillment::class, FulfillmentType::DELIVERY, function () {
     return [
-        'type' => Constants::FULFILLMENT_TYPE_DELIVERY,
+        'type' => FulfillmentType::DELIVERY,
     ];
 });
 
 /* PICKUP fulfillment state */
-$factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_PICKUP, function () {
+$factory->state(Fulfillment::class, FulfillmentType::PICKUP, function () {
     return [
-        'type' => Constants::FULFILLMENT_TYPE_PICKUP,
+        'type' => FulfillmentType::PICKUP,
     ];
 });
 
 /* SHIPMENT fulfillment state */
-$factory->state(Fulfillment::class, Constants::FULFILLMENT_TYPE_SHIPMENT, function () {
+$factory->state(Fulfillment::class, FulfillmentType::SHIPMENT, function () {
     return [
-        'type' => Constants::FULFILLMENT_TYPE_SHIPMENT,
+        'type' => FulfillmentType::SHIPMENT,
     ];
 });
 

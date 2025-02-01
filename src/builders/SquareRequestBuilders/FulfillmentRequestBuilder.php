@@ -10,6 +10,7 @@ use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Utils\Constants;
 use Square\Models\Fulfillment;
+use Square\Models\FulfillmentType;
 use Square\Models\FulfillmentDeliveryDetails;
 use Square\Models\FulfillmentPickupDetails;
 use Square\Models\FulfillmentPickupDetailsCurbsidePickupDetails;
@@ -68,19 +69,19 @@ class FulfillmentRequestBuilder
                 $tempFulfillment->setType($fulfillment->type);
 
                 // Based on the type, set the appropriate details
-                if ($fulfillment->type == Constants::FULFILLMENT_TYPE_DELIVERY) {
+                if ($fulfillment->type == FulfillmentType::DELIVERY) {
                     // Build the delivery details
                     $tempDeliveryDetails = $this->buildDeliveryDetails($fulfillment->fulfillmentDetails);
 
                     // Set the delivery details
                     $tempFulfillment->setDeliveryDetails($tempDeliveryDetails);
-                } elseif ($fulfillment->type == Constants::FULFILLMENT_TYPE_PICKUP) {
+                } elseif ($fulfillment->type == FulfillmentType::PICKUP) {
                     // Build the pickup details
                     $tempPickupDetails = $this->buildPickupDetails($fulfillment->fulfillmentDetails);
 
                     // Set the pickup details
                     $tempFulfillment->setPickupDetails($tempPickupDetails);
-                } elseif ($fulfillment->type == Constants::FULFILLMENT_TYPE_SHIPMENT) {
+                } elseif ($fulfillment->type == FulfillmentType::SHIPMENT) {
                     // Build the shipment details
                     $tempShipmentDetails = $this->buildShipmentDetails($fulfillment->fulfillmentDetails);
 
