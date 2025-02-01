@@ -18,6 +18,9 @@ return new class extends Migration
         Schema::create('nikolag_fulfillments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
+
+            // Square-specific fields
+            $table->string('uid', 60)->nullable();
             $table->enum('type', [FulfillmentType::PICKUP, FulfillmentType::SHIPMENT, FulfillmentType::DELIVERY]);
             $table->enum('state', [
                 FulfillmentState::PROPOSED,
@@ -27,7 +30,7 @@ return new class extends Migration
                 FulfillmentState::CANCELED,
                 FulfillmentState::FAILED
             ])->nullable();
-            $table->string('uid', 60)->nullable();
+
             // Adds fulfillment_details_id, fulfillment_details_type columns and index
             $table->morphs('fulfillment_details');
             $table->timestamps();
