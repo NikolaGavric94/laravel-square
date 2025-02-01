@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Square\Models\OrderFulfillmentPickupDetailsScheduleType;
+use Square\Models\FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType;
 
 return new class extends Migration
 {
@@ -18,12 +18,12 @@ return new class extends Migration
 
             // Square Order Fulfillment Pickup Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->string('recipient_id', 191)->nullable();
+            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->timestamp('expires_at')->nullable();
             $table->string('auto_complete_duration')->nullable();
             $table->enum('schedule_type', [
-                OrderFulfillmentPickupDetailsScheduleType::SCHEDULED,
-                OrderFulfillmentPickupDetailsScheduleType::ASAP
+                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::SCHEDULED,
+                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::ASAP
             ]);
             $table->timestamp('pickup_at')->nullable();
             $table->string('pickup_window_duration')->nullable();

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Square\Models\OrderFulfillmentDeliveryDetailsScheduleType;
+use Square\Models\FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType;
 
 return new class extends Migration
 {
@@ -15,11 +15,13 @@ return new class extends Migration
         Schema::create('nikolag_delivery_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('nikolag_fulfillment_id')->constrained('nikolag_fulfillments')->cascadeOnDelete();
+
+            // Square Order Fulfillment Delivery Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->string('recipient_id', 191)->nullable();
+            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->enum('schedule_type', [
-                OrderFulfillmentDeliveryDetailsScheduleType::SCHEDULED,
-                FulfillmentPickupDetailsScheduleType::ASAP
+                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::SCHEDULED,
+                FulfillmentDeliveryDetailsOrderFulfillmentDeliveryDetailsScheduleType::ASAP
             ]);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();

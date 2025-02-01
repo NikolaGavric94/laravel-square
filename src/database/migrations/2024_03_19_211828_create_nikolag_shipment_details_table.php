@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('nikolag_shipment_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('nikolag_fulfillment_id')->constrained('nikolag_fulfillments')->cascadeOnDelete();
+
+            // Square Order Fulfillment Shipment Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->string('recipient_id', 191)->nullable();
+            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->string('carrier', 50)->nullable();
             $table->string('shipping_note', 500)->nullable();
             $table->string('shipping_type', 50)->nullable();
