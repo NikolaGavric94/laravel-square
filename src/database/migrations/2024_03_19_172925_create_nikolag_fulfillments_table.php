@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_fulfillments', function (Blueprint $table) {
             $table->id();
-            $table->string('order_id');
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->enum('type', [FulfillmentType::PICKUP, FulfillmentType::SHIPMENT, FulfillmentType::DELIVERY]);
             $table->enum('state', [
                 FulfillmentState::PROPOSED,
@@ -31,10 +31,8 @@ return new class extends Migration
             // Adds fulfillment_details_id, fulfillment_details_type columns and index
             $table->morphs('fulfillment_details');
             $table->timestamps();
-        });
 
-        // Add indexes
-        Schema::table('nikolag_fulfillments', function (Blueprint $table) {
+            // Add indexes - these will be frequently queried
             $table->index('type');
             $table->index('state');
         });
