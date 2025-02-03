@@ -17,8 +17,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_fulfillments', function (Blueprint $table) {
             $table->id();
-            // Optional: Un-comment this next line to place a foreign key constraint on your 'nikolag_orders' table
-            // $table->foreignId('nikolag_order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
 
             // Square-specific fields
             $table->string('uid', 60)->nullable();
