@@ -32,7 +32,7 @@ return new class extends Migration
             ])->nullable();
 
             // Adds fulfillment_details_id, fulfillment_details_type columns and index
-            $table->morphs('fulfillment_details');
+            $table->morphs('fulfillment_details', 'nikolag_fulfillments_morphs_details_index');
             $table->timestamps();
 
             // Add indexes - these will be frequently queried
