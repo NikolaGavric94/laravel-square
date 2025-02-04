@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_fulfillments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->bigInteger('order_id');
 
             // Square-specific fields
             $table->string('uid', 60)->nullable();
