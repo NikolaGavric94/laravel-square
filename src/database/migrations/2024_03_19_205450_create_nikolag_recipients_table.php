@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_recipients', function (Blueprint $table) {
             $table->id();
-            $table->foreignID('customer_id')->nullable()->constrained('customers');
+            $table->bigInteger('customer_id');
 
             $table->string('display_name', 255)->nullable();
             $table->string('square_customer_id', 191)->nullable();
