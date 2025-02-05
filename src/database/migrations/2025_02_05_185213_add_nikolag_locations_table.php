@@ -55,6 +55,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        // Drop the table
+        Schema::dropIfExists('nikolag_locations');
     }
 };
