@@ -313,40 +313,20 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function syncLocations()
     {
-        // Retrieve all the locations
-        $locations = $this->locations()->getLocations();
-
         // Map the locations to the Location model so we can do one bulk-insert
-        $locationData = collect($locations)->map(function ($location) {
-            return [
-                'square_id' => $location->getId(),
-                'name' => $location->getName(),
-                'address' => json_encode($location->getAddress()?->jsonSerialize()),
-                'timezone' => $location->getTimezone(),
-                'capabilities' => json_encode($location->getCapabilities()),
-                'status' => $location->getStatus(),
-                'square_created_at' => $location->getCreatedAt(),
-                'merchant_id' => $location->getMerchantId(),
-                'country' => $location->getCountry(),
-                'language_code' => $location->getLanguageCode(),
-                'currency' => $location->getCurrency(),
-                'phone_number' => $location->getPhoneNumber(),
-                'business_name' => $location->getBusinessName(),
-                'type' => $location->getType(),
-                'website_url' => $location->getWebsiteUrl(),
-                'business_hours' => json_encode($location->getBusinessHours()?->jsonSerialize()),
-                'business_email' => $location->getBusinessEmail(),
-                'description' => $location->getDescription(),
-                'twitter_username' => $location->getTwitterUsername(),
-                'instagram_username' => $location->getInstagramUsername(),
-                'facebook_url' => $location->getFacebookUrl(),
-                'coordinates' => $location->getCoordinates()?->jsonSerialize(),
-                'logo_url' => $location->getLogoUrl(),
-                'pos_background_url' => $location->getPosBackgroundUrl(),
-                'mcc' => $location->getMcc(),
-                'full_format_logo_url' => $location->getFullFormatLogoUrl(),
-                // 'tax_ids' => $location->getTaxIds(),
-            ];
+        $locationData = collect($this->locations()->getLocations())->map(function ($location) {
+            $locationData = $location->jsonSerialize();
+
+            // Remove the ID and set it as the square_id
+            $locationData['square_id'] = $locationData['id'];
+            unset($locationData['id']);
+
+            // Update columns that are stores as more complex objects
+            $locationData['address'] = json_encode($location->getAddress()?->jsonSerialize());
+            $locationData['capabilities'] = json_encode($location->getCapabilities());
+            $locationData['business_hours'] = json_encode($location->getBusinessHours()?->jsonSerialize());
+
+            return $locationData;
         })->toArray();
 
         Location::upsert($locationData, uniqueBy: ['square_id']);
