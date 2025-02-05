@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('name', 255)->nullable();
             $table->json('address')->nullable();
             $table->string('timezone', 30)->nullable();
-            $table->json('capabilities', 30)->nullable();
+            $table->string('capabilities')->nullable();
             $table->enum('status', [LocationStatus::ACTIVE, LocationStatus::INACTIVE])->default(LocationStatus::ACTIVE);
             $table->dateTime('square_created_at')->nullable();
             $table->string('merchant_id', 32)->nullable();

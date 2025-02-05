@@ -19,6 +19,7 @@ class Location extends Model
      * @var array
      */
     protected $casts = [
+        'capabilities' => 'array',
         'coordinates' => 'json',
         'square_created_at' => 'datetime',
         'created_at' => 'datetime',
