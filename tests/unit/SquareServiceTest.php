@@ -11,6 +11,7 @@ use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Location;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Recipient;
@@ -846,6 +847,39 @@ class SquareServiceTest extends TestCase
                 $discount->percentage || $discount->amount,
                 'Discount has no percentage or amount. Discount: ' . $discount->toJson()
             );
+        }
+    }
+
+    /**
+     * Test the syncing of the product catalog.
+     *
+     * @return void
+     */
+    public function test_square_sync_locations(): void
+    {
+        // Delete all locations from the database
+        Location::truncate();
+        $this->assertCount(0, Location::all(), 'There are locations in the database after truncating');
+
+        // Sync the products
+        Square::syncLocations();
+
+        // Make sure there are products
+        $locations = Location::all();
+        $this->assertGreaterThan(0, $locations->count(), 'There are no locations in the database');
+
+        foreach ($locations as $location) {
+            // Make sure every reference_type is set to square
+            $this->assertNotEmpty(
+                $location->square_id,
+                'Square ID not synced for location: ' . $location->toJson()
+            );
+
+            // Make sure every location has a name
+            $this->assertNotNull($location->name, 'Product has no name. Location: ' . $location->toJson());
+
+            // Make sure every location has a name
+            $this->assertNotNull($location->address, 'Product has no address. Location: ' . $location->toJson());
         }
     }
 

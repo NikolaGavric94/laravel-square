@@ -15,6 +15,7 @@ use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Location;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
@@ -301,6 +302,34 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             // Create or update the product
             Discount::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
         }
+    }
+
+    /**
+     * Syncs all the locations and their data.
+     *
+     * @return void
+     *
+     * @throws Exception If an error occurs.
+     */
+    public function syncLocations()
+    {
+        // Map the locations to the Location model so we can do one bulk-insert
+        $locationData = collect($this->locations()->getLocations())->map(function ($location) {
+            $locationData = $location->jsonSerialize();
+
+            // Remove the ID and set it as the square_id
+            $locationData['square_id'] = $locationData['id'];
+            unset($locationData['id']);
+
+            // Update columns that are stores as more complex objects
+            $locationData['address'] = json_encode($location->getAddress()?->jsonSerialize());
+            $locationData['capabilities'] = json_encode($location->getCapabilities());
+            $locationData['business_hours'] = json_encode($location->getBusinessHours()?->jsonSerialize());
+
+            return $locationData;
+        })->toArray();
+
+        Location::upsert($locationData, uniqueBy: ['square_id']);
     }
 
     /**
