@@ -36,7 +36,7 @@ return new class extends Migration
             $table->timestamp('canceled_at')->nullable();
             $table->string('cancel_reason', 100)->nullable();
             $table->boolean('is_curbside_pickup')->default(false);
-            $table->string('curbside_pickup_details', 375)->nullable();
+            $table->string('curbside_pickup_details', 250)->nullable();
             $table->timestamp('buyer_arrived_at')->nullable();
             $table->timestamps();
 
