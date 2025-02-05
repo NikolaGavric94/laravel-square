@@ -30,6 +30,7 @@ use Square\Models\RetrieveLocationResponse;
  * @method static SquareRequestBuilder getSquareBuilder()
  * @method static array listCatalog(?string $types)
  * @method static void syncDiscounts()
+ * @method static void syncLocations()
  * @method static void syncProducts()
  * @method static void syncTaxes()
  * @method static Transaction charge(array $data)

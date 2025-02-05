@@ -15,6 +15,7 @@ use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Location;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
@@ -301,6 +302,34 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             // Create or update the product
             Discount::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
         }
+    }
+
+    /**
+     * Syncs all the locations and their data.
+     *
+     * @return void
+     *
+     * @throws Exception If an error occurs.
+     */
+    public function syncLocations()
+    {
+        // Retrieve all the locations
+        $locations = $this->locations()->getLocations();
+
+        // Map the locations to the Location model so we can do one bulk-insert
+        $locationData = collect($locations)->map(function ($location) {
+            $locationData = $location->jsonSerialize();
+
+            // Retrieve the location ID
+            $locationID = $location->getId();
+
+            // Replace 'id' with 'square_id'
+            unset($locationData['id']);
+            $locationData['square_id'] = $locationID;
+            return $locationData;
+        })->toArray();
+
+        Location::upsert($locationData, uniqueBy: ['square_id']);
     }
 
     /**

@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_locations', function (Blueprint $table) {
             $table->id();
-            $table->string('square_id', 32);
+            $table->string('square_id', 32)->unique();
             $table->string('name', 255)->nullable();
             $table->json('address')->nullable();
             $table->string('timezone', 30)->nullable();
