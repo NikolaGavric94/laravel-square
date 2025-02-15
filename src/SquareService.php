@@ -17,6 +17,7 @@ use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Location;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\ProductModifier;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
@@ -348,6 +349,32 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 // Create or update the product
                 Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
             }
+        }
+    }
+
+    /**
+     * Sync all product modifiers and their options to the database.
+     *
+     * @return void
+     */
+    public function syncProductModifiers(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $modifierCatalogObjects = self::listCatalog('MODIFIER_LIST');
+
+        foreach ($modifierCatalogObjects as $itemObject) {
+            $modifierListData = $itemObject->getModifierListData();
+            $modifierData = [
+                'name' => $modifierListData->getName(),
+                'ordinal' => $modifierListData?->getOrdinal(),
+                'selection_type' => $modifierListData->getSelectionType(),
+            ];
+
+            $squareID = $itemObject->getId();
+
+            // Create or update the product
+            ProductModifier::updateOrCreate(['square_catalog_object_id' => $squareID], $modifierData);
         }
     }
 

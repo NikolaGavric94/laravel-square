@@ -14,6 +14,7 @@ use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Location;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\ProductModifier;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Models\Tax;
@@ -884,7 +885,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Test the syncing of the product catalog.
+     * Test the syncing of the product catalog objects.
      *
      * @return void
      */
@@ -913,6 +914,42 @@ class SquareServiceTest extends TestCase
 
             // Make sure every product has a name
             $this->assertNotNull($product->name, 'Product has no name. Product: ' . $product->toJson());
+        }
+    }
+
+    /**
+     * Test the syncing of the product modifiers catalog objects.
+     *
+     * @return void
+     */
+    public function test_square_sync_product_modifiers(): void
+    {
+        // Delete all product modifiers from the database
+        ProductModifier::truncate();
+        $this->assertCount(0, ProductModifier::all(), 'There are product modifiers in the database after truncating');
+
+        // Sync the product modifiers
+        Square::syncProductModifiers();
+
+        // Make sure there are product modifiers
+        $productModifiers = ProductModifier::all();
+        $this->assertGreaterThan(0, $productModifiers->count(), 'There are no product modifiers in the database');
+
+        foreach ($productModifiers as $productModifier) {
+            // Make sure every reference_type is set to square
+            $this->assertNotEmpty(
+                $productModifier->square_catalog_object_id,
+                'Catalog Object ID not synced for product modifier: ' . $productModifier->toJson()
+            );
+
+            // Make sure every product has a name
+            $this->assertNotNull($productModifier->name, 'Product has no name. Product: ' . $productModifier->toJson());
+
+            // Make sure every product has a selection type
+            $this->assertNotNull(
+                $productModifier->selection_type,
+                'Product has no selection type. Product: ' . $productModifier->toJson()
+            );
         }
     }
 
