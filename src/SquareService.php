@@ -28,6 +28,7 @@ use Square\Http\ApiResponse;
 use Square\Models\BatchDeleteCatalogObjectsResponse;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Models\CatalogModifier;
 use Square\Models\CatalogObject;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
@@ -335,53 +336,86 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $modifierCatalogObjects = self::listCatalog('MODIFIER_LIST');
 
         foreach ($modifierCatalogObjects as $itemObject) {
-            $modifierListData = $itemObject->getModifierListData();
-            $modifierData = [
-                'name' => $modifierListData->getName(),
-                'ordinal' => $modifierListData?->getOrdinal(),
-                'selection_type' => $modifierListData->getSelectionType(),
+            $catalogModifierList = $itemObject->getModifierListData();
+            $catalogModifierListData = [
+                'name' => $catalogModifierList->getName(),
+                'ordinal' => $catalogModifierList?->getOrdinal(),
+                'selection_type' => $catalogModifierList->getSelectionType(),
             ];
 
             $squareID = $itemObject->getId();
 
             // Create or update the product
-            $modifierModel = Modifier::updateOrCreate(['square_catalog_object_id' => $squareID], $modifierData);
+            $modifierModel = Modifier::updateOrCreate([
+                'square_catalog_object_id' => $squareID
+            ], $catalogModifierListData);
 
-            $modifierData = $itemObject->getModifierData();
-            if (! $modifierData) {
+            $catalogModifiers = $catalogModifierList->getModifiers();
+            if (! $catalogModifiers) {
                 continue;
             }
 
             // Get modifier options
-            foreach ($itemObject->getModifierData() as $modifierData) {
-                $this->syncModifierOption($modifierModel, $modifierData);
+            foreach ($catalogModifiers as $catalogModifier) {
+                $this->syncModifierOptions($modifierModel, $catalogModifier);
             }
         }
     }
 
     /**
-     * Sync all product modifiers and their options to the database.
+     * Sync all modifiers options and their relationships to the database.
+     *
+     * @param Modifier      $modifierModel   The modifier model.
+     * @param CatalogObject $catalogModifier The modifier data.
      *
      * @return void
      */
-    public function syncProductModifiers(): void
+    public function syncModifierOptions(Modifier $modifierModel, CatalogObject $itemObject): void
+    {
+        $catalogModifier = $itemObject->getModifierData();
+
+        $modifierOptionData = [
+            'name' => $catalogModifier->getName(),
+            'price_money_amount' => $catalogModifier->getPriceMoney()?->getAmount(),
+            'price_money_currency' => $catalogModifier->getPriceMoney()?->getCurrency(),
+            'nikolag_modifier_id' => $modifierModel->id
+        ];
+
+        $modifierDataSquareID = $catalogModifier->getModifierListId();
+
+        // Create or update the product
+        ModifierOption::updateOrCreate([
+            'square_catalog_object_id' => $modifierDataSquareID
+        ], $modifierOptionData);
+    }
+
+    /**
+     * Sync all products and their variations to the products table.
+     *
+     * @return void
+     */
+    public function syncProducts(): void
     {
         // Retrieve the main location (since we're seeding for tests, just base it on the main location)
         /** @var array<CatalogObject> */
-        $modifierCatalogObjects = self::listCatalog('MODIFIER_LIST');
+        $itemCatalogObjects = self::listCatalog('ITEM');
 
-        foreach ($modifierCatalogObjects as $itemObject) {
-            $modifierListData = $itemObject->getModifierListData();
-            $modifierData = [
-                'name' => $modifierListData->getName(),
-                'ordinal' => $modifierListData?->getOrdinal(),
-                'selection_type' => $modifierListData->getSelectionType(),
-            ];
+        foreach ($itemCatalogObjects as $itemObject) {
+            // Sync the variations to the database
+            foreach ($itemObject->getItemData()->getVariations() as $variation) {
+                $itemData = [
+                    'name'           => $itemObject->getItemData()->getName(),
+                    'description'    => $itemObject->getItemData()->getDescriptionHtml(),
+                    'variation_name' => $variation->getItemVariationData()->getName(),
+                    'description'    => $itemObject->getItemData()->getDescription(),
+                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
+                ];
 
-            $squareID = $itemObject->getId();
+                $squareID = $variation->getId();
 
-            // Create or update the product
-            ProductModifier::updateOrCreate(['square_catalog_object_id' => $squareID], $modifierData);
+                // Create or update the product
+                Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+            }
         }
     }
 

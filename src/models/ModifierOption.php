@@ -20,7 +20,7 @@ class ModifierOption extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'selection_type', 'square_catalog_object_id'
+        'name', 'selection_type', 'square_catalog_object_id', 'nikolag_modifier_id',
     ];
 
     /**
