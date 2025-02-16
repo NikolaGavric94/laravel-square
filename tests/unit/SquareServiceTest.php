@@ -893,6 +893,11 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_sync_modifiers(): void
     {
+        // Sync the location (the location override assertions later require this)
+        if (Location::count() == 0) {
+            Square::syncLocations();
+        }
+
         // Delete all modifiers from the database
         Modifier::truncate();
         $this->assertCount(0, Modifier::all(), 'There are modifiers in the database after truncating');
@@ -933,8 +938,10 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_sync_modifier_options(): void
     {
-        // Sync the product modifiers (due to mapping issues, this is required)
-        Square::syncLocations();
+        // Sync the location (the location override assertions later require this)
+        if (Location::count() == 0) {
+            Square::syncLocations();
+        }
 
         // Delete all modifiers from the database
         ModifierOption::truncate();
@@ -969,10 +976,10 @@ class SquareServiceTest extends TestCase
             );
         }
 
-        // Make sure there is one modifier option that has created a pivot relationship
+        // Make sure there are modifier options that have created a pivot relationship
         $disabledOptionsPivotCount = ModifierOptionLocationPivot::count();
         // TODO: This is a pretty brittle test, make it more flexible so others could theoretically run it
-        $this->assertEquals(4, $disabledOptionsPivotCount, 'There are not 4 disabled modifier options in the database');
+        $this->assertEquals(7, $disabledOptionsPivotCount, 'There are not 7 disabled modifier options in the database');
     }
 
     /**

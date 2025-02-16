@@ -407,17 +407,20 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
             // Determine if there are any location-option overrides
             $locationOverrides = $catalogModifier->getLocationOverrides();
-            if (! $locationOverrides) {
+            $absentAtLocations = $modifierObject->getAbsentAtLocationIds();
+            if (! $locationOverrides && ! $absentAtLocations) {
                 continue;
             }
 
-            // Clear out any existing overrides
-            $modifierOption->locationOverrides()->delete();
-
-            // Get the location IDs
+            // Map the square location IDs to our local location IDs
             $squareLocationIDs = collect($locationOverrides)->map(function ($locationOverride) {
                 return $locationOverride->getLocationId();
-            })->toArray();
+            })
+            // Add the absent at locations to the list
+            ->merge(collect($absentAtLocations))
+            ->toArray();
+
+            // Get the local location IDs
             $locationIDs = Location::whereIn('square_id', $squareLocationIDs)->pluck('id');
 
             $insertData = [];
