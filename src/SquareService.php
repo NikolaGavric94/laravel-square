@@ -317,11 +317,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function syncLocations()
     {
         // Map the locations to the Location model so we can do one bulk-insert
-        $locationData = collect($this->locations()->getLocations())->map(function ($location) {
+        $allLocationData = collect($this->locations()->getLocations())->map(function ($location) {
             return Location::processLocationData($location);
         })->toArray();
 
-        Location::upsert($locationData, uniqueBy: ['square_id']);
+        foreach ($allLocationData as $locationData) {
+            // Create or update the location
+            Location::updateOrCreate([
+                'square_id' => $locationData['square_id']
+            ], $locationData);
+        }
     }
 
     /**
