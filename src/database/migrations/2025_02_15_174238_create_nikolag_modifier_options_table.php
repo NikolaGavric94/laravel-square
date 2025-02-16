@@ -12,15 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nikolag_product_modifiers', function (Blueprint $table) {
+        Schema::create('nikolag_modifier_options', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('square_catalog_object_id');
-            $table->integer('ordinal')->nullable();
-            $table->enum('selection_type', [
-                CatalogModifierListSelectionType::SINGLE,
-                CatalogModifierListSelectionType::MULTIPLE
-            ])->default(CatalogModifierListSelectionType::SINGLE);
+            $table->unsignedBigInteger('price_money_amount')->nullable();
+            $table->string('price_money_currency', 3)->nullable();
+            $table->foreignId('nikolag_modifier_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
