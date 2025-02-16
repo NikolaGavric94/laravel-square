@@ -16,8 +16,9 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Location;
+use Nikolag\Square\Models\Modifier;
+use Nikolag\Square\Models\ModifierOption;
 use Nikolag\Square\Models\Product;
-use Nikolag\Square\Models\ProductModifier;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
@@ -323,31 +324,37 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Sync all products and their variations to the products table.
+     * Sync all product modifiers and their options to the database.
      *
      * @return void
      */
-    public function syncProducts(): void
+    public function syncModifiers(): void
     {
         // Retrieve the main location (since we're seeding for tests, just base it on the main location)
         /** @var array<CatalogObject> */
-        $itemCatalogObjects = self::listCatalog('ITEM');
+        $modifierCatalogObjects = self::listCatalog('MODIFIER_LIST');
 
-        foreach ($itemCatalogObjects as $itemObject) {
-            // Sync the variations to the database
-            foreach ($itemObject->getItemData()->getVariations() as $variation) {
-                $itemData = [
-                    'name'           => $itemObject->getItemData()->getName(),
-                    'description'    => $itemObject->getItemData()->getDescriptionHtml(),
-                    'variation_name' => $variation->getItemVariationData()->getName(),
-                    'description'    => $itemObject->getItemData()->getDescription(),
-                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
-                ];
+        foreach ($modifierCatalogObjects as $itemObject) {
+            $modifierListData = $itemObject->getModifierListData();
+            $modifierData = [
+                'name' => $modifierListData->getName(),
+                'ordinal' => $modifierListData?->getOrdinal(),
+                'selection_type' => $modifierListData->getSelectionType(),
+            ];
 
-                $squareID = $variation->getId();
+            $squareID = $itemObject->getId();
 
-                // Create or update the product
-                Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+            // Create or update the product
+            $modifierModel = Modifier::updateOrCreate(['square_catalog_object_id' => $squareID], $modifierData);
+
+            $modifierData = $itemObject->getModifierData();
+            if (! $modifierData) {
+                continue;
+            }
+
+            // Get modifier options
+            foreach ($itemObject->getModifierData() as $modifierData) {
+                $this->syncModifierOption($modifierModel, $modifierData);
             }
         }
     }
