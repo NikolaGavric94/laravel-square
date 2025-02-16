@@ -18,6 +18,7 @@ use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Location;
 use Nikolag\Square\Models\Modifier;
 use Nikolag\Square\Models\ModifierOption;
+use Nikolag\Square\Models\ModifierOptionLocationPivot;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
@@ -338,17 +339,17 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         // Retrieve the main location (since we're seeding for tests, just base it on the main location)
         /** @var array<CatalogObject> */
-        $modifierCatalogObjects = self::listCatalog('MODIFIER_LIST');
+        $modifierListCatalogObjects = self::listCatalog('MODIFIER_LIST');
 
-        foreach ($modifierCatalogObjects as $itemObject) {
-            $catalogModifierList = $itemObject->getModifierListData();
+        foreach ($modifierListCatalogObjects as $modifierListObject) {
+            $catalogModifierList = $modifierListObject->getModifierListData();
             $catalogModifierListData = [
                 'name' => $catalogModifierList->getName(),
                 'ordinal' => $catalogModifierList?->getOrdinal(),
                 'selection_type' => $catalogModifierList->getSelectionType(),
             ];
 
-            $squareID = $itemObject->getId();
+            $squareID = $modifierListObject->getId();
 
             // Create or update the product
             $modifierModel = Modifier::updateOrCreate([
@@ -360,38 +361,76 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 continue;
             }
 
-            // Get modifier options
-            foreach ($catalogModifiers as $catalogModifier) {
-                $this->syncModifierOptions($modifierModel, $catalogModifier);
-            }
+            // Sync the modifier options if there are any
+            $this->syncModifierOptions($modifierModel);
         }
     }
 
     /**
      * Sync all modifiers options and their relationships to the database.
      *
-     * @param Modifier      $modifierModel   The modifier model.
-     * @param CatalogObject $catalogModifier The modifier data.
+     * @param Modifier $modifierModel The modifier model to sync the options for.
      *
      * @return void
      */
-    public function syncModifierOptions(Modifier $modifierModel, CatalogObject $itemObject): void
+    public function syncModifierOptions(Modifier $modifierModel): void
     {
-        $catalogModifier = $itemObject->getModifierData();
+        // Array cache the results of the modifier list so we only make this call once during the sync
+        /** @var array<CatalogObject> */
+        $modifierCatalogObjects = cache()
+            ->store('array')
+            ->remember('-modifierCatalogObjects', now()->addMinutes(1), fn () => self::listCatalog('MODIFIER'));
 
-        $modifierOptionData = [
-            'name' => $catalogModifier->getName(),
-            'price_money_amount' => $catalogModifier->getPriceMoney()?->getAmount(),
-            'price_money_currency' => $catalogModifier->getPriceMoney()?->getCurrency(),
-            'nikolag_modifier_id' => $modifierModel->id
-        ];
+        // Filter the modifier options to only include the ones that are part of the modifier list
+        $modifierCatalogObjects = collect($modifierCatalogObjects)->filter(function ($modifierObject) use ($modifierModel) {
+            $modifierData = $modifierObject->getModifierData();
 
-        $modifierDataSquareID = $catalogModifier->getModifierListId();
+            return $modifierData->getModifierListId() === $modifierModel->square_catalog_object_id;
+        });
 
-        // Create or update the product
-        ModifierOption::updateOrCreate([
-            'square_catalog_object_id' => $modifierDataSquareID
-        ], $modifierOptionData);
+        foreach ($modifierCatalogObjects as $modifierObject) {
+            $catalogModifier = $modifierObject->getModifierData();
+
+            $modifierOptionData = [
+                'name' => $catalogModifier->getName(),
+                'price_money_amount' => $catalogModifier->getPriceMoney()?->getAmount(),
+                'price_money_currency' => $catalogModifier->getPriceMoney()?->getCurrency(),
+                'nikolag_modifier_id' => $modifierModel->id
+            ];
+
+            $modifierDataSquareID = $modifierObject->getId();
+
+            // Create or update the product
+            $modifierOption = ModifierOption::updateOrCreate([
+                'square_catalog_object_id' => $modifierDataSquareID
+            ], $modifierOptionData);
+
+            // Determine if there are any location-option overrides
+            $locationOverrides = $catalogModifier->getLocationOverrides();
+            if (! $locationOverrides) {
+                continue;
+            }
+
+            // Clear out any existing overrides
+            $modifierOption->locationOverrides()->delete();
+
+            // Get the location IDs
+            $squareLocationIDs = collect($locationOverrides)->map(function ($locationOverride) {
+                return $locationOverride->getLocationId();
+            })->toArray();
+            $locationIDs = Location::whereIn('square_id', $squareLocationIDs)->pluck('id');
+
+            $insertData = [];
+            foreach ($locationIDs as $locationID) {
+                $insertData[] = [
+                    'nikolag_modifier_option_id' => $modifierOption->id,
+                    'nikolag_location_id' => $locationID
+                ];
+            }
+
+            // Create new location overrides
+            ModifierOptionLocationPivot::insert($insertData);
+        }
     }
 
     /**
