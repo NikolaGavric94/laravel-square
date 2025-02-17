@@ -12,6 +12,7 @@ use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\CatalogModifierListSelectionType;
 use Square\Models\FulfillmentState;
 use Square\Models\FulfillmentType;
 
@@ -119,6 +120,15 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'PASSED', [
 $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
     'status' => Constants::TRANSACTION_STATUS_FAILED,
 ]);
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Constants::MODIFIER_NAMESPACE, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->word,
+        'selection_type' => CatalogModifierListSelectionType::SINGLE,
+        'square_catalog_object_id' => $faker->unique()->uuid,
+    ];
+});
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
