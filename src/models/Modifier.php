@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Modifier extends Model
@@ -21,8 +22,26 @@ class Modifier extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'selection_type', 'square_catalog_object_id'
+        'name',
+        'internal_name',
+        'square_catalog_object_id',
+        'ordinal',
+        'selection_type',
+        'modifier_type',
+        'max_length',
+        'is_text_required',
     ];
+
+    /**
+     * Return a list of products which are included in this order.
+     *
+     * @return BelongsToMany
+     */
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')
+            ->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id');
+    }
 
     /**
      * Prepare a date for array / JSON serialization.

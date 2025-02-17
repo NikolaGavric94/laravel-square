@@ -14,13 +14,20 @@ return new class extends Migration
     {
         Schema::create('nikolag_modifiers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name', 255);
+            $table->string('internal_name', 512)->nullable();
             $table->string('square_catalog_object_id');
             $table->integer('ordinal')->nullable();
             $table->enum('selection_type', [
                 CatalogModifierListSelectionType::SINGLE,
                 CatalogModifierListSelectionType::MULTIPLE
             ])->default(CatalogModifierListSelectionType::SINGLE);
+            $table->enum('modifier_type', [
+                'LIST',
+                'TEXT',
+            ])->default('LIST');
+            $table->integer('max_length')->nullable();
+            $table->boolean('is_text_required')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nikolag_product_modifiers');
+        Schema::dropIfExists('nikolag_modifiers');
     }
 };

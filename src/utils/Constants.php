@@ -26,6 +26,12 @@ class Constants extends CoreConstants
     const ORDER_PRODUCT_NAMESPACE = 'Nikolag\Square\Models\OrderProductPivot';
     const PRODUCT_NAMESPACE = 'Nikolag\Square\Models\Product';
     const PRODUCT_IDENTIFIER = 'id';
+    //Modifier info
+    const MODIFIER_NAMESPACE = 'Nikolag\Square\Models\Modifier';
+    const MODIFIER_IDENTIFIER = 'id';
+    //Modifier Option info
+    const MODIFIER_OPTION_NAMESPACE = 'Nikolag\Square\Models\ModifierOption';
+    const MODIFIER_OPTION_IDENTIFIER = 'id';
     //Customer info
     const RECIPIENT_NAMESPACE = 'Nikolag\Square\Models\Recipient';
     const RECIPIENT_IDENTIFIER = 'id';
