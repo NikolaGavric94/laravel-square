@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('square_catalog_object_id');
             $table->unsignedBigInteger('price_money_amount')->nullable();
             $table->string('price_money_currency', 3)->nullable();
-            $table->foreignId('nikolag_modifier_id')->constrained()->onDelete('cascade');
+            $table->foreignId('modifier_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nikolag_product_modifiers');
+        Schema::dropIfExists('nikolag_modifier_options');
     }
 };

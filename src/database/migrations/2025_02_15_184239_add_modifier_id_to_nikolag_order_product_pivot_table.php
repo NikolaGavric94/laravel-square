@@ -12,11 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nikolag_modifier_option_location', function (Blueprint $table) {
+        Schema::create('nikolag_product_order_modifier', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('modifier_option_id')->constrained()->onDelete('cascade');
-            $table->foreignId('location_id')->constrained()->onDelete('cascade');
-            $table->boolean('is_available')->default(false);
+            $table->foreignId('modifier_id')->constrained('nikolag_modifiers')->onDelete('cascade');
+            $table->foreignId('order_product_pivot_id')->constrained('nikolag_product_order')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nikolag_modifier_option_location');
+        Schema::drop('nikolag_product_order_modifier');
     }
 };
