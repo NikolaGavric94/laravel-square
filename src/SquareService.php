@@ -838,20 +838,21 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param  mixed  $product
      * @param  int  $quantity
      * @param  string  $currency
+     * @param array  $modifiers
      * @return self
      *
      * @throws AlreadyUsedSquareProductException
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD'): static
+    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD', array $modifiers = []): static
     {
         //Product class
         $productClass = Constants::PRODUCT_NAMESPACE;
 
         try {
             if (is_a($product, $productClass)) {
-                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity);
+                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity, $modifiers);
             } else {
                 $productPivot = $this->productBuilder->addProductFromArray($this->orderCopy, $this->getOrder(), $product, $quantity);
             }

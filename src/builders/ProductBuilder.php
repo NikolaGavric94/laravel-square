@@ -18,6 +18,10 @@ class ProductBuilder
      */
     private DiscountBuilder $discountBuilder;
     /**
+     * @var ModifiersBuilder
+     */
+    private ModifiersBuilder $modifiersBuilder;
+    /**
      * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
@@ -25,21 +29,23 @@ class ProductBuilder
     public function __construct()
     {
         $this->discountBuilder = new DiscountBuilder();
+        $this->modifiersBuilder = new ModifiersBuilder();
         $this->taxesBuilder = new TaxesBuilder();
     }
 
     /**
      * Add a product to the order from model as source.
      *
-     * @param  Model  $order
-     * @param  Model  $product
-     * @param  int  $quantity
+     * @param  Model $order
+     * @param  Model $product
+     * @param  int   $quantity
+     * @param  array $modifiers
      * @return Product|stdClass
      *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function addProductFromModel(Model $order, Model $product, int $quantity): Product|stdClass
+    public function addProductFromModel(Model $order, Model $product, int $quantity, array $modifiers = []): Product|stdClass
     {
         try {
             // If quantity is null or 0
@@ -48,7 +54,7 @@ class ProductBuilder
                 throw new MissingPropertyException('$quantity property is missing on Product', 500);
             }
 
-            $productCopy = $this->createProductFromModel($product, $order, $quantity);
+            $productCopy = $this->createProductFromModel($product, $order, $quantity, $modifiers);
             // Create discounts Collection
             $productCopy->discounts = collect([]);
             // //Discounts
@@ -176,11 +182,12 @@ class ProductBuilder
      * @param  Model  $product
      * @param  Model|null  $order
      * @param  int|null  $quantity
+     * @param  array  $modifiers
      * @return Product|stdClass
      *
      * @throws MissingPropertyException
      */
-    public function createProductFromModel(Model $product, Model $order = null, int $quantity = null): Product|stdClass
+    public function createProductFromModel(Model $product, Model $order = null, int $quantity = null, array $modifiers = []): Product|stdClass
     {
         $productObj = new stdClass();
         //If product doesn't have quantity in pivot table
@@ -204,6 +211,11 @@ class ProductBuilder
             if (! $productPivot) {
                 $productPivot = new OrderProductPivot($product->toArray());
             }
+        }
+
+        // Add modifiers to the order product pivot
+        if ($modifiers) {
+            $productPivot = $this->modifiersBuilder->addModifiers($productPivot, $modifiers);
         }
 
         $productPivot->quantity = $quantity;

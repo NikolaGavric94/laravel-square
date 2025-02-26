@@ -12,9 +12,10 @@ interface SquareServiceContract extends PaymentServiceContract
      * @param  mixed  $product
      * @param  int  $quantity
      * @param  string  $currency
+     * @param  array  $modifiers
      * @return self
      */
-    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD'): SquareServiceContract;
+    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD', array $modifiers = []): SquareServiceContract;
 
     /**
      * Getter for fulfillment.

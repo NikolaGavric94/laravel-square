@@ -5,6 +5,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Models\Modifier;
+use Nikolag\Square\Models\ModifierOption;
+use Nikolag\Square\Models\OrderProductModifierPivot;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -122,11 +125,38 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 ]);
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(Constants::MODIFIER_NAMESPACE, function (Faker\Generator $faker) {
+$factory->define(Modifier::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->word,
         'selection_type' => CatalogModifierListSelectionType::SINGLE,
         'square_catalog_object_id' => $faker->unique()->uuid,
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(ModifierOption::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->word,
+        'price_money_amount' => $faker->numberBetween(100, 1000),
+        'price_money_currency' => 'USD',
+        'modifier_id' => function () {
+            return factory(Modifier::class)->create()->id;
+        },
+        'square_catalog_object_id' => $faker->unique()->uuid,
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(OrderProductModifierPivot::class, function (Faker\Generator $faker, array $data) {
+    if (!isset($data['modifiable_id']) || !isset($data['modifiable_type'])) {
+        $modifier = factory(ModifierOption::class)->create();
+    }
+    return [
+        'modifiable_id' => $modifier->id,
+        'modifiable_type' => get_class($modifier),
+        // Always assume the tests will associate the following fields prior to saving, generating orders and products
+        // on the fly will likely cause issues that will be uncommon in production scenarios:
+        // 'product_order_id'
     ];
 });
 
