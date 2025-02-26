@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('square_catalog_object_id');
             $table->unsignedBigInteger('price_money_amount')->nullable();
             $table->string('price_money_currency', 3)->nullable();
-            $table->foreignId('modifier_id')->constrained()->onDelete('cascade');
+            $table->foreignId('modifier_id')->constrained('nikolag_modifiers')->onDelete('cascade');
             $table->timestamps();
         });
     }
