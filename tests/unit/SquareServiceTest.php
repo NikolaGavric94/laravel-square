@@ -971,7 +971,7 @@ class SquareServiceTest extends TestCase
 
             // Make sure every modifier option is linked to a parent modifier model
             $this->assertNotNull(
-                $modifierOption->nikolag_modifier_id,
+                $modifierOption->modifier_id,
                 'Modifier option has no relationship to Modifier model. Modifier option: ' . $modifierOption->toJson()
             );
         }
