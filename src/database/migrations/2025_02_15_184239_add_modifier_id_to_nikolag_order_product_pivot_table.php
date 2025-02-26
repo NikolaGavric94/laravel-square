@@ -14,8 +14,10 @@ return new class extends Migration
     {
         Schema::create('nikolag_product_order_modifier', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_product_id')->constrained('nikolag_product_order')->onDelete('cascade');
-            $table->morphs('modifiable');
+            $table->unsignedBigInteger('order_product_id')
+                ->foreign('order_product_id')->references('id')->on('nikolag_product_order')
+                ->onDelete('cascade');
+            $table->morphs('modifiable', 'nikolag_product_order_modifier_modifiable_type_index');
             $table->string('modifier_text')->nullable();
             $table->timestamps();
         });
