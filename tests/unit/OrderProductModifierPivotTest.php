@@ -4,6 +4,7 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Modifier;
 use Nikolag\Square\Models\ModifierOption;
@@ -163,5 +164,54 @@ class OrderProductModifierPivotTest extends TestCase
         $modifierOptionPivot = $square->getOrder()->products->first()->pivot->modifiers->first();
         $this->assertEquals($modifierOption->id, $modifierOptionPivot->modifiable_id);
         $this->assertEquals(ModifierOption::class, $modifierOptionPivot->modifiable_type);
+    }
+
+    /**
+     * Tests the exceptions thrown when the modifier is of type LIST.
+     *
+     * @return void
+     */
+    public function test_add_product_modifier_list_type_exception(): void
+    {
+
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create();
+
+        // Create a list-based modifier option
+        $modifier = factory(Modifier::class)->create([
+            'type' => 'LIST',
+        ]);
+
+        $this->expectException(InvalidSquareOrderException::class);
+        $this->expectExceptionMessage('Modifier LIST type must use specific modifier option');
+        $this->expectExceptionCode(500);
+
+        Square::setOrder($order, env('SQUARE_LOCATION'))
+            ->addProduct($product, 1, modifiers: [$modifier])
+            ->save();
+    }
+
+    /**
+     * Tests the exceptions thrown when the modifier is of type TEXT and the text is missing.
+     *
+     * @return void
+     */
+    public function test_add_product_modifier_text_missing_exception(): void
+    {
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create();
+
+        // Create a list-based modifier option
+        $modifier = factory(Modifier::class)->create([
+            'type' => 'TEXT',
+        ]);
+
+        $this->expectException(InvalidSquareOrderException::class);
+        $this->expectExceptionMessage('Text is missing for the text modifier');
+        $this->expectExceptionCode(500);
+
+        Square::setOrder($order, env('SQUARE_LOCATION'))
+            ->addProduct($product, 1, modifiers: [$modifier])
+            ->save();
     }
 }
