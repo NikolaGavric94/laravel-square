@@ -118,6 +118,38 @@ class OrderProductModifierPivotTest extends TestCase
         $product = factory(Product::class)->create();
 
         // Create a list-based modifier option
+        $modifier = factory(Modifier::class)->create([
+            'type' => 'TEXT',
+        ]);
+        // Add temp text to store the modifier
+        $description = 'test description';
+        $modifier->text = $description;
+
+        $square = Square::setOrder($order, env('SQUARE_LOCATION'))
+            ->addProduct($product, 1, modifiers: [$modifier])
+            ->save();
+
+        $this->assertNotNull($square->getOrder()->products->first()->pivot->modifiers);
+        $this->assertInstanceOf(Collection::class, $square->getOrder()->products->first()->pivot->modifiers);
+        $this->assertEquals(1, $square->getOrder()->products->first()->pivot->modifiers->count());
+
+        $modifierOptionPivot = $square->getOrder()->products->first()->pivot->modifiers->first();
+        $this->assertEquals($modifier->id, $modifierOptionPivot->modifiable_id);
+        $this->assertEquals(Modifier::class, $modifierOptionPivot->modifiable_type);
+        $this->assertEquals($description, $modifierOptionPivot->modifier_text);
+    }
+
+    /**
+     * Order Product pivot creation with modifier option and without modifier id, testing exception case.
+     *
+     * @return void
+     */
+    public function test_add_product_modifier_option_to_square_order(): void
+    {
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create();
+
+        // Create a list-based modifier option
         $modifierOption = factory(ModifierOption::class)->create();
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'))

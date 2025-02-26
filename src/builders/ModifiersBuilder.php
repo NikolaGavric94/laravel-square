@@ -2,16 +2,12 @@
 
 namespace Nikolag\Square\Builders;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Modifier;
 use Nikolag\Square\Models\ModifierOption;
 use Nikolag\Square\Models\OrderProductModifierPivot;
 use Nikolag\Square\Models\OrderProductPivot;
-use Nikolag\Square\Utils\Constants;
 
 class ModifiersBuilder
 {
@@ -47,14 +43,18 @@ class ModifiersBuilder
      */
     public function createProductModifier(OrderProductPivot $orderProduct, Modifier|ModifierOption $modifier): OrderProductModifierPivot
     {
-        if (
-            $modifier instanceof Modifier
-            && $modifier->type === 'TEXT' && !$modifier->text
-        ) {
-            throw new InvalidSquareOrderException('Text is missing for the text modifier', 500);
+        $productModifier = new OrderProductModifierPivot();
+
+        if ($modifier instanceof Modifier) {
+            if ($modifier->type === 'LIST') {
+                throw new InvalidSquareOrderException('Modifier LIST type must use specific modifier option', 500);
+            } elseif ($modifier->type === 'TEXT' && !$modifier->text) {
+                throw new InvalidSquareOrderException('Text is missing for the text modifier', 500);
+            }
+
+            $productModifier->modifier_text = $modifier->text;
         }
 
-        $productModifier = new OrderProductModifierPivot();
         if ($orderProduct->id) {
             $productModifier->order_product_id = $orderProduct->id;
         }

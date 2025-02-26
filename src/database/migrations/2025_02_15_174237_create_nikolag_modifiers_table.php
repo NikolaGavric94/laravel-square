@@ -22,7 +22,7 @@ return new class extends Migration
                 CatalogModifierListSelectionType::SINGLE,
                 CatalogModifierListSelectionType::MULTIPLE
             ])->default(CatalogModifierListSelectionType::SINGLE);
-            $table->enum('modifier_type', [
+            $table->enum('type', [
                 'LIST',
                 'TEXT',
             ])->default('LIST');

@@ -27,7 +27,7 @@ class Modifier extends Model
         'square_catalog_object_id',
         'ordinal',
         'selection_type',
-        'modifier_type',
+        'type',
         'max_length',
         'is_text_required',
     ];
