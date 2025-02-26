@@ -52,4 +52,25 @@ class OrderProductModifierPivotTest extends TestCase
             'order_product_id' => $orderProduct->id,
         ]);
     }
+
+    /**
+     * Retrieving orderProduct pivot.
+     *
+     * @return void
+     */
+    public function test_product_modifier_order_product_pivot_association(): void
+    {
+        // Make an order, a product and an order product pivot
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create();
+        $orderProduct = factory(OrderProductPivot::class)->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+        ]);
+        $productModifier = factory(OrderProductModifierPivot::class)->create([
+            'order_product_id' => $orderProduct->id,
+        ]);
+
+        $this->assertEquals($orderProduct->id, $productModifier->orderProduct->id, 'Order Product Modifier Pivot is not associated with Order Product Pivot.');
+    }
 }
