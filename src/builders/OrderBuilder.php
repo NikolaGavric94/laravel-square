@@ -121,12 +121,23 @@ class OrderBuilder
                     $product->save();
 
                     $product->pivot = $productPivot;
+
+                    // Create modifiers
+                    $productModifiers = $productPivot->modifiers;
+                    // Remove because laravel doesn't recognize it because its Collection/array
+                    unset($productPivot->modifiers);
+
                     // Associate product with it
                     $productPivot->product()->associate($product);
                     // Associate order with it
                     $productPivot->order()->associate($order);
                     // Save intermediate model
                     $productPivot->save();
+
+                    // Associate the modifiers
+                    if ($productModifiers->isNotEmpty()) {
+                        $productPivot->modifiers()->saveMany($productModifiers);
+                    }
 
                     // For each discount in product
                     foreach ($discounts as $discount) {

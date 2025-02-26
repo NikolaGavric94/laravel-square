@@ -32,6 +32,7 @@ use Square\Models\RetrieveLocationResponse;
  * @method static void syncDiscounts()
  * @method static void syncLocations()
  * @method static void syncProducts()
+ * @method static void syncModifiers()
  * @method static void syncTaxes()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)

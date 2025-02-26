@@ -16,6 +16,9 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Location;
+use Nikolag\Square\Models\Modifier;
+use Nikolag\Square\Models\ModifierOption;
+use Nikolag\Square\Models\ModifierOptionLocationPivot;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
@@ -26,6 +29,7 @@ use Square\Http\ApiResponse;
 use Square\Models\BatchDeleteCatalogObjectsResponse;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Models\CatalogModifier;
 use Square\Models\CatalogObject;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
@@ -314,11 +318,122 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function syncLocations()
     {
         // Map the locations to the Location model so we can do one bulk-insert
-        $locationData = collect($this->locations()->getLocations())->map(function ($location) {
+        $allLocationData = collect($this->locations()->getLocations())->map(function ($location) {
             return Location::processLocationData($location);
         })->toArray();
 
-        Location::upsert($locationData, uniqueBy: ['square_id']);
+        foreach ($allLocationData as $locationData) {
+            // Create or update the location
+            Location::updateOrCreate([
+                'square_id' => $locationData['square_id']
+            ], $locationData);
+        }
+    }
+
+    /**
+     * Sync all product modifiers and their options to the database.
+     *
+     * @return void
+     */
+    public function syncModifiers(): void
+    {
+        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
+        /** @var array<CatalogObject> */
+        $modifierListCatalogObjects = self::listCatalog('MODIFIER_LIST');
+
+        foreach ($modifierListCatalogObjects as $modifierListObject) {
+            $catalogModifierList = $modifierListObject->getModifierListData();
+            $catalogModifierListData = [
+                'name' => $catalogModifierList->getName(),
+                'ordinal' => $catalogModifierList?->getOrdinal(),
+                'selection_type' => $catalogModifierList->getSelectionType(),
+            ];
+
+            $squareID = $modifierListObject->getId();
+
+            // Create or update the product
+            $modifierModel = Modifier::updateOrCreate([
+                'square_catalog_object_id' => $squareID
+            ], $catalogModifierListData);
+
+            $catalogModifiers = $catalogModifierList->getModifiers();
+            if (! $catalogModifiers) {
+                continue;
+            }
+
+            // Sync the modifier options if there are any
+            $this->syncModifierOptions($modifierModel);
+        }
+    }
+
+    /**
+     * Sync all modifiers options and their relationships to the database.
+     *
+     * @param Modifier $modifierModel The modifier model to sync the options for.
+     *
+     * @return void
+     */
+    public function syncModifierOptions(Modifier $modifierModel): void
+    {
+        // Array cache the results of the modifier list so we only make this call once during the sync
+        /** @var array<CatalogObject> */
+        $modifierCatalogObjects = cache()
+            ->store('array')
+            ->remember(__METHOD__, now()->addMinutes(1), fn () => self::listCatalog('MODIFIER'));
+
+        // Filter the modifier options to only include the ones that are part of the modifier list
+        $modifierCatalogObjects = collect($modifierCatalogObjects)->filter(function ($modifierObject) use ($modifierModel) {
+            $modifierData = $modifierObject->getModifierData();
+
+            return $modifierData->getModifierListId() === $modifierModel->square_catalog_object_id;
+        });
+
+        foreach ($modifierCatalogObjects as $modifierObject) {
+            $catalogModifier = $modifierObject->getModifierData();
+
+            $modifierOptionData = [
+                'name' => $catalogModifier->getName(),
+                'price_money_amount' => $catalogModifier->getPriceMoney()?->getAmount(),
+                'price_money_currency' => $catalogModifier->getPriceMoney()?->getCurrency(),
+                'modifier_id' => $modifierModel->id
+            ];
+
+            $modifierDataSquareID = $modifierObject->getId();
+
+            // Create or update the product
+            $modifierOption = ModifierOption::updateOrCreate([
+                'square_catalog_object_id' => $modifierDataSquareID
+            ], $modifierOptionData);
+
+            // Determine if there are any location-option overrides
+            $locationOverrides = $catalogModifier->getLocationOverrides();
+            $absentAtLocations = $modifierObject->getAbsentAtLocationIds();
+            if (! $locationOverrides && ! $absentAtLocations) {
+                continue;
+            }
+
+            // Map the square location IDs to our local location IDs
+            $squareLocationIDs = collect($locationOverrides)->map(function ($locationOverride) {
+                return $locationOverride->getLocationId();
+            })
+                // Add the absent at locations to the list
+                ->merge(collect($absentAtLocations))
+                ->toArray();
+
+            // Get the local location IDs
+            $locationIDs = Location::whereIn('square_id', $squareLocationIDs)->pluck('id');
+
+            $insertData = [];
+            foreach ($locationIDs as $locationID) {
+                $insertData[] = [
+                    'modifier_option_id' => $modifierOption->id,
+                    'location_id' => $locationID
+                ];
+            }
+
+            // Create new location overrides
+            ModifierOptionLocationPivot::insert($insertData);
+        }
     }
 
     /**
@@ -723,20 +838,21 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @param  mixed  $product
      * @param  int  $quantity
      * @param  string  $currency
+     * @param array  $modifiers
      * @return self
      *
      * @throws AlreadyUsedSquareProductException
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD'): static
+    public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD', array $modifiers = []): static
     {
         //Product class
         $productClass = Constants::PRODUCT_NAMESPACE;
 
         try {
             if (is_a($product, $productClass)) {
-                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity);
+                $productPivot = $this->productBuilder->addProductFromModel($this->getOrder(), $product, $quantity, $modifiers);
             } else {
                 $productPivot = $this->productBuilder->addProductFromArray($this->orderCopy, $this->getOrder(), $product, $quantity);
             }

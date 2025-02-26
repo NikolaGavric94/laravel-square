@@ -12,6 +12,9 @@ use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Location;
+use Nikolag\Square\Models\Modifier;
+use Nikolag\Square\Models\ModifierOption;
+use Nikolag\Square\Models\ModifierOptionLocationPivot;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Recipient;
@@ -876,15 +879,111 @@ class SquareServiceTest extends TestCase
             );
 
             // Make sure every location has a name
-            $this->assertNotNull($location->name, 'Product has no name. Location: ' . $location->toJson());
+            $this->assertNotNull($location->name, 'Location has no name. Location: ' . $location->toJson());
 
             // Make sure every location has a name
-            $this->assertNotNull($location->address, 'Product has no address. Location: ' . $location->toJson());
+            $this->assertNotNull($location->address, 'Location has no address. Location: ' . $location->toJson());
         }
     }
 
     /**
-     * Test the syncing of the product catalog.
+     * Test the syncing of the modifiers catalog objects.
+     *
+     * @return void
+     */
+    public function test_square_sync_modifiers(): void
+    {
+        // Sync the location (the location override assertions later require this)
+        if (Location::count() == 0) {
+            Square::syncLocations();
+        }
+
+        // Delete all modifiers from the database
+        Modifier::truncate();
+        $this->assertCount(0, Modifier::all(), 'There are modifiers in the database after truncating');
+
+        // Sync the modifiers
+        Square::syncModifiers();
+
+        // Make sure there are modifiers
+        $modifiers = Modifier::all();
+        // Note: If you are seeing this error and your connected testing Square account has no modifiers, you will
+        // need to create some modifiers in your Square account to test this functionality.
+        $this->assertGreaterThan(0, $modifiers->count(), 'There are no modifiers in the database');
+
+        foreach ($modifiers as $modifier) {
+            // Make sure every square_catalog_object_id is set to square
+            $this->assertNotEmpty(
+                $modifier->square_catalog_object_id,
+                'Catalog Object ID not synced for modifier: ' . $modifier->toJson()
+            );
+
+            // Make sure every modifier has a name
+            $this->assertNotNull($modifier->name, 'Modifier list has no name. Modifier list: ' . $modifier->toJson());
+
+            // Make sure every modifier has a selection type
+            $this->assertNotNull(
+                $modifier->selection_type,
+                'Modifier list has no selection type. Modifier list: ' . $modifier->toJson()
+            );
+        }
+    }
+
+    /**
+     * Test the syncing of the item modifier options catalog objects.
+     *
+     * Note: This runs the same sync method as the test_square_sync_modifiers test, but it is separated for clarity.
+     *
+     * @return void
+     */
+    public function test_square_sync_modifier_options(): void
+    {
+        // Sync the location (the location override assertions later require this)
+        if (Location::count() == 0) {
+            Square::syncLocations();
+        }
+
+        // Delete all modifiers from the database
+        ModifierOption::truncate();
+        $this->assertCount(0, ModifierOption::all(), 'There are product modifiers in the database after truncating');
+
+        // Sync the product modifiers (due to mapping issues, this is required)
+        Square::syncModifiers();
+
+        // Make sure there are modifier options
+        $modifierOptions = ModifierOption::all();
+        // Note: If you are seeing this error and your connected testing Square account has no modifiers, you will
+        // need to create some modifiers in your Square account to test this functionality.
+        $this->assertGreaterThan(0, $modifierOptions->count(), 'There are no product modifiers in the database');
+
+        foreach ($modifierOptions as $modifierOption) {
+            // Make sure every reference_type is set to square
+            $this->assertNotEmpty(
+                $modifierOption->square_catalog_object_id,
+                'Catalog Object ID not synced for modifier option: ' . $modifierOption->toJson()
+            );
+
+            // Make sure every modifier option has a name
+            $this->assertNotNull(
+                $modifierOption->name,
+                'Modifier option has no name. Modifier option: ' . $modifierOption->toJson()
+            );
+
+            // Make sure every modifier option is linked to a parent modifier model
+            $this->assertNotNull(
+                $modifierOption->modifier_id,
+                'Modifier option has no relationship to Modifier model. Modifier option: ' . $modifierOption->toJson()
+            );
+        }
+
+        // Make sure there are modifier options that have created a pivot relationship
+        $disabledOptionsPivotCount = ModifierOptionLocationPivot::count();
+        // TODO: This is a pretty brittle test, make it more flexible so others could theoretically run it
+        $this->assertEquals(7, $disabledOptionsPivotCount, 'There are not 7 disabled modifier options in the database');
+    }
+
+    /**
+     * Test the syncing of the product catalog objects.
      *
      * @return void
      */

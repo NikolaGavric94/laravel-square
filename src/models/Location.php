@@ -16,6 +16,35 @@ class Location extends Model
     protected $table = 'nikolag_locations';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'address',
+        'timezone',
+        'capabilities',
+        'status',
+        'square_created_at',
+        'merchant_id',
+        'country',
+        'language_code',
+        'currency',
+        'phone_number',
+        'business_name',
+        'type',
+        'website_url',
+        'business_hours',
+        'business_email',
+        'twitter_username',
+        'instagram_username',
+        'facebook_url',
+        'mcc',
+        'square_id',
+    ];
+
+    /**
      * The attributes that should be cast to native types.
      *
      * @var array
