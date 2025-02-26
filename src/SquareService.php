@@ -395,7 +395,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 'name' => $catalogModifier->getName(),
                 'price_money_amount' => $catalogModifier->getPriceMoney()?->getAmount(),
                 'price_money_currency' => $catalogModifier->getPriceMoney()?->getCurrency(),
-                'nikolag_modifier_id' => $modifierModel->id
+                'modifier_id' => $modifierModel->id
             ];
 
             $modifierDataSquareID = $modifierObject->getId();
@@ -426,8 +426,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $insertData = [];
             foreach ($locationIDs as $locationID) {
                 $insertData[] = [
-                    'nikolag_modifier_option_id' => $modifierOption->id,
-                    'nikolag_location_id' => $locationID
+                    'modifier_option_id' => $modifierOption->id,
+                    'location_id' => $locationID
                 ];
             }
 
