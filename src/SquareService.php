@@ -379,7 +379,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         /** @var array<CatalogObject> */
         $modifierCatalogObjects = cache()
             ->store('array')
-            ->remember('-modifierCatalogObjects', now()->addMinutes(1), fn () => self::listCatalog('MODIFIER'));
+            ->remember(__METHOD__, now()->addMinutes(1), fn () => self::listCatalog('MODIFIER'));
 
         // Filter the modifier options to only include the ones that are part of the modifier list
         $modifierCatalogObjects = collect($modifierCatalogObjects)->filter(function ($modifierObject) use ($modifierModel) {
@@ -416,9 +416,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $squareLocationIDs = collect($locationOverrides)->map(function ($locationOverride) {
                 return $locationOverride->getLocationId();
             })
-            // Add the absent at locations to the list
-            ->merge(collect($absentAtLocations))
-            ->toArray();
+                // Add the absent at locations to the list
+                ->merge(collect($absentAtLocations))
+                ->toArray();
 
             // Get the local location IDs
             $locationIDs = Location::whereIn('square_id', $squareLocationIDs)->pluck('id');
