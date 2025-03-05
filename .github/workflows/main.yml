@@ -67,7 +67,7 @@ jobs:
         run: |
           cp .env.testing .env
           composer self-update
-          composer install --no-interaction --no-cache
+          composer install --no-interaction
           composer dump-autoload
 
       # Run phpunit tests
