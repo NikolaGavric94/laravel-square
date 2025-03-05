@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" processIsolation="false" stopOnFailure="true" bootstrap="vendor/autoload.php" cacheDirectory=".phpunit.cache" backupStaticProperties="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd">
-  <coverage>
-    <report>
-      <clover outputFile="build/logs/clover.xml"/>
-      <html outputDirectory="build/logs/html"/>
-    </report>
-  </coverage>
-  <testsuites>
-    <testsuite name="Unit">
-      <directory suffix="Test.php">./tests/unit</directory>
-    </testsuite>
-  </testsuites>
-  <logging/>
-  <php>
-    <env name="APP_ENV" value="testing"/>
-    <env name="CACHE_DRIVER" value="array"/>
-    <env name="SESSION_DRIVER" value="array"/>
-    <env name="QUEUE_DRIVER" value="sync"/>
-  </php>
-  <source>
-    <include>
-      <directory suffix=".php">./src</directory>
-    </include>
-    <exclude>
-      <directory suffix=".php">./src/exceptions</directory>
-    </exclude>
-  </source>
+<phpunit backupGlobals="false"
+        colors="true"
+        processIsolation="false"
+        stopOnFailure="true"
+        bootstrap="vendor/autoload.php"
+        cacheDirectory=".phpunit.cache"
+        backupStaticProperties="false"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd">
+    <coverage>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">./src/exceptions</directory>
+        </exclude>
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+            <html outputDirectory="build/logs/html"/>
+        </report>
+    </coverage>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/unit</directory>
+        </testsuite>
+    </testsuites>
+    <logging/>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="QUEUE_DRIVER" value="sync"/>
+    </php>
 </phpunit>
