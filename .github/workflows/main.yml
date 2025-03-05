@@ -72,7 +72,7 @@ jobs:
 
       # Run phpunit tests
       - name: Run tests
-        run: vendor/bin/phpunit --migrate-configuration && vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+        run: vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
         env:
           SQUARE_ORDER_NAMESPACE: ${{ secrets.SQUARE_ORDER_NAMESPACE }}
           SQUARE_USER_NAMESPACE: ${{ secrets.SQUARE_USER_NAMESPACE }}
