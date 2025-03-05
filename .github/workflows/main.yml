@@ -35,14 +35,12 @@ jobs:
         include:
           - php-version: "8.2"
             illuminate: "11.*"
-            orchestra: "8.*"
+            orchestra: "9.*"
             phpunit: "11.*"
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: sandbox
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: '3.3.x'
 
       # Setup php
       - name: Setup PHP with PECL extension
