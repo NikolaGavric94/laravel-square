@@ -7,16 +7,13 @@ on:
   pull_request:
     branches:
       - 'master'
-      - 'nikolag_master'
-      - '3.1.**'
-      - '3.2.**'
       - '3.3.**'
+      - '3.4.**'
   push:
     branches:
       - 'master'
-      - '3.1.**'
-      - '3.2.**'
       - '3.3.**'
+      - '3.4.**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -32,9 +29,9 @@ jobs:
       matrix:
         include:
           - php-version: "8.2"
-            illuminate: "10.*"
-            orchestra: "8.*"
-            phpunit: "10.*"
+            illuminate: "11.*"
+            orchestra: "9.*"
+            phpunit: "11.*"
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: sandbox
     steps:
@@ -65,7 +62,7 @@ jobs:
         run: |
           cp .env.testing .env
           composer self-update
-          composer install --no-interaction --no-cache
+          composer install --no-interaction
           composer dump-autoload
 
       # Run phpunit tests
