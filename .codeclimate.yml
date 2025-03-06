@@ -1,0 +1,3 @@
+## Files to ignore
+exclude_patterns:
+- "src/database/migrations/2025_02_05_185213_add_nikolag_locations_table.php"

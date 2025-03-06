@@ -2,10 +2,13 @@
 
 namespace Nikolag\Square\Utils;
 
+use DateTime;
 use Nikolag\Core\Utils\Constants as CoreConstants;
 
 class Constants extends CoreConstants
 {
+    const SQUARE = 'square';
+
     //Transaction info
     const TRANSACTION_NAMESPACE = 'Nikolag\Square\Models\Transaction';
     const TRANSACTION_IDENTIFIER = 'id';
@@ -16,10 +19,22 @@ class Constants extends CoreConstants
     //Customer info
     const CUSTOMER_NAMESPACE = 'Nikolag\Square\Models\Customer';
     const CUSTOMER_IDENTIFIER = 'id';
+    //Fulfillment info
+    const FULFILLMENT_NAMESPACE = 'Nikolag\Square\Models\Fulfillment';
+    const FULFILLMENT_IDENTIFIER = 'id';
     //Product info
     const ORDER_PRODUCT_NAMESPACE = 'Nikolag\Square\Models\OrderProductPivot';
     const PRODUCT_NAMESPACE = 'Nikolag\Square\Models\Product';
     const PRODUCT_IDENTIFIER = 'id';
+    //Modifier info
+    const MODIFIER_NAMESPACE = 'Nikolag\Square\Models\Modifier';
+    const MODIFIER_IDENTIFIER = 'id';
+    //Modifier Option info
+    const MODIFIER_OPTION_NAMESPACE = 'Nikolag\Square\Models\ModifierOption';
+    const MODIFIER_OPTION_IDENTIFIER = 'id';
+    //Customer info
+    const RECIPIENT_NAMESPACE = 'Nikolag\Square\Models\Recipient';
+    const RECIPIENT_IDENTIFIER = 'id';
     //Discount info
     const DISCOUNT_NAMESPACE = 'Nikolag\Square\Models\Discount';
     const DISCOUNT_IDENTIFIER = 'id';
@@ -44,4 +59,11 @@ class Constants extends CoreConstants
     const DEDUCTIBLE_FIXED_AMOUNT = 'FIXED_AMOUNT';
     const DEDUCTIBLE_SCOPE_ORDER = 'ORDER';
     const DEDUCTIBLE_SCOPE_PRODUCT = 'LINE_ITEM';
+
+    // Fulfillment scheduled type constants
+    const SCHEDULE_TYPE_ASAP = 'ASAP';
+    const SCHEDULE_TYPE_SCHEDULED = 'SCHEDULED';
+
+    // Date format (RFC3339 - which complies with Square's API requirements)
+    const DATE_FORMAT = DateTime::RFC3339;
 }

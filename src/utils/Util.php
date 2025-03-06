@@ -2,8 +2,10 @@
 
 namespace Nikolag\Square\Utils;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
 use stdClass;
 
@@ -52,6 +54,30 @@ class Util
     }
 
     /**
+     * Function which calculates the net price by removing any additive taxes to the entire order.
+     *
+     * @param  float  $discountCount
+     * @param  Collection  $inclusiveTaxes
+     * @return float|int
+     */
+    private static function _calculateNetPrice(float $discountCost, Collection $inclusiveTaxes): float|int
+    {
+        // Get all the inclusive taxes
+        $inclusiveTaxPercent = $inclusiveTaxes->filter(function ($tax) {
+            return $tax->type === Constants::TAX_INCLUSIVE;
+        })->map(function ($tax) {
+            return $tax->percentage;
+        })->pipe(function ($total) {
+            return $total->sum();
+        }) / 100;
+
+        // Calculate the net price (amount without inclusive tax)
+        $netPrice = $discountCost / (1 + $inclusiveTaxPercent);
+
+        return $netPrice;
+    }
+
+    /**
      * Function which calculates discounts on order level and where percentage
      * takes over precedence over flat amount.
      *
@@ -92,16 +118,29 @@ class Util
      *
      * @param  $products
      * @param  $tax
+     * @param  Collection  $inclusiveTaxes
+     * @param  Collection  $discounts
      * @return float|int
      */
-    private static function _calculateProductTaxes($products, $tax): float|int
+    private static function _calculateProductTaxes($products, $tax, Collection $inclusiveTaxes, Collection $discounts): float|int
     {
         $product = $products->first(function ($product) use ($tax) {
             return $product->pivot->taxes->contains($tax) || $product->taxes->contains($tax);
         });
 
         if ($product) {
-            return $product->price * $product->pivot->quantity * $tax->percentage / 100;
+            // Get the total product cost (price * quantity)
+            $totalCost = $product->price * $product->pivot->quantity;
+
+            // Calculate order discounts as this will impact the taxes calculated
+            $discountCost = $totalCost - self::_calculateDiscounts($discounts, $totalCost, $products);
+
+            $netPrice = self::_calculateNetPrice($discountCost, $inclusiveTaxes);
+
+            // Calculate and round the product taxes
+            $productTaxes = $netPrice * ($tax->percentage / 100);
+
+            return round($productTaxes);
         } else {
             return 0;
         }
@@ -110,13 +149,20 @@ class Util
     /**
      * Function which calculates taxes on order level.
      *
-     * @param  float  $noDeductiblesCost
+     * @param  float  $discountCost
      * @param  $tax
+     * @param  Collection  $inclusiveTaxes
      * @return float|int
      */
-    private static function _calculateOrderTaxes(float $noDeductiblesCost, $tax): float|int
+    private static function _calculateOrderTaxes(float $discountCost, $tax, Collection $inclusiveTaxes): float|int
     {
-        return $noDeductiblesCost * $tax->percentage / 100;
+        // Calculate the net price (amount without inclusive tax)
+        $netPrice = self::_calculateNetPrice($discountCost, $inclusiveTaxes);
+
+        // Get the order taxes
+        $orderTaxes = $netPrice * $tax->percentage / 100;
+
+        return round($orderTaxes);
     }
 
     /**
@@ -124,32 +170,45 @@ class Util
      * their scope, type of ADDITIVE.
      *
      * @param  Collection  $taxes
-     * @param  float  $noDeductiblesCost
+     * @param  float  $discountCost
      * @param  Collection  $products
+     * @param  Collection  $discounts
      * @return float|int
      */
-    private static function _calculateTaxes(Collection $taxes, float $noDeductiblesCost, Collection $products): float|int
+    private static function _calculateTaxes(Collection $taxes, float $discountCost, Collection $products, Collection $discounts): float|int
     {
-        $totalTaxes = 0;
-        if ($taxes->isNotEmpty() && $products->isNotEmpty()) {
-            $totalTaxes = $taxes->filter(function ($tax) {
-                return $tax->type === Constants::TAX_ADDITIVE;
-            })->map(function ($taxTwo) use ($products, $noDeductiblesCost) {
-                if ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) ||
-                    ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT)) {
-                    return self::_calculateProductTaxes($products, $taxTwo);
-                } elseif ((! $taxTwo->pivot && $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER) ||
-                    ($taxTwo->pivot && $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER)) {
-                    return self::_calculateOrderTaxes($noDeductiblesCost, $taxTwo);
-                }
-
-                return 0;
-            })->pipe(function ($total) {
-                return $total->sum();
-            });
+        // If there are no taxes or products, return 0
+        if ($taxes->isEmpty() || $products->isEmpty()) {
+            return 0;
         }
 
-        return $totalTaxes;
+        // Get all the inclusive taxes
+        $inclusiveTaxes = $taxes->filter(function ($tax) {
+            return $tax->type === Constants::TAX_INCLUSIVE;
+        });
+
+        return $taxes->filter(function ($tax) {
+            return $tax->type === Constants::TAX_ADDITIVE;
+        })->map(function ($taxTwo) use ($products, $discountCost, $discounts, $inclusiveTaxes) {
+            $isProductScope = $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT;
+            $isOrderScope = $taxTwo->scope === Constants::DEDUCTIBLE_SCOPE_ORDER;
+
+            if ($taxTwo->pivot) {
+                $isProductScope = $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT;
+                $isOrderScope = $taxTwo->pivot->scope === Constants::DEDUCTIBLE_SCOPE_ORDER;
+            }
+
+            // Calculate taxes based on scope
+            if ($isProductScope) {
+                $calculatedTaxes = self::_calculateProductTaxes($products, $taxTwo, $inclusiveTaxes, $discounts);
+            } elseif ($isOrderScope) {
+                $calculatedTaxes = self::_calculateOrderTaxes($discountCost, $taxTwo, $inclusiveTaxes);
+            } else {
+                $calculatedTaxes = 0;
+            }
+
+            return $calculatedTaxes;
+        })->sum();
     }
 
     /**
@@ -162,8 +221,6 @@ class Util
      */
     private static function _calculateTotalCost(Collection $discounts, Collection $taxes, Collection $products): float|int
     {
-        $noDeductiblesCost = 0;
-        $finalCost = 0;
         $lineItemDiscounts = collect([]);
         $lineItemTaxes = collect([]);
         $orderDiscounts = collect([]);
@@ -174,24 +231,31 @@ class Util
             $lineItemDiscounts = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_PRODUCT, $discounts);
             $orderDiscounts = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_ORDER, $discounts);
         }
+        $allDiscounts = $lineItemDiscounts->flatten()->merge($orderDiscounts->flatten())->flatten();
 
         // Calculate order level taxes scoped with either ORDER or LINE_ITEM
         if ($taxes->isNotEmpty()) {
             $lineItemTaxes = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_PRODUCT, $taxes);
             $orderTaxes = self::_filterElements(Constants::DEDUCTIBLE_SCOPE_ORDER, $taxes);
         }
+        $allTaxes = $lineItemTaxes->merge($orderTaxes)->flatten();
 
         // Calculate base total
-        if ($products->isNotEmpty()) {
-            $finalCost = $noDeductiblesCost = $products->map(function ($product) {
-                return $product->price * $product->pivot->quantity;
-            })->pipe(function ($total) {
-                return $total->sum();
-            });
+        if ($products->isEmpty()) {
+            throw new Exception('Total cost cannot be calculated without products.');
         }
 
-        $finalCost -= self::_calculateDiscounts($lineItemDiscounts->flatten()->merge($orderDiscounts->flatten())->flatten(), $noDeductiblesCost, $products);
-        $finalCost -= self::_calculateTaxes($lineItemTaxes->merge($orderTaxes)->flatten(), $finalCost, $products);
+        $noDeductiblesCost = $products->map(function ($product) {
+            return $product->price * $product->pivot->quantity;
+        })->pipe(function ($total) {
+            return $total->sum();
+        });
+
+        // Calculate cost based on discounts
+        $discountCost = $noDeductiblesCost - self::_calculateDiscounts($allDiscounts, $noDeductiblesCost, $products);
+
+        // Calculate cost based on taxes
+        $finalCost = $discountCost + self::_calculateTaxes($allTaxes, $discountCost, $products, $allDiscounts);
 
         return $finalCost;
     }
@@ -218,6 +282,32 @@ class Util
     public static function calculateTotalOrderCostByModel(Model $order): float|int
     {
         return self::_calculateTotalCost($order->discounts, $order->taxes, $order->products);
+    }
+
+    /**
+     * Check if source has fulfillment.
+     *
+     * @param  stdClass  $order
+     * @return bool
+     */
+    public static function hasFulfillment(
+        \Illuminate\Database\Eloquent\Collection|Collection $source,
+        Fulfillment|int|array|null $fulfillment
+    ): bool {
+        // Check if $fulfillment is either int, Model or array
+        if (is_a($fulfillment, Fulfillment::class)) {
+            return $source->contains($fulfillment);
+        } elseif (is_array($fulfillment)) {
+            if (array_key_exists('id', $fulfillment)) {
+                return $source->contains(Fulfillment::find($fulfillment['id']));
+            } elseif (array_key_exists('name', $fulfillment)) {
+                return $source->contains(Fulfillment::where('name', $fulfillment['name'])->first());
+            }
+        } elseif (is_int($fulfillment)) {
+            return $source->contains(Fulfillment::find($fulfillment));
+        }
+
+        return false;
     }
 
     /**
