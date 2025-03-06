@@ -167,7 +167,7 @@ class OrderBuilder
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
             if ($order->taxes->isNotEmpty()) {
-                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order->taxes->toArray(), $order);
+                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_ORDER, $order);
             }
             // Create discounts Collection
             $orderCopy->discounts = collect([]);
