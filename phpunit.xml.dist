@@ -5,9 +5,7 @@
         stopOnFailure="true"
         bootstrap="vendor/autoload.php"
         cacheDirectory=".phpunit.cache"
-        backupStaticProperties="false"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd">
+        backupStaticProperties="false">
     <coverage>
         <include>
             <directory suffix=".php">./src</directory>
