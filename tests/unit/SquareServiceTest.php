@@ -1016,6 +1016,26 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Test the syncing of the a product that has a modifier, without having first synced the modifiers.
+     *
+     * @return void
+     */
+    public function test_square_sync_products_missing_modifiers(): void
+    {
+        // Delete all products and modifiers from the database
+        Product::truncate();
+        Modifier::truncate();
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches(
+            '/Modifier list ID: .* not found during product sync for product ID: [0-9]/'
+        );
+
+        // Sync the products
+        Square::syncProducts();
+    }
+
+    /**
      * Test the syncing of the product catalog for discounts.
      *
      * @return void

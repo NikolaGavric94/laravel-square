@@ -487,7 +487,22 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      */
     public function syncProductModifiers(Product $product, array $modifierListInfo): void
     {
-        //
+        foreach ($modifierListInfo as $modifierList) {
+            $modifierListID = $modifierList->getModifierListId();
+            $modifier = Modifier::where('square_catalog_object_id', $modifierList->getModifierListId())->first();
+            if (!$modifier) {
+                throw new Exception(
+                    "Modifier list ID: $modifierListID not found during product sync for product ID: $product->id"
+                );
+            }
+
+            // Check to see if the product modifier is already attached to the product
+            if ($product->modifiers()->where('id', $modifier->id)->exists()) {
+                continue;
+            }
+
+            $product->modifiers()->attach($modifier->id);
+        }
     }
 
     /**
