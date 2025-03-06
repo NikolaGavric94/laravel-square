@@ -456,7 +456,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
             // Sync the variations to the database
             foreach ($itemData->getVariations() as $variation) {
-                $itemData = [
+                $variationItemData = [
                     'name'           => $itemData->getName(),
                     'description'    => $itemData->getDescriptionHtml(),
                     'variation_name' => $variation->getItemVariationData()->getName(),
@@ -467,7 +467,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $squareID = $variation->getId();
 
                 // Create or update the product
-                $product = Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+                $product = Product::updateOrCreate(['square_catalog_object_id' => $squareID], $variationItemData);
 
                 // Check for modifier data for this specific product
                 if ($modifierListInfo) {
