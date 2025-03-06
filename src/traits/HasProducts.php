@@ -42,7 +42,7 @@ trait HasProducts
      * @param  string  $attribute
      * @return bool
      */
-    public function hasAttribute(string $attribute): bool
+    public function hasColumn(string $attribute): bool
     {
         return Schema::hasColumn($this->table, $attribute);
     }
