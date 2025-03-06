@@ -28,6 +28,17 @@ class Product extends CoreProduct
     }
 
     /**
+     * Return a list of modifiers available for a given product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function modifiers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Modifier::class, 'product_id');
+    }
+
+
+    /**
      * Prepare a date for array / JSON serialization.
      *
      * @param  \DateTimeInterface  $date
