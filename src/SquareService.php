@@ -580,7 +580,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         //If local order doesn't have square order identifier to which to relate
         //local order
         $property = config('nikolag.connections.square.order.service_identifier');
-        if (! $this->getOrder()->hasAttribute($property)) {
+        if (! $this->getOrder()->hasColumn($property)) {
             throw new InvalidSquareOrderException('Table orders is missing a required column: '.$property, 500);
         }
         $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->locationId, $this->currency);
