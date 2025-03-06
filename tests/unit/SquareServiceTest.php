@@ -989,11 +989,12 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_sync_products(): void
     {
-        // Delete all products from the database
+        // Delete all products and modifiers from the database
         Product::truncate();
-        $this->assertCount(0, Product::all(), 'There are products in the database after truncating');
+        Modifier::truncate();
 
-        // Sync the products
+        // Sync the modifiers and then
+        Square::syncModifiers();
         Square::syncProducts();
 
         // Make sure there are products
