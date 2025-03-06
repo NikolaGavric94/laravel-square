@@ -3,6 +3,7 @@
 namespace Nikolag\Square\Models;
 
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Nikolag\Core\Models\Product as CoreProduct;
 use Nikolag\Square\Utils\Constants;
 
@@ -30,11 +31,11 @@ class Product extends CoreProduct
     /**
      * Return a list of modifiers available for a given product.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function modifiers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function modifiers(): BelongsToMany
     {
-        return $this->hasMany(Modifier::class, 'product_id');
+        return $this->belongsToMany(Modifier::class, 'nikolag_modifier_product_pivot', 'product_id', 'modifier_id');
     }
 
 
