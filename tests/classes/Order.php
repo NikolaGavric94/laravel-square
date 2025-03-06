@@ -3,11 +3,13 @@
 namespace Nikolag\Square\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Traits\HasFulfillments;
 use Nikolag\Square\Traits\HasProducts;
 
 class Order extends Model
 {
     use HasProducts;
+    use HasFulfillments;
 
     /**
      * The table associated with the model.

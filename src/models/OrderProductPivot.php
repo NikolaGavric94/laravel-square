@@ -68,6 +68,16 @@ class OrderProductPivot extends IntermediateTable
     }
 
     /**
+     * Associates a modifier
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function modifiers()
+    {
+        return $this->hasMany(OrderProductModifierPivot::class, 'order_product_id', 'id');
+    }
+
+    /**
      * Return order connected with this product pivot.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

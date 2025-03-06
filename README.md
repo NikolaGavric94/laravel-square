@@ -1,4 +1,4 @@
-[![Test Coverage](https://api.codeclimate.com/v1/badges/7b6c53096c35381463c5/test_coverage)](https://codeclimate.com/github/NikolaGavric94/laravel-square/test_coverage)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/4b0db75125acf7f4bdfb/test_coverage)](https://codeclimate.com/github/Mrkbingham/laravel-square/test_coverage)
 [![Build and test PHP 8.x](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
