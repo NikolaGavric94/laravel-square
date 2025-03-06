@@ -496,11 +496,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 );
             }
 
-            // Check to see if the product modifier is already attached to the product
-            if ($product->modifiers()->where('id', $modifier->id)->exists()) {
+            // If the pivot table link already exists, skip
+            if ($product->modifiers->contains($modifier->id)) {
                 continue;
             }
 
+            // Attach the modifier to the product
             $product->modifiers()->attach($modifier->id);
         }
     }
