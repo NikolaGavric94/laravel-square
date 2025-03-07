@@ -265,6 +265,10 @@ approach
 ### Added
 - Updated PHP version: [8.2](https://www.php.net/releases/8.2/en.php)
 
+## [3.4.0] - 2025-03-06
+### Added
+- Support for Laravel 11
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.3.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
@@ -291,3 +295,4 @@ approach
 [3.2.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.1.0...v3.2.0
 [3.2.1]: https://github.com/NikolaGavric94/laravel-square/compare/v3.2.0...v3.2.1
 [3.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.2.1...v3.3.0
+[3.4.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.3.0...v3.4.0
