@@ -269,6 +269,11 @@ approach
 ### Added
 - Support for Laravel 11
 
+
+## [3.4.1] - 2025-03-37
+### Added
+- Updated Square SDK version: [40.0.0.20250123](https://github.com/square/square-php-sdk/tree/40.0.0.20250123)
+
 [Unreleased]: https://github.com/NikolaGavric94/laravel-square/compare/v3.3.0...HEAD
 [1.0.1]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/NikolaGavric94/laravel-square/compare/v1.0.1...v1.0.2
@@ -296,3 +301,4 @@ approach
 [3.2.1]: https://github.com/NikolaGavric94/laravel-square/compare/v3.2.0...v3.2.1
 [3.3.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.2.1...v3.3.0
 [3.4.0]: https://github.com/NikolaGavric94/laravel-square/compare/v3.3.0...v3.4.0
+[3.4.1]: https://github.com/NikolaGavric94/laravel-square/compare/v3.4.0...v3.4.1
