@@ -317,7 +317,7 @@ class OrderBuilder
                 && $key != 'products'
                 && $key != $property
                 && $key != 'payment_service_type'
-                && $emptyModel->hasAttribute($key)) {
+                && $emptyModel->hasColumn($key)) {
                 $emptyModel->{$key} = $value;
             }
         }
