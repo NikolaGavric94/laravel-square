@@ -25,7 +25,7 @@
         "illuminate/database": "11.x",
         "illuminate/filesystem": "11.x",
         "illuminate/support": "11.x",
-        "nikolag/core": "dev-laravel_11",
+        "nikolag/core": "2.9.x",
         "square/square": "29.0.0.20230720"
     },
     "require-dev": {
@@ -62,13 +62,6 @@
             "Nikolag\\Square\\Tests\\Models\\": "tests/classes/"
         }
     },
-    "repositories": [
-        {
-            "type": "github",
-            "no-api": true,
-            "url": "https://github.com/Mrkbingham/nikolag-core"
-        }
-    ],
     "scripts": {
         "test:coverage": [
             "@putenv XDEBUG_MODE=coverage",
