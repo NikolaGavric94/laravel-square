@@ -177,7 +177,7 @@ class OrderBuilder
             // Create taxes Collection
             $orderCopy->taxes = collect([]);
             if ($order->taxes->isNotEmpty()) {
-                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order->taxes->toArray(), $order);
+                $orderCopy->taxes = $this->taxesBuilder->createTaxes($order->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_ORDER, $order);
             }
             // Create discounts Collection
             $orderCopy->discounts = collect([]);
@@ -327,7 +327,7 @@ class OrderBuilder
                 && $key != 'products'
                 && $key != $property
                 && $key != 'payment_service_type'
-                && $emptyModel->hasAttribute($key)) {
+                && $emptyModel->hasColumn($key)) {
                 $emptyModel->{$key} = $value;
             }
         }

@@ -21,3 +21,4 @@ docker
 
 # IDE
 .idea
+.vscode

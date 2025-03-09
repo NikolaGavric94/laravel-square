@@ -149,7 +149,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         //If local order doesn't have square order identifier to which to relate
         //local order
         $property = config('nikolag.connections.square.order.service_identifier');
-        if (! $this->getOrder()->hasAttribute($property)) {
+        if (! $this->getOrder()->hasColumn($property)) {
             throw new InvalidSquareOrderException('Table orders is missing a required column: '.$property, 500);
         }
         $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->locationId, $this->currency);
@@ -201,7 +201,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         } catch (InvalidSquareOrderException $e) {
             throw new MissingPropertyException('Invalid order data', 500, $e);
         } catch (Exception|ApiException $e) {
-            throw new Exception('There was an error with the api request', 500, $e);
+            $apiErrorMessage = $e->getMessage();
+            throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
         }
 
         return $this;
@@ -254,7 +255,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             try {
                 $this->_saveCustomer();
             } catch (Exception $e) {
-                throw new Exception('There was an error with the api request', 500, $e);
+                $apiErrorMessage = $e->getMessage();
+                throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
             }
             // Save customer into the table for further use
             $transaction->customer()->associate($this->getCustomer());
@@ -283,7 +285,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             } catch (InvalidSquareOrderException $e) {
                 throw new MissingPropertyException('Invalid order data', 500, $e);
             } catch (Exception $e) {
-                throw new Exception('There was an error with the api request', 500, $e);
+                $apiErrorMessage = $e->getMessage();
+                throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
             }
         }
         $transaction->save();
