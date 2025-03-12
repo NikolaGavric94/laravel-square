@@ -87,6 +87,36 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Lists the entire catalog.
+     *
+     * @param string $types The types of objects to list.
+     *
+     * @return array<\Square\Models\CatalogObject> The catalog items.
+     *
+     * @throws ApiException
+     */
+    public function listCatalog(?string $types = null): array
+    {
+        $catalogItems = [];
+        $cursor       = null;
+
+        do {
+            $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
+
+            if ($apiResponse->isSuccess()) {
+                /** @var ListCatalogResponse $results */
+                $results      = $apiResponse->getResult();
+                $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
+                $cursor       = $results->getCursor();
+            } else {
+                throw $this->handleApiResponseErrors($apiResponse);
+            }
+        } while ($cursor);
+
+        return $catalogItems;
+    }
+
+    /**
      * Save a customer.
      *
      * @return void

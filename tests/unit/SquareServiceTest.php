@@ -478,4 +478,17 @@ class SquareServiceTest extends TestCase
         $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_ORDER,
             $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope, 'Discount scope is not \'ORDER\'');
     }
+
+    /**
+     * Tests retrieving catalog information.
+     *
+     * @return void
+     */
+    public function test_square_list_catalog(): void
+    {
+        $catalog = Square::listCatalog();
+
+        $this->assertNotNull($catalog);
+        $this->assertInstanceOf('\Square\Models\ListCatalogResponse', $catalog);
+    }
 }
