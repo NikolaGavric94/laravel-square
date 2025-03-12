@@ -993,7 +993,7 @@ class SquareServiceTest extends TestCase
         Product::truncate();
         Modifier::truncate();
 
-        // Sync the modifiers and then
+        // Sync the modifiers and then sync the products
         Square::syncModifiers();
         Square::syncProducts();
 
