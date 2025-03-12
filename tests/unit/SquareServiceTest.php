@@ -1094,19 +1094,19 @@ class SquareServiceTest extends TestCase
                 'note' => 'This note can have maximum of 50 characters.',
                 'price' => 440.99,
                 'quantity' => 2,
-                'reference_id' => '5' //An optional ID to associate the product with an entity ID in your own table
+                'reference_id' => '5', //An optional ID to associate the product with an entity ID in your own table
             ],
             [
                 'name' => 'Shirt',
                 'variation_name' => 'Mid-size yellow',
                 'note' => 'This note can have maximum of 50 characters.',
                 'quantity' => 1,
-                'price' => 118.02
+                'price' => 118.02,
             ],
         ];
 
         $order = [
-            'products' => $products
+            'products' => $products,
         ];
 
         $square = Square::setOrder($order, env('SQUARE_LOCATION'))->save();
