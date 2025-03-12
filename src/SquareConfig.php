@@ -4,6 +4,7 @@ namespace Nikolag\Square;
 
 use Nikolag\Core\CoreConfig;
 use Nikolag\Core\Exceptions\InvalidConfigurationException;
+use Square\Apis\CatalogApi;
 use Square\Apis\CustomersApi;
 use Square\Apis\LocationsApi;
 use Square\Apis\OrdersApi;
@@ -37,7 +38,18 @@ class SquareConfig extends CoreConfig
     }
 
     /**
+     * Api for catalog.
+     *
+     * @return CatalogApi
+     */
+    public function catalogAPI(): CatalogApi
+    {
+        return $this->squareClient->getCatalogApi();
+    }
+
+    /**
      * Api for locations.
+     *
      *
      * @return LocationsApi
      */
@@ -58,6 +70,9 @@ class SquareConfig extends CoreConfig
 
     /**
      * Api for transactions.
+     *
+     * @deprecated cf. https://developer.squareup.com/docs/build-basics/api-lifecycle#deprecated
+     * @see https://developer.squareup.com/docs/payments-api/migrate-from-transactions-api
      *
      * @return TransactionsApi
      */
