@@ -9,6 +9,15 @@ use Nikolag\Square\Utils\Constants;
 class Product extends CoreProduct
 {
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'price', 'variation_name', 'note', 'reference_id', 'square_catalog_object_id'
+    ];
+
+    /**
      * Return a list of orders in which this product is included.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

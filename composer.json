@@ -30,9 +30,9 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.13",
+        "laravel/legacy-factories": "^1.3",
         "orchestra/testbench": "9.x",
-        "phpunit/phpunit": "11.x",
-        "laravel/legacy-factories": "^1.3"
+        "phpunit/phpunit": "11.x"
     },
     "autoload": {
         "psr-4": {
