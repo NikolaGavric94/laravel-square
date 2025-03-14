@@ -31,6 +31,7 @@ use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CatalogModifier;
 use Square\Models\CatalogObject;
+use Square\Models\CatalogModifierListInfo;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
@@ -448,21 +449,60 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         $itemCatalogObjects = self::listCatalog('ITEM');
 
         foreach ($itemCatalogObjects as $itemObject) {
+            $itemData = $itemObject->getItemData();
+
+            // Check for modifier data
+            $modifierListInfo = $itemData->getModifierListInfo();
+
             // Sync the variations to the database
-            foreach ($itemObject->getItemData()->getVariations() as $variation) {
-                $itemData = [
-                    'name'           => $itemObject->getItemData()->getName(),
-                    'description'    => $itemObject->getItemData()->getDescriptionHtml(),
+            foreach ($itemData->getVariations() as $variation) {
+                $variationItemData = [
+                    'name'           => $itemData->getName(),
+                    'description'    => $itemData->getDescriptionHtml(),
                     'variation_name' => $variation->getItemVariationData()->getName(),
-                    'description'    => $itemObject->getItemData()->getDescription(),
+                    'description'    => $itemData->getDescription(),
                     'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
                 ];
 
                 $squareID = $variation->getId();
 
                 // Create or update the product
-                Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
+                $product = Product::updateOrCreate(['square_catalog_object_id' => $squareID], $variationItemData);
+
+                // Check for modifier data for this specific product
+                if ($modifierListInfo) {
+                    $this->syncProductModifiers($product, $modifierListInfo);
+                }
             }
+        }
+    }
+
+    /**
+     * Sync a given product and it's modifiers.
+     *
+     * @param Product $product The product model to sync the modifiers for.
+     * @param CatalogModifierListInfo[] $modifierListInfo The modifier list info for the product.
+     *
+     * @return void
+     */
+    public function syncProductModifiers(Product $product, array $modifierListInfo): void
+    {
+        foreach ($modifierListInfo as $modifierList) {
+            $modifierListID = $modifierList->getModifierListId();
+            $modifier = Modifier::where('square_catalog_object_id', $modifierList->getModifierListId())->first();
+            if (!$modifier) {
+                throw new Exception(
+                    "Modifier list ID: $modifierListID not found during product sync for product ID: $product->id"
+                );
+            }
+
+            // If the pivot table link already exists, skip
+            if ($product->modifiers->contains($modifier->id)) {
+                continue;
+            }
+
+            // Attach the modifier to the product
+            $product->modifiers()->attach($modifier->id);
         }
     }
 

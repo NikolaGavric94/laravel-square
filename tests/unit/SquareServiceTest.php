@@ -989,11 +989,12 @@ class SquareServiceTest extends TestCase
      */
     public function test_square_sync_products(): void
     {
-        // Delete all products from the database
+        // Delete all products and modifiers from the database
         Product::truncate();
-        $this->assertCount(0, Product::all(), 'There are products in the database after truncating');
+        Modifier::truncate();
 
-        // Sync the products
+        // Sync the modifiers and then sync the products
+        Square::syncModifiers();
         Square::syncProducts();
 
         // Make sure there are products
@@ -1013,6 +1014,26 @@ class SquareServiceTest extends TestCase
             // Make sure every product has a name
             $this->assertNotNull($product->name, 'Product has no name. Product: ' . $product->toJson());
         }
+    }
+
+    /**
+     * Test the syncing of the a product that has a modifier, without having first synced the modifiers.
+     *
+     * @return void
+     */
+    public function test_square_sync_products_missing_modifiers(): void
+    {
+        // Delete all products and modifiers from the database
+        Product::truncate();
+        Modifier::truncate();
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches(
+            '/Modifier list ID: .* not found during product sync for product ID: [0-9]/'
+        );
+
+        // Sync the products
+        Square::syncProducts();
     }
 
     /**
