@@ -80,22 +80,6 @@ class Fulfillment extends Model
     }
 
     /**
-     * Attribute accessor to retrieve the fulfillment date for the details.
-     * e.g. $this->fulfillment_date
-     *
-     * @return Carbon
-     */
-    public function getFulfillmentDateAttribute(): Carbon
-    {
-        return match (get_class($this->fulfillmentDetails)) {
-            PickupDetails::class => $this->fulfillmentDetails->pickup_at,
-            DeliveryDetails::class => $this->fulfillmentDetails->deliver_at,
-            ShipmentDetails::class => $this->fulfillmentDetails->expected_shipped_at,
-            default => null,
-        };
-    }
-
-    /**
      * Prepare a date for array / JSON serialization.
      *
      * @param  \DateTimeInterface  $date
