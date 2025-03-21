@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Models;
 
+use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 
@@ -76,6 +77,22 @@ class Fulfillment extends Model
     public function fulfillmentDetails()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Attribute accessor to retrieve the fulfillment date for the details.
+     * e.g. $this->fulfillment_date
+     *
+     * @return Carbon
+     */
+    public function getFulfillmentDateAttribute(): Carbon
+    {
+        return match (get_class($this->fulfillmentDetails)) {
+            PickupDetails::class => $this->fulfillmentDetails->pickup_at,
+            DeliveryDetails::class => $this->fulfillmentDetails->deliver_at,
+            ShipmentDetails::class => $this->fulfillmentDetails->expected_shipped_at,
+            default => null,
+        };
     }
 
     /**
