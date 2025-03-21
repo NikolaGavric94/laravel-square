@@ -44,6 +44,7 @@ class PickupDetails extends Model
         'cancel_reason',
         'is_curbside_pickup',
         'curbside_pickup_details',
+        'schedule_type',
     ];
 
     /**
