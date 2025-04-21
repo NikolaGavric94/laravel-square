@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Builders;
 
+use Exception;
 use Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -9,6 +10,9 @@ use Nikolag\Square\Builders\SquareRequestBuilders\FulfillmentRequestBuilder;
 use Nikolag\Square\Builders\Validate;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Nikolag\Square\Models\Modifier;
+use Nikolag\Square\Models\ModifierOption;
+use Nikolag\Square\Models\Product;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\BatchDeleteCatalogObjectsRequest;
@@ -38,6 +42,7 @@ use Square\Models\Builders\CatalogObjectBuilder;
 use Square\Models\Builders\CatalogTaxBuilder;
 use Square\Models\Builders\CreateCatalogImageRequestBuilder;
 use Square\Models\Builders\MoneyBuilder;
+use Square\Models\OrderLineItemModifier;
 
 class SquareRequestBuilder
 {
@@ -466,6 +471,65 @@ class SquareRequestBuilder
     }
 
     /**
+     * Builds the modifiers for the order.
+     *
+     * @param Collection $modifiers
+     * @return array
+     */
+    public function buildModifiers(Collection $modifiers): array
+    {
+        $temp = [];
+        if ($modifiers->isEmpty()) {
+            return $temp;
+        }
+
+        foreach ($modifiers as $modifier) {
+            $tempModifier = new OrderLineItemModifier();
+            $tempModifier->setUid(Util::uid());
+            $tempModifier->setCatalogObjectId($modifier->modifiable->square_catalog_object_id);
+
+            // NOTE: The text modifiers are added in the setNote method using the buildNotes method below.
+            // This comment acts as a placeholder in case this support is added to Square's APIs:
+            // // Add text for free text modifiers
+            // if (
+            //     $modifier->modifiable_type == Modifier::class
+            //     && $modifier->modifiable->type == 'TEXT'
+            // ) {
+            //     // Text based modifiers are not yet supported by Square's APIs:
+            //     // https://developer.squareup.com/forums/t/adding-a-text-modifier-via-orders-api/20465/3
+            //     // Theoretical placeholder: $tempModifier->setName($modifier->text);
+            // }
+
+            // Add the quantity
+            $tempModifier->setQuantity($modifier->quantity);
+
+            $temp[] = $tempModifier;
+        }
+
+        return $temp;
+    }
+
+    /**
+     * Builds the note for the line-item.
+     *
+     * @param Product $product
+     * @param Collection $modifiers
+     * @return string
+     */
+    public function buildNote(Product $product, Collection $modifiers): string
+    {
+        $note = $product->note ?? '';
+
+        foreach ($modifiers as $modifier) {
+            if ($modifier->modifiable_type == Modifier::class && $modifier->modifiable->type == 'TEXT') {
+                $note .= ' ' . $modifier->text;
+            }
+        }
+
+        return $note;
+    }
+
+    /**
      * Builds and returns array of taxes.
      *
      * @param  Collection  $taxes
@@ -575,7 +639,8 @@ class SquareRequestBuilder
                 $tempProduct->setQuantity((string) $quantity);
                 $tempProduct->setCatalogObjectId($product->square_catalog_object_id);
                 $tempProduct->setVariationName($product->variation_name);
-                $tempProduct->setNote($product->note);
+                $tempProduct->setNote($this->buildNote($product, $pivotProduct->modifiers));
+                $tempProduct->setModifiers($this->buildModifiers($pivotProduct->modifiers));
                 $tempProduct->setAppliedDiscounts($this->buildAppliedDiscounts($discounts));
                 $tempProduct->setAppliedTaxes($this->buildAppliedTaxes($taxes));
                 $temp[] = $tempProduct;

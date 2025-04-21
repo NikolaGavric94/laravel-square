@@ -18,6 +18,19 @@ class OrderProductModifierPivot extends Pivot
     protected $table = 'nikolag_product_order_modifier';
 
     /**
+     * The fillable attributes for the model.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'order_product_id',
+        'modifiable_id',
+        'modifiable_type',
+        'text',
+        'quantity',
+    ];
+
+    /**
      * Return order connected with this product pivot.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

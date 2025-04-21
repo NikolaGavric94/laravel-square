@@ -2,6 +2,8 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Illuminate\Database\Eloquent\Builder;
+use Nikolag\Square\Builders\OrderBuilder;
 use Str;
 use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Exception;
@@ -277,6 +279,122 @@ class SquareServiceTest extends TestCase
     }
 
     /**
+     * Tests the buildProducts method.
+     *
+     * @return void
+     */
+    public function test_build_products(): void
+    {
+        // Create a new order
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product, 1)->save();
+
+        $products = Square::getSquareBuilder()->buildProducts(
+            $square->getOrder()->products,
+            'USD'
+        );
+
+        $this->assertNotNull($products);
+        foreach ($products as $product) {
+            $this->assertInstanceOf(\Square\Models\OrderLineItem::class, $product);
+        }
+    }
+
+    /**
+     * Tests the buildProducts method with an option-based modifier.
+     *
+     * @return void
+     */
+    public function test_build_products_with_list_modifier(): void
+    {
+        // Sync the modifiers and products
+        if (Modifier::count() === 0 || Product::count() === 0) {
+            Square::syncModifiers();
+            Square::syncProducts();
+        }
+
+        // Select a product that has modifiers
+        $product = Product::whereHas('modifiers', function (Builder $query) {
+            $query->where('type', 'LIST');
+        })->inRandomOrder()->first();
+        $modifierListOption = $product->modifiers->first()->options->first();
+
+        // Create a new order
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct(
+            $product,
+            1,
+            modifiers: [$modifierListOption]
+        )->save();
+
+        // Build the products
+        $products = Square::getSquareBuilder()->buildProducts(
+            $square->getOrder()->products,
+            'USD'
+        );
+
+        $this->assertNotNull($products);
+
+        /** @var \Square\Models\OrderLineItem */
+        $product = $products[0];
+        $this->assertInstanceOf(\Square\Models\OrderLineItem::class, $product);
+        $this->assertNotEmpty($product->getModifiers());
+
+        /** @var \Square\Models\OrderLineItemModifier */
+        $modifier = $product->getModifiers()[0];
+        $this->assertInstanceOf(\Square\Models\OrderLineItemModifier::class, $modifier);
+        $this->assertNotEmpty($modifier->getUid());
+        $this->assertNotNull($modifier->getCatalogObjectId());
+        $this->assertEquals($modifierListOption->square_catalog_object_id, $modifier->getCatalogObjectId());
+    }
+
+    /**
+     * Tests the buildProducts method with a text-based modifier.
+     *
+     * @return void
+     */
+    public function test_build_products_with_text_modifier(): void
+    {
+        // Sync the modifiers and products
+        if (Modifier::count() === 0 || Product::count() === 0) {
+            Square::syncModifiers();
+            Square::syncProducts();
+        }
+
+        // Select a product that has modifiers
+        $product = Product::whereHas('modifiers', function (Builder $query) {
+            $query->where('type', 'TEXT');
+        })->inRandomOrder()->first();
+        $textModifier = $product->modifiers->where('type', 'TEXT')->first();
+        $textModifier->text = 'Scrambled'; // Temporarily set the eggs as scrambled
+
+        // Create a new order
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct(
+            $product,
+            1,
+            modifiers: [$textModifier]
+        )->save();
+
+        // Build the products
+        $products = Square::getSquareBuilder()->buildProducts(
+            $square->getOrder()->products,
+            'USD'
+        );
+
+        $this->assertNotNull($products);
+
+        /** @var \Square\Models\OrderLineItem */
+        $product = $products[0];
+        $this->assertInstanceOf(\Square\Models\OrderLineItem::class, $product);
+        $this->assertNotEmpty($product->getModifiers());
+
+        /** @var \Square\Models\OrderLineItemModifier */
+        $modifier = $product->getModifiers()[0];
+        $this->assertInstanceOf(\Square\Models\OrderLineItemModifier::class, $modifier);
+        $this->assertNotEmpty($modifier->getUid());
+        $this->assertNotNull($modifier->getCatalogObjectId());
+        $this->assertEquals($textModifier->square_catalog_object_id, $modifier->getCatalogObjectId());
+    }
+
+    /**
      * Tests the createCatalogImage method.
      *
      * @return void
@@ -481,6 +599,38 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product, 1)->addProduct($product2, 2)->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+    }
+
+    /**
+     * Add product for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_with_modifier(): void
+    {
+        // Sync the modifiers and products
+        if (Modifier::count() === 0 || Product::count() === 0) {
+            Square::syncModifiers();
+            Square::syncProducts();
+        }
+
+        // Select a product that has modifiers
+        $modifier = Modifier::where('type', 'LIST')->whereHas('products')->inRandomOrder()->first();
+        $modifierListOption = $modifier->options->random()->first();
+        $product = $modifier->products->random()->first();
+
+        // Create a new order
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct(
+            $product,
+            1,
+            modifiers: [$modifierListOption]
+        )->save();
+
+        // Make sure if you set an order with linked modifiers, the modifiers are added
+        $square = Square::setOrder($square->getOrder(), env('SQUARE_LOCATION'));
+
+        $this->assertCount(1, $square->getOrder()->products, 'There are not enough products');
+        $this->assertCount(1, $square->getOrder()->products->first()->pivot->modifiers, 'There are not enough modifiers');
     }
 
     /**

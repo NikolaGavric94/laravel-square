@@ -6,6 +6,7 @@ use Exception;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Modifier;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
@@ -123,6 +124,35 @@ class UtilTest extends TestCase
 
         // The expected total is 935.
         $this->assertEquals(935, Util::calculateTotalOrderCostByModel($square->getOrder()));
+    }
+
+    /**
+     * Test if the total calculation is done right.
+     *
+     * @return void
+     */
+    public function test_calculate_total_order_with_product_modifier(): void
+    {
+        // Sync the modifiers and products
+        if (Modifier::count() === 0 || Product::count() === 0) {
+            Square::syncModifiers();
+            Square::syncProducts();
+        }
+
+        // Get the product and modifier
+        $chocolateChipCookie = Product::where('name', 'Chocolate Chip Cookie')->first();
+        $frostingModifierList = $chocolateChipCookie->modifiers->where('name', 'Cookie Frosting')->first();
+        $fancyFrostingOption = $frostingModifierList->options->where('name', 'Fancy Frosting')->first();
+
+        // Create a new order
+        // 5 regular chocolate chip cookies with "fancy frosting"
+        // $5.50/ea ($5.00/ea + $0.50 modifier) - $27.50 total)
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($chocolateChipCookie, 5, modifiers: [$fancyFrostingOption])
+            ->save();
+
+        // The expected total is $27.50.
+        $this->assertEquals(2750, Util::calculateTotalOrderCostByModel($square->getOrder()));
     }
 
     /**

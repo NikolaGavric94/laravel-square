@@ -44,4 +44,29 @@ class ModifierTest extends TestCase
             'name' => $name,
         ]);
     }
+
+    /**
+     * Modifier persisting.
+     *
+     * @return void
+     */
+    public function test_modifier_products_relationship(): void
+    {
+        $name = $this->faker->name;
+
+        $modifier = factory(Modifier::class)->create([
+            'name' => $name,
+        ]);
+
+        $product = factory(Product::class)->create([
+            'name' => $this->faker->name,
+        ]);
+
+        // Attach the product to the modifier
+        $modifier->products()->attach($product->id);
+        $this->assertDatabaseHas('nikolag_modifier_product_pivot', [
+            'product_id'  => $product->id,
+            'modifier_id' => $modifier->id,
+        ]);
+    }
 }

@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ModifierOption extends Model
@@ -21,7 +22,12 @@ class ModifierOption extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'selection_type', 'square_catalog_object_id', 'modifier_id',
+        'name',
+        'selection_type',
+        'square_catalog_object_id',
+        'modifier_id',
+        'price_money_amount',
+        'price_money_currency',
     ];
 
     /**
@@ -32,6 +38,16 @@ class ModifierOption extends Model
     public function locationOverrides(): HasMany
     {
         return $this->hasMany(ModifierOptionLocationPivot::class, 'id', 'nikolag_modifier_option_id');
+    }
+
+    /**
+     * Parent modifier relationship.
+     *
+     * @return BelongsTo
+     */
+    public function parentModifier(): BelongsTo
+    {
+        return $this->belongsTo(Modifier::class);
     }
 
     /**

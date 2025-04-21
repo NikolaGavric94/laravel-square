@@ -16,6 +16,7 @@ use Square\Models\RetrieveLocationResponse;
 
 /**
  * @method static SquareService save()
+ * @method static SquareService saveToSquare()
  * @method static string getCurrency()
  * @method static BatchDeleteCatalogObjectsResponse batchDeleteCatalogObjects(array $catalogObjectIds)
  * @method static CreateCatalogImageResponse createCatalogImage(

@@ -41,6 +41,7 @@ class ShipmentDetails extends Model
         'tracking_url',
         'cancel_reason',
         'failure_reason',
+        'expected_shipped_at',
     ];
 
     /**

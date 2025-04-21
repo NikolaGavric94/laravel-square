@@ -137,7 +137,7 @@ class OrderProductModifierPivotTest extends TestCase
         $modifierOptionPivot = $square->getOrder()->products->first()->pivot->modifiers->first();
         $this->assertEquals($modifier->id, $modifierOptionPivot->modifiable_id);
         $this->assertEquals(Modifier::class, $modifierOptionPivot->modifiable_type);
-        $this->assertEquals($description, $modifierOptionPivot->modifier_text);
+        $this->assertEquals($description, $modifierOptionPivot->text);
     }
 
     /**

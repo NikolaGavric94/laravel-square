@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Builders;
 
+use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Modifier;
@@ -15,13 +16,13 @@ class ModifiersBuilder
      * Associate modifiers with the product.
      *
      * @param  OrderProductPivot $productPivot
-     * @param  array             $modifiers
+     * @param  array|Collection  $modifiers
      * @return OrderProductPivot
      *
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function addModifiers(OrderProductPivot $orderProduct, array $modifiers): OrderProductPivot
+    public function addModifiers(OrderProductPivot $orderProduct, array|Collection $modifiers): OrderProductPivot
     {
         $temp = collect([]);
         foreach ($modifiers as $modifier) {
@@ -35,7 +36,7 @@ class ModifiersBuilder
     }
 
     /**
-     * Associate the text modifier.
+     * Associate the modifier.
      * @param OrderProductPivot       $productPivot
      * @param Modifier|ModifierOption $modifier
      *
@@ -52,8 +53,11 @@ class ModifiersBuilder
                 throw new InvalidSquareOrderException('Text is missing for the text modifier', 500);
             }
 
-            $productModifier->modifier_text = $modifier->text;
+            $productModifier->text = $modifier->text;
         }
+
+        // Set the quantity of the modifier
+        $productModifier->quantity = $modifier->quantity ?? 1;
 
         if ($orderProduct->id) {
             $productModifier->order_product_id = $orderProduct->id;

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('selection_type', [
                 CatalogModifierListSelectionType::SINGLE,
                 CatalogModifierListSelectionType::MULTIPLE
-            ])->default(CatalogModifierListSelectionType::SINGLE);
+            ])->default(CatalogModifierListSelectionType::MULTIPLE);
             $table->enum('type', [
                 'LIST',
                 'TEXT',

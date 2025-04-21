@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Models;
 
+use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 

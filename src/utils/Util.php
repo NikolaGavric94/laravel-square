@@ -246,6 +246,15 @@ class Util
         }
 
         $noDeductiblesCost = $products->map(function ($product) {
+            // Add modifier cost if relevant
+            if ($product->pivot->modifiers->isNotEmpty()) {
+                $product->price += $product->pivot->modifiers->map(function ($modifier) {
+                    return $modifier->modifiable?->price_money_amount ?? 0;
+                })->pipe(function ($total) {
+                    return $total->sum();
+                });
+            }
+
             return $product->price * $product->pivot->quantity;
         })->pipe(function ($total) {
             return $total->sum();

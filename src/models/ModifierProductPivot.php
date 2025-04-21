@@ -6,8 +6,18 @@ use DateTimeInterface;
 use Nikolag\Core\Models\OrderProductPivot as IntermediateTable;
 use Nikolag\Square\Utils\Constants;
 
-class OrderProductPivot extends IntermediateTable
+class ModifierProductPivot extends IntermediateTable
 {
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'quantity',
+        'square_uid',
+    ];
+
     /**
      * Get the name of the "created at" column.
      *

@@ -6,6 +6,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nikolag\Square\Utils\Constants;
 
 class Modifier extends Model
 {
@@ -39,8 +40,17 @@ class Modifier extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')
-            ->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id');
+        return $this->belongsToMany(Product::class, 'nikolag_modifier_product_pivot', 'modifier_id', 'product_id');
+    }
+
+    /**
+     * Returns a list of options for this modifier, if it's a LIST type.
+     *
+     * @return HasMany
+     */
+    public function options(): HasMany
+    {
+        return $this->hasMany(ModifierOption::class);
     }
 
     /**

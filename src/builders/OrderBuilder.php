@@ -24,6 +24,10 @@ class OrderBuilder
      */
     private FulfillmentBuilder $fulfillmentBuilder;
     /**
+     * @var ModifiersBuilder
+     */
+    private ModifiersBuilder $modifiersBuilder;
+    /**
      * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
@@ -36,6 +40,7 @@ class OrderBuilder
         $this->productBuilder = new ProductBuilder();
         $this->discountBuilder = new DiscountBuilder();
         $this->fulfillmentBuilder = new FulfillmentBuilder();
+        $this->modifiersBuilder = new ModifiersBuilder();
         $this->taxesBuilder = new TaxesBuilder();
     }
 
@@ -280,6 +285,21 @@ class OrderBuilder
                             $orderCopy->discounts = $orderCopy->discounts->merge($missingDiscounts);
                         }
                     }
+
+                    //Product Modifiers
+                    $productTemp->modifiers = collect([]);
+                    if ($product->pivot->modifiers->isNotEmpty()) {
+                        // Map modifiers-product-pivot to modifiable modifier (Modifier|ModifierOption)
+                        $modifiers = $product->pivot->modifiers->map(function ($modifier) {
+                            $modifierItem = $modifier->modifiable;
+                            // Make sure to add quantity and text
+                            $modifierItem->quantity = $modifier->quantity;
+                            $modifierItem->text     = $modifier->text;
+                            return $modifierItem;
+                        });
+                        $this->modifiersBuilder->addModifiers($productTemp->pivot, $modifiers);
+                    }
+
                     $orderCopy->products->push($productTemp);
                 }
             }

@@ -32,6 +32,7 @@ use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\CatalogModifier;
 use Square\Models\CatalogObject;
 use Square\Models\CatalogModifierListInfo;
+use Square\Models\CatalogModifierListSelectionType;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
@@ -347,7 +348,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $catalogModifierListData = [
                 'name' => $catalogModifierList->getName(),
                 'ordinal' => $catalogModifierList?->getOrdinal(),
-                'selection_type' => $catalogModifierList->getSelectionType(),
+                'selection_type' => $catalogModifierList->getSelectionType() ?? CatalogModifierListSelectionType::MULTIPLE,
+                'type' => $catalogModifierList->getModifierType(),
             ];
 
             $squareID = $modifierListObject->getId();
@@ -461,7 +463,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                     'description'    => $itemData->getDescriptionHtml(),
                     'variation_name' => $variation->getItemVariationData()->getName(),
                     'description'    => $itemData->getDescription(),
-                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
+                    'price'          => $variation->getItemVariationData()->getPriceMoney()?->getAmount(),
                 ];
 
                 $squareID = $variation->getId();
@@ -654,6 +656,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return $this;
+    }
+
+    /**
+     * Updates order on Square using local data.
+     *
+     * @return void
+     */
+    public function saveToSquare(): void
+    {
+        $this->_saveOrder(true);
     }
 
     /**
