@@ -126,7 +126,7 @@ class OrderTest extends TestCase
         $product = factory(Product::class)->create([
             'price' => 110,
         ]);
-        $order->products()->attach($product);
+        $order->attachProduct($product);
 
         $response = $order->charge(110, 'cnon:card-nonce-ok', env('SQUARE_LOCATION'), $merchant);
 

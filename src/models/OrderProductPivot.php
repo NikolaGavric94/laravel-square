@@ -9,6 +9,16 @@ use Nikolag\Square\Utils\Constants;
 class OrderProductPivot extends IntermediateTable
 {
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'quantity',
+        'price',
+    ];
+
+    /**
      * Get the name of the "created at" column.
      *
      * @return string

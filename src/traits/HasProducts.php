@@ -87,13 +87,32 @@ trait HasProducts
     }
 
     /**
+     * Attach a product to the order with automatic price inclusion.
+     *
+     * @param mixed $product
+     * @param array $attributes
+     * @return void
+     */
+    public function attachProduct($product, array $attributes = [])
+    {
+        $productModel = $product instanceof Product ? $product : Product::find($product);
+
+        // Merge the product's current price into the pivot attributes
+        $pivotData = array_merge($attributes, [
+            'price' => $productModel->price
+        ]);
+
+        $this->products()->attach($product, $pivotData);
+    }
+
+    /**
      * Return a list of products which are included in this order.
      *
      * @return BelongsToMany
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id');
+        return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id', 'square_uid', 'price');
     }
 
     /**

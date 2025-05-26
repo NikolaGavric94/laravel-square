@@ -106,7 +106,7 @@ class Util
         });
 
         if ($product) {
-            return ($discount->percentage) ? ($product->price * $product->pivot->quantity * $discount->percentage / 100) :
+            return ($discount->percentage) ? ($product->pivot->price * $product->pivot->quantity * $discount->percentage / 100):
                 $discount->amount;
         } else {
             return 0;
@@ -130,7 +130,7 @@ class Util
 
         if ($product) {
             // Get the total product cost (price * quantity)
-            $totalCost = $product->price * $product->pivot->quantity;
+            $totalCost = $product->pivot->price * $product->pivot->quantity;
 
             // Calculate order discounts as this will impact the taxes calculated
             $discountCost = $totalCost - self::_calculateDiscounts($discounts, $totalCost, $products);
@@ -248,14 +248,14 @@ class Util
         $noDeductiblesCost = $products->map(function ($product) {
             // Add modifier cost if relevant
             if ($product->pivot->modifiers->isNotEmpty()) {
-                $product->price += $product->pivot->modifiers->map(function ($modifier) {
+                $product->pivot->price += $product->pivot->modifiers->map(function ($modifier) {
                     return $modifier->modifiable?->price_money_amount ?? 0;
                 })->pipe(function ($total) {
                     return $total->sum();
                 });
             }
 
-            return $product->price * $product->pivot->quantity;
+            return $product->pivot->price * $product->pivot->quantity;
         })->pipe(function ($total) {
             return $total->sum();
         });

@@ -213,6 +213,35 @@ class UtilTest extends TestCase
     }
 
     /**
+     * Test variable pricing support - product with null price but price in order
+     *
+     * @return void
+     */
+    public function test_calculate_total_order_with_mock_variable_pricing(): void
+    {
+        extract($this->data->modify(prodFac: 'make', prodDiscFac: 'make', orderDisFac: 'make', taxAddFac: 'make'));
+
+        // Create a product with null price (variable pricing)
+        $variablePriceProduct = factory(Product::class)->make([
+            'price' => null, // No price in the product record
+        ])->toArray();
+
+        // But provide price in the order
+        $variablePriceProduct['quantity'] = 3;
+        $variablePriceProduct['price'] = 750; // Price only in the order
+
+        // Create a square order
+        $square = Square::setMerchant($this->data->merchant)
+            ->setCustomer($this->data->customer)
+            ->setOrder($this->data->order->toArray(), env('SQUARE_LOCATION'))
+            ->addProduct($variablePriceProduct)
+            ->save();
+
+        // Expected total is 3 * 750 = 2250
+        $this->assertEquals(2250, Util::calculateTotalOrderCostByModel($square->getOrder()));
+    }
+
+    /**
      * Test if the method uid returns exactly 60 characters.
      *
      * @return void

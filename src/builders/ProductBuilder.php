@@ -157,6 +157,13 @@ class ProductBuilder
         if (! Arr::has($product, 'quantity') || $product['quantity'] == null || $product['quantity'] == 0) {
             throw new MissingPropertyException('$quantity property for object Product is missing', 500);
         }
+
+        // For variable pricing, check if price is available in the order
+        $price = Arr::get($product, 'price');
+        if (!filled($price) && (!Arr::has($product, 'id') || !filled(Product::find(Arr::get($product, 'id'))?->price))) {
+            throw new MissingPropertyException('Product does not have required attribute: price. For variable pricing, price must be provided in the order.', 500);
+        }
+
         //Check if order is present and if already has this product
         //or if product doesn't have property $id then create new Product object
         if (($order && ! $order->hasProduct($product)) || ! Arr::has($product, 'id')) {
@@ -168,6 +175,11 @@ class ProductBuilder
             if (! $productPivot) {
                 $productPivot = new OrderProductPivot($product);
             }
+        }
+
+        // Make sure price is set in the pivot for variable pricing
+        if (Arr::has($product, 'price')) {
+            $productPivot->price = $product['price'];
         }
 
         $productObj = $tempProduct;
@@ -190,6 +202,16 @@ class ProductBuilder
     public function createProductFromModel(Model $product, Model $order = null, int $quantity = null, array $modifiers = []): Product|stdClass
     {
         $productObj = new stdClass();
+        // Get price - for variable pricing, price can be null in the product model but must be provided in the pivot
+        $price = $product->pivot && filled($product->pivot->price)
+            ? $product->pivot->price // Pivot takes precedence for variable pricing support
+            : $product->price;
+
+        // For variable pricing, price can be null in the product model but must be provided in the pivot
+        // Only throw if price is not available from either source
+        if (!filled($price)) {
+            throw new MissingPropertyException('Product does not have required attribute: price. For variable pricing, price must be provided in the order.', 500);
+        }
 
         //If product doesn't have quantity in pivot table
         //throw new exception because every product should
@@ -220,6 +242,7 @@ class ProductBuilder
         }
 
         $productPivot->quantity = $quantity;
+        $productPivot->price = $price;
         $productObj = $tempProduct;
         $productObj->pivot = $productPivot;
 

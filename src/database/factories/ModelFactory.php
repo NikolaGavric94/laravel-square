@@ -8,6 +8,7 @@ use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Modifier;
 use Nikolag\Square\Models\ModifierOption;
 use Nikolag\Square\Models\OrderProductModifierPivot;
+use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
@@ -59,6 +60,7 @@ $factory->define(Constants::ORDER_PRODUCT_NAMESPACE, function (Faker\Generator $
         'product_id' => function () {
             return factory(Constants::PRODUCT_NAMESPACE)->create();
         },
+        'price' => $faker->numberBetween(5_00, 10_00),
     ];
 });
 

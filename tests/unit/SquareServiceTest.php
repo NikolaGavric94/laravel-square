@@ -606,6 +606,45 @@ class SquareServiceTest extends TestCase
      *
      * @return void
      */
+    public function test_square_order_add_product_variable_pricing(): void
+    {
+        $productVariablePrice = factory(Product::class)->create([
+            'price' => null,
+        ]);
+        $productVariablePrice->price = 10_00;
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($productVariablePrice, 1)
+            ->save();
+
+        $this->assertCount(1, $square->getOrder()->products, 'There are not enough products');
+        $this->assertEquals(10_00, $square->getOrder()->products->first()->pivot->price, 'Order product pivot price does not match');
+    }
+
+    /**
+     * Ensures an exception is thrown when trying to add a product with variable pricing without a price.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_variable_pricing_without_price(): void
+    {
+        $productVariablePrice = factory(Product::class)->create([
+            'price' => null,
+        ]);
+
+        // Set up the error expectations
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Required field is missing');
+        $this->expectExceptionCode(500);
+
+        Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($productVariablePrice, 1);
+    }
+
+    /**
+     * Add product for order.
+     *
+     * @return void
+     */
     public function test_square_order_add_product_with_modifier(): void
     {
         // Sync the modifiers and products
@@ -1419,7 +1458,7 @@ class SquareServiceTest extends TestCase
 
         $this->data->order->discounts()->attach($orderDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $this->data->order->taxes()->attach($taxInclusive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $this->data->order->products()->attach($product);
+        $this->data->order->attachProduct($product);
 
         $this->data->order->products->get(0)->pivot->discounts()->attach($productDiscount->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
 
@@ -1450,7 +1489,7 @@ class SquareServiceTest extends TestCase
         $this->data->order->discounts()->attach($orderDiscountFixed->id, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $this->data->order->taxes()->attach($taxAdditive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $this->data->order->taxes()->attach($taxInclusive->id, ['deductible_type' => Constants::TAX_NAMESPACE, 'featurable_type' => config('nikolag.connections.square.order.namespace'), 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
-        $this->data->order->products()->attach($product);
+        $this->data->order->attachProduct($product);
 
         $square = Square::setMerchant($this->data->merchant)
             ->setCustomer($this->data->customer)

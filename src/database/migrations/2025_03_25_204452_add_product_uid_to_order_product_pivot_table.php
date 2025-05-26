@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::table('nikolag_product_order', function (Blueprint $table) {
             $table->string('square_uid', 60)->nullable();
+            $table->unsignedBigInteger('price');
         });
     }
 
