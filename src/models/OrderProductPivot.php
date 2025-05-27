@@ -15,7 +15,8 @@ class OrderProductPivot extends IntermediateTable
      */
     protected $fillable = [
         'quantity',
-        'price',
+        'price_money_amount',
+        'price_money_currency',
     ];
 
     /**

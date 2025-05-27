@@ -81,7 +81,7 @@ class ProductTest extends TestCase
 
         // Create order product pivots directly to have more control
         $orderProduct1 = new OrderProductPivot([
-            'price' => 10_00,
+            'price_money_amount' => 10_00,
             'quantity' => 1
         ]);
         $orderProduct1->order()->associate($order1);
@@ -89,7 +89,7 @@ class ProductTest extends TestCase
         $orderProduct1->save();
 
         $orderProduct2 = new OrderProductPivot([
-            'price' => 10_00,
+            'price_money_amount' => 10_00,
             'quantity' => 1
         ]);
         $orderProduct2->order()->associate($order2);
@@ -162,7 +162,7 @@ class ProductTest extends TestCase
 
         // Create OrderProductPivot with variable pricing directly
         $orderProduct = new OrderProductPivot([
-            'price' => 800, // Different price in the order than in the product
+            'price_money_amount' => 800, // Different price in the order than in the product
             'quantity' => 2  // Quantity is 2
         ]);
         $orderProduct->order()->associate($order);
@@ -171,7 +171,7 @@ class ProductTest extends TestCase
 
         // Check that the product was saved with the correct price in the pivot
         $this->assertNotNull($order->products->first(), 'Product was not saved to order');
-        $this->assertEquals(800, $order->products->first()->pivot->price, 'Variable price not correctly stored in pivot');
+        $this->assertEquals(800, $order->products->first()->pivot->price_money_amount, 'Variable price not correctly stored in pivot');
         $this->assertEquals(1000, $order->products->first()->price, 'Product should retain its base price');
 
         // Calculate and verify total cost

@@ -179,7 +179,7 @@ class ProductBuilder
 
         // Make sure price is set in the pivot for variable pricing
         if (Arr::has($product, 'price')) {
-            $productPivot->price = $product['price'];
+            $productPivot->price_money_amount = $product['price'];
         }
 
         $productObj = $tempProduct;
@@ -203,8 +203,8 @@ class ProductBuilder
     {
         $productObj = new stdClass();
         // Get price - for variable pricing, price can be null in the product model but must be provided in the pivot
-        $price = $product->pivot && filled($product->pivot->price)
-            ? $product->pivot->price // Pivot takes precedence for variable pricing support
+        $price = $product->pivot && filled($product->pivot->price_money_amount)
+            ? $product->pivot->price_money_amount // Pivot takes precedence for variable pricing support
             : $product->price;
 
         // For variable pricing, price can be null in the product model but must be provided in the pivot
@@ -242,7 +242,7 @@ class ProductBuilder
         }
 
         $productPivot->quantity = $quantity;
-        $productPivot->price = $price;
+        $productPivot->price_money_amount = $price;
         $productObj = $tempProduct;
         $productObj->pivot = $productPivot;
 

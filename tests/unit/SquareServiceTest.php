@@ -618,7 +618,7 @@ class SquareServiceTest extends TestCase
             ->save();
 
         $this->assertCount(1, $square->getOrder()->products, 'There are not enough products');
-        $this->assertEquals(10_00, $square->getOrder()->products->first()->pivot->price, 'Order product pivot price does not match');
+        $this->assertEquals(10_00, $square->getOrder()->products->first()->pivot->price_money_amount, 'Order product pivot price does not match');
     }
 
     /**

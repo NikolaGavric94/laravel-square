@@ -60,7 +60,7 @@ $factory->define(Constants::ORDER_PRODUCT_NAMESPACE, function (Faker\Generator $
         'product_id' => function () {
             return factory(Constants::PRODUCT_NAMESPACE)->create();
         },
-        'price' => $faker->numberBetween(5_00, 10_00),
+        'price_money_amount' => $faker->numberBetween(5_00, 10_00),
     ];
 });
 

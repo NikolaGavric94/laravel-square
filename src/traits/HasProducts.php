@@ -99,7 +99,7 @@ trait HasProducts
 
         // Merge the product's current price into the pivot attributes
         $pivotData = array_merge($attributes, [
-            'price' => $productModel->price
+            'price_money_amount' => $productModel->price
         ]);
 
         $this->products()->attach($product, $pivotData);
@@ -112,7 +112,7 @@ trait HasProducts
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id', 'square_uid', 'price');
+        return $this->belongsToMany(Constants::PRODUCT_NAMESPACE, 'nikolag_product_order', 'order_id', 'product_id')->using(Constants::ORDER_PRODUCT_NAMESPACE)->withPivot('quantity', 'id', 'square_uid', 'price_money_amount');
     }
 
     /**

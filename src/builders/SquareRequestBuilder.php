@@ -631,7 +631,7 @@ class SquareRequestBuilder
                 $this->productDiscounts = $this->productDiscounts->merge($discounts);
 
                 $money = new Money();
-                $money->setAmount($product->pivot->price);
+                $money->setAmount($product->pivot->price_money_amount);
                 $money->setCurrency($currency);
                 $tempProduct = new OrderLineItem($quantity);
                 $tempProduct->setName($product->name);
