@@ -242,6 +242,38 @@ class UtilTest extends TestCase
     }
 
     /**
+     * Test variable pricing support - product with null price but price in order
+     *
+     * @return void
+     */
+    public function test_calculate_total_order_with_variable_pricing_and_modifier(): void
+    {
+        // Sync the modifiers and products
+        if (Modifier::count() === 0 || Product::count() === 0) {
+            Square::syncModifiers();
+            Square::syncProducts();
+        }
+
+        // Get the product and modifier
+        $chocolateChipCookie = Product::where('name', 'Chocolate Chip Cookie')->first();
+        $frostingModifierList = $chocolateChipCookie->modifiers->where('name', 'Cookie Frosting')->first();
+        $fancyFrostingOption = $frostingModifierList->options->where('name', 'Fancy Frosting')->first();
+
+        // Set variable price for the product
+        $chocolateChipCookie->price += 1_00; // Increase the price by $1.00 to simulate variable pricing
+
+        // Create a new order
+        // 5 regular chocolate chip cookies with "fancy frosting"
+        // $6.50/ea ($6.00/ea + $0.50 modifier) - $32.50 total)
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($chocolateChipCookie, 5, modifiers: [$fancyFrostingOption])
+            ->save();
+
+        // The expected total is $32.50.
+        $this->assertEquals(32_50, Util::calculateTotalOrderCostByModel($square->getOrder()));
+    }
+
+    /**
      * Test if the method uid returns exactly 60 characters.
      *
      * @return void
