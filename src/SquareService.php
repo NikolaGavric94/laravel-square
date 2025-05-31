@@ -274,7 +274,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
                 $cursor       = $results->getCursor();
             } else {
-                throw $this->handleApiResponseErrors($apiResponse);
+                throw $this->_handleApiResponseErrors($apiResponse);
             }
 
             // Increment the pages retrieved

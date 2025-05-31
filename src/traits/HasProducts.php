@@ -9,6 +9,7 @@ use Nikolag\Core\Exceptions\Exception;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\ServiceCharge;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
@@ -74,6 +75,19 @@ trait HasProducts
     }
 
     /**
+     * Does an order have a service charge.
+     *
+     * @param  mixed  $serviceCharge
+     * @return bool
+     */
+    public function hasServiceCharge(mixed $serviceCharge): bool
+    {
+        $val = is_array($serviceCharge) ? array_key_exists('id', $serviceCharge) ? ServiceCharge::find($serviceCharge['id']) : $serviceCharge : $serviceCharge;
+
+        return $this->serviceCharges()->get()->contains($val);
+    }
+
+    /**
      * Does an order have a product.
      *
      * @param  mixed  $product
@@ -133,5 +147,15 @@ trait HasProducts
     public function discounts(): MorphToMany
     {
         return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE)->distinct()->withPivot('scope');
+    }
+
+    /**
+     * Return a list of service charges which are included in this order.
+     *
+     * @return MorphToMany
+     */
+    public function serviceCharges(): MorphToMany
+    {
+        return $this->morphToMany(Constants::SERVICE_CHARGE_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::SERVICE_CHARGE_NAMESPACE)->distinct()->withPivot('scope');
     }
 }

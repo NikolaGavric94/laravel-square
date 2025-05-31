@@ -6,6 +6,7 @@ use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\ServiceCharge;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
@@ -22,17 +23,24 @@ class OrderTest extends TestCase
      */
     public function test_order_make(): void
     {
+        /** @var Order */
+        $order = factory(Order::class)->create();
         $discounts = factory(Discount::class, 5)->create();
         $taxes = factory(Tax::class, 3)->create();
-        $order = factory(Order::class)->create();
+        $serviceCharge = factory(ServiceCharge::class)->create([
+            'amount_money' => 10_00,
+        ]);
 
         $order->discounts()->attach($discounts, ['deductible_type' => Constants::DISCOUNT_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
         $order->taxes()->attach($taxes, ['deductible_type' => Constants::TAX_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
+        $order->serviceCharges()->attach($serviceCharge, ['deductible_type' => Constants::SERVICE_CHARGE_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER]);
 
         $this->assertNotNull($order->discounts, 'Discounts are empty.');
         $this->assertCount(5, $order->discounts, 'Discounts count doesn\'t match');
         $this->assertNotNull($order->taxes, 'Taxes are empty.');
         $this->assertCount(3, $order->taxes, 'Taxes count doesn\'t match');
+        $this->assertNotNull($order->serviceCharges, 'Service charges are empty.');
+        $this->assertCount(1, $order->serviceCharges, 'Service charges count doesn\'t match');
     }
 
     /**

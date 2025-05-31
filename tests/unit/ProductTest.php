@@ -12,6 +12,7 @@ use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\OrderProductPivot;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\ServiceCharge;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
@@ -123,6 +124,30 @@ class ProductTest extends TestCase
 
         $this->assertTrue($productPivot->hasProduct($product));
         $this->assertInstanceOf(Constants::PRODUCT_NAMESPACE, $productPivot->product);
+    }
+
+    /**
+     * Check product persisting with taxes.
+     *
+     * @return void
+     */
+    public function test_product_create_with_service_charge(): void
+    {
+        $product = factory(Product::class)->create();
+        $productPivot = factory(OrderProductPivot::class)->create();
+
+        $serviceCharge = factory(ServiceCharge::class)->create([
+            'amount_money' => 10_00,
+        ]);
+
+        // Attach service charge to the product pivot and then associate the product
+        $productPivot->serviceCharges()->attach($serviceCharge->id, ['deductible_type' => Constants::SERVICE_CHARGE_NAMESPACE, 'scope' => Constants::DEDUCTIBLE_SCOPE_PRODUCT]);
+        $productPivot->product()->associate($product);
+
+        // Make assertions
+        $this->assertTrue($productPivot->hasServiceCharge($serviceCharge));
+        $this->assertCount(1, $productPivot->serviceCharges);
+        $this->assertContainsOnlyInstancesOf(Constants::SERVICE_CHARGE_NAMESPACE, $productPivot->serviceCharges);
     }
 
     /**

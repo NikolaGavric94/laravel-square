@@ -25,12 +25,17 @@ class ProductBuilder
      * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
+    /**
+     * @var ServiceChargesBuilder
+     */
+    private ServiceChargesBuilder $serviceChargesBuilder;
 
     public function __construct()
     {
         $this->discountBuilder = new DiscountBuilder();
         $this->modifiersBuilder = new ModifiersBuilder();
         $this->taxesBuilder = new TaxesBuilder();
+        $this->serviceChargesBuilder = new ServiceChargesBuilder();
     }
 
     /**
@@ -66,6 +71,13 @@ class ProductBuilder
             //Taxes
             if ($product->taxes && $product->taxes->isNotEmpty()) {
                 $productCopy->taxes = $this->taxesBuilder->createTaxes($product->taxes->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->product);
+            }
+
+            // Create service charges Collection
+            $productCopy->serviceCharges = collect([]);
+            // Service Charges
+            if ($product->serviceCharges && $product->serviceCharges->isNotEmpty()) {
+                $productCopy->serviceCharges = $this->serviceChargesBuilder->createServiceCharges($product->serviceCharges->toArray(), Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->product);
             }
 
             return $productCopy;
@@ -129,6 +141,18 @@ class ProductBuilder
                 $productCopy->taxes->each(function ($tax) use ($orderCopy) {
                     if (! $orderCopy->taxes->contains($tax)) {
                         $orderCopy->taxes->add($tax);
+                    }
+                });
+            }
+
+            // Create service charges Collection
+            $productCopy->serviceCharges = collect([]);
+            // Service Charges
+            if (Arr::has($product, 'service_charges')) {
+                $productCopy->serviceCharges = $this->serviceChargesBuilder->createServiceCharges($product['service_charges'], Constants::DEDUCTIBLE_SCOPE_PRODUCT, $productCopy->productPivot);
+                $productCopy->serviceCharges->each(function ($serviceCharge) use ($orderCopy) {
+                    if (! $orderCopy->serviceCharges->contains($serviceCharge)) {
+                        $orderCopy->serviceCharges->add($serviceCharge);
                     }
                 });
             }

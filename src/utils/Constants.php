@@ -41,6 +41,9 @@ class Constants extends CoreConstants
     //Tax info
     const TAX_NAMESPACE = 'Nikolag\Square\Models\Tax';
     const TAX_IDENTIFIER = 'id';
+    //Service Charge info
+    const SERVICE_CHARGE_NAMESPACE = 'Nikolag\Square\Models\ServiceCharge';
+    const SERVICE_CHARGE_IDENTIFIER = 'id';
 
     //Exceptions
     //INVALID_REQUEST_ERROR
@@ -59,6 +62,16 @@ class Constants extends CoreConstants
     const DEDUCTIBLE_FIXED_AMOUNT = 'FIXED_AMOUNT';
     const DEDUCTIBLE_SCOPE_ORDER = 'ORDER';
     const DEDUCTIBLE_SCOPE_PRODUCT = 'LINE_ITEM';
+    const DEDUCTIBLE_SCOPE_SERVICE_CHARGE = 'SERVICE_CHARGE';
+
+    // Service charge constants
+    const SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL = 'SUBTOTAL_PHASE';
+    const SERVICE_CHARGE_CALCULATION_PHASE_TOTAL = 'TOTAL_PHASE';
+    const SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT = 'APPORTIONED_AMOUNT_PHASE';
+    const SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE = 'APPORTIONED_PERCENTAGE_PHASE';
+
+    const SERVICE_CHARGE_TREATMENT_LINE_ITEM = 'LINE_ITEM_TREATMENT';
+    const SERVICE_CHARGE_TREATMENT_APPORTIONED = 'APPORTIONED_TREATMENT';
 
     // Fulfillment scheduled type constants
     const SCHEDULE_TYPE_ASAP = 'ASAP';

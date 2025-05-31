@@ -4,6 +4,7 @@ namespace Nikolag\Square\Models;
 
 use DateTimeInterface;
 use Nikolag\Core\Models\OrderProductPivot as IntermediateTable;
+use Nikolag\Square\Models\ServiceCharge;
 use Nikolag\Square\Utils\Constants;
 
 class OrderProductPivot extends IntermediateTable
@@ -63,6 +64,19 @@ class OrderProductPivot extends IntermediateTable
         $val = is_array($tax) ? array_key_exists('id', $tax) ? Tax::find($tax['id']) : $tax : $tax;
 
         return $this->taxes()->get()->contains($val);
+    }
+
+    /**
+     * Does intermediate table has service charge.
+     *
+     * @param  mixed  $serviceCharge
+     * @return bool
+     */
+    public function hasServiceCharge($serviceCharge)
+    {
+        $val = is_array($serviceCharge) ? array_key_exists('id', $serviceCharge) ? ServiceCharge::find($serviceCharge['id']) : $serviceCharge : $serviceCharge;
+
+        return $this->serviceCharges()->get()->contains($val);
     }
 
     /**
@@ -126,6 +140,16 @@ class OrderProductPivot extends IntermediateTable
     public function discounts()
     {
         return $this->morphToMany(Constants::DISCOUNT_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::DISCOUNT_NAMESPACE)->withPivot('scope');
+    }
+
+    /**
+     * Return a list of service charges which are included in this product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function serviceCharges()
+    {
+        return $this->morphToMany(Constants::SERVICE_CHARGE_NAMESPACE, 'featurable', 'nikolag_deductibles', 'featurable_id', 'deductible_id')->where('deductible_type', Constants::SERVICE_CHARGE_NAMESPACE)->withPivot('scope');
     }
 
     /**
