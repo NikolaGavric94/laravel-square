@@ -44,6 +44,9 @@ class Constants extends CoreConstants
     //Service Charge info
     const SERVICE_CHARGE_NAMESPACE = 'Nikolag\Square\Models\ServiceCharge';
     const SERVICE_CHARGE_IDENTIFIER = 'id';
+    //Return info
+    const ORDER_RETURN_NAMESPACE = 'Nikolag\Square\Models\OrderReturn';
+    const ORDER_RETURN_IDENTIFIER = 'id';
 
     //Exceptions
     //INVALID_REQUEST_ERROR

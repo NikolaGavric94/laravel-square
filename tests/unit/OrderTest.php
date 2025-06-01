@@ -5,6 +5,7 @@ namespace Nikolag\Square\Tests\Unit;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\OrderReturn;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\ServiceCharge;
 use Nikolag\Square\Models\Tax;
@@ -12,10 +13,22 @@ use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 
 class OrderTest extends TestCase
 {
+    private TestDataHolder $data;
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->data = TestDataHolder::create();
+    }
+
     /**
      * Order creation with relationships.
      *
@@ -142,5 +155,27 @@ class OrderTest extends TestCase
         $this->assertTrue($response->payment_service_type == 'square');
         $this->assertEquals($response->status, Constants::TRANSACTION_STATUS_PASSED);
         $this->assertEquals($response->amount, 110);
+    }
+
+    /**
+     * Tests the hasReturns trait functionality.
+     *
+     * @return void
+     */
+    public function test_order_has_returns_trait(): void
+    {
+        $testUUID = fake()->unique->uuid;
+        $order = factory(Order::class)->create([
+            'payment_service_id' => $testUUID,
+        ]);
+
+        /** @var OrderReturn */
+        $orderReturn = factory(OrderReturn::class)->create([
+            'source_order_id' => $testUUID,
+            'data' => $this->data->squareOrderReturn,
+        ]);
+
+        $this->assertContainsOnlyInstancesOf(OrderReturn::class, $order->returns);
+        $this->assertEquals($orderReturn->payment_service_id, $order->returns->first()->payment_service_id);
     }
 }
