@@ -6,6 +6,8 @@ use Illuminate\Validation\ValidationException;
 use Nikolag\Square\Models\ServiceCharge;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\Constants;
+use Square\Models\OrderServiceChargeCalculationPhase;
+use Square\Models\OrderServiceChargeTreatmentType;
 
 class ServiceChargeValidationTest extends TestCase
 {
@@ -18,8 +20,8 @@ class ServiceChargeValidationTest extends TestCase
     {
         $serviceCharge = factory(ServiceCharge::class)->make([
             'percentage' => 5.0,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_LINE_ITEM,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::LINE_ITEM_TREATMENT,
         ]);
 
         $this->expectException(ValidationException::class);
@@ -40,8 +42,8 @@ class ServiceChargeValidationTest extends TestCase
 
         factory(ServiceCharge::class)->create([
             'percentage' => 5.0,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_TOTAL,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_LINE_ITEM,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::TOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::LINE_ITEM_TREATMENT,
             'taxable' => true, // This should trigger validation error
         ]);
     }
@@ -57,8 +59,8 @@ class ServiceChargeValidationTest extends TestCase
         $this->expectExceptionMessage('Apportioned amount phase cannot be used with line item treatment');
 
         factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_LINE_ITEM,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::LINE_ITEM_TREATMENT,
             'amount_money' => 500,
         ]);
     }
@@ -74,8 +76,8 @@ class ServiceChargeValidationTest extends TestCase
         $this->expectExceptionMessage('Apportioned amount phase service charges must have a dollar amount, not a percentage');
 
         factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'percentage' => 5.0,
         ]);
     }
@@ -91,8 +93,8 @@ class ServiceChargeValidationTest extends TestCase
         $this->expectExceptionMessage('Apportioned percentage phase cannot be used with line item treatment');
 
         factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_LINE_ITEM,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::LINE_ITEM_TREATMENT,
             'percentage' => 5.0,
         ]);
     }
@@ -108,8 +110,8 @@ class ServiceChargeValidationTest extends TestCase
         $this->expectExceptionMessage('Apportioned percentage phase service charges must have a percentage, not a dollar amount');
 
         factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'amount_money' => 500,
         ]);
     }
@@ -122,8 +124,8 @@ class ServiceChargeValidationTest extends TestCase
     public function test_valid_apportioned_amount_phase(): void
     {
         $serviceCharge = factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'amount_money' => 500,
         ]);
 
@@ -131,7 +133,7 @@ class ServiceChargeValidationTest extends TestCase
         $this->assertTrue($serviceCharge->canBeAppliedToOrder());
         $this->assertDatabaseHas('nikolag_service_charges', [
             'id' => $serviceCharge->id,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
         ]);
     }
 
@@ -143,8 +145,8 @@ class ServiceChargeValidationTest extends TestCase
     public function test_valid_apportioned_percentage_phase(): void
     {
         $serviceCharge = factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'percentage' => 5.0,
         ]);
 
@@ -152,7 +154,7 @@ class ServiceChargeValidationTest extends TestCase
         $this->assertTrue($serviceCharge->canBeAppliedToOrder());
         $this->assertDatabaseHas('nikolag_service_charges', [
             'id' => $serviceCharge->id,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE,
         ]);
     }
 
@@ -164,7 +166,7 @@ class ServiceChargeValidationTest extends TestCase
     public function test_valid_subtotal_phase(): void
     {
         $serviceCharge = factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
             'percentage' => 5.0,
         ]);
 
@@ -172,7 +174,7 @@ class ServiceChargeValidationTest extends TestCase
         $this->assertTrue($serviceCharge->canBeAppliedToOrder());
         $this->assertDatabaseHas('nikolag_service_charges', [
             'id' => $serviceCharge->id,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
         ]);
     }
 
@@ -184,8 +186,8 @@ class ServiceChargeValidationTest extends TestCase
     public function test_valid_total_phase(): void
     {
         $serviceCharge = factory(ServiceCharge::class)->create([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_TOTAL,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::TOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'percentage' => 5.0,
             'taxable' => false,
         ]);
@@ -194,7 +196,7 @@ class ServiceChargeValidationTest extends TestCase
         $this->assertTrue($serviceCharge->canBeAppliedToOrder());
         $this->assertDatabaseHas('nikolag_service_charges', [
             'id' => $serviceCharge->id,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_TOTAL,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::TOTAL_PHASE,
         ]);
     }
 
@@ -206,7 +208,7 @@ class ServiceChargeValidationTest extends TestCase
     public function test_static_validation_before_product_attachment(): void
     {
         $serviceCharge = factory(ServiceCharge::class)->make([
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
             'percentage' => 5.0,
         ]);
 

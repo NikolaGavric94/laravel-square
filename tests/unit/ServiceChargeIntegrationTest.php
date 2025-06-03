@@ -14,6 +14,8 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Product as ModelsProduct;
+use Square\Models\OrderServiceChargeCalculationPhase;
+use Square\Models\OrderServiceChargeTreatmentType;
 
 class ServiceChargeIntegrationTest extends TestCase
 {
@@ -33,16 +35,16 @@ class ServiceChargeIntegrationTest extends TestCase
         $orderServiceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Handling Fee',
             'amount_money' => 5_00, // $5.00
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'taxable' => false,
         ]);
 
         $productServiceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Fake Percentage Fee',
             'percentage' => 5.0,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_TOTAL,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::TOTAL_PHASE,
             'taxable' => false,
         ]);
 
@@ -233,9 +235,9 @@ class ServiceChargeIntegrationTest extends TestCase
         $serviceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Fixed amount service charge',
             'amount_money' => 10_00, // 10.00 USD
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
             'taxable' => true,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
         ]);
 
         // Add a service charge to the product
@@ -333,8 +335,8 @@ class ServiceChargeIntegrationTest extends TestCase
             'name' => 'Handling Fee',
             'amount_money' => 1_50, // $1.50
             'amount_currency' => 'USD',
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_LINE_ITEM,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::LINE_ITEM_TREATMENT,
         ]);
 
         // Build order through Square service

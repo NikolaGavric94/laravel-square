@@ -17,6 +17,8 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\OrderServiceChargeCalculationPhase;
+use Square\Models\OrderServiceChargeTreatmentType;
 
 class UtilTest extends TestCase
 {
@@ -386,9 +388,9 @@ class UtilTest extends TestCase
         $serviceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Apportioned amount service charge',
             'amount_money' => 10_00, // 10.00 USD
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
             'taxable' => true,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
         ]);
 
         // Add the service charge to the order
@@ -417,9 +419,9 @@ class UtilTest extends TestCase
         $serviceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Apportioned percentage service charge',
             'percentage' => 10.0, // 10%
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE,
             'taxable' => true,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
         ]);
 
         // Add the service charge to the order
@@ -505,9 +507,9 @@ class UtilTest extends TestCase
         $serviceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Fixed amount service charge',
             'amount_money' => 10_00, // 10.00 USD
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
             'taxable' => true,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
         ]);
 
         // Apply the tax to the service charge
@@ -549,9 +551,9 @@ class UtilTest extends TestCase
         $serviceCharge = factory(ServiceCharge::class)->create([
             'name' => 'Service charge with taxes',
             'amount_money' => 10_00, // 10.00 USD
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
             'taxable' => true,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_LINE_ITEM,
+            'treatment_type' => OrderServiceChargeTreatmentType::LINE_ITEM_TREATMENT,
         ]);
 
         // Apply the tax to the service charge
@@ -585,7 +587,7 @@ class UtilTest extends TestCase
         // Create a percentage-based service charge with a subtotal calculation phase
         $serviceCharge = factory(ServiceCharge::class)->create([
             'percentage' => 1.5,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
         ]);
 
         $this->data->order->serviceCharges()->attach($serviceCharge->id, [
@@ -641,8 +643,8 @@ class UtilTest extends TestCase
     {
         $serviceCharge = factory(ServiceCharge::class)->create([
             'percentage' => 15.0,
-            'calculation_phase' => Constants::SERVICE_CHARGE_CALCULATION_PHASE_TOTAL,
-            'treatment_type' => Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::TOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
             'taxable' => false,
         ]);
 

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
+use Square\Models\OrderServiceChargeCalculationPhase;
+use Square\Models\OrderServiceChargeTreatmentType;
 use stdClass;
 
 class Util
@@ -186,17 +188,17 @@ class Util
     private static function _calculateProductServiceCharges($products, $serviceCharge): float|int
     {
         // Handle apportioned service charges efficiently
-        if ($serviceCharge->calculation_phase === Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL) {
+        if ($serviceCharge->calculation_phase === OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE) {
             throw new Exception('Service charge calculation phase "SUBTOTAL" cannot be applied to products in an order.');
         }
 
-        if ($serviceCharge->calculation_phase === Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT) {
+        if ($serviceCharge->calculation_phase === OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE) {
             // Apply fixed amount per line item quantity
             $totalQuantity = $products->sum('pivot.quantity');
             return $serviceCharge->amount_money * $totalQuantity;
         }
 
-        if ($serviceCharge->calculation_phase === Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE) {
+        if ($serviceCharge->calculation_phase === OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE) {
             // Apply percentage to total product value - use cached calculation if available
             $totalValue = $products->sum(function ($product) {
                 return $product->pivot->price_money_amount * $product->pivot->quantity;
@@ -261,7 +263,7 @@ class Util
         return $serviceCharges->sum(function ($serviceCharge) use ($products) {
             // Apportioned service charges inherit taxes from line items - no direct taxes
             if (
-                $serviceCharge->treatment_type === Constants::SERVICE_CHARGE_TREATMENT_APPORTIONED
+                $serviceCharge->treatment_type === OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT
                 || $serviceCharge->taxable === false
             ) {
                 return 0;
@@ -399,14 +401,14 @@ class Util
         // Separate service charges by calculation phase
         $subtotalServiceCharges = $allServiceCharges->filter(function ($serviceCharge) {
             return in_array($serviceCharge->calculation_phase, [
-                    Constants::SERVICE_CHARGE_CALCULATION_PHASE_SUBTOTAL,
-                    Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_AMOUNT,
-                    Constants::SERVICE_CHARGE_CALCULATION_PHASE_APPORTIONED_PERCENTAGE
+                    OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
+                    OrderServiceChargeCalculationPhase::APPORTIONED_AMOUNT_PHASE,
+                    OrderServiceChargeCalculationPhase::APPORTIONED_PERCENTAGE_PHASE
             ]);
         });
 
         $totalServiceCharges = $allServiceCharges->filter(function ($serviceCharge) {
-            return $serviceCharge->calculation_phase === Constants::SERVICE_CHARGE_CALCULATION_PHASE_TOTAL;
+            return $serviceCharge->calculation_phase === OrderServiceChargeCalculationPhase::TOTAL_PHASE;
         });
 
         // Cache product calculations - calculate base cost only once
