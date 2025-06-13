@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Tax;
 use Square\Models\OrderServiceChargeCalculationPhase;
 use Square\Models\OrderServiceChargeTreatmentType;
 use stdClass;
@@ -398,6 +399,15 @@ class Util
         $allTaxes = self::_mergeCollectionsByScope($taxes);
         $allServiceCharges = self::_mergeCollectionsByScope($serviceCharges);
 
+        // Separate taxes by calculation phase
+        $subtotalPhaseTaxes = $allTaxes->filter(function (Tax $tax) {
+            return $tax->isCalculatedOnSubtotal();
+        });
+
+        $totalPhaseTaxes = $allTaxes->filter(function (Tax $tax) {
+            return $tax->isCalculatedOnTotal();
+        });
+
         // Separate service charges by calculation phase
         $subtotalServiceCharges = $allServiceCharges->filter(function ($serviceCharge) {
             return in_array($serviceCharge->calculation_phase, [
@@ -421,16 +431,20 @@ class Util
         // Add subtotal-phase service charges to discount cost
         $subTotalAmount = $discountCost + self::_calculateServiceCharges($subtotalServiceCharges, $discountCost, $products);
 
-        // Apply taxes to the cost including service charges
-        $taxedCost = $subTotalAmount + self::_calculateAdditiveTaxes($allTaxes, $subTotalAmount, $products, $allDiscounts);
+        // Apply subtotal-phase taxes (before total-phase service charges)
+        $subtotalTaxedCost = $subTotalAmount + self::_calculateAdditiveTaxes($subtotalPhaseTaxes, $subTotalAmount, $products, $allDiscounts);
 
-        // Add total-phase service charges after taxes
-        $totalServiceChargeAmount = self::_calculateServiceCharges($totalServiceCharges, $taxedCost, $products);
+        // Add total-phase service charges after subtotal taxes
+        $totalServiceChargeAmount = self::_calculateServiceCharges($totalServiceCharges, $subtotalTaxedCost, $products);
+        $preTotal = $subtotalTaxedCost + $totalServiceChargeAmount;
+
+        // Apply total-phase taxes (after service charges)
+        $totalTaxedCost = $preTotal + self::_calculateAdditiveTaxes($totalPhaseTaxes, $preTotal, $products, $allDiscounts);
 
         // Finally, calculate service charge taxes
         $serviceChargeTaxAmount = self::_calculateServiceChargeTaxes($allServiceCharges, $products);
 
-        return $taxedCost + $totalServiceChargeAmount + $serviceChargeTaxAmount;
+        return $totalTaxedCost + $serviceChargeTaxAmount;
     }
 
     /**

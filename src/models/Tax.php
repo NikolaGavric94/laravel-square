@@ -6,6 +6,8 @@ use DateTimeInterface;
 use Illuminate\Validation\ValidationException;
 use Nikolag\Core\Models\Tax as CoreTax;
 use Nikolag\Square\Utils\Constants;
+use Square\Models\TaxCalculationPhase;
+use Square\Models\TaxInclusionType;
 
 class Tax extends CoreTax
 {
@@ -42,6 +44,70 @@ class Tax extends CoreTax
         'square_created_at' => 'datetime',
         'square_updated_at' => 'datetime',
     ];
+
+    //
+    // Square CatalogTax Helper Methods
+    //
+
+    /**
+     * Check if tax is calculated on subtotal phase.
+     *
+     * @return bool
+     */
+    public function isCalculatedOnSubtotal(): bool
+    {
+        return $this->calculation_phase === TaxCalculationPhase::TAX_SUBTOTAL_PHASE;
+    }
+
+    /**
+     * Check if tax is calculated on total phase.
+     *
+     * @return bool
+     */
+    public function isCalculatedOnTotal(): bool
+    {
+        return is_null($this->calculation_phase) || $this->calculation_phase === TaxCalculationPhase::TAX_TOTAL_PHASE;
+    }
+
+    /**
+     * Check if tax is additive (added to the amount).
+     *
+     * @return bool
+     */
+    public function isAdditive(): bool
+    {
+        return $this->inclusion_type === TaxInclusionType::ADDITIVE;
+    }
+
+    /**
+     * Check if tax is inclusive (already included in the amount).
+     *
+     * @return bool
+     */
+    public function isInclusive(): bool
+    {
+        return $this->inclusion_type === TaxInclusionType::INCLUSIVE;
+    }
+
+    /**
+     * Check if tax applies to custom amounts.
+     *
+     * @return bool
+     */
+    public function appliesToCustomAmounts(): bool
+    {
+        return $this->applies_to_custom_amounts === true;
+    }
+
+    /**
+     * Check if tax is enabled.
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled === true;
+    }
 
     /**
      * Boot the model and set up event listeners.

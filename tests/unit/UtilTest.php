@@ -19,6 +19,7 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Models\OrderServiceChargeCalculationPhase;
 use Square\Models\OrderServiceChargeTreatmentType;
+use Square\Models\TaxCalculationPhase;
 
 class UtilTest extends TestCase
 {
@@ -693,5 +694,165 @@ class UtilTest extends TestCase
         $this->data->order->attachProduct($product1, ['quantity' => 2]); // 2 x 15.00 USD = 30.00 USD
         $this->data->order->attachProduct($product2, ['quantity' => 1]); // 1 x 50.00 USD = 50.00 USD
         $this->data->order->attachProduct($product3, ['quantity' => 3]); // 3 x 12.00 USD = 36.00 USD
+    }
+
+    /**
+     * Test tax calculation with subtotal phase.
+     *
+     * @return void
+     */
+    public function test_tax_subtotal_phase_calculation(): void
+    {
+        // Create a subtotal phase tax
+        $subtotalTax = factory(Tax::class)->create([
+            'name' => 'Sales Tax (Subtotal)',
+            'percentage' => 10,
+            'type' => Constants::TAX_ADDITIVE,
+            'calculation_phase' => TaxCalculationPhase::TAX_SUBTOTAL_PHASE,
+        ]);
+
+        $this->data->order->save();
+        $this->data->product->price = 100_00; // $100.00
+        $this->data->product->save();
+
+        // Attach subtotal tax to the order
+        $this->data->order->taxes()->attach($subtotalTax->id, [
+            'deductible_type' => Constants::TAX_NAMESPACE,
+            'featurable_type' => config('nikolag.connections.square.order.namespace'),
+            'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER
+        ]);
+
+        $this->data->order->attachProduct($this->data->product);
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->save();
+
+        // Expected calculation:
+        // Base: $100.00
+        // Subtotal Tax (10%): $10.00 → Subtotal: $110.00
+        $expectedTotal = 110_00;
+        $actualTotal = Util::calculateTotalOrderCostByModel($square->getOrder());
+
+        $this->assertEquals($expectedTotal, $actualTotal);
+    }
+
+    /**
+     * Test legacy tax behavior (no calculation_phase specified).
+     *
+     * @return void
+     */
+    public function test_tax_total_phase_calculation(): void
+    {
+        // Create a tax without calculation_phase (should default to subtotal behavior)
+        $totalTax = factory(Tax::class)->create([
+            'name' => 'Legacy Tax',
+            'percentage' => 7.0,
+            'type' => Constants::TAX_ADDITIVE,
+            // No calculation_phase specified
+        ]);
+
+        $this->data->order->save();
+        $this->data->product->price = 100_00; // $100.00
+        $this->data->product->save();
+
+        // Attach tax to order
+        $this->data->order->taxes()->attach($totalTax->id, [
+            'deductible_type' => Constants::TAX_NAMESPACE,
+            'featurable_type' => config('nikolag.connections.square.order.namespace'),
+            'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER
+        ]);
+
+        $this->data->order->attachProduct($this->data->product);
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->save();
+
+        // Expected calculation (should behave like subtotal phase):
+        // Base: $100.00
+        // Total tax (7%): $7.00 → Total: $107.00
+        $expectedTotal = 107_00;
+        $actualTotal = Util::calculateTotalOrderCostByModel($square->getOrder());
+
+        $this->assertEquals($expectedTotal, $actualTotal);
+    }
+
+    /**
+     * Test comprehensive tax calculation with both phases and service charges.
+     *
+     * @return void
+     */
+    public function test_comprehensive_tax_calculation_phases(): void
+    {
+        // Create both subtotal and total phase taxes
+        $subtotalTax = factory(Tax::class)->create([
+            'name' => 'State Tax (Subtotal)',
+            'percentage' => 5.0,
+            'type' => Constants::TAX_ADDITIVE,
+            'calculation_phase' => TaxCalculationPhase::TAX_SUBTOTAL_PHASE,
+        ]);
+
+        $totalTax = factory(Tax::class)->create([
+            'name' => 'City Tax (Total)',
+            'percentage' => 3.0,
+            'type' => Constants::TAX_ADDITIVE,
+            'calculation_phase' => TaxCalculationPhase::TAX_TOTAL_PHASE,
+        ]);
+
+        // Create service charges for both phases
+        $subtotalServiceCharge = factory(ServiceCharge::class)->create([
+            'name' => 'Processing Fee',
+            'amount_money' => 5_00, // $5.00
+            'calculation_phase' => OrderServiceChargeCalculationPhase::SUBTOTAL_PHASE,
+            'taxable' => false,
+        ]);
+
+        $totalServiceCharge = factory(ServiceCharge::class)->create([
+            'name' => 'Convenience Fee',
+            'percentage' => 2.0,
+            'calculation_phase' => OrderServiceChargeCalculationPhase::TOTAL_PHASE,
+            'treatment_type' => OrderServiceChargeTreatmentType::APPORTIONED_TREATMENT,
+            'taxable' => false,
+        ]);
+
+        $this->data->order->save();
+        $this->data->product->price = 100_00; // $100.00
+        $this->data->product->save();
+
+        // Attach both taxes
+        $this->data->order->taxes()->attach($subtotalTax->id, [
+            'deductible_type' => Constants::TAX_NAMESPACE,
+            'featurable_type' => config('nikolag.connections.square.order.namespace'),
+            'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER
+        ]);
+        $this->data->order->taxes()->attach($totalTax->id, [
+            'deductible_type' => Constants::TAX_NAMESPACE,
+            'featurable_type' => config('nikolag.connections.square.order.namespace'),
+            'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER
+        ]);
+
+        // Attach both service charges
+        $this->data->order->serviceCharges()->attach($subtotalServiceCharge->id, [
+            'deductible_type' => Constants::SERVICE_CHARGE_NAMESPACE,
+            'featurable_type' => config('nikolag.connections.square.order.namespace'),
+            'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER
+        ]);
+        $this->data->order->serviceCharges()->attach($totalServiceCharge->id, [
+            'deductible_type' => Constants::SERVICE_CHARGE_NAMESPACE,
+            'featurable_type' => config('nikolag.connections.square.order.namespace'),
+            'scope' => Constants::DEDUCTIBLE_SCOPE_ORDER
+        ]);
+
+        $this->data->order->attachProduct($this->data->product);
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->save();
+
+        // Expected calculation:
+        // Step 1: Base amount = $100.00
+        // Step 2: Subtotal service charge = $5.00 → Subtotal = $105.00
+        // Step 3: Subtotal tax (5%) = $5.25 → After subtotal tax = $110.25
+        // Step 4: Total service charge (2%) = $2.21 → Before total tax = $112.46
+        // Step 5: Total tax (3%) = $3.37 → Final total = $115.83
+        $expectedTotal = 115_83;
+        $actualTotal = Util::calculateTotalOrderCostByModel($square->getOrder());
+
+        $this->assertEquals($expectedTotal, $actualTotal,
+            'Tax calculation phases did not produce expected result. ' .
+            'Expected: $115.83, Actual: $' . number_format($actualTotal / 100, 2)
+        );
     }
 }
