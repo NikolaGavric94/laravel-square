@@ -21,13 +21,7 @@ return new class extends Migration
 
             // Square-specific fields
             $table->string('uid', 60)->nullable();
-            $table->enum('type', [
-                FulfillmentType::PICKUP,
-                FulfillmentType::SHIPMENT,
-                FulfillmentType::DELIVERY,
-                'DIGITAL', // Custom type for digital fulfillments
-                'OTHER' // Custom type for other fulfillments
-            ]);
+            $table->enum('type', [FulfillmentType::PICKUP,FulfillmentType::SHIPMENT,FulfillmentType::DELIVERY]);
             $table->enum('state', [
                 FulfillmentState::PROPOSED,
                 FulfillmentState::RESERVED,
