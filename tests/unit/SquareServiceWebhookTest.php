@@ -27,18 +27,16 @@ class SquareServiceWebhookTest extends TestCase
      */
     public function test_create_webhook_success(): void
     {
-        // Using the fluent API from the trait
-        $this->mockWebhook('createWebhookSubscription')
-            ->withSuccess([
-                'id' => 'wh_test_123',
-                'name' => 'Test Webhook',
-                'notificationUrl' => $this->testWebhookUrl,
-                'eventTypes' => $this->testEventTypes,
-                'apiVersion' => '2023-10-11',
-                'signatureKey' => 'test_signature_key',
-                'enabled' => true
-            ])
-            ->apply();
+        // Mock the create webhook API call
+        $this->mockCreateWebhookSuccess([
+            'id' => 'wh_test_123',
+            'name' => 'Test Webhook',
+            'notificationUrl' => $this->testWebhookUrl,
+            'eventTypes' => $this->testEventTypes,
+            'apiVersion' => '2023-10-11',
+            'signatureKey' => 'test_signature_key',
+            'enabled' => true
+        ]);
 
         $builder = Square::webhookBuilder()
             ->name('Test Webhook')
@@ -68,9 +66,7 @@ class SquareServiceWebhookTest extends TestCase
     public function test_create_webhook_api_error(): void
     {
         // Using the fluent API for error mocking
-        $this->mockWebhook('createWebhookSubscription')
-            ->withError('Invalid webhook configuration', 422)
-            ->apply();
+        $this->mockCreateWebhookError();
 
         $builder = Square::webhookBuilder()
             ->name('Test Webhook')
@@ -89,15 +85,13 @@ class SquareServiceWebhookTest extends TestCase
     public function test_delete_webhook_success(): void
     {
         // Create a webhook first so we have one to delete
-        $this->mockWebhook('createWebhookSubscription')
-            ->withSuccess([
-                'id' => 'wh_to_delete_123',
-                'name' => 'Webhook to Delete',
-                'notificationUrl' => $this->testWebhookUrl,
-                'eventTypes' => $this->testEventTypes,
-                'enabled' => true
-            ])
-            ->apply();
+        $this->mockCreateWebhookSuccess([
+            'id' => 'wh_to_delete_123',
+            'name' => 'Webhook to Delete',
+            'notificationUrl' => $this->testWebhookUrl,
+            'eventTypes' => $this->testEventTypes,
+            'enabled' => true
+        ]);
 
         $builder = Square::webhookBuilder()
             ->name('Webhook to Delete')
@@ -107,10 +101,8 @@ class SquareServiceWebhookTest extends TestCase
 
         $webhookSubscription = Square::createWebhook($builder);
 
-        // Now mock the delete operation - same structure, different endpoint
-        $this->mockWebhook('deleteWebhookSubscription')
-            ->withSuccess()  // Delete responses are typically empty
-            ->apply();
+        // Now mock the delete operation
+        $this->mockDeleteWebhookSuccess();
 
         // Delete the webhook
         $result = Square::deleteWebhook($webhookSubscription->square_id);
@@ -129,12 +121,10 @@ class SquareServiceWebhookTest extends TestCase
     public function test_delete_webhook_error(): void
     {
         // Mock delete error - same fluent API, different endpoint
-        $this->mockWebhook('deleteWebhookSubscription')
-            ->withError('Webhook not found', 404)
-            ->apply();
+        $this->mockDeleteWebhookError();
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Webhook not found');
+        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Delete webhook failed');
 
         Square::deleteWebhook('non_existent_webhook_id');
     }
@@ -174,7 +164,7 @@ class SquareServiceWebhookTest extends TestCase
     {
         // Using the fluent API from the trait
         $this->mockCreateWebhookSuccess([
-            'id' => 'wh_test_123',
+            'id' => 'wh_to_update_123',
             'name' => 'Test Webhook',
             'notificationUrl' => $this->testWebhookUrl,
             'eventTypes' => $this->testEventTypes,
@@ -200,15 +190,11 @@ class SquareServiceWebhookTest extends TestCase
             'enabled' => true
         ]);
 
-        // Get the subscription builder
-        $builder = Square::webhookBuilder()
-            ->name('Test Webhook')
-            ->notificationUrl($this->testWebhookUrl)
-            ->eventTypes($this->testEventTypes)
-            ->enabled();
-        // $builder = $webhookSubscription->getWebhookBuilder();
+        // Get the subscription builder and update the name
+        $builder = $webhookSubscription->getWebhookBuilder();
         $builder->name('Updated Webhook Name');
-        $webhookSubscription = Square::updateWebhook('wh_to_update_123', $builder);
+
+        $webhookSubscription = Square::updateWebhook($webhookSubscription->square_id, $builder);
 
         $this->assertInstanceOf(WebhookSubscription::class, $webhookSubscription);
         $this->assertEquals('Updated Webhook Name', $webhookSubscription->name);
