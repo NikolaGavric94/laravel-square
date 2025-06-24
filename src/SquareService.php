@@ -480,6 +480,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         return $this;
     }
 
+    /**
+     * Get a webhook builder instance.
+     *
+     * @return WebhookBuilder
+     */
+    public function webhookBuilder(): WebhookBuilder
+    {
+        return new WebhookBuilder();
+    }
+
     // ========================================
     // Webhook Event Management Methods
     // ========================================
