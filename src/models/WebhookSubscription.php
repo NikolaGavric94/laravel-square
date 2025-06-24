@@ -27,7 +27,11 @@ class WebhookSubscription extends Model
         'event_types',
         'api_version',
         'signature_key',
-        'enabled',
+        'is_enabled',
+        'is_active',
+        'last_tested_at',
+        'last_failed_at',
+        'last_error',
     ];
 
     /**
@@ -37,7 +41,10 @@ class WebhookSubscription extends Model
      */
     protected $casts = [
         'event_types' => 'array',
-        'enabled' => 'boolean',
+        'is_enabled' => 'boolean',
+        'is_active' => 'boolean',
+        'last_tested_at' => 'datetime',
+        'last_failed_at' => 'datetime',
     ];
 
     /**
