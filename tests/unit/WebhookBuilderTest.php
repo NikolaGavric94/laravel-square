@@ -6,11 +6,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
-use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\WebhookVerifier;
 
-class WebhookTest extends TestCase
+class WebhookBuilderTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -44,6 +43,7 @@ class WebhookTest extends TestCase
         $this->assertEquals('Test Webhook', $builder->getName());
         $this->assertEquals('https://example.com/webhook', $builder->getNotificationUrl());
         $this->assertEquals(['order.created', 'order.updated'], $builder->getEventTypes());
+        $this->assertEquals('2024-06-04', $builder->getApiVersion());
     }
 
     /**

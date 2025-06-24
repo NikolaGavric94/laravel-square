@@ -3,6 +3,7 @@
 namespace Nikolag\Square\Builders;
 
 use Nikolag\Square\Exceptions\MissingPropertyException;
+use Square\ConfigurationDefaults;
 use Square\Models\CreateWebhookSubscriptionRequest;
 use Square\Models\UpdateWebhookSubscriptionRequest;
 use Square\Models\WebhookSubscription;
@@ -27,7 +28,7 @@ class WebhookBuilder
     /**
      * @var string
      */
-    private string $apiVersion = '2024-06-04';
+    private string $apiVersion = ConfigurationDefaults::SQUARE_VERSION;
 
     /**
      * @var bool
@@ -182,7 +183,7 @@ class WebhookBuilder
         $this->name = null;
         $this->notificationUrl = null;
         $this->eventTypes = [];
-        $this->apiVersion = '2024-06-04';
+        $this->apiVersion = ConfigurationDefaults::SQUARE_VERSION;
         $this->enabled = true;
 
         return $this;
@@ -212,6 +213,16 @@ class WebhookBuilder
             !str_starts_with($this->notificationUrl, 'https://')) {
             throw new MissingPropertyException('Notification URL must be a valid HTTPS URL');
         }
+    }
+
+    /**
+     * Get the current API version.
+     *
+     * @return string
+     */
+    public function getApiVersion(): string
+    {
+        return $this->apiVersion;
     }
 
     /**
