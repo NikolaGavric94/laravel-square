@@ -117,4 +117,19 @@ class WebhookVerifierTest extends TestCase
         $result = WebhookVerifier::verify('', '', '', '');
         $this->assertFalse($result);
     }
+
+    public function test_verify_and_process_succeeds_with_valid_data()
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'signature_key' => $this->testSignatureKey,
+            'notification_url' => $this->testNotificationUrl,
+        ]);
+
+        $signature = hash_hmac('sha256', $this->testNotificationUrl . $this->validPayload, $this->testSignatureKey);
+        $headers = ['x-square-hmacsha256-signature' => $signature];
+
+        $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
+
+        $this->assertEquals($this->validEventData, $result);
+    }
 }
