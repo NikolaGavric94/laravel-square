@@ -122,6 +122,9 @@ trait MocksSquareConfigDependency
             case 'createWebhookSubscription':
                 return $this->buildCreateWebhookResponse($data);
 
+            case 'retrieveWebhookSubscription':
+                return $this->buildRetrieveWebhookResponse($data);
+
             case 'updateWebhookSubscription':
                 return $this->buildUpdateWebhookResponse($data);
 
@@ -141,6 +144,30 @@ trait MocksSquareConfigDependency
      * @return CreateWebhookSubscriptionResponse
      */
     private function buildCreateWebhookResponse(array $data): CreateWebhookSubscriptionResponse
+    {
+        $subscription = WebhookSubscriptionBuilder::init()
+            ->id($data['id'])
+            ->name($data['name'])
+            ->enabled($data['enabled'])
+            ->eventTypes($data['eventTypes'])
+            ->notificationUrl($data['notificationUrl'])
+            ->apiVersion($data['apiVersion'])
+            ->signatureKey($data['signatureKey'])
+            ->build();
+
+        return CreateWebhookSubscriptionResponseBuilder::init()
+            ->subscription($subscription)
+            ->build();
+    }
+
+    /**
+     * Build a retrieve webhook subscription response.
+     *
+     * @param array $data The data to include in the response.
+     *
+     * @return CreateWebhookSubscriptionResponse
+     */
+    private function buildRetrieveWebhookResponse(array $data): CreateWebhookSubscriptionResponse
     {
         $subscription = WebhookSubscriptionBuilder::init()
             ->id($data['id'])
@@ -241,6 +268,18 @@ trait MocksSquareConfigDependency
     protected function mockCreateWebhookError(string $message = 'Create webhook failed', int $code = 400): void
     {
         $this->mockSquareWebhookEndpoint('createWebhookSubscription', [], true, $message, $code);
+    }
+
+    /**
+     * Mocks the webhooksAPI()->retrieveWebhookSubscription($subscriptionId) method in the SquareService class.
+     *
+     * @param array $responseData Data to include in the successful response.
+     *
+     * @return void
+     */
+    protected function mockRetrieveWebhookSuccess(array $responseData = []): void
+    {
+        $this->mockSquareWebhookEndpoint('retrieveWebhookSubscription', $responseData);
     }
 
     /**
