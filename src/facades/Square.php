@@ -19,6 +19,8 @@ use Square\Models\ListPaymentsResponse;
  * @method static mixed getOrder()
  * @method static SquareServiceContract addProduct($product, int $quantity, string $currency = 'USD')
  * @method static SquareServiceContract setOrder($order, string $locationId, string $currency = 'USD')
+ * @method static bool markWebhookEventProcessed(string $eventId)
+ * @method static bool markWebhookEventFailed(string $eventId)
  *
  * @see \Nikolag\Square\SquareService
  */

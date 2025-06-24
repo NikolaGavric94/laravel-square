@@ -479,4 +479,44 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         return $this;
     }
+
+    // ========================================
+    // Webhook Event Management Methods
+    // ========================================
+
+    /**
+     * Mark a webhook event as processed.
+     *
+     * @param string $eventId The Square event ID
+     * @return bool
+     */
+    public function markWebhookEventProcessed(string $eventId): bool
+    {
+        $event = WebhookEvent::where('square_event_id', $eventId)->first();
+
+        if (!$event) {
+            return false;
+        }
+
+        return $event->markAsProcessed();
+    }
+
+    /**
+     * Mark a webhook event as failed with an error message.
+     *
+     * @param string $eventId The Square event ID
+     * @param string $errorMessage The error message
+     * @return bool
+     */
+    public function markWebhookEventFailed(string $eventId, string $errorMessage): bool
+    {
+        $event = WebhookEvent::where('square_event_id', $eventId)->first();
+
+        if (!$event) {
+            return false;
+        }
+
+        return $event->markAsFailed($errorMessage);
+    }
+
 }
