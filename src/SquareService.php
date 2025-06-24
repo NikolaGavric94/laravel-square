@@ -480,6 +480,115 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         return $this;
     }
 
+    // ========================================
+    // Webhook Management Methods
+    // ========================================
+
+    /**
+     * Create a new webhook subscription.
+     *
+     * @param WebhookBuilder $builder The webhook builder instance.
+     *
+     * @throws ApiException
+     * @throws MissingPropertyException
+     *
+     * @return WebhookSubscription
+     */
+    public function createWebhook(WebhookBuilder $builder): WebhookSubscription
+    {
+        $request = $builder->buildCreateRequest();
+
+        $response = $this->config->webhooksAPI()->createWebhookSubscription($request);
+        $result = $response->getResult();
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        $subscription = $result->getSubscription();
+
+        // Store the webhook subscription locally
+        return WebhookSubscription::create([
+            'square_id' => $subscription->getId(),
+            'name' => $subscription->getName(),
+            'notification_url' => $subscription->getNotificationUrl(),
+            'event_types' => $subscription->getEventTypes(),
+            'api_version' => $subscription->getApiVersion(),
+            'signature_key' => $subscription->getSignatureKey(),
+            'is_enabled' => $subscription->getEnabled(),
+        ]);
+    }
+
+    /**
+     * Update an existing webhook subscription.
+     *
+     * @param string         $subscriptionId The ID of the webhook subscription to update.
+     * @param WebhookBuilder $builder        The webhook builder instance with updated data.
+     *
+     * @throws ApiException
+     *
+     * @return WebhookSubscription
+     */
+    public function updateWebhook(string $subscriptionId, WebhookBuilder $builder): WebhookSubscription
+    {
+        $request = $builder->buildUpdateRequest();
+
+        $response = $this->config->webhooksAPI()->updateWebhookSubscription($subscriptionId, $request);
+        $result = $response->getResult();
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        $subscription = $result->getSubscription();
+
+        // Update the local webhook subscription
+        $localSubscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
+
+        if ($localSubscription) {
+            $localSubscription->update([
+                'name' => $subscription->getName(),
+                'notification_url' => $subscription->getNotificationUrl(),
+                'event_types' => $subscription->getEventTypes(),
+                'api_version' => $subscription->getApiVersion(),
+                'signature_key' => $subscription->getSignatureKey(),
+                'is_enabled' => $subscription->getEnabled(),
+            ]);
+        }
+
+        return $localSubscription ?: WebhookSubscription::create([
+            'square_id' => $subscription->getId(),
+            'name' => $subscription->getName(),
+            'notification_url' => $subscription->getNotificationUrl(),
+            'event_types' => $subscription->getEventTypes(),
+            'api_version' => $subscription->getApiVersion(),
+            'signature_key' => $subscription->getSignatureKey(),
+            'is_enabled' => $subscription->getEnabled(),
+        ]);
+    }
+
+    /**
+     * Delete a webhook subscription.
+     *
+     * @param string $subscriptionId
+     * @return bool
+     * @throws ApiException
+     */
+    public function deleteWebhook(string $subscriptionId): bool
+    {
+        $response = $this->config->webhooksAPI()->deleteWebhookSubscription($subscriptionId);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        // Delete the local webhook subscription
+        WebhookSubscription::where('square_id', $subscriptionId)->delete();
+
+        return true;
+    }
+
+
     /**
      * Get a webhook builder instance.
      *
