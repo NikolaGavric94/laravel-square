@@ -4,6 +4,7 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Tests\TestCase;
@@ -397,5 +398,76 @@ class WebhookSubscriptionTest extends TestCase
 
         $disabledCount = WebhookSubscription::where('is_enabled', false)->count();
         $this->assertEquals(5, $disabledCount);
+    }
+
+    /**
+     * Test getWebhookBuilder method returns correctly configured builder.
+     *
+     * @return void
+     */
+    public function test_webhook_subscription_get_webhook_builder_method()
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'name' => 'Test Webhook Builder',
+            'notification_url' => 'https://example.com/webhook-builder',
+            'event_types' => ['order.created', 'payment.updated'],
+            'api_version' => '2024-06-04',
+            'is_enabled' => true,
+        ]);
+
+        $builder = $subscription->getWebhookBuilder();
+
+        $this->assertInstanceOf(WebhookBuilder::class, $builder);
+        $this->assertEquals('Test Webhook Builder', $builder->getName());
+        $this->assertEquals('https://example.com/webhook-builder', $builder->getNotificationUrl());
+        $this->assertEquals(['order.created', 'payment.updated'], $builder->getEventTypes());
+        $this->assertEquals('2024-06-04', $builder->getApiVersion());
+    }
+
+    /**
+     * Test getWebhookBuilder method with disabled subscription.
+     *
+     * @return void
+     */
+    public function test_webhook_subscription_get_webhook_builder_with_disabled_subscription()
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'name' => 'Disabled Webhook',
+            'notification_url' => 'https://example.com/disabled-webhook',
+            'event_types' => ['customer.created'],
+            'api_version' => '2024-06-04',
+            'is_enabled' => false,
+        ]);
+
+        $builder = $subscription->getWebhookBuilder();
+
+        $this->assertInstanceOf(\Nikolag\Square\Builders\WebhookBuilder::class, $builder);
+        $this->assertEquals('Disabled Webhook', $builder->getName());
+        $this->assertEquals('https://example.com/disabled-webhook', $builder->getNotificationUrl());
+        $this->assertEquals(['customer.created'], $builder->getEventTypes());
+        $this->assertEquals('2024-06-04', $builder->getApiVersion());
+    }
+
+    /**
+     * Test getWebhookBuilder method with null values.
+     *
+     * @return void
+     */
+    public function test_webhook_subscription_get_webhook_builder_with_null_values()
+    {
+        $subscription = new WebhookSubscription([
+            'name' => null,
+            'notification_url' => null,
+            'event_types' => null,
+            'api_version' => null,
+            'is_enabled' => null,
+        ]);
+
+        $builder = $subscription->getWebhookBuilder();
+
+        $this->assertInstanceOf(\Nikolag\Square\Builders\WebhookBuilder::class, $builder);
+        $this->assertNull($builder->getName());
+        $this->assertNull($builder->getNotificationUrl());
+        $this->assertEquals([], $builder->getEventTypes());
     }
 }

@@ -5,6 +5,7 @@ namespace Nikolag\Square\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nikolag\Square\Builders\WebhookBuilder;
 
 class WebhookSubscription extends Model
 {
@@ -139,5 +140,35 @@ class WebhookSubscription extends Model
     public function isOperational(): bool
     {
         return $this->is_enabled && $this->is_active;
+    }
+
+    /**
+     * Get a webhook builder instance filled with this subscription's data.
+     *
+     * @return WebhookBuilder
+     */
+    public function getWebhookBuilder(): WebhookBuilder
+    {
+        $builder = new WebhookBuilder();
+
+        if ($this->name) {
+            $builder->name($this->name);
+        }
+
+        if ($this->notification_url) {
+            $builder->notificationUrl($this->notification_url);
+        }
+
+        if ($this->event_types) {
+            $builder->eventTypes($this->event_types);
+        }
+
+        if ($this->api_version) {
+            $builder->apiVersion($this->api_version);
+        }
+
+        $builder->enabled($this->is_enabled ?? true);
+
+        return $builder;
     }
 }
