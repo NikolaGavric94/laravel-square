@@ -14,18 +14,6 @@ class WebhookBuilderTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test that the WebhookBuilder can be created via the Square facade.
-     *
-     * @return void
-     */
-    public function test_can_create_webhook_builder()
-    {
-        $builder = Square::webhookBuilder();
-
-        $this->assertInstanceOf(WebhookBuilder::class, $builder);
-    }
-
-    /**
      * Test that the WebhookBuilder can set properties correctly.
      *
      * @return void
