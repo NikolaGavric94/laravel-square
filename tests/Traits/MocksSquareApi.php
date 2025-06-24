@@ -8,8 +8,12 @@ use Square\Apis\WebhookSubscriptionsApi;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\CreateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\DeleteWebhookSubscriptionResponseBuilder;
+use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\ErrorBuilder;
 use Square\Models\Builders\WebhookSubscriptionBuilder;
+use Square\Models\CreateWebhookSubscriptionResponse;
+use Square\Models\DeleteWebhookSubscriptionResponse;
+use Square\Models\UpdateWebhookSubscriptionResponse;
 
 /**
  * Trait for mocking Square API responses in tests.
@@ -25,6 +29,7 @@ trait MocksSquareApi
      * Backward compatible method for existing tests.
      *
      * @param array $data Custom data to override defaults
+     *
      * @return void
      */
     protected function mockWebhookSuccess(array $data = []): void
@@ -38,6 +43,7 @@ trait MocksSquareApi
      *
      * @param string $message Error message
      * @param int $code HTTP status code
+     *
      * @return void
      */
     protected function mockWebhookError(string $message = 'API Error', int $code = 400): void
@@ -50,6 +56,7 @@ trait MocksSquareApi
      * Public method for WebhookMockBuilder access.
      *
      * @param array $data
+     *
      * @return void
      */
     public function mockWebhookSuccessInternal(array $data = []): void
@@ -63,6 +70,7 @@ trait MocksSquareApi
      *
      * @param string $message
      * @param int $code
+     *
      * @return void
      */
     public function mockWebhookErrorInternal(string $message = 'API Error', int $code = 400): void
@@ -77,6 +85,7 @@ trait MocksSquareApi
      * @param array $data Data for success response or error info for error response
      * @param bool $isError Whether this is an error response
      * @param int $statusCode HTTP status code
+     *
      * @return void
      */
     public function mockWebhookEndpoint(string $endpoint, array $data = [], bool $isError = false, ?int $statusCode = null): void
@@ -102,6 +111,7 @@ trait MocksSquareApi
      *
      * @param string $endpoint
      * @param array $data
+     *
      * @return mixed
      */
     private function buildSuccessResponse(string $endpoint, array $data)
@@ -123,9 +133,10 @@ trait MocksSquareApi
      * Build create webhook subscription response.
      *
      * @param array $data
-     * @return \Square\Models\CreateWebhookSubscriptionResponse
+     *
+     * @return CreateWebhookSubscriptionResponse
      */
-    private function buildCreateWebhookResponse(array $data)
+    private function buildCreateWebhookResponse(array $data): CreateWebhookSubscriptionResponse
     {
         // Set up default values if not provided
         $defaultData = [
@@ -161,9 +172,10 @@ trait MocksSquareApi
      * Build delete webhook subscription response.
      *
      * @param array $data
-     * @return \Square\Models\DeleteWebhookSubscriptionResponse
+     *
+     * @return DeleteWebhookSubscriptionResponse
      */
-    private function buildDeleteWebhookResponse(array $data)
+    private function buildDeleteWebhookResponse(array $data): DeleteWebhookSubscriptionResponse
     {
         // Delete response is typically empty for success
         // $data parameter kept for consistency but unused for delete responses
