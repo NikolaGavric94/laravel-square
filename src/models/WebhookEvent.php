@@ -217,4 +217,34 @@ class WebhookEvent extends Model
         ]);
     }
 
+    /**
+     * Check if the event is pending.
+     *
+     * @return bool
+     */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    /**
+     * Check if the event has been processed.
+     *
+     * @return bool
+     */
+    public function isProcessed(): bool
+    {
+        return $this->status === self::STATUS_PROCESSED;
+    }
+
+    /**
+     * Check if the event processing failed.
+     *
+     * @return bool
+     */
+    public function isFailed(): bool
+    {
+        return $this->status === self::STATUS_FAILED;
+    }
+
 }

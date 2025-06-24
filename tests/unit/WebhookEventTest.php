@@ -377,4 +377,38 @@ class WebhookEventTest extends TestCase
         $this->assertEquals($errorMessage, $event->error_message);
         $this->assertInstanceOf(Carbon::class, $event->processed_at);
     }
+
+    /**
+     * Test status checking methods.
+     *
+     * @return void
+     */
+    public function test_webhook_event_status_checking_methods()
+    {
+        $pendingEvent = factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PENDING
+        ]);
+        $processedEvent = factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PROCESSED
+        ]);
+        $failedEvent = factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_FAILED
+        ]);
+
+        // Test pending event
+        $this->assertTrue($pendingEvent->isPending());
+        $this->assertFalse($pendingEvent->isProcessed());
+        $this->assertFalse($pendingEvent->isFailed());
+
+        // Test processed event
+        $this->assertFalse($processedEvent->isPending());
+        $this->assertTrue($processedEvent->isProcessed());
+        $this->assertFalse($processedEvent->isFailed());
+
+        // Test failed event
+        $this->assertFalse($failedEvent->isPending());
+        $this->assertFalse($failedEvent->isProcessed());
+        $this->assertTrue($failedEvent->isFailed());
+    }
+
 }
