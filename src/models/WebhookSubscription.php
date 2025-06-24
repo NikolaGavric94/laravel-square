@@ -48,16 +48,6 @@ class WebhookSubscription extends Model
     ];
 
     /**
-     * Get the webhook events for this subscription.
-     *
-     * @return HasMany
-     */
-    public function events(): HasMany
-    {
-        return $this->hasMany(WebhookEvent::class, 'webhook_subscription_id');
-    }
-
-    /**
      * Scope a query to only include enabled webhooks.
      *
      * @param Builder $query
@@ -90,5 +80,54 @@ class WebhookSubscription extends Model
     public function handlesEventType(string $eventType): bool
     {
         return in_array($eventType, $this->event_types ?? []);
+    }
+
+    /**
+     * Scope a query to only include active webhooks.
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeActive($query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Mark the webhook subscription as tested.
+     *
+     * @return bool
+     */
+    public function markAsTested(): bool
+    {
+        return $this->update([
+            'last_tested_at' => now(),
+            'last_error' => null,
+        ]);
+    }
+
+    /**
+     * Mark the webhook subscription as failed with an error.
+     *
+     * @param string $error
+     * @return bool
+     */
+    public function markAsFailed(string $error): bool
+    {
+        return $this->update([
+            'last_failed_at' => now(),
+            'last_error' => $error,
+        ]);
+    }
+
+    /**
+     * Check if the webhook subscription is enabled and active.
+     *
+     * @return bool
+     */
+    public function isOperational(): bool
+    {
+        return $this->is_enabled && $this->is_active;
     }
 }
