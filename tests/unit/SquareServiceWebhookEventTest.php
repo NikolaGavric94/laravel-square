@@ -8,7 +8,7 @@ use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Tests\TestCase;
 
-class SquareServiceWebhookTest extends TestCase
+class SquareServiceWebhookEventTest extends TestCase
 {
     use RefreshDatabase;
 
