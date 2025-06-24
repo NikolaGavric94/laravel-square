@@ -136,8 +136,7 @@ class WebhookBuilder
         $subscription->setApiVersion($this->apiVersion);
         $subscription->setEnabled($this->enabled);
 
-        $request = new CreateWebhookSubscriptionRequest();
-        $request->setSubscription($subscription);
+        $request = new CreateWebhookSubscriptionRequest($subscription);
 
         return $request;
     }

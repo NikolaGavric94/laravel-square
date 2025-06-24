@@ -59,4 +59,81 @@ class SquareServiceWebhookTest extends TestCase
             'notification_url' => $this->testWebhookUrl,
         ]);
     }
+
+    /**
+     * Test webhook creation with API error.
+     */
+    public function test_create_webhook_api_error(): void
+    {
+        // Using the fluent API for error mocking
+        $this->mockWebhook('createWebhookSubscription')
+            ->withError('Invalid webhook configuration', 422)
+            ->apply();
+
+        $builder = Square::webhookBuilder()
+            ->name('Test Webhook')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->enabled();
+
+        $this->expectException(Exception::class);
+        Square::createWebhook($builder);
+    }
+
+    /**
+     * Test deleting a webhook subscription successfully.
+     * Demonstrates the new deleteWebhook endpoint support with minimal changes.
+     */
+    public function test_delete_webhook_success(): void
+    {
+        // Create a webhook first so we have one to delete
+        $this->mockWebhook('createWebhookSubscription')
+            ->withSuccess([
+                'id' => 'wh_to_delete_123',
+                'name' => 'Webhook to Delete',
+                'notificationUrl' => $this->testWebhookUrl,
+                'eventTypes' => $this->testEventTypes,
+                'enabled' => true
+            ])
+            ->apply();
+
+        $builder = Square::webhookBuilder()
+            ->name('Webhook to Delete')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->enabled();
+
+        $webhookSubscription = Square::createWebhook($builder);
+
+        // Now mock the delete operation - same structure, different endpoint
+        $this->mockWebhook('deleteWebhookSubscription')
+            ->withSuccess()  // Delete responses are typically empty
+            ->apply();
+
+        // Delete the webhook
+        $result = Square::deleteWebhook($webhookSubscription->square_id);
+
+        $this->assertTrue($result);
+
+        // Verify the webhook was removed from database
+        $this->assertDatabaseMissing('nikolag_webhook_subscriptions', [
+            'square_id' => 'wh_to_delete_123'
+        ]);
+    }
+
+    /**
+     * Test delete webhook with error response.
+     */
+    public function test_delete_webhook_error(): void
+    {
+        // Mock delete error - same fluent API, different endpoint
+        $this->mockWebhook('deleteWebhookSubscription')
+            ->withError('Webhook not found', 404)
+            ->apply();
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Webhook not found');
+
+        Square::deleteWebhook('non_existent_webhook_id');
+    }
 }
