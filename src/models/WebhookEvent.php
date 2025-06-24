@@ -35,7 +35,7 @@ class WebhookEvent extends Model
         'status',
         'processed_at',
         'error_message',
-        'subscription_id',
+        'webhook_subscription_id',
     ];
 
     /**
@@ -56,7 +56,7 @@ class WebhookEvent extends Model
      */
     public function subscription(): BelongsTo
     {
-        return $this->belongsTo(WebhookSubscription::class, 'subscription_id');
+        return $this->belongsTo(WebhookSubscription::class, 'webhook_subscription_id');
     }
 
     /**

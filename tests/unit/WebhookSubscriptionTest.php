@@ -5,8 +5,8 @@ namespace Nikolag\Square\Tests\Unit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Nikolag\Square\Models\WebhookSubscription;
+use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Utils\Constants;
 
 class WebhookSubscriptionTest extends TestCase
 {

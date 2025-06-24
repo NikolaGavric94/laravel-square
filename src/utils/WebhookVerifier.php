@@ -4,6 +4,7 @@ namespace Nikolag\Square\Utils;
 
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Models\WebhookSubscription;
+use Nikolag\Square\Models\WebhookEvent;
 
 class WebhookVerifier
 {
@@ -38,13 +39,13 @@ class WebhookVerifier
      *
      * @throws InvalidSquareSignatureException
      *
-     * @return array The parsed webhook event data
+     * @return WebhookEvent The created webhook event model
      */
     public static function verifyAndProcess(
         array $headers,
         string $payload,
         WebhookSubscription $subscription
-    ): array {
+    ): WebhookEvent {
         // Get the signature header
         $signature = $headers['x-square-hmacsha256-signature'] ??
             $headers['X-Square-HmacSha256-Signature'] ??
@@ -75,7 +76,21 @@ class WebhookVerifier
             throw new InvalidSquareSignatureException('Missing required event fields');
         }
 
-        return $eventData;
+        // Check if this event already exists (idempotency)
+        $existingEvent = WebhookEvent::where('square_event_id', $eventId)->first();
+        if ($existingEvent) {
+            return $existingEvent;
+        }
+
+        // Create and return the webhook event
+        return WebhookEvent::create([
+            'square_event_id' => $eventId,
+            'event_type' => $eventType,
+            'event_data' => $eventData,
+            'event_time' => $eventTime,
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => $subscription->id,
+        ]);
     }
 
     /**

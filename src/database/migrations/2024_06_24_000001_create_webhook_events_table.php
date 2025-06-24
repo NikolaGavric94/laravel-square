@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'processed', 'failed'])->default('pending');
             $table->timestamp('processed_at')->nullable();
             $table->text('error_message')->nullable();
-            $table->unsignedBigInteger('subscription_id')->nullable();
+            $table->unsignedBigInteger('webhook_subscription_id')->nullable();
             $table->timestamps();
 
             // Indexes for performance
@@ -28,10 +28,10 @@ return new class extends Migration
             $table->index(['event_type']);
             $table->index(['status']);
             $table->index(['event_time']);
-            $table->index(['subscription_id']);
+            $table->index(['webhook_subscription_id']);
 
             // Foreign key to webhook subscriptions
-            $table->foreign('subscription_id')
+            $table->foreign('webhook_subscription_id')
                   ->references('id')
                   ->on('nikolag_webhook_subscriptions')
                   ->onDelete('set null');

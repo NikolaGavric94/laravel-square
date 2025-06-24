@@ -35,14 +35,14 @@ class WebhookEventTest extends TestCase
         $subscription = factory(WebhookSubscription::class)->create();
 
         $event = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->create([
-            'subscription_id' => $subscription->id,
+            'webhook_subscription_id' => $subscription->id,
         ]);
 
         $this->assertDatabaseHas('nikolag_webhook_events', [
             'square_event_id' => $event->square_event_id,
             'event_type' => 'order.created',
             'status' => WebhookEvent::STATUS_PENDING,
-            'subscription_id' => $subscription->id,
+            'webhook_subscription_id' => $subscription->id,
         ]);
 
         $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
@@ -65,7 +65,7 @@ class WebhookEventTest extends TestCase
             'status' => WebhookEvent::STATUS_PENDING,
             'processed_at' => now(),
             'error_message' => 'Test error',
-            'subscription_id' => $subscription->id,
+            'webhook_subscription_id' => $subscription->id,
         ];
 
         $event = WebhookEvent::create($data);
@@ -106,7 +106,7 @@ class WebhookEventTest extends TestCase
     {
         $subscription = factory(WebhookSubscription::class)->create();
         $event = factory(WebhookEvent::class)->create([
-            'subscription_id' => $subscription->id,
+            'webhook_subscription_id' => $subscription->id,
         ]);
 
         $this->assertInstanceOf(WebhookSubscription::class, $event->subscription);
@@ -506,7 +506,7 @@ class WebhookEventTest extends TestCase
         $this->assertContains($event->status, $validStatuses);
 
         // Test subscription relationship exists
-        $this->assertNotNull($event->subscription_id);
+        $this->assertNotNull($event->webhook_subscription_id);
         $this->assertInstanceOf(WebhookSubscription::class, $event->subscription);
     }
 
