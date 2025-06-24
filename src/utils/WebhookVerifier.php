@@ -47,7 +47,7 @@ class WebhookVerifier
     ): array {
         // Get the signature header
         $signature = $headers['x-square-hmacsha256-signature'] ??
-            $headers['X-Square-Hmacsha256-Signature'] ??
+            $headers['X-Square-HmacSha256-Signature'] ??
             null;
 
         if (!$signature) {
@@ -109,7 +109,7 @@ class WebhookVerifier
             'payload' => $testPayload,
             'signature' => $signature,
             'headers' => [
-                'X-Square-Hmacsha256-Signature' => $signature,
+                'X-Square-HmacSha256-Signature' => $signature,
                 'Content-Type' => 'application/json',
             ]
         ];
@@ -124,7 +124,7 @@ class WebhookVerifier
     public static function isValidOrderEvent(array $eventData): bool
     {
         $eventType = $eventData['type'] ?? '';
-        
+
         if (!str_starts_with($eventType, 'order.')) {
             return false;
         }
