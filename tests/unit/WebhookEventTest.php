@@ -411,4 +411,20 @@ class WebhookEventTest extends TestCase
         $this->assertTrue($failedEvent->isFailed());
     }
 
+    /**
+     * Test getEventObject method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_event_object_method()
+    {
+        $event = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->create();
+
+        $eventObject = $event->getEventObject();
+
+        $this->assertIsArray($eventObject);
+        $this->assertArrayHasKey($event->getObjectTypeKey(), $eventObject);
+        $this->assertArrayHasKey('order_created', $eventObject);
+        $this->assertEquals('order-123', $eventObject['order']['id']);
+    }
 }

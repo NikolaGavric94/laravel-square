@@ -152,7 +152,8 @@ class WebhookEvent extends Model
      */
     public function getOrderId(): ?string
     {
-        return $this->event_data['data']['object'][$this->getObjectTypeKey()]['order_id'] ?? null;
+        $eventObject = $this->getEventObject();
+        return $eventObject[$this->getObjectTypeKey()]['order_id'] ?? null;
     }
 
     /**
@@ -162,10 +163,8 @@ class WebhookEvent extends Model
      */
     public function getPaymentId(): ?string
     {
-        if (!$this->isPaymentEvent()) {
-            return null;
-        }
-        return $this->event_data['data']['object']['payment']['id'] ?? null;
+        $eventObject = $this->getEventObject();
+        return $eventObject['payment']['id'] ?? null;
     }
 
     /**
@@ -185,7 +184,8 @@ class WebhookEvent extends Model
      */
     public function getLocationId(): ?string
     {
-        return $this->event_data['data']['object'][$this->getObjectTypeKey()]['location_id'] ?? null;
+        $eventObject = $this->getEventObject();
+        return $eventObject[$this->getObjectTypeKey()]['location_id'] ?? null;
     }
 
     /**
@@ -245,6 +245,16 @@ class WebhookEvent extends Model
     public function isFailed(): bool
     {
         return $this->status === self::STATUS_FAILED;
+    }
+
+    /**
+     * Get the event data object for easy access.
+     *
+     * @return array|null
+     */
+    public function getEventObject(): ?array
+    {
+        return $this->event_data['data']['object'] ?? null;
     }
 
 }
