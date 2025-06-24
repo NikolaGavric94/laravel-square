@@ -182,4 +182,63 @@ class WebhookEventTest extends TestCase
             $this->assertEquals(WebhookEvent::STATUS_FAILED, $event->status);
         }
     }
+
+    /**
+     * Test forEventType scope.
+     *
+     * @return void
+     */
+    public function test_webhook_event_for_event_type_scope()
+    {
+        factory(WebhookEvent::class)->create(['event_type' => 'order.created']);
+        factory(WebhookEvent::class)->create(['event_type' => 'order.updated']);
+        factory(WebhookEvent::class, 2)->create(['event_type' => 'order.created']);
+        factory(WebhookEvent::class)->create(['event_type' => 'payment.created']);
+
+        $orderCreatedEvents = WebhookEvent::forEventType('order.created')->get();
+        $orderUpdatedEvents = WebhookEvent::forEventType('order.updated')->get();
+        $paymentCreatedEvents = WebhookEvent::forEventType('payment.created')->get();
+
+        $this->assertCount(3, $orderCreatedEvents);
+        $this->assertCount(1, $orderUpdatedEvents);
+        $this->assertCount(1, $paymentCreatedEvents);
+    }
+
+    /**
+     * Test isOrderEvent method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_is_order_event_method()
+    {
+        $orderCreatedEvent = factory(WebhookEvent::class)->create(['event_type' => 'order.created']);
+        $orderUpdatedEvent = factory(WebhookEvent::class)->create(['event_type' => 'order.updated']);
+        $orderFulfillmentEvent = factory(WebhookEvent::class)->create(['event_type' => 'order.fulfillment.updated']);
+        $paymentEvent = factory(WebhookEvent::class)->create(['event_type' => 'payment.created']);
+        $customerEvent = factory(WebhookEvent::class)->create(['event_type' => 'customer.created']);
+
+        $this->assertTrue($orderCreatedEvent->isOrderEvent());
+        $this->assertTrue($orderUpdatedEvent->isOrderEvent());
+        $this->assertTrue($orderFulfillmentEvent->isOrderEvent());
+        $this->assertFalse($paymentEvent->isOrderEvent());
+        $this->assertFalse($customerEvent->isOrderEvent());
+    }
+
+    /**
+     * Test isPaymentEvent method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_is_payment_event_method()
+    {
+        $paymentCreatedEvent = factory(WebhookEvent::class)->create(['event_type' => 'payment.created']);
+        $paymentUpdatedEvent = factory(WebhookEvent::class)->create(['event_type' => 'payment.updated']);
+        $orderEvent = factory(WebhookEvent::class)->create(['event_type' => 'order.created']);
+        $customerEvent = factory(WebhookEvent::class)->create(['event_type' => 'customer.created']);
+
+        $this->assertTrue($paymentCreatedEvent->isPaymentEvent());
+        $this->assertTrue($paymentUpdatedEvent->isPaymentEvent());
+        $this->assertFalse($orderEvent->isPaymentEvent());
+        $this->assertFalse($customerEvent->isPaymentEvent());
+    }
 }

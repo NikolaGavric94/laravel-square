@@ -103,4 +103,25 @@ class WebhookEvent extends Model
     {
         return $query->where('event_type', $eventType);
     }
+
+    /**
+     * Check if this is an order-related event.
+     *
+     * @return bool
+     */
+    public function isOrderEvent(): bool
+    {
+        return str_starts_with($this->event_type, 'order.');
+    }
+
+    /**
+     * Check if this is a payment-related event.
+     *
+     * @return bool
+     */
+    public function isPaymentEvent(): bool
+    {
+        return str_starts_with($this->event_type, 'payment.');
+    }
+
 }
