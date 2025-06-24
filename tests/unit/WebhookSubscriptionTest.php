@@ -118,6 +118,28 @@ class WebhookSubscriptionTest extends TestCase
     }
 
     /**
+     * Test webhook subscription has many events relationship.
+     *
+     * @return void
+     */
+    public function test_webhook_subscription_has_many_events_relationship()
+    {
+        $subscription = factory(WebhookSubscription::class)->create();
+
+        // Create some webhook events for this subscription
+        $events = factory(WebhookEvent::class, 3)->create([
+            'webhook_subscription_id' => $subscription->id,
+        ]);
+
+        $this->assertCount(3, $subscription->events);
+        $this->assertInstanceOf(WebhookEvent::class, $subscription->events->first());
+
+        foreach ($events as $event) {
+            $this->assertTrue($subscription->events->contains($event));
+        }
+    }
+
+    /**
      * Test webhook subscription scopes.
      *
      * @return void

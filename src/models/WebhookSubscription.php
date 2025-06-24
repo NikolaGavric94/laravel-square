@@ -48,6 +48,16 @@ class WebhookSubscription extends Model
     ];
 
     /**
+     * Get the webhook events for this subscription.
+     *
+     * @return HasMany
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(WebhookEvent::class, 'webhook_subscription_id');
+    }
+
+    /**
      * Scope a query to only include enabled webhooks.
      *
      * @param Builder $query
