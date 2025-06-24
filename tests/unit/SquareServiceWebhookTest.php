@@ -12,10 +12,11 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareApi;
+use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
 
 class SquareServiceWebhookTest extends TestCase
 {
-    use RefreshDatabase, MocksSquareApi;
+    use RefreshDatabase, MocksSquareConfigDependency;
 
     private string $testWebhookUrl = 'https://example.com/webhook';
     private array $testEventTypes = ['order.created', 'payment.updated'];
@@ -135,5 +136,62 @@ class SquareServiceWebhookTest extends TestCase
         $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Webhook not found');
 
         Square::deleteWebhook('non_existent_webhook_id');
+    }
+
+    /**
+     * Test updating a webhook subscription successfully.
+     */
+    public function test_update_webhook_success(): void
+    {
+        // Using the fluent API from the trait
+        $this->mockCreateWebhookSuccess([
+            'id' => 'wh_test_123',
+            'name' => 'Test Webhook',
+            'notificationUrl' => $this->testWebhookUrl,
+            'eventTypes' => $this->testEventTypes,
+            'apiVersion' => '2023-10-11',
+            'signatureKey' => 'test_signature_key',
+            'enabled' => true
+        ]);
+
+        $builder = Square::webhookBuilder()
+            ->name('Webhook to Update')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->enabled();
+
+        $webhookSubscription = Square::createWebhook($builder);
+
+        // Now mock the update operation - same structure, different endpoint
+        $this->mockUpdateWebhookSuccess([
+            'id' => 'wh_to_update_123',
+            'name' => 'Updated Webhook Name',
+            'notificationUrl' => $this->testWebhookUrl,
+            'eventTypes' => $this->testEventTypes,
+            'enabled' => true
+        ]);
+
+        // Get the subscription builder
+        $builder = Square::webhookBuilder()
+            ->name('Test Webhook')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->enabled();
+        // $builder = $webhookSubscription->getWebhookBuilder();
+        $builder->name('Updated Webhook Name');
+        $webhookSubscription = Square::updateWebhook('wh_to_update_123', $builder);
+
+        $this->assertInstanceOf(WebhookSubscription::class, $webhookSubscription);
+        $this->assertEquals('Updated Webhook Name', $webhookSubscription->name);
+        $this->assertEquals($this->testWebhookUrl, $webhookSubscription->notification_url);
+        $this->assertEquals($this->testEventTypes, $webhookSubscription->event_types);
+        $this->assertTrue($webhookSubscription->is_enabled);
+        $this->assertEquals('wh_to_update_123', $webhookSubscription->square_id);
+
+        // Verify it's stored in the database
+        $this->assertDatabaseHas('nikolag_webhook_subscriptions', [
+            'name' => 'Updated Webhook Name',
+            'notification_url' => $this->testWebhookUrl,
+        ]);
     }
 }
