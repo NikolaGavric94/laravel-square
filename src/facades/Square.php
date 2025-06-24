@@ -22,6 +22,7 @@ use Square\Models\ListPaymentsResponse;
  * 
  * Webhook Management Methods
  * @method static WebhookSubscription createWebhook(WebhookBuilder $builder)
+ * @method static WebhookSubscription updateWebhook(string $subscriptionId, WebhookBuilder $builder)
  * @method static bool deleteWebhook(string $subscriptionId)
  * @method static bool markWebhookEventProcessed(string $eventId)
  * @method static bool markWebhookEventFailed(string $eventId)

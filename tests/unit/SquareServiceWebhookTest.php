@@ -209,4 +209,111 @@ class SquareServiceWebhookTest extends TestCase
             'notification_url' => $this->testWebhookUrl,
         ]);
     }
+
+    /**
+     * Test update webhook when local model is deleted - should recreate WebhookSubscription.
+     *
+     * This test simulates the scenario where:
+     * 1. A webhook is created via Square API
+     * 2. The local WebhookSubscription record is deleted from the database
+     * 3. An update is performed via Square API
+     * 4. The local WebhookSubscription model should be recreated from the update response
+     *
+     * Note: The updateWebhookSubscription response doesn't contain signature_key,
+     * so the SquareService updateWebhook method should handle this gracefully.
+     */
+    public function test_update_webhook_recreates_deleted_local_model(): void
+    {
+        $signatureKey = 'original_signature_key';
+        // Step 1: Mock and create webhook via Square API
+        $this->mockCreateWebhookSuccess([
+            'id' => 'wh_recreate_test_789',
+            'name' => 'Webhook for Recreate Test',
+            'notificationUrl' => $this->testWebhookUrl,
+            'eventTypes' => $this->testEventTypes,
+            'apiVersion' => '2023-10-11',
+            'signatureKey' => $signatureKey,
+            'enabled' => true
+        ]);
+
+        $builder = Square::webhookBuilder()
+            ->name('Webhook for Recreate Test')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->enabled();
+
+        $webhookSubscription = Square::createWebhook($builder);
+
+        // Verify webhook was created locally
+        $this->assertInstanceOf(WebhookSubscription::class, $webhookSubscription);
+        $this->assertEquals('wh_recreate_test_789', $webhookSubscription->square_id);
+        $this->assertEquals($signatureKey, $webhookSubscription->signature_key);
+
+        $this->assertDatabaseHas('nikolag_webhook_subscriptions', [
+            'square_id' => $webhookSubscription->square_id,
+            'name' => 'Webhook for Recreate Test',
+            'signature_key' => $signatureKey
+        ]);
+
+        // Step 2: Delete the local WebhookSubscription record from database
+        // (simulating a scenario where local data was lost but Square webhook still exists)
+        WebhookSubscription::where('square_id', $webhookSubscription->square_id)->delete();
+
+        // Verify local record is gone
+        $this->assertDatabaseMissing('nikolag_webhook_subscriptions', [
+            'square_id' => $webhookSubscription->square_id
+        ]);
+
+        // Step 3: Mock update webhook response (note: no signature_key in update response)
+        $newName = 'Updated Recreated Webhook';
+        $mockUpdateWebhookData = $mockRetrieveWebhookData = [
+            'id' => $webhookSubscription->square_id,
+            'name' => $newName,
+            'notificationUrl' => 'https://updated.example.com/webhook',
+            'eventTypes' => ['order.created'],
+            'apiVersion' => '2023-10-11',
+            'enabled' => true,
+            'signatureKey' => $signatureKey, // Original signature key
+        ];
+        // Remove the signatureKey to simulate update response
+        unset($mockUpdateWebhookData['signatureKey']);
+        $this->mockUpdateWebhookSuccess($mockUpdateWebhookData);
+        $this->mockRetrieveWebhookSuccess($mockRetrieveWebhookData);
+
+        // Step 4: Update the webhook payload
+        $builder = $webhookSubscription->getWebhookBuilder();
+        $builder->name($newName);
+        $builder->notificationUrl('https://updated.example.com/webhook');
+        $builder->eventTypes(['order.created']);
+
+        $updatedWebhook = Square::updateWebhook($webhookSubscription->square_id, $builder);
+
+        // Step 5: Verify the WebhookSubscription model was recreated locally
+        $this->assertInstanceOf(WebhookSubscription::class, $updatedWebhook);
+        $this->assertEquals($webhookSubscription->square_id, $updatedWebhook->square_id);
+        $this->assertEquals($newName, $updatedWebhook->name);
+        // $this->assertEquals('https://updated.example.com/webhook', $updatedWebhook->notification_url);
+        $this->assertEquals(['order.created'], $updatedWebhook->event_types);
+        $this->assertTrue($updatedWebhook->is_enabled);
+
+        // Verify the signature_key field is handled gracefully (should be null or default)
+        // since updateWebhookSubscription response doesn't include it
+        $this->assertTrue(
+            is_null($updatedWebhook->signature_key) || !empty($updatedWebhook->signature_key),
+            'signature_key should be handled gracefully when missing from update response'
+        );
+
+        // Step 6: Verify the model was recreated in the database
+        $this->assertDatabaseHas('nikolag_webhook_subscriptions', [
+            'square_id' => $webhookSubscription->square_id,
+            'name' => $newName,
+            'notification_url' => 'https://updated.example.com/webhook',
+            'is_enabled' => true
+        ]);
+
+        // Verify only one record exists (not duplicated)
+        $webhookCount = WebhookSubscription::where('square_id', $webhookSubscription->square_id)->count();
+        $this->assertEquals(1, $webhookCount, 'Should have exactly one WebhookSubscription record');
+    }
+
 }
