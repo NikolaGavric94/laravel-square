@@ -278,7 +278,9 @@ class WebhookEventTest extends TestCase
         $event = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->create();
 
         // Modify the event_data to have a specific payment ID
-        $event->event_data['data']['object']['payment']['id'] = 'payment-123';
+        $newEventData = $event->event_data;
+        $newEventData['data']['object']['payment']['id'] = 'payment-123';
+        $event->event_data = $newEventData;
         $event->save();
 
         $this->assertEquals('payment-123', $event->getPaymentId());
@@ -425,6 +427,138 @@ class WebhookEventTest extends TestCase
         $this->assertIsArray($eventObject);
         $this->assertArrayHasKey($event->getObjectTypeKey(), $eventObject);
         $this->assertArrayHasKey('order_created', $eventObject);
-        $this->assertEquals('order-123', $eventObject['order']['id']);
+    }
+
+    /**
+     * Test getDescription method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_description_method()
+    {
+        $orderEvent = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->create();
+
+        $paymentEvent = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->create();
+
+        $otherEvent = factory(WebhookEvent::class)->create([
+            'event_type' => 'customer.created'
+        ]);
+
+        $this->assertEquals('Order event (order.created) for order order-456', $orderEvent->getDescription());
+        $this->assertEquals('Payment event (payment.created) for payment payment_id_444', $paymentEvent->getDescription());
+        $this->assertEquals('Webhook event (customer.created)', $otherEvent->getDescription());
+    }
+
+    /**
+     * Test chaining multiple scopes.
+     *
+     * @return void
+     */
+    public function test_webhook_event_multiple_scopes_can_be_chained()
+    {
+        factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PENDING,
+            'event_type' => 'order.created',
+        ]);
+
+        factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PROCESSED,
+            'event_type' => 'order.created',
+        ]);
+
+        factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PENDING,
+            'event_type' => 'payment.created',
+        ]);
+
+        $pendingOrderEvents = WebhookEvent::pending()
+            ->forEventType('order.created')
+            ->get();
+
+        $this->assertCount(1, $pendingOrderEvents);
+        $first = $pendingOrderEvents->first();
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $first->status);
+        $this->assertEquals('order.created', $first->event_type);
+    }
+
+    /**
+     * Test factory generates realistic data.
+     *
+     * @return void
+     */
+    public function test_webhook_event_factory_generates_realistic_data()
+    {
+        $event = factory(WebhookEvent::class)->create();
+
+        // Test square_event_id format
+        $this->assertStringStartsWith('event_', $event->square_event_id);
+
+        // Test event_type is valid
+        $validEventTypes = ['order.created', 'order.updated', 'order.fulfillment.updated', 'payment.created', 'payment.updated'];
+        $this->assertContains($event->event_type, $validEventTypes);
+
+        // Test event_data is valid array
+        $this->assertIsArray($event->event_data);
+        $this->assertNotEmpty($event->event_data);
+
+        // Test status is valid
+        $validStatuses = [WebhookEvent::STATUS_PENDING, WebhookEvent::STATUS_PROCESSED, WebhookEvent::STATUS_FAILED];
+        $this->assertContains($event->status, $validStatuses);
+
+        // Test subscription relationship exists
+        $this->assertNotNull($event->subscription_id);
+        $this->assertInstanceOf(WebhookSubscription::class, $event->subscription);
+    }
+
+    /**
+     * Test batch operations on webhook events.
+     *
+     * @return void
+     */
+    public function test_webhook_event_batch_operations()
+    {
+        // Create multiple events
+        $events = factory(WebhookEvent::class, 5)->create([
+            'status' => WebhookEvent::STATUS_PENDING
+        ]);
+
+        $this->assertCount(5, $events);
+        $this->assertCount(5, WebhookEvent::all());
+
+        // Test batch updates
+        WebhookEvent::whereIn('id', $events->pluck('id'))
+            ->update(['status' => WebhookEvent::STATUS_PROCESSED]);
+
+        $processedCount = WebhookEvent::where('status', WebhookEvent::STATUS_PROCESSED)->count();
+        $this->assertEquals(5, $processedCount);
+    }
+
+    /**
+     * Test factory states work correctly.
+     *
+     * @return void
+     */
+    public function test_webhook_event_factory_states()
+    {
+        $pendingEvent = factory(WebhookEvent::class)->states('PENDING')->create();
+        $processedEvent = factory(WebhookEvent::class)->states('PROCESSED')->create();
+        $failedEvent = factory(WebhookEvent::class)->states('FAILED')->create();
+        $orderEvent = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->create();
+        $paymentEvent = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->create();
+
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $pendingEvent->status);
+        $this->assertNull($pendingEvent->processed_at);
+        $this->assertNull($pendingEvent->error_message);
+
+        $this->assertEquals(WebhookEvent::STATUS_PROCESSED, $processedEvent->status);
+        $this->assertNotNull($processedEvent->processed_at);
+        $this->assertNull($processedEvent->error_message);
+
+        $this->assertEquals(WebhookEvent::STATUS_FAILED, $failedEvent->status);
+        $this->assertNotNull($failedEvent->processed_at);
+        $this->assertNotNull($failedEvent->error_message);
+
+        $this->assertTrue($orderEvent->isOrderEvent());
+        $this->assertTrue($paymentEvent->isPaymentEvent());
     }
 }

@@ -257,4 +257,25 @@ class WebhookEvent extends Model
         return $this->event_data['data']['object'] ?? null;
     }
 
+    /**
+     * Get a human-readable description of the event.
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        $eventType = $this->event_type;
+
+        if ($this->isOrderEvent()) {
+            $orderId = $this->getOrderId();
+            return "Order event ({$eventType}) for order {$orderId}";
+        }
+
+        if ($this->isPaymentEvent()) {
+            $paymentId = $this->getPaymentId();
+            return "Payment event ({$eventType}) for payment {$paymentId}";
+        }
+
+        return "Webhook event ({$eventType})";
+    }
 }
