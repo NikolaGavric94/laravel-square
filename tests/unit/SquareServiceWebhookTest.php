@@ -88,4 +88,69 @@ class SquareServiceWebhookTest extends TestCase
         $result = Square::markWebhookEventFailed('non_existent_event', 'Error message');
         $this->assertFalse($result);
     }
+
+    /**
+     * Test cleaning up old webhook events.
+     */
+    public function test_cleanup_old_webhook_events(): void
+    {
+        // Create test webhook events with different ages
+        $oldEvent1 = new WebhookEvent([
+            'square_event_id' => 'old_event_1',
+            'event_type' => 'order.created',
+            'event_time' => now()->subDays(45),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PROCESSED,
+            'webhook_subscription_id' => 1,
+        ]);
+        $oldEvent1->created_at = now()->subDays(45);
+        $oldEvent1->save();
+
+        $oldEvent2 = new WebhookEvent([
+            'square_event_id' => 'old_event_2',
+            'event_type' => 'order.updated',
+            'event_time' => now()->subDays(35),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_FAILED,
+            'webhook_subscription_id' => 1,
+        ]);
+        $oldEvent2->created_at = now()->subDays(35);
+        $oldEvent2->save();
+
+        $oldPendingEvent = new WebhookEvent([
+            'square_event_id' => 'old_pending_event',
+            'event_type' => 'order.created',
+            'event_time' => now()->subDays(40),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => 1,
+        ]);
+        $oldPendingEvent->created_at = now()->subDays(40);
+        $oldPendingEvent->save();
+
+        $recentEvent = new WebhookEvent([
+            'square_event_id' => 'recent_event',
+            'event_type' => 'order.created',
+            'event_time' => now()->subDays(10),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PROCESSED,
+            'webhook_subscription_id' => 1,
+        ]);
+        $recentEvent->created_at = now()->subDays(10);
+        $recentEvent->save();
+
+        // Execute the test - cleanup events older than 30 days
+        $deletedCount = Square::cleanupOldWebhookEvents(30);
+
+        // Assertions - should delete old processed/failed events but not pending ones
+        $this->assertEquals(2, $deletedCount);
+
+        // Verify remaining events
+        $remainingEvents = WebhookEvent::all();
+        $this->assertCount(2, $remainingEvents);
+
+        $remainingEventIds = $remainingEvents->pluck('square_event_id')->toArray();
+        $this->assertContains('old_pending_event', $remainingEventIds);
+        $this->assertContains('recent_event', $remainingEventIds);
+    }
 }

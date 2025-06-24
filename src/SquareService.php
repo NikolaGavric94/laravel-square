@@ -519,4 +519,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         return $event->markAsFailed($errorMessage);
     }
 
+    /**
+     * Clean up old webhook events.
+     *
+     * @param int $daysOld Number of days old events to keep
+     * @return int Number of events deleted
+     */
+    public function cleanupOldWebhookEvents(int $daysOld = 30): int
+    {
+        return WebhookEvent::where('created_at', '<', now()->subDays($daysOld))
+            ->where('status', '!=', WebhookEvent::STATUS_PENDING)
+            ->delete();
+    }
 }
