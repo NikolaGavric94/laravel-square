@@ -573,20 +573,24 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 'notification_url' => $subscription->getNotificationUrl(),
                 'event_types' => $subscription->getEventTypes(),
                 'api_version' => $subscription->getApiVersion(),
+                // 'signature_key' => $subscription->getSignatureKey(), // The signature key is not returned on update
+                'is_enabled' => $subscription->getEnabled(),
+            ]);
+        } else {
+            // If not found locally, fetch and create it (necessary as the signature key might have changed)
+            $subscription = self::retrieveWebhook($subscriptionId);
+
+            // Store the webhook subscription locally
+            return WebhookSubscription::create([
+                'square_id' => $subscription->getId(),
+                'name' => $subscription->getName(),
+                'notification_url' => $subscription->getNotificationUrl(),
+                'event_types' => $subscription->getEventTypes(),
+                'api_version' => $subscription->getApiVersion(),
                 'signature_key' => $subscription->getSignatureKey(),
                 'is_enabled' => $subscription->getEnabled(),
             ]);
         }
-
-        return $localSubscription ?: WebhookSubscription::create([
-            'square_id' => $subscription->getId(),
-            'name' => $subscription->getName(),
-            'notification_url' => $subscription->getNotificationUrl(),
-            'event_types' => $subscription->getEventTypes(),
-            'api_version' => $subscription->getApiVersion(),
-            'signature_key' => $subscription->getSignatureKey(),
-            'is_enabled' => $subscription->getEnabled(),
-        ]);
     }
 
     /**
