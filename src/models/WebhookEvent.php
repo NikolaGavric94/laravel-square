@@ -49,4 +49,58 @@ class WebhookEvent extends Model
         'processed_at' => 'datetime',
     ];
 
+    /**
+     * The webhook subscription that received this event.
+     *
+     * @return BelongsTo
+     */
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(WebhookSubscription::class, 'subscription_id');
+    }
+
+    /**
+     * Scope a query to only include pending events.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopePending($query): Builder
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    /**
+     * Scope a query to only include processed events.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeProcessed($query): Builder
+    {
+        return $query->where('status', self::STATUS_PROCESSED);
+    }
+
+    /**
+     * Scope a query to only include failed events.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeFailed($query): Builder
+    {
+        return $query->where('status', self::STATUS_FAILED);
+    }
+
+    /**
+     * Scope a query to only include events of a specific type.
+     *
+     * @param Builder $query
+     * @param string $eventType
+     * @return Builder
+     */
+    public function scopeForEventType($query, string $eventType): Builder
+    {
+        return $query->where('event_type', $eventType);
+    }
 }

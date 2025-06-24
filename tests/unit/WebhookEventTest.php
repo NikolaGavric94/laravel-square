@@ -96,4 +96,90 @@ class WebhookEventTest extends TestCase
         $this->assertInstanceOf(Carbon::class, $event->event_time);
         $this->assertInstanceOf(Carbon::class, $event->processed_at);
     }
+
+    /**
+     * Test webhook event belongs to subscription relationship.
+     *
+     * @return void
+     */
+    public function test_webhook_event_belongs_to_subscription_relationship()
+    {
+        $subscription = factory(WebhookSubscription::class)->create();
+        $event = factory(WebhookEvent::class)->create([
+            'subscription_id' => $subscription->id,
+        ]);
+
+        $this->assertInstanceOf(WebhookSubscription::class, $event->subscription);
+        $this->assertEquals($subscription->id, $event->subscription->id);
+        $this->assertEquals($subscription->name, $event->subscription->name);
+    }
+
+    /**
+     * Test webhook event status constants.
+     *
+     * @return void
+     */
+    public function test_webhook_event_status_constants()
+    {
+        $this->assertEquals('pending', WebhookEvent::STATUS_PENDING);
+        $this->assertEquals('processed', WebhookEvent::STATUS_PROCESSED);
+        $this->assertEquals('failed', WebhookEvent::STATUS_FAILED);
+    }
+
+    /**
+     * Test webhook event scopes.
+     *
+     * @return void
+     */
+    public function test_webhook_event_pending_scope()
+    {
+        factory(WebhookEvent::class, 3)->create(['status' => WebhookEvent::STATUS_PENDING]);
+        factory(WebhookEvent::class, 2)->create(['status' => WebhookEvent::STATUS_PROCESSED]);
+        factory(WebhookEvent::class, 1)->create(['status' => WebhookEvent::STATUS_FAILED]);
+
+        $pendingEvents = WebhookEvent::pending()->get();
+
+        $this->assertCount(3, $pendingEvents);
+        foreach ($pendingEvents as $event) {
+            $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
+        }
+    }
+
+    /**
+     * Test processed scope.
+     *
+     * @return void
+     */
+    public function test_webhook_event_processed_scope()
+    {
+        factory(WebhookEvent::class, 2)->create(['status' => WebhookEvent::STATUS_PENDING]);
+        factory(WebhookEvent::class, 4)->create(['status' => WebhookEvent::STATUS_PROCESSED]);
+        factory(WebhookEvent::class, 1)->create(['status' => WebhookEvent::STATUS_FAILED]);
+
+        $processedEvents = WebhookEvent::processed()->get();
+
+        $this->assertCount(4, $processedEvents);
+        foreach ($processedEvents as $event) {
+            $this->assertEquals(WebhookEvent::STATUS_PROCESSED, $event->status);
+        }
+    }
+
+    /**
+     * Test failed scope.
+     *
+     * @return void
+     */
+    public function test_webhook_event_failed_scope()
+    {
+        factory(WebhookEvent::class, 2)->create(['status' => WebhookEvent::STATUS_PENDING]);
+        factory(WebhookEvent::class, 1)->create(['status' => WebhookEvent::STATUS_PROCESSED]);
+        factory(WebhookEvent::class, 3)->create(['status' => WebhookEvent::STATUS_FAILED]);
+
+        $failedEvents = WebhookEvent::failed()->get();
+
+        $this->assertCount(3, $failedEvents);
+        foreach ($failedEvents as $event) {
+            $this->assertEquals(WebhookEvent::STATUS_FAILED, $event->status);
+        }
+    }
 }
