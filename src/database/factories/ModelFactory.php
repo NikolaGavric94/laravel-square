@@ -131,3 +131,44 @@ $factory->define(User::class, function (Faker\Generator $faker) {
         'remember_token' => Str::random(10),
     ];
 });
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, function (Faker\Generator $faker) {
+    return [
+        'square_id' => 'wh_' . $faker->unique()->uuid,
+        'name' => $faker->words(3, true) . ' Webhook',
+        'notification_url' => 'https://' . $faker->domainName . '/webhook/' . $faker->uuid,
+        'event_types' => Arr::random([
+            ['order.created'],
+            ['order.updated'],
+            ['order.fulfillment.updated'],
+            ['order.created', 'order.updated'],
+            ['order.created', 'order.updated', 'order.fulfillment.updated'],
+        ]),
+        'api_version' => '2024-06-04',
+        'signature_key' => 'wh_key_' . $faker->sha256,
+        'is_enabled' => $faker->boolean(80), // 80% chance of being enabled
+        'is_active' => $faker->boolean(90), // 90% chance of being active
+    ];
+});
+
+/* ENABLED WEBHOOK */
+$factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'ENABLED', [
+    'is_enabled' => true,
+    'is_active' => true,
+]);
+
+/* DISABLED WEBHOOK */
+$factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'DISABLED', [
+    'is_enabled' => false,
+]);
+
+/* INACTIVE WEBHOOK */
+$factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'INACTIVE', [
+    'is_active' => false,
+]);
+
+/* ORDER EVENTS WEBHOOK */
+$factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'ORDER_EVENTS', [
+    'event_types' => ['order.created', 'order.updated', 'order.fulfillment.updated'],
+]);
