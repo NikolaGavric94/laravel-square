@@ -172,3 +172,64 @@ $factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'INACTIVE', [
 $factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'ORDER_EVENTS', [
     'event_types' => ['order.created', 'order.updated', 'order.fulfillment.updated'],
 ]);
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Constants::WEBHOOK_EVENT_NAMESPACE, function (Faker\Generator $faker) {
+    return [
+        'square_event_id' => 'event_' . $faker->unique()->uuid,
+        'event_type' => Arr::random([
+            'order.created',
+            'order.updated',
+            'order.fulfillment.updated',
+            'payment.created',
+            'payment.updated',
+        ]),
+        'event_data' => [
+            'merchant_id' => 'merchant_' . $faker->uuid,
+            'type' => 'order.created',
+            'event_id' => 'event_' . $faker->uuid,
+            'created_at' => $faker->iso8601,
+            'data' => [
+                'type' => 'order',
+                'id' => 'order_data_' . $faker->uuid,
+                'object' => [
+                    'order' => [
+                        'id' => 'order_' . $faker->uuid,
+                        'location_id' => 'location_' . $faker->uuid,
+                        'state' => Arr::random(['DRAFT', 'OPEN', 'COMPLETED', 'CANCELED']),
+                    ]
+                ]
+            ]
+        ],
+        'event_time' => $faker->dateTimeBetween('-1 month', 'now'),
+        'status' => Arr::random(['pending', 'processed', 'failed']),
+        'subscription_id' => function () {
+            return factory(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE)->create()->id;
+        },
+    ];
+});
+
+/* ORDER EVENT */
+$factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'ORDER_CREATED_EVENT', [
+    'event_type' => 'order.created',
+    'event_data' => [
+        'merchant_id' => 'merchant-123',
+        'type' => 'order.created',
+        'event_id' => 'event-123',
+        'created_at' => now()->toIso8601String(),
+        'data' => [
+            'type' => 'order_created',
+            'id' => 'order-data-123',
+            'object' => [
+                'order_created' => [
+                    'created_at' => now()->toIso8601String(),
+                    'location_id' => 'location-789',
+                    'order_id' => 'order-456',
+                    'state' => 'OPEN',
+                    'version' => 1,
+                ]
+            ]
+        ]
+    ],
+    'status' => 'pending',
+]);
