@@ -4,9 +4,9 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\WebhookVerifier;
 use Nikolag\Square\Models\WebhookSubscription;
+use Nikolag\Square\Models\WebhookEvent;
 
 class WebhookVerifierTest extends TestCase
 {
@@ -130,7 +130,12 @@ class WebhookVerifierTest extends TestCase
 
         $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
 
-        $this->assertEquals($this->validEventData, $result);
+        $this->assertInstanceOf(WebhookEvent::class, $result);
+        $this->assertEquals('event-123', $result->square_event_id);
+        $this->assertEquals('order.created', $result->event_type);
+        $this->assertEquals($this->validEventData, $result->event_data);
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $result->status);
+        $this->assertEquals($subscription->id, $result->webhook_subscription_id);
     }
 
     public function test_verify_and_process_handles_lowercase_signature_header()
@@ -145,7 +150,8 @@ class WebhookVerifierTest extends TestCase
 
         $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
 
-        $this->assertEquals($this->validEventData, $result);
+        $this->assertInstanceOf(WebhookEvent::class, $result);
+        $this->assertEquals($this->validEventData, $result->event_data);
     }
 
     public function test_verify_and_process_throws_exception_for_missing_signature_header()
