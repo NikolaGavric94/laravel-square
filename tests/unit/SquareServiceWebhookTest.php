@@ -11,7 +11,6 @@ use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Tests\Traits\MocksSquareApi;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
