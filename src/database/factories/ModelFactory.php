@@ -267,18 +267,68 @@ $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PAYMENT_CREATED_EVENT', fun
             'merchant_id' => 'merchant_' . $faker->uuid,
             'type' => 'payment.created',
             'event_id' => 'event_' . $faker->uuid,
-            'created_at' => $faker->iso8601,
+            'created_at' =>  now()->toIso8601String(),
             'data' => [
                 'type' => 'payment',
-                'id' => 'payment_data_' . $faker->uuid,
+                'id' => 'payment_data_id_' . $faker->uuid,
                 'object' => [
                     'payment' => [
-                        'id' => 'payment_' . $faker->uuid,
-                        'location_id' => 'location_' . $faker->uuid,
-                        'status' => Arr::random(['PENDING', 'COMPLETED', 'CANCELED', 'FAILED']),
+                        'id' => 'payment_id_' . $faker->uuid,
+                        'created_at' => '2020-11-22T21:16:51.086Z',
+                        'updated_at' => '2020-11-22T21:16:51.198Z',
+                        'amount_money' => [
+                            'amount' => 100,
+                            'currency' => 'USD'
+                        ],
+                        'status' => 'APPROVED',
+                        'delay_duration' => 'PT168H',
+                        'source_type' => 'CARD',
+                        'card_details' => [
+                            'status' => 'AUTHORIZED',
+                            'card' => [
+                                'card_brand' => 'MASTERCARD',
+                                'last_4' => '9029',
+                                'exp_month' => 11,
+                                'exp_year' => 2022,
+                                'fingerprint' => 'sq-1-Tvruf3vPQxlvI6n0IcKYfBukrcv6IqWr8UyBdViWXU2yzGn5VMJvrsHMKpINMhPmVg',
+                                'card_type' => 'CREDIT',
+                                'prepaid_type' => 'NOT_PREPAID',
+                                'bin' => '540988'
+                            ],
+                            'entry_method' => 'KEYED',
+                            'cvv_status' => 'CVV_ACCEPTED',
+                            'avs_status' => 'AVS_ACCEPTED',
+                            'statement_description' => 'SQ *DEFAULT TEST ACCOUNT',
+                            'card_payment_timeline' => [
+                                'authorized_at' => '2020-11-22T21:16:51.198Z'
+                            ]
+                        ],
+                        'location_id' => 'location-242',
+                        'order_id' => '03O3USaPaAaFnI6kkwB1JxGgBsUZY',
+                        'risk_evaluation' => [
+                            'created_at' => '2020-11-22T21:16:51.198Z',
+                            'risk_level' => 'NORMAL'
+                        ],
+                        'total_money' => [
+                            'amount' => 100,
+                            'currency' => 'USD'
+                        ],
+                        'approved_money' => [
+                            'amount' => 100,
+                            'currency' => 'USD'
+                        ],
+                        'capabilities' => [
+                            'EDIT_TIP_AMOUNT',
+                            'EDIT_TIP_AMOUNT_UP',
+                            'EDIT_TIP_AMOUNT_DOWN'
+                        ],
+                        'receipt_number' => 'hYy9',
+                        'delay_action' => 'CANCEL',
+                        'delayed_until' => '2020-11-29T21:16:51.086Z',
+                        'version_token' => 'FfQhQJf9r3VSQIgyWBk1oqhIwiznLwVwJbVVA0bdyEv6o'
                     ]
                 ]
             ]
-        ],
+        ]
     ];
 });
