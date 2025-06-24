@@ -74,4 +74,18 @@ class SquareServiceWebhookTest extends TestCase
         $this->assertEquals('Test error message', $event->error_message);
         $this->assertNotNull($event->processed_at);
     }
+
+    /**
+     * Test that non-existent webhook event methods return false.
+     */
+    public function test_webhook_event_methods_with_non_existent_events(): void
+    {
+        // Test marking non-existent event as processed
+        $result = Square::markWebhookEventProcessed('non_existent_event');
+        $this->assertFalse($result);
+
+        // Test marking non-existent event as failed
+        $result = Square::markWebhookEventFailed('non_existent_event', 'Error message');
+        $this->assertFalse($result);
+    }
 }
