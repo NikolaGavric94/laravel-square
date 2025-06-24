@@ -124,4 +124,22 @@ class WebhookEvent extends Model
         return str_starts_with($this->event_type, 'payment.');
     }
 
+    /**
+     * Get the order ID from the event data.
+     *
+     * @return string|null
+     */
+    public function getOrderId(): ?string
+    {
+        if (!$this->isOrderEvent()) {
+            return null;
+        }
+        $eventTypeKey = match($this->event_type) {
+            'order.created' => 'order_created',
+            'order.fulfillment.updated' => 'order_fulfillment_updated',
+            'order.updated' => 'order_updated',
+            default => null,
+        };
+        return $this->event_data['data']['object'][$eventTypeKey]['order_id'] ?? null;
+    }
 }

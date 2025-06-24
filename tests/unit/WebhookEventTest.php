@@ -241,4 +241,16 @@ class WebhookEventTest extends TestCase
         $this->assertFalse($orderEvent->isPaymentEvent());
         $this->assertFalse($customerEvent->isPaymentEvent());
     }
+
+    /**
+     * Test getOrderId method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_order_id_method()
+    {
+        $event = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->create();
+
+        $this->assertEquals('order-456', $event->getOrderId());
+    }
 }
