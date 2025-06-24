@@ -13,6 +13,7 @@ use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareApi;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
+use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
 class SquareServiceWebhookTest extends TestCase
 {
@@ -136,6 +137,34 @@ class SquareServiceWebhookTest extends TestCase
         $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Webhook not found');
 
         Square::deleteWebhook('non_existent_webhook_id');
+    }
+
+    /**
+     * Tests retrieving a webhook subscription successfully.
+     *
+     * @return void
+     */
+    public function test_retrieve_webhook_success(): void
+    {
+        // Using the fluent API from the trait
+        $this->mockRetrieveWebhookSuccess([
+            'id' => 'webhook_to_fetch_123',
+            'name' => 'Fetched Webhook',
+            'notificationUrl' => $this->testWebhookUrl,
+            'eventTypes' => $this->testEventTypes,
+            'apiVersion' => '2023-10-11',
+            'signatureKey' => 'test_signature_key',
+            'enabled' => true
+        ]);
+
+        $webhookSubscription = Square::retrieveWebhook('webhook_to_fetch_123');
+
+        $this->assertInstanceOf(SquareWebhookSubscription::class, $webhookSubscription);
+        $this->assertEquals('Fetched Webhook', $webhookSubscription->getName());
+        $this->assertEquals($this->testWebhookUrl, $webhookSubscription->getNotificationUrl());
+        $this->assertEquals($this->testEventTypes, $webhookSubscription->getEventTypes());
+        $this->assertTrue($webhookSubscription->getEnabled());
+        $this->assertEquals('webhook_to_fetch_123', $webhookSubscription->getId());
     }
 
     /**

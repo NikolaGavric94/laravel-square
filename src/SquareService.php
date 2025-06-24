@@ -520,6 +520,28 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Create a new webhook subscription.
+     *
+     * @param WebhookBuilder $builder The webhook builder instance.
+     *
+     * @throws ApiException
+     * @throws MissingPropertyException
+     *
+     * @return SquareWebhookSubscription
+     */
+    public function retrieveWebhook(string $subscriptionId): SquareWebhookSubscription
+    {
+        $response = $this->config->webhooksAPI()->retrieveWebhookSubscription($subscriptionId);
+        $result = $response->getResult();
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $result->getSubscription();
+    }
+
+    /**
      * Update an existing webhook subscription.
      *
      * @param string         $subscriptionId The ID of the webhook subscription to update.
