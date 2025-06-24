@@ -209,7 +209,32 @@ $factory->define(Constants::WEBHOOK_EVENT_NAMESPACE, function (Faker\Generator $
     ];
 });
 
-/* ORDER EVENT */
+/* PENDING WEBHOOK EVENT */
+$factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PENDING', [
+    'status' => 'pending',
+    'processed_at' => null,
+    'error_message' => null,
+]);
+
+/* PROCESSED WEBHOOK EVENT */
+$factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PROCESSED', function (Faker\Generator $faker) {
+    return [
+        'status' => 'processed',
+        'processed_at' => $faker->dateTimeBetween('-1 week', 'now'),
+        'error_message' => null,
+    ];
+});
+
+/* FAILED WEBHOOK EVENT */
+$factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'FAILED', function (Faker\Generator $faker) {
+    return [
+        'status' => 'failed',
+        'processed_at' => $faker->dateTimeBetween('-1 week', 'now'),
+        'error_message' => $faker->sentence,
+    ];
+});
+
+/* ORDER CREATED EVENT */
 $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'ORDER_CREATED_EVENT', [
     'event_type' => 'order.created',
     'event_data' => [
@@ -233,3 +258,27 @@ $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'ORDER_CREATED_EVENT', [
     ],
     'status' => 'pending',
 ]);
+
+/* PAYMENT EVENT */
+$factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PAYMENT_CREATED_EVENT', function (Faker\Generator $faker) {
+    return [
+        'event_type' => 'payment.created',
+        'event_data' => [
+            'merchant_id' => 'merchant_' . $faker->uuid,
+            'type' => 'payment.created',
+            'event_id' => 'event_' . $faker->uuid,
+            'created_at' => $faker->iso8601,
+            'data' => [
+                'type' => 'payment',
+                'id' => 'payment_data_' . $faker->uuid,
+                'object' => [
+                    'payment' => [
+                        'id' => 'payment_' . $faker->uuid,
+                        'location_id' => 'location_' . $faker->uuid,
+                        'status' => Arr::random(['PENDING', 'COMPLETED', 'CANCELED', 'FAILED']),
+                    ]
+                ]
+            ]
+        ],
+    ];
+});

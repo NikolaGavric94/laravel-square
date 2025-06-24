@@ -125,21 +125,96 @@ class WebhookEvent extends Model
     }
 
     /**
+     * Get the object type key for the event data based on event type.
+     *
+     * Different Square webhook event types store their data under different keys
+     * in the event_data['data']['object'] structure. This method maps event types
+     * to their corresponding object keys.
+     *
+     * @return string|null The object key for this event type, or null if unknown
+     */
+    public function getObjectTypeKey(): ?string
+    {
+        return match($this->event_type) {
+            'order.created' => 'order_created',
+            'order.fulfillment.updated' => 'order_fulfillment_updated',
+            'order.updated' => 'order_updated',
+            'payment.created' => 'payment',
+            'payment.updated' => 'payment',
+            default => null,
+        };
+    }
+
+    /**
      * Get the order ID from the event data.
      *
      * @return string|null
      */
     public function getOrderId(): ?string
     {
-        if (!$this->isOrderEvent()) {
+        return $this->event_data['data']['object'][$this->getObjectTypeKey()]['order_id'] ?? null;
+    }
+
+    /**
+     * Get the payment ID from the event data.
+     *
+     * @return string|null
+     */
+    public function getPaymentId(): ?string
+    {
+        if (!$this->isPaymentEvent()) {
             return null;
         }
-        $eventTypeKey = match($this->event_type) {
-            'order.created' => 'order_created',
-            'order.fulfillment.updated' => 'order_fulfillment_updated',
-            'order.updated' => 'order_updated',
-            default => null,
-        };
-        return $this->event_data['data']['object'][$eventTypeKey]['order_id'] ?? null;
+        return $this->event_data['data']['object']['payment']['id'] ?? null;
     }
+
+    /**
+     * Get the merchant ID from the event data.
+     *
+     * @return string|null
+     */
+    public function getMerchantId(): ?string
+    {
+        return $this->event_data['merchant_id'] ?? null;
+    }
+
+    /**
+     * Get the location ID from the event data.
+     *
+     * @return string|null
+     */
+    public function getLocationId(): ?string
+    {
+        return $this->event_data['data']['object'][$this->getObjectTypeKey()]['location_id'] ?? null;
+    }
+
+    /**
+     * Mark the event as processed.
+     *
+     * @return bool
+     */
+    public function markAsProcessed(): bool
+    {
+        return $this->update([
+            'status' => self::STATUS_PROCESSED,
+            'processed_at' => now(),
+            'error_message' => null,
+        ]);
+    }
+
+    /**
+     * Mark the event as failed with an error message.
+     *
+     * @param string $errorMessage
+     * @return bool
+     */
+    public function markAsFailed(string $errorMessage): bool
+    {
+        return $this->update([
+            'status' => self::STATUS_FAILED,
+            'processed_at' => now(),
+            'error_message' => $errorMessage,
+        ]);
+    }
+
 }

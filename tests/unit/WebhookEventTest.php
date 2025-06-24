@@ -253,4 +253,128 @@ class WebhookEventTest extends TestCase
 
         $this->assertEquals('order-456', $event->getOrderId());
     }
+
+    /**
+     * Test getOrderId method returns null for missing data.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_order_id_returns_null_for_missing_data()
+    {
+        $event = factory(WebhookEvent::class)->create([
+            'event_data' => ['some' => 'other_data']
+        ]);
+
+        $this->assertNull($event->getOrderId());
+    }
+
+    /**
+     * Test getPaymentId method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_payment_id_method()
+    {
+        $event = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->create();
+
+        // Modify the event_data to have a specific payment ID
+        $event->event_data['data']['object']['payment']['id'] = 'payment-123';
+        $event->save();
+
+        $this->assertEquals('payment-123', $event->getPaymentId());
+    }
+
+    /**
+     * Test getMerchantId method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_merchant_id_method()
+    {
+        $eventData = [
+            'merchant_id' => 'merchant-123',
+            'type' => 'order.created'
+        ];
+
+        $event = factory(WebhookEvent::class)->create([
+            'event_data' => $eventData
+        ]);
+
+        $this->assertEquals('merchant-123', $event->getMerchantId());
+    }
+
+    /**
+     * Test getLocationId method for order events.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_location_id_method_for_order_events()
+    {
+        $event = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->create();
+
+        $this->assertEquals('location-789', $event->getLocationId());
+    }
+
+    /**
+     * Test getLocationId method for payment events.
+     *
+     * @return void
+     */
+    public function test_webhook_event_get_location_id_method_for_payment_events()
+    {
+        $event = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->create();
+
+        $this->assertEquals('location-242', $event->getLocationId());
+    }
+
+    /**
+     * Test markAsProcessed method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_mark_as_processed_method()
+    {
+        $event = factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PENDING,
+            'processed_at' => null,
+            'error_message' => 'Previous error',
+        ]);
+
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
+        $this->assertNull($event->processed_at);
+        $this->assertEquals('Previous error', $event->error_message);
+
+        $result = $event->markAsProcessed();
+
+        $this->assertTrue($result);
+        $event->refresh();
+        $this->assertEquals(WebhookEvent::STATUS_PROCESSED, $event->status);
+        $this->assertNotNull($event->processed_at);
+        $this->assertNull($event->error_message);
+        $this->assertInstanceOf(Carbon::class, $event->processed_at);
+    }
+
+    /**
+     * Test markAsFailed method.
+     *
+     * @return void
+     */
+    public function test_webhook_event_mark_as_failed_method()
+    {
+        $event = factory(WebhookEvent::class)->create([
+            'status' => WebhookEvent::STATUS_PENDING,
+            'processed_at' => null,
+            'error_message' => null,
+        ]);
+
+        $errorMessage = 'Processing failed due to invalid data';
+        $result = $event->markAsFailed($errorMessage);
+
+        $this->assertTrue($result);
+        $event->refresh();
+        $this->assertEquals(WebhookEvent::STATUS_FAILED, $event->status);
+        $this->assertNotNull($event->processed_at);
+        $this->assertEquals($errorMessage, $event->error_message);
+        $this->assertInstanceOf(Carbon::class, $event->processed_at);
+    }
 }
