@@ -203,7 +203,7 @@ $factory->define(Constants::WEBHOOK_EVENT_NAMESPACE, function (Faker\Generator $
         ],
         'event_time' => $faker->dateTimeBetween('-1 month', 'now'),
         'status' => Arr::random(['pending', 'processed', 'failed']),
-        'subscription_id' => function () {
+        'webhook_subscription_id' => function () {
             return factory(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE)->create()->id;
         },
     ];
