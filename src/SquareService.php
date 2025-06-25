@@ -26,6 +26,7 @@ use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use Square\Models\UpdateCustomerRequest;
 use stdClass;
@@ -617,6 +618,36 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         WebhookSubscription::where('square_id', $subscriptionId)->delete();
 
         return true;
+    }
+
+    /**
+     * List all webhook subscriptions.
+     *
+     * @param string|null $cursor
+     * @param bool $includeDisabled
+     * @param string|null $sortOrder
+     * @param int|null $limit
+     * @return ListWebhookSubscriptionsResponse
+     * @throws ApiException
+     */
+    public function listWebhooks(
+        ?string $cursor = null,
+        bool $includeDisabled = false,
+        ?string $sortOrder = null,
+        ?int $limit = null
+    ): ListWebhookSubscriptionsResponse {
+        $response = $this->config->webhooksAPI()->listWebhookSubscriptions(
+            $cursor,
+            $includeDisabled,
+            $sortOrder,
+            $limit
+        );
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $response->getResult();
     }
 
 

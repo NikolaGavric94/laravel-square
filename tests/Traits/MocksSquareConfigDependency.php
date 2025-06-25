@@ -10,9 +10,12 @@ use Square\Models\Builders\DeleteWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\WebhookSubscriptionBuilder;
 use Square\Models\Builders\ErrorBuilder;
+use Square\Models\Builders\ListWebhookSubscriptionsResponseBuilder;
 use Square\Models\CreateWebhookSubscriptionResponse;
 use Square\Models\DeleteWebhookSubscriptionResponse;
+use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\UpdateWebhookSubscriptionResponse;
+use Square\Models\WebhookSubscription;
 
 /**
  * Square API mocking trait based on dependency injection pattern.
@@ -30,14 +33,14 @@ trait MocksSquareConfigDependency
      * Mock the SquareConfig dependency for webhook operations.
      *
      * @param string  $endpoint     The webhook endpoint to mock.
-     * @param array   $responseData The data to include in successful responses.
+     * @param array|null   $responseData The data to include in successful responses.
      * @param boolean $shouldFail   Whether to simulate an API error.
      * @param string  $errorMessage Error message if shouldFail is true.
      * @param int     $errorCode    HTTP error code if shouldFail is true.
      */
     protected function mockSquareWebhookEndpoint(
         string $endpoint,
-        array $responseData = [],
+        ?array $responseData = null,
         bool $shouldFail = false,
         string $errorMessage = 'API Error',
         int $errorCode = 400
@@ -53,27 +56,14 @@ trait MocksSquareConfigDependency
      * Mock a successful webhook API response.
      *
      * @param string $endpoint The webhook endpoint to mock.
-     * @param array  $responseData The data to include in the response.
+     * @param array|null  $responseData The data to include in the response.
      *
      * @return void
      */
-    private function mockSquareWebhookSuccess(string $endpoint, array $responseData): void
+    private function mockSquareWebhookSuccess(string $endpoint, ?array $responseData = null): void
     {
-        // Set default values for webhook responses
-        $defaultData = [
-            'id' => 'wh_default_123',
-            'name' => 'Default Webhook',
-            'notificationUrl' => 'https://example.com/webhook',
-            'eventTypes' => ['order.created'],
-            'apiVersion' => '2023-10-11',
-            'signatureKey' => 'default_signature_key',
-            'enabled' => true
-        ];
-
-        $mergedData = array_merge($defaultData, $responseData);
-
         // Build the appropriate response based on endpoint
-        $mockResult = $this->buildWebhookResponseForEndpoint($endpoint, $mergedData);
+        $mockResult = $this->buildWebhookResponseForEndpoint($endpoint, $responseData);
 
         // Create mock API response
         $mockApiResponse = $this->createMock(ApiResponse::class);
@@ -116,20 +106,24 @@ trait MocksSquareConfigDependency
     /**
      * Build the appropriate response object based on the endpoint.
      */
-    private function buildWebhookResponseForEndpoint(string $endpoint, array $data): mixed
+    private function buildWebhookResponseForEndpoint(string $endpoint, ?array $data): mixed
     {
         switch ($endpoint) {
             case 'createWebhookSubscription':
                 return $this->buildCreateWebhookResponse($data);
 
-            case 'retrieveWebhookSubscription':
-                return $this->buildRetrieveWebhookResponse($data);
+            case 'deleteWebhookSubscription':
+                return $this->buildDeleteWebhookResponse();
+
+            case 'listWebhookSubscriptions':
+                // For simplicity, returning an array of one subscription
+                return $this->buildListWebhookResponse($data);
 
             case 'updateWebhookSubscription':
                 return $this->buildUpdateWebhookResponse($data);
 
-            case 'deleteWebhookSubscription':
-                return $this->buildDeleteWebhookResponse();
+            case 'retrieveWebhookSubscription':
+                return $this->buildRetrieveWebhookResponse($data);
 
             default:
                 return $this->buildCreateWebhookResponse($data);
@@ -145,18 +139,32 @@ trait MocksSquareConfigDependency
      */
     private function buildCreateWebhookResponse(array $data): CreateWebhookSubscriptionResponse
     {
-        $subscription = WebhookSubscriptionBuilder::init()
-            ->id($data['id'])
-            ->name($data['name'])
-            ->enabled($data['enabled'])
-            ->eventTypes($data['eventTypes'])
-            ->notificationUrl($data['notificationUrl'])
-            ->apiVersion($data['apiVersion'])
-            ->signatureKey($data['signatureKey'])
-            ->build();
+        $subscription = $this->buildSingleWebhook($data);
 
         return CreateWebhookSubscriptionResponseBuilder::init()
             ->subscription($subscription)
+            ->build();
+    }
+
+    /**
+     * Build a list webhook subscriptions response.
+     *
+     * @param null|array $data The data to include in the response.
+     *
+     * @return ListWebhookSubscriptionsResponse
+     */
+    private function buildListWebhookResponse(?array $data = null): ListWebhookSubscriptionsResponse
+    {
+        if ($data !== null) {
+            $response = collect($data)->map(function ($item) {
+                return $this->buildSingleWebhook($item);
+            })->toArray();
+        } else {
+            $response = null;
+        }
+
+        return ListWebhookSubscriptionsResponseBuilder::init()
+            ->subscriptions($response)
             ->build();
     }
 
@@ -169,15 +177,7 @@ trait MocksSquareConfigDependency
      */
     private function buildRetrieveWebhookResponse(array $data): CreateWebhookSubscriptionResponse
     {
-        $subscription = WebhookSubscriptionBuilder::init()
-            ->id($data['id'])
-            ->name($data['name'])
-            ->enabled($data['enabled'])
-            ->eventTypes($data['eventTypes'])
-            ->notificationUrl($data['notificationUrl'])
-            ->apiVersion($data['apiVersion'])
-            ->signatureKey($data['signatureKey'])
-            ->build();
+        $subscription = $this->buildSingleWebhook($data);
 
         return CreateWebhookSubscriptionResponseBuilder::init()
             ->subscription($subscription)
@@ -193,15 +193,7 @@ trait MocksSquareConfigDependency
      */
     private function buildUpdateWebhookResponse(array $data): UpdateWebhookSubscriptionResponse
     {
-        $subscription = WebhookSubscriptionBuilder::init()
-            ->id($data['id'])
-            ->name($data['name'])
-            ->enabled($data['enabled'])
-            ->eventTypes($data['eventTypes'])
-            ->notificationUrl($data['notificationUrl'])
-            ->apiVersion($data['apiVersion'])
-            ->signatureKey($data['signatureKey'])
-            ->build();
+        $subscription = $this->buildSingleWebhook($data);
 
         return UpdateWebhookSubscriptionResponseBuilder::init()
             ->subscription($subscription)
@@ -271,6 +263,18 @@ trait MocksSquareConfigDependency
     }
 
     /**
+     * Mocks the webhooksAPI()->listWebhookSubscriptions(...) method in the SquareService class.
+     *
+     * @param null|array $responseData Data to include in the successful response.
+     *
+     * @return void
+     */
+    protected function mockListWebhookSuccess(?array $responseData = null): void
+    {
+        $this->mockSquareWebhookEndpoint('listWebhookSubscriptions', $responseData);
+    }
+
+    /**
      * Mocks the webhooksAPI()->retrieveWebhookSubscription($subscriptionId) method in the SquareService class.
      *
      * @param array $responseData Data to include in the successful response.
@@ -324,5 +328,25 @@ trait MocksSquareConfigDependency
     protected function mockDeleteWebhookError(string $message = 'Delete webhook failed', int $code = 404): void
     {
         $this->mockSquareWebhookEndpoint('deleteWebhookSubscription', [], true, $message, $code);
+    }
+
+    /**
+     * Build a single webhook subscription model.
+     *
+     * @param array $data The data to include in the subscription.
+     *
+     * @return WebhookSubscription
+     */
+    private function buildSingleWebhook(array $data): WebhookSubscription
+    {
+        return WebhookSubscriptionBuilder::init()
+            ->id($data['id'])
+            ->name($data['name'])
+            ->enabled($data['enabled'])
+            ->eventTypes($data['eventTypes'])
+            ->notificationUrl($data['notificationUrl'])
+            ->apiVersion($data['apiVersion'])
+            ->signatureKey($data['signatureKey'])
+            ->build();
     }
 }

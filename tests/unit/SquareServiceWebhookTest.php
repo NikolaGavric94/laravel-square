@@ -12,6 +12,7 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
+use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
 class SquareServiceWebhookTest extends TestCase
@@ -315,4 +316,41 @@ class SquareServiceWebhookTest extends TestCase
         $this->assertEquals(1, $webhookCount, 'Should have exactly one WebhookSubscription record');
     }
 
+    /**
+     * Test listing webhook subscriptions.
+     */
+    public function test_list_webhooks_success(): void
+    {
+        // Step 1: Mock and create webhook via Square API
+        $this->mockListWebhookSuccess([
+            [
+                'id' => 'wh_recreate_test_789',
+                'name' => 'Webhook for Recreate Test',
+                'notificationUrl' => $this->testWebhookUrl,
+                'eventTypes' => $this->testEventTypes,
+                'apiVersion' => '2023-10-11',
+                'signatureKey' => 'fake-key',
+                'enabled' => true
+            ]
+        ]);
+
+        $response = Square::listWebhooks();
+
+        $this->assertInstanceOf(ListWebhookSubscriptionsResponse::class, $response);
+        $this->assertIsArray($response->getSubscriptions());
+    }
+
+    /**
+     * Test listing webhook subscriptions.
+     */
+    public function test_list_webhooks_success_no_webhooks(): void
+    {
+        // Step 1: Mock and create webhook via Square API
+        $this->mockListWebhookSuccess(null);
+
+        $response = Square::listWebhooks();
+
+        $this->assertInstanceOf(ListWebhookSubscriptionsResponse::class, $response);
+        $this->assertNull($response->getSubscriptions());
+    }
 }
