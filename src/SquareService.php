@@ -26,6 +26,7 @@ use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use Square\Models\UpdateCustomerRequest;
@@ -642,6 +643,24 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $sortOrder,
             $limit
         );
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $response->getResult();
+    }
+
+    /**
+     * List all available webhook event types.
+     *
+     * @param string|null $apiVersion
+     * @return ListWebhookEventTypesResponse
+     * @throws ApiException
+     */
+    public function listWebhookEventTypes(?string $apiVersion = null): ListWebhookEventTypesResponse
+    {
+        $response = $this->config->webhooksAPI()->listWebhookEventTypes($apiVersion);
 
         if ($response->isError()) {
             throw $this->_handleApiResponseErrors($response);

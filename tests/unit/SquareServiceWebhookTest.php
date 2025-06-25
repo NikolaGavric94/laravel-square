@@ -12,6 +12,7 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
+use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
@@ -353,4 +354,25 @@ class SquareServiceWebhookTest extends TestCase
         $this->assertInstanceOf(ListWebhookSubscriptionsResponse::class, $response);
         $this->assertNull($response->getSubscriptions());
     }
+
+    /**
+     * Test listing webhook event types.
+     */
+    public function test_list_webhook_event_types_success(): void
+    {
+        $response = Square::listWebhookEventTypes();
+        $this->assertInstanceOf(ListWebhookEventTypesResponse::class, $response);
+        $this->assertIsArray($response->getEventTypes());
+    }
+
+    /**
+     * Test listing webhook event types with API version.
+     */
+    public function test_list_webhook_event_types_with_api_version(): void
+    {
+        $response = Square::listWebhookEventTypes('2018-07-12');
+        $this->assertInstanceOf(ListWebhookEventTypesResponse::class, $response);
+        $this->assertNull($response->getEventTypes());
+    }
+
 }
