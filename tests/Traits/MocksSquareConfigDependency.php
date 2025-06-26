@@ -8,6 +8,7 @@ use Square\Http\ApiResponse;
 use Square\Models\Builders\CreateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\DeleteWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
+use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyResponseBuilder;
 use Square\Models\Builders\WebhookSubscriptionBuilder;
 use Square\Models\Builders\ErrorBuilder;
 use Square\Models\Builders\ListWebhookSubscriptionsResponseBuilder;
@@ -16,6 +17,7 @@ use Square\Models\CreateWebhookSubscriptionResponse;
 use Square\Models\DeleteWebhookSubscriptionResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\UpdateWebhookSubscriptionResponse;
+use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\WebhookSubscription;
 
@@ -130,6 +132,9 @@ trait MocksSquareConfigDependency
             case 'testWebhookSubscription':
                 return $this->buildTestWebhookResponse($data);
 
+            case 'updateWebhookSubscriptionSignatureKey':
+                return $this->buildUpdateWebhookSignatureKeyResponse($data);
+
             default:
                 return $this->buildCreateWebhookResponse($data);
         }
@@ -226,6 +231,27 @@ trait MocksSquareConfigDependency
     {
         // For now, create a basic response - the actual properties will depend on Square SDK
         return TestWebhookSubscriptionResponseBuilder::init()->build();
+    }
+
+    /**
+     * Build an update webhook subscription signature key response.
+     *
+     * @param array|null $data The data to include in the response.
+     *
+     * @return UpdateWebhookSubscriptionSignatureKeyResponse
+     */
+    private function buildUpdateWebhookSignatureKeyResponse(?array $data = null): UpdateWebhookSubscriptionSignatureKeyResponse
+    {
+        $responseBuilder = UpdateWebhookSubscriptionSignatureKeyResponseBuilder::init();
+
+        if ($data !== null && isset($data['signatureKey'])) {
+            $responseBuilder->signatureKey($data['signatureKey']);
+        } else {
+            // Generate a mock signature key if none provided
+            $responseBuilder->signatureKey('test_signature_key_' . uniqid());
+        }
+
+        return $responseBuilder->build();
     }
 
     /**
@@ -371,6 +397,31 @@ trait MocksSquareConfigDependency
     protected function mockTestWebhookError(string $message = 'Test webhook failed', int $code = 400): void
     {
         $this->mockSquareWebhookEndpoint('testWebhookSubscription', [], true, $message, $code);
+    }
+
+    /**
+     * Mocks the webhooksAPI()->updateWebhookSubscriptionSignatureKey($subscriptionId, $request) method in the SquareService class.
+     *
+     * @param array $responseData Data to include in the successful response.
+     *
+     * @return void
+     */
+    protected function mockUpdateWebhookSignatureKey(array $responseData = []): void
+    {
+        $this->mockSquareWebhookEndpoint('updateWebhookSubscriptionSignatureKey', $responseData);
+    }
+
+    /**
+     * Mocks the webhooksAPI()->updateWebhookSubscriptionSignatureKey($subscriptionId, $request) method in the SquareService class.
+     *
+     * @param string $message Error message to return.
+     * @param int $code HTTP error code to return.
+     *
+     * @return void
+     */
+    protected function mockUpdateWebhookSignatureKeyError(string $message = 'Update webhook signature key failed', int $code = 400): void
+    {
+        $this->mockSquareWebhookEndpoint('updateWebhookSubscriptionSignatureKey', [], true, $message, $code);
     }
 
     /**

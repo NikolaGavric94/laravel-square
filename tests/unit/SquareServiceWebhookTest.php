@@ -15,6 +15,7 @@ use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
+use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
 class SquareServiceWebhookTest extends TestCase
@@ -403,6 +404,58 @@ class SquareServiceWebhookTest extends TestCase
         $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Test webhook failed - invalid subscription');
 
         Square::testWebhook('fake_id', 'order.created');
+    }
+
+    /**
+     * Test updating webhook signature key.
+     */
+    public function test_update_webhook_signature_key_success(): void
+    {
+        $subscriptionId = 'wbhk_test_signature_update_123';
+        $newSignatureKey = 'test_updated_signature_key_' . uniqid();
+
+        // Create a webhook subscription first so we have one to update
+        $subscription = WebhookSubscription::create([
+            'square_id' => $subscriptionId,
+            'name' => 'Test Webhook for Signature Update',
+            'notification_url' => $this->testWebhookUrl,
+            'event_types' => $this->testEventTypes,
+            'api_version' => '2023-10-18',
+            'signature_key' => 'old_signature_key',
+            'is_enabled' => true,
+        ]);
+
+        // Mock successful signature key update response
+        $this->mockUpdateWebhookSignatureKey([
+            'signatureKey' => $newSignatureKey
+        ]);
+
+        $response = Square::updateWebhookSignatureKey($subscriptionId);
+
+        $this->assertInstanceOf(UpdateWebhookSubscriptionSignatureKeyResponse::class, $response);
+        $this->assertIsString($response->getSignatureKey());
+        $this->assertEquals($newSignatureKey, $response->getSignatureKey());
+
+        // Verify the local subscription was updated with the new signature key
+        $this->assertNotEquals($newSignatureKey, $subscription->signature_key);
+        $subscription->refresh();
+        $this->assertEquals($newSignatureKey, $subscription->signature_key);
+    }
+
+    /**
+     * Test updating webhook signature key with API error.
+     */
+    public function test_update_webhook_signature_key_error(): void
+    {
+        $subscriptionId = 'wbhk_invalid_subscription_id';
+
+        // Mock error response for signature key update
+        $this->mockUpdateWebhookSignatureKeyError('Webhook subscription not found', 404);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Webhook subscription not found');
+
+        Square::updateWebhookSignatureKey($subscriptionId);
     }
 
 }
