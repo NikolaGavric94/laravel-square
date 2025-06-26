@@ -9,7 +9,7 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
 use Square\Utils\WebhooksHelper;
 
-class WebhookVerifier
+class WebhookProcessor
 {
     /**
      * Verify and process a webhook payload.

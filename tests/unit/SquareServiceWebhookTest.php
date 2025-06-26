@@ -11,7 +11,7 @@ use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
-use Nikolag\Square\Utils\WebhookVerifier;
+use Nikolag\Square\Utils\WebhookProcessor;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
@@ -709,7 +709,7 @@ class SquareServiceWebhookTest extends TestCase
         ]);
 
         $invalidJson = 'invalid-json-content';
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $subscription->signature_key,
             $subscription->notification_url,
             $invalidJson
@@ -739,7 +739,7 @@ class SquareServiceWebhookTest extends TestCase
             // Missing event_id and created_at
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $subscription->signature_key,
             $subscription->notification_url,
             $incompletePayload

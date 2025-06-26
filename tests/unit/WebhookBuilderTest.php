@@ -7,7 +7,7 @@ use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Utils\WebhookVerifier;
+use Nikolag\Square\Utils\WebhookProcessor;
 
 class WebhookBuilderTest extends TestCase
 {
@@ -68,11 +68,11 @@ class WebhookBuilderTest extends TestCase
     }
 
     /**
-     * Test that the WebhookVerifier validates order event structure.
+     * Test that the WebhookProcessor validates order event structure.
      *
      * @return void
      */
-    public function test_webhook_verifier_validates_order_event_structure()
+    public function test_webhook_processor_validates_order_event_structure()
     {
         $validOrderEvent = [
             'type' => 'order.created',
@@ -88,7 +88,7 @@ class WebhookBuilderTest extends TestCase
             ]
         ];
 
-        $this->assertTrue(WebhookVerifier::isValidOrderEvent($validOrderEvent));
+        $this->assertTrue(WebhookProcessor::isValidOrderEvent($validOrderEvent));
 
         $invalidOrderEvent = [
             'type' => 'order.created',
@@ -98,15 +98,15 @@ class WebhookBuilderTest extends TestCase
             ]
         ];
 
-        $this->assertFalse(WebhookVerifier::isValidOrderEvent($invalidOrderEvent));
+        $this->assertFalse(WebhookProcessor::isValidOrderEvent($invalidOrderEvent));
     }
 
     /**
-     * Test that the WebhookVerifier can extract order data.
+     * Test that the WebhookProcessor can extract order data.
      *
      * @return void
      */
-    public function test_webhook_verifier_can_extract_order_data()
+    public function test_webhook_processor_can_extract_order_data()
     {
         $eventData = [
             'merchant_id' => 'merchant-123',
@@ -121,8 +121,8 @@ class WebhookBuilderTest extends TestCase
             ]
         ];
 
-        $this->assertEquals('order-456', WebhookVerifier::extractOrderId($eventData));
-        $this->assertEquals('merchant-123', WebhookVerifier::extractMerchantId($eventData));
-        $this->assertEquals('location-789', WebhookVerifier::extractLocationId($eventData));
+        $this->assertEquals('order-456', WebhookProcessor::extractOrderId($eventData));
+        $this->assertEquals('merchant-123', WebhookProcessor::extractMerchantId($eventData));
+        $this->assertEquals('location-789', WebhookProcessor::extractLocationId($eventData));
     }
 }

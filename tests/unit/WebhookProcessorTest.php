@@ -4,12 +4,12 @@ namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Utils\WebhookVerifier;
+use Nikolag\Square\Utils\WebhookProcessor;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
 use Square\Utils\WebhooksHelper;
 
-class WebhookVerifierTest extends TestCase
+class WebhookProcessorTest extends TestCase
 {
     private string $testSignatureKey = 'test-signature-key-123';
     private string $testNotificationUrl = 'https://example.com/webhook';
@@ -62,7 +62,7 @@ class WebhookVerifierTest extends TestCase
             'notification_url' => $this->testNotificationUrl,
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $this->testSignatureKey,
             $this->testNotificationUrl,
             $this->validPayload
@@ -73,7 +73,7 @@ class WebhookVerifierTest extends TestCase
             ]
         ];
 
-        $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
+        $result = WebhookProcessor::verifyAndProcess($headers, $this->validPayload, $subscription);
 
         $this->assertInstanceOf(WebhookEvent::class, $result);
         $this->assertEquals('event-123', $result->square_event_id);
@@ -90,7 +90,7 @@ class WebhookVerifierTest extends TestCase
             'notification_url' => $this->testNotificationUrl,
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $this->testSignatureKey,
             $this->testNotificationUrl,
             $this->validPayload
@@ -101,7 +101,7 @@ class WebhookVerifierTest extends TestCase
             ]
         ];
 
-        $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
+        $result = WebhookProcessor::verifyAndProcess($headers, $this->validPayload, $subscription);
 
         $this->assertInstanceOf(WebhookEvent::class, $result);
         $this->assertEquals($this->validEventData, $result->event_data);
@@ -119,7 +119,7 @@ class WebhookVerifierTest extends TestCase
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing webhook signature header');
 
-        WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
+        WebhookProcessor::verifyAndProcess($headers, $this->validPayload, $subscription);
     }
 
     public function test_verify_and_process_throws_exception_for_invalid_signature()
@@ -138,7 +138,7 @@ class WebhookVerifierTest extends TestCase
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Invalid webhook signature');
 
-        WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
+        WebhookProcessor::verifyAndProcess($headers, $this->validPayload, $subscription);
     }
 
     public function test_verify_and_process_throws_exception_for_missing_event_id()
@@ -153,7 +153,7 @@ class WebhookVerifierTest extends TestCase
             'created_at' => '2024-01-01T12:00:00Z'
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $this->testSignatureKey,
             $this->testNotificationUrl,
             $payloadWithoutEventId
@@ -167,7 +167,7 @@ class WebhookVerifierTest extends TestCase
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing required event fields');
 
-        WebhookVerifier::verifyAndProcess($headers, $payloadWithoutEventId, $subscription);
+        WebhookProcessor::verifyAndProcess($headers, $payloadWithoutEventId, $subscription);
     }
 
     public function test_verify_and_process_throws_exception_for_missing_event_type()
@@ -182,7 +182,7 @@ class WebhookVerifierTest extends TestCase
             'created_at' => '2024-01-01T12:00:00Z'
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $this->testSignatureKey,
             $this->testNotificationUrl,
             $payloadWithoutType
@@ -196,7 +196,7 @@ class WebhookVerifierTest extends TestCase
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing required event fields');
 
-        WebhookVerifier::verifyAndProcess($headers, $payloadWithoutType, $subscription);
+        WebhookProcessor::verifyAndProcess($headers, $payloadWithoutType, $subscription);
     }
 
     public function test_verify_and_process_throws_exception_for_missing_created_at()
@@ -211,7 +211,7 @@ class WebhookVerifierTest extends TestCase
             'type' => 'order.created'
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $this->testSignatureKey,
             $this->testNotificationUrl,
             $payloadWithoutCreatedAt
@@ -225,7 +225,7 @@ class WebhookVerifierTest extends TestCase
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing required event fields');
 
-        WebhookVerifier::verifyAndProcess($headers, $payloadWithoutCreatedAt, $subscription);
+        WebhookProcessor::verifyAndProcess($headers, $payloadWithoutCreatedAt, $subscription);
     }
 
     public function test_generate_test_signature_produces_verifiable_signature()
@@ -235,7 +235,7 @@ class WebhookVerifierTest extends TestCase
             'notification_url' => $this->testNotificationUrl,
         ]);
 
-        $signature = WebhookVerifier::generateTestSignature(
+        $signature = WebhookProcessor::generateTestSignature(
             $this->testSignatureKey,
             $this->testNotificationUrl,
             $this->validPayload
@@ -253,7 +253,7 @@ class WebhookVerifierTest extends TestCase
 
     public function test_generate_test_signature()
     {
-        $signature = WebhookVerifier::generateTestSignature($this->testSignatureKey, $this->testNotificationUrl);
+        $signature = WebhookProcessor::generateTestSignature($this->testSignatureKey, $this->testNotificationUrl);
         $this->assertNotEmpty($signature);
         $this->assertIsString($signature);
     }
@@ -267,7 +267,7 @@ class WebhookVerifierTest extends TestCase
         ];
 
         foreach ($validOrderEvents as $eventType => $eventData) {
-            $result = WebhookVerifier::isValidOrderEvent($eventData);
+            $result = WebhookProcessor::isValidOrderEvent($eventData);
             $this->assertTrue($result, "Failed for event type: {$eventType}");
         }
     }
@@ -283,7 +283,7 @@ class WebhookVerifierTest extends TestCase
 
         foreach ($nonOrderEvents as $eventType) {
             $eventData = array_merge($this->validEventData, ['type' => $eventType]);
-            $result = WebhookVerifier::isValidOrderEvent($eventData);
+            $result = WebhookProcessor::isValidOrderEvent($eventData);
             $this->assertFalse($result, "Should fail for event type: {$eventType}");
         }
     }
@@ -331,14 +331,14 @@ class WebhookVerifierTest extends TestCase
         ];
 
         foreach ($testCases as $testName => $eventData) {
-            $result = WebhookVerifier::isValidOrderEvent($eventData);
+            $result = WebhookProcessor::isValidOrderEvent($eventData);
             $this->assertFalse($result, "Should fail for case: {$testName}");
         }
     }
 
     public function test_extract_order_id_returns_correct_id()
     {
-        $orderId = WebhookVerifier::extractOrderId($this->validEventData);
+        $orderId = WebhookProcessor::extractOrderId($this->validEventData);
         $this->assertEquals('order-456', $orderId);
     }
 
@@ -352,7 +352,7 @@ class WebhookVerifierTest extends TestCase
             ]
         ];
 
-        $orderId = WebhookVerifier::extractOrderId($eventDataWithoutOrderId);
+        $orderId = WebhookProcessor::extractOrderId($eventDataWithoutOrderId);
         $this->assertNull($orderId);
     }
 
@@ -364,13 +364,13 @@ class WebhookVerifierTest extends TestCase
             ]
         ];
 
-        $orderId = WebhookVerifier::extractOrderId($malformedData);
+        $orderId = WebhookProcessor::extractOrderId($malformedData);
         $this->assertNull($orderId);
     }
 
     public function test_extract_merchant_id_returns_correct_id()
     {
-        $merchantId = WebhookVerifier::extractMerchantId($this->validEventData);
+        $merchantId = WebhookProcessor::extractMerchantId($this->validEventData);
         $this->assertEquals('test-merchant-123', $merchantId);
     }
 
@@ -380,13 +380,13 @@ class WebhookVerifierTest extends TestCase
             'type' => 'order.created'
         ];
 
-        $merchantId = WebhookVerifier::extractMerchantId($eventDataWithoutMerchantId);
+        $merchantId = WebhookProcessor::extractMerchantId($eventDataWithoutMerchantId);
         $this->assertNull($merchantId);
     }
 
     public function test_extract_location_id_returns_correct_id()
     {
-        $locationId = WebhookVerifier::extractLocationId($this->validEventData);
+        $locationId = WebhookProcessor::extractLocationId($this->validEventData);
         $this->assertEquals('location-789', $locationId);
     }
 
@@ -400,7 +400,7 @@ class WebhookVerifierTest extends TestCase
             ]
         ];
 
-        $locationId = WebhookVerifier::extractLocationId($eventDataWithoutLocationId);
+        $locationId = WebhookProcessor::extractLocationId($eventDataWithoutLocationId);
         $this->assertNull($locationId);
     }
 
@@ -410,7 +410,7 @@ class WebhookVerifierTest extends TestCase
             'data' => 'not-an-array'
         ];
 
-        $locationId = WebhookVerifier::extractLocationId($malformedData);
+        $locationId = WebhookProcessor::extractLocationId($malformedData);
         $this->assertNull($locationId);
     }
 
@@ -429,7 +429,7 @@ class WebhookVerifierTest extends TestCase
             ]
         ];
 
-        $this->assertTrue(WebhookVerifier::isValidOrderEvent($validOrderEvent));
+        $this->assertTrue(WebhookProcessor::isValidOrderEvent($validOrderEvent));
     }
 
     public function test_verify_and_process_with_empty_headers()
@@ -442,6 +442,6 @@ class WebhookVerifierTest extends TestCase
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing webhook signature header');
 
-        WebhookVerifier::verifyAndProcess([], $this->validPayload, $subscription);
+        WebhookProcessor::verifyAndProcess([], $this->validPayload, $subscription);
     }
 }

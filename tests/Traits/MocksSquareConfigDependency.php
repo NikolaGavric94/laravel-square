@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\SquareConfig;
-use Nikolag\Square\Utils\WebhookVerifier;
+use Nikolag\Square\Utils\WebhookProcessor;
 use Square\Apis\WebhookSubscriptionsApi;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\CreateWebhookSubscriptionResponseBuilder;
@@ -455,8 +455,8 @@ trait MocksSquareConfigDependency
         // Convert to JSON payload
         $jsonPayload = json_encode($webhookPayload);
 
-        // Generate proper signature using the corrected WebhookVerifier method
-        $signature = WebhookVerifier::generateTestSignature(
+        // Generate proper signature using the corrected WebhookProcessor method
+        $signature = WebhookProcessor::generateTestSignature(
             $webhookSubscription->signature_key,
             $webhookSubscription->notification_url,
             $jsonPayload

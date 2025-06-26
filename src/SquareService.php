@@ -20,7 +20,7 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
-use Nikolag\Square\Utils\WebhookVerifier;
+use Nikolag\Square\Utils\WebhookProcessor;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\TestWebhookSubscriptionRequestBuilder;
@@ -758,7 +758,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             throw new InvalidSquareSignatureException('No webhook subscription found for verification');
         }
 
-        return WebhookVerifier::verifyAndProcess($headers, $payload, $subscription);
+        return WebhookProcessor::verifyAndProcess($headers, $payload, $subscription);
     }
 
     /**
