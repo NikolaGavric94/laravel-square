@@ -11,10 +11,12 @@ use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\WebhookSubscriptionBuilder;
 use Square\Models\Builders\ErrorBuilder;
 use Square\Models\Builders\ListWebhookSubscriptionsResponseBuilder;
+use Square\Models\Builders\TestWebhookSubscriptionResponseBuilder;
 use Square\Models\CreateWebhookSubscriptionResponse;
 use Square\Models\DeleteWebhookSubscriptionResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\UpdateWebhookSubscriptionResponse;
+use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\WebhookSubscription;
 
 /**
@@ -125,6 +127,9 @@ trait MocksSquareConfigDependency
             case 'retrieveWebhookSubscription':
                 return $this->buildRetrieveWebhookResponse($data);
 
+            case 'testWebhookSubscription':
+                return $this->buildTestWebhookResponse($data);
+
             default:
                 return $this->buildCreateWebhookResponse($data);
         }
@@ -208,6 +213,19 @@ trait MocksSquareConfigDependency
     private function buildDeleteWebhookResponse(): DeleteWebhookSubscriptionResponse
     {
         return DeleteWebhookSubscriptionResponseBuilder::init()->build();
+    }
+
+    /**
+     * Build a test webhook subscription response.
+     *
+     * @param array|null $data The data to include in the response.
+     *
+     * @return TestWebhookSubscriptionResponse
+     */
+    private function buildTestWebhookResponse(?array $data = null): TestWebhookSubscriptionResponse
+    {
+        // For now, create a basic response - the actual properties will depend on Square SDK
+        return TestWebhookSubscriptionResponseBuilder::init()->build();
     }
 
     /**
@@ -328,6 +346,31 @@ trait MocksSquareConfigDependency
     protected function mockDeleteWebhookError(string $message = 'Delete webhook failed', int $code = 404): void
     {
         $this->mockSquareWebhookEndpoint('deleteWebhookSubscription', [], true, $message, $code);
+    }
+
+    /**
+     * Mocks the webhooksAPI()->testWebhookSubscription($subscriptionId, $request) method in the SquareService class.
+     *
+     * @param array $responseData Data to include in the successful response.
+     *
+     * @return void
+     */
+    protected function mockTestWebhookSuccess(array $responseData = []): void
+    {
+        $this->mockSquareWebhookEndpoint('testWebhookSubscription', $responseData);
+    }
+
+    /**
+     * Mocks the webhooksAPI()->testWebhookSubscription($subscriptionId, $request) method in the SquareService class.
+     *
+     * @param string $message Error message to return.
+     * @param int $code HTTP error code to return.
+     *
+     * @return void
+     */
+    protected function mockTestWebhookError(string $message = 'Test webhook failed', int $code = 400): void
+    {
+        $this->mockSquareWebhookEndpoint('testWebhookSubscription', [], true, $message, $code);
     }
 
     /**

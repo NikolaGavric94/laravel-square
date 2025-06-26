@@ -14,6 +14,7 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
 class SquareServiceWebhookTest extends TestCase
@@ -373,6 +374,35 @@ class SquareServiceWebhookTest extends TestCase
         $response = Square::listWebhookEventTypes('2018-07-12');
         $this->assertInstanceOf(ListWebhookEventTypesResponse::class, $response);
         $this->assertNull($response->getEventTypes());
+    }
+
+    /**
+     * Test testing a webhook subscription.
+     */
+    public function test_test_webhook_success(): void
+    {
+        // Mock successful test webhook response
+        $this->mockTestWebhookSuccess();
+
+        $response = Square::testWebhook('fake_id', 'order.created');
+
+        $this->assertInstanceOf(TestWebhookSubscriptionResponse::class, $response);
+        // Note: The actual properties available depend on the Square SDK implementation
+        // For now, we just verify the response type is correct
+    }
+
+    /**
+     * Test testing a webhook subscription with API error.
+     */
+    public function test_test_webhook_error(): void
+    {
+        // Mock error response for test webhook
+        $this->mockTestWebhookError('Test webhook failed - invalid subscription', 404);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Test webhook failed - invalid subscription');
+
+        Square::testWebhook('fake_id', 'order.created');
     }
 
 }
