@@ -498,36 +498,52 @@ class SquareServiceWebhookTest extends TestCase
         ]);
     }
 
-        $subscription = WebhookSubscription::create([
-            'square_id' => 'test-subscription-id',
-            'name' => 'Test Webhook',
+    /**
+     * Test processing a payment webhook with valid signature.
+     */
+    public function test_process_webhook_payment_success(): void
+    {
+        // Create a webhook subscription with consistent notification URL
+        $subscription = factory(WebhookSubscription::class)->create([
             'notification_url' => $this->testWebhookUrl,
-            'event_types' => $this->testEventTypes,
-            'api_version' => '2023-10-18',
-            'signature_key' => 'test-signature-key',
-            'is_enabled' => true,
         ]);
 
-        $payload = json_encode([
-            'event_id' => 'test-event-id',
-            'event_type' => 'order.created',
-            'data' => ['test' => 'data'],
-            'merchant_id' => 'test-merchant-id',
-            'location_id' => 'test-location-id',
-        ]);
+        // Generate realistic webhook data with proper signature using factory patterns
+        $request = $this->mockWebhookSubscriptionResponse($subscription, 'payment.created');
 
-        // Mock headers with valid signature
-        $headers = [
-            'x-square-hmacsha256-signature' => 'valid-signature',
-            'x-square-environment' => 'sandbox',
-        ];
+        $event = Square::processWebhook($request);
 
-        $event = Square::processWebhook($headers, $payload, 'test-subscription-id');
-
+        // Validate the webhook event was created correctly
         $this->assertInstanceOf(WebhookEvent::class, $event);
-        $this->assertEquals('test-event-id', $event->square_event_id);
-        $this->assertEquals('order.created', $event->event_type);
+
+        // Parse the payload to get the event data for assertions
+        $payloadData = $request->json()->all();
+        $this->assertEquals($payloadData['event_id'], $event->square_event_id);
+        $this->assertEquals($payloadData['type'], $event->event_type);
         $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
+        $this->assertEquals($subscription->id, $event->webhook_subscription_id);
+
+        // Verify the event data structure contains expected Square webhook format
+        $this->assertIsArray($event->event_data);
+        $this->assertArrayHasKey('merchant_id', $event->event_data);
+        $this->assertArrayHasKey('data', $event->event_data);
+        $this->assertArrayHasKey('object', $event->event_data['data']);
+
+        // Verify it was stored in the database
+        $this->assertDatabaseHas('nikolag_webhook_events', [
+            'square_event_id' => $payloadData['event_id'],
+            'event_type' => 'payment.created',
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => $subscription->id,
+        ]);
+
+        // Verify payment-specific data structure
+        $this->assertArrayHasKey('data', $event->event_data);
+        $this->assertEquals('payment', $event->event_data['data']['type']);
+        $this->assertArrayHasKey('payment', $event->event_data['data']['object']);
+        $this->assertArrayHasKey('amount_money', $event->event_data['data']['object']['payment']);
+        $this->assertEquals(1_00, $event->event_data['data']['object']['payment']['amount_money']['amount']);
+        $this->assertEquals('USD', $event->event_data['data']['object']['payment']['amount_money']['currency']);
     }
 
     /**
