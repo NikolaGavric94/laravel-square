@@ -22,6 +22,7 @@ use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\TestWebhookSubscriptionRequestBuilder;
+use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyRequestBuilder;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\ListLocationsResponse;
@@ -31,6 +32,7 @@ use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use Square\Models\UpdateCustomerRequest;
+use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -691,6 +693,39 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return $response->getResult();
+    }
+
+    /**
+     * Update the signature key for a webhook subscription.
+     *
+     * @param string $subscriptionId
+     * @return UpdateWebhookSubscriptionSignatureKeyResponse
+     * @throws ApiException
+     */
+    public function updateWebhookSignatureKey(string $subscriptionId): UpdateWebhookSubscriptionSignatureKeyResponse
+    {
+        $request = UpdateWebhookSubscriptionSignatureKeyRequestBuilder::init()
+            ->idempotencyKey(uniqid())
+            ->build();
+
+        $response = $this->config->webhooksAPI()->updateWebhookSubscriptionSignatureKey($subscriptionId, $request);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        $result = $response->getResult();
+
+        // Update the local webhook subscription with the new signature key
+        $localSubscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
+
+        if ($localSubscription) {
+            $localSubscription->update([
+                'signature_key' => $result->getSignatureKey(),
+            ]);
+        }
+
+        return $result;
     }
 
 
