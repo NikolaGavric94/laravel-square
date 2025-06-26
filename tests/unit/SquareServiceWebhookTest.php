@@ -2,13 +2,16 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
+use Nikolag\Square\Utils\WebhookVerifier;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
@@ -93,6 +96,8 @@ class SquareServiceWebhookTest extends TestCase
             'name' => 'Webhook to Delete',
             'notificationUrl' => $this->testWebhookUrl,
             'eventTypes' => $this->testEventTypes,
+            'apiVersion' => '2023-10-11',
+            'signatureKey' => 'test_signature_key',
             'enabled' => true
         ]);
 
@@ -190,6 +195,7 @@ class SquareServiceWebhookTest extends TestCase
             'name' => 'Updated Webhook Name',
             'notificationUrl' => $this->testWebhookUrl,
             'eventTypes' => $this->testEventTypes,
+            'apiVersion' => '2023-10-11',
             'enabled' => true
         ]);
 
@@ -547,24 +553,206 @@ class SquareServiceWebhookTest extends TestCase
     }
 
     /**
-     * Test processing webhook without subscription.
+     * Test processing a payment webhook with retry data.
      */
-    public function test_process_webhook_no_subscription(): void
+    public function test_process_webhook_with_retry_data_success(): void
     {
-        $payload = json_encode([
-            'event_id' => 'test-event-id',
-            'event_type' => 'order.created',
-            'data' => ['test' => 'data'],
+        // Create a webhook subscription with consistent notification URL
+        $subscription = factory(WebhookSubscription::class)->create([
+            'notification_url' => $this->testWebhookUrl,
         ]);
 
-        $headers = [
-            'x-square-hmacsha256-signature' => 'valid-signature',
+        $retryData = [
+            'reason' => 'http_failure',
+            'number' => 1,
+            'initialDeliveryTimestamp' => now()->subSeconds(10)->toIso8601String(),
         ];
+
+        // Generate realistic webhook data with proper signature using factory patterns
+        $request = $this->mockWebhookSubscriptionResponse($subscription, 'payment.created', null, $retryData);
+
+        $event = Square::processWebhook($request);
+
+        // Validate the webhook event was created correctly
+        $this->assertInstanceOf(WebhookEvent::class, $event);
+
+        // Parse the payload to get the event data for assertions
+        $payloadData = $request->json()->all();
+        $this->assertEquals($payloadData['event_id'], $event->square_event_id);
+        $this->assertEquals($payloadData['type'], $event->event_type);
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
+        $this->assertEquals($subscription->id, $event->webhook_subscription_id);
+
+        // Verify retry data was properly stored
+        $this->assertTrue($event->isRetry());
+        $this->assertEquals($retryData['reason'], $event->retry_reason);
+        $this->assertEquals($retryData['number'], $event->retry_number);
+        $this->assertNotNull($event->initial_delivery_timestamp);
+
+        // Test retry information getter
+        $retryInfo = $event->getRetryInfo();
+        $this->assertIsArray($retryInfo);
+        $this->assertEquals($retryData['reason'], $retryInfo['reason']);
+        $this->assertEquals($retryData['number'], $retryInfo['number']);
+        $this->assertInstanceOf(Carbon::class, $retryInfo['initial_delivery_timestamp']);
+
+        // Verify description includes retry information
+        $description = $event->getDescription();
+        $this->assertStringContainsString('retry #1', $description);
+
+        // Verify it was stored in the database with retry data
+        $this->assertDatabaseHas('nikolag_webhook_events', [
+            'square_event_id' => $payloadData['event_id'],
+            'event_type' => 'payment.created',
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => $subscription->id,
+            'retry_reason' => $retryData['reason'],
+            'retry_number' => $retryData['number'],
+        ]);
+    }
+
+    /**
+     * Test processing webhook without subscription ID header.
+     */
+    public function test_process_webhook_missing_subscription_id_header(): void
+    {
+        $request = Request::create('/webhook', 'POST', [], [], [], [], json_encode([
+            'event_id' => 'test-event-id',
+            'type' => 'order.created',
+            'data' => ['test' => 'data'],
+        ]));
+
+        // No square-subscription-id header set
+
+        $this->expectException(InvalidSquareSignatureException::class);
+        $this->expectExceptionMessage('Missing Square webhook subscription ID in headers');
+
+        Square::processWebhook($request);
+    }
+
+    /**
+     * Test processing webhook with invalid subscription ID.
+     */
+    public function test_process_webhook_invalid_subscription_id(): void
+    {
+        $request = Request::create('/webhook', 'POST', [], [], [], [], json_encode([
+            'event_id' => 'test-event-id',
+            'type' => 'order.created',
+            'data' => ['test' => 'data'],
+        ]));
+
+        $request->headers->set('square-subscription-id', 'non-existent-subscription-id');
 
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('No webhook subscription found for verification');
 
-        Square::processWebhook($headers, $payload);
+        Square::processWebhook($request);
+    }
+
+    /**
+     * Test processing webhook with invalid signature.
+     */
+    public function test_process_webhook_invalid_signature(): void
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'notification_url' => $this->testWebhookUrl,
+        ]);
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], json_encode([
+            'event_id' => 'test-event-id',
+            'type' => 'order.created',
+            'created_at' => now()->toISOString(),
+            'data' => ['test' => 'data'],
+        ]));
+
+        $request->headers->set('square-subscription-id', $subscription->square_id);
+        $request->headers->set('X-Square-HmacSha256-Signature', 'invalid-signature');
+
+        $this->expectException(InvalidSquareSignatureException::class);
+        $this->expectExceptionMessage('Invalid webhook signature');
+
+        Square::processWebhook($request);
+    }
+
+    /**
+     * Test processing webhook with missing signature header.
+     */
+    public function test_process_webhook_missing_signature_header(): void
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'notification_url' => $this->testWebhookUrl,
+        ]);
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], json_encode([
+            'event_id' => 'test-event-id',
+            'type' => 'order.created',
+            'created_at' => now()->toISOString(),
+            'data' => ['test' => 'data'],
+        ]));
+
+        $request->headers->set('square-subscription-id', $subscription->square_id);
+        // No signature header set
+
+        $this->expectException(InvalidSquareSignatureException::class);
+        $this->expectExceptionMessage('Missing webhook signature header');
+
+        Square::processWebhook($request);
+    }
+
+    /**
+     * Test processing webhook with invalid JSON payload.
+     */
+    public function test_process_webhook_invalid_json_payload(): void
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'notification_url' => $this->testWebhookUrl,
+        ]);
+
+        $invalidJson = 'invalid-json-content';
+        $signature = WebhookVerifier::generateTestSignature(
+            $subscription->signature_key,
+            $subscription->notification_url,
+            $invalidJson
+        );
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], $invalidJson);
+        $request->headers->set('square-subscription-id', $subscription->square_id);
+        $request->headers->set('X-Square-HmacSha256-Signature', $signature);
+
+        $this->expectException(InvalidSquareSignatureException::class);
+        $this->expectExceptionMessage('Invalid JSON payload');
+
+        Square::processWebhook($request);
+    }
+
+    /**
+     * Test processing webhook with missing required fields.
+     */
+    public function test_process_webhook_missing_required_fields(): void
+    {
+        $subscription = factory(WebhookSubscription::class)->create([
+            'notification_url' => $this->testWebhookUrl,
+        ]);
+
+        $incompletePayload = json_encode([
+            'type' => 'order.created',
+            // Missing event_id and created_at
+        ]);
+
+        $signature = WebhookVerifier::generateTestSignature(
+            $subscription->signature_key,
+            $subscription->notification_url,
+            $incompletePayload
+        );
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], $incompletePayload);
+        $request->headers->set('square-subscription-id', $subscription->square_id);
+        $request->headers->set('X-Square-HmacSha256-Signature', $signature);
+
+        $this->expectException(InvalidSquareSignatureException::class);
+        $this->expectExceptionMessage('Missing required event fields');
+
+        Square::processWebhook($request);
     }
 
     /**
