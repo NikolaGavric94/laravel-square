@@ -141,7 +141,7 @@ class WebhookController extends Controller
 
 ## Processing Webhook Events
 
-After the event has been processed and a `WebhookEvent` Model has been created in your application, you can now take
+After the event has been processed and a `WebhookEvent` model has been created in your application, you can now take
 action on the newly registered event.  For example:
 
 ### Retrieving and Processing Events
@@ -166,7 +166,8 @@ foreach ($pendingEvents as $event) {
 
 ### Webhook Retry Handling
 
-Square automatically retries failed webhook deliveries with exponential backoff. The package captures retry information:
+Square automatically retries failed webhook deliveries with exponential backoff. The retry data will be stored in the
+`WebhookEvent` model.
 
 ```php
 // When processing a retry event
