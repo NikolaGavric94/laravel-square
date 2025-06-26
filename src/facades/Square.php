@@ -3,11 +3,14 @@
 namespace Nikolag\Square\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\SquareService;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\ListWebhookEventTypesResponse;
+use Square\Models\ListWebhookSubscriptionsResponse;
 
 /**
  * @method static SquareService save()
@@ -25,6 +28,9 @@ use Square\Models\ListPaymentsResponse;
  * @method static WebhookSubscription createWebhook(WebhookBuilder $builder)
  * @method static WebhookSubscription updateWebhook(string $subscriptionId, WebhookBuilder $builder)
  * @method static bool deleteWebhook(string $subscriptionId)
+ * @method static ListWebhookSubscriptionsResponse listWebhooks(string $cursor = null, bool $includeDisabled = false, string $sortOrder = null, int $limit = null)
+ * @method static ListWebhookEventTypesResponse listWebhookEventTypes(string $apiVersion = null)
+ * @method static WebhookBuilder webhookBuilder()
  * @method static bool markWebhookEventProcessed(string $eventId)
  * @method static bool markWebhookEventFailed(string $eventId)
  *
