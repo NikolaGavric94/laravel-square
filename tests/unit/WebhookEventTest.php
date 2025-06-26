@@ -7,7 +7,6 @@ use Illuminate\Support\Carbon;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Tests\TestCase;
-use Nikolag\Square\Utils\Constants;
 
 class WebhookEventTest extends TestCase
 {
@@ -425,7 +424,6 @@ class WebhookEventTest extends TestCase
         $eventObject = $event->getEventObject();
 
         $this->assertIsArray($eventObject);
-        $this->assertArrayHasKey($event->getObjectTypeKey(), $eventObject);
         $this->assertArrayHasKey('order_created', $eventObject);
     }
 

@@ -2,9 +2,11 @@
 
 namespace Nikolag\Square\Tests\Traits;
 
-use InvalidArgumentException;
+use Illuminate\Http\Request;
 use Nikolag\Square\Models\WebhookEvent;
+use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\SquareConfig;
+use Nikolag\Square\Utils\WebhookVerifier;
 use Square\Apis\WebhookSubscriptionsApi;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\CreateWebhookSubscriptionResponseBuilder;
@@ -13,19 +15,17 @@ use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyResponseBuilder;
 use Square\Models\Builders\WebhookSubscriptionBuilder;
 use Square\Models\Builders\ErrorBuilder;
-use Square\Models\Builders\EventBuilder;
 use Square\Models\Builders\EventDataBuilder;
 use Square\Models\Builders\ListWebhookSubscriptionsResponseBuilder;
 use Square\Models\Builders\TestWebhookSubscriptionResponseBuilder;
 use Square\Models\CreateWebhookSubscriptionResponse;
 use Square\Models\DeleteWebhookSubscriptionResponse;
-use Square\Models\Event;
-use Square\Models\EventData;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\UpdateWebhookSubscriptionResponse;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
-use Square\Models\WebhookSubscription;
+use Square\Models\WebhookSubscription as SquareWebhookSubscription;
+use Symfony\Component\HttpFoundation\InputBag;
 
 /**
  * Square API mocking trait based on dependency injection pattern.
@@ -432,48 +432,127 @@ trait MocksSquareConfigDependency
     }
 
     /**
-     * Generate webhook payload data based on event type using factory patterns.
+     * Generate a realistic webhook payload with proper signature for testing webhook processing.
+     *
+     * This method reuses the webhook event factory data structure to create realistic Square webhook payloads.
+     *
+     * @param string $eventType The type of webhook event ('order.created', 'payment.updated', etc.)
+     * @param string $signatureKey The webhook subscription signature key
+     * @param string $notificationUrl The webhook subscription notification URL
+     * @param array|null $customData Optional custom data to override defaults
+     *
+     * @return Request
+     */
+    protected function mockWebhookSubscriptionResponse(
+        WebhookSubscription $webhookSubscription,
+        string $eventType = 'order.created',
+        ?array $customData = null,
+        ?array $retryData = []
+    ): Request {
+        // Generate the webhook payload as a plain array (not Event object)
+        $webhookPayload = $this->generateWebhookPayload($eventType, $customData);
+
+        // Convert to JSON payload
+        $jsonPayload = json_encode($webhookPayload);
+
+        // Generate proper signature using the corrected WebhookVerifier method
+        $signature = WebhookVerifier::generateTestSignature(
+            $webhookSubscription->signature_key,
+            $webhookSubscription->notification_url,
+            $jsonPayload
+        );
+
+        // Create the headers array with the signature
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-Square-HmacSha256-Signature' => $signature['signature'],
+            'square-subscription-id' => $webhookSubscription->square_id,
+        ];
+
+        // Create a mock request object with the payload and headers
+        $request = Request::create(
+            uri: $webhookSubscription->notification_url,
+            method: 'POST',
+            parameters: $webhookPayload,
+            cookies: [],
+            files: [],
+            server: [],
+            content: $jsonPayload
+        );
+
+        // Set the request headers
+        foreach ($headers as $key => $value) {
+            $request->headers->set($key, $value);
+        }
+
+        // Set the json on the request
+        $jsonAttribute = (new InputBag())->set('parameters', $webhookPayload);
+        $request->setJson($jsonAttribute);
+
+        if (!empty($retryData)) {
+            $request->headers->set('square-retry-reason', $retryData['reason']);
+            $request->headers->set('square-retry-number', $retryData['number']);
+            $request->headers->set('square-initial-delivery-timestamp', $retryData['initialDeliveryTimestamp']);
+        }
+
+        // Return the mock request object
+        return $request;
+    }
+
+    /**
+     * Generate plain webhook payload array with correct structure for signature verification.
      *
      * @param string $eventType The webhook event type
      * @param array|null $customData Custom data to override defaults
      *
-     * @return Event
+     * @return array
      */
-    private function generateWebhookPayload(string $eventType, ?array $customData = null): Event
+    private function generateWebhookPayload(string $eventType): array
     {
-        // Generate event-specific data based on factory patterns
+        // Get factory-based event data for realistic structure
+        /** @var WebhookEvent */
+        $webhookEvent = factory(WebhookEvent::class)->states($this->getFactoryStateForEventType($eventType))->make();
+
+        // Build the webhook payload structure that Square actually sends
+        return [
+            'merchant_id' => $webhookEvent->getMerchantId() ?? 'test-merchant-' . uniqid(),
+            'type' => $eventType,
+            'event_id' => $webhookEvent->square_event_id,
+            'created_at' => $webhookEvent->event_time->toIsoString(),
+            'data' => [
+                'type' => WebhookEvent::getObjectTypeKey($eventType),
+                'id' => $webhookEvent->getOrderId() ?? 'data-object-' . uniqid(),
+                'object' => $webhookEvent->getEventObject()
+            ]
+        ];
+    }
+
+    /**
+     * Get the factory state name for the given event type.
+     *
+     * @param string $eventType
+     * @return string
+     */
+    private function getFactoryStateForEventType(string $eventType): string
+    {
         switch ($eventType) {
             case 'order.created':
-                [$event, $eventData] = $this->generateOrderCreatedEventData($customData);
-                break;
-
+                return 'ORDER_CREATED_EVENT';
             case 'payment.created':
+                return 'PAYMENT_CREATED_EVENT';
             case 'payment.updated':
-                [$event, $eventData] = $this->generatePaymentEventData($customData);
-                break;
-
+                return 'PAYMENT_UPDATED_EVENT';
             default:
-                throw new InvalidArgumentException("Unsupported test event type: $eventType");
+                return 'ORDER_CREATED_EVENT'; // Default fallback
         }
-
-        return EventBuilder::init()
-            ->type($event->event_type)
-            ->eventId($event->square_event_id)
-            ->merchantId($event->getMerchantId())
-            ->locationId($event->getLocationId()) // TODO: Does location id get sent back in the webhook?
-            ->createdAt($event->event_time)
-            ->data($eventData)
-            ->build();
     }
 
     /**
      * Generate order.created event data using factory pattern.
      *
-     * @param array|null $customData Custom data to override defaults
-     *
      * @return array
      */
-    private function generateOrderCreatedEventData(?array $customData = null): array
+    private function generateOrderCreatedEventData(): array
     {
         /** @var WebhookEvent */
         $event = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->make();
@@ -492,11 +571,9 @@ trait MocksSquareConfigDependency
     /**
      * Generate payment event data using factory pattern.
      *
-     * @param array|null $customData Custom data to override defaults
-     *
      * @return array
      */
-    private function generatePaymentEventData(?array $customData = null): array
+    private function generatePaymentEventData(): array
     {
         /** @var WebhookEvent */
         $event = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->make();
@@ -517,9 +594,9 @@ trait MocksSquareConfigDependency
      *
      * @param array $data The data to include in the subscription.
      *
-     * @return WebhookSubscription
+     * @return SquareWebhookSubscription
      */
-    private function buildSingleWebhook(array $data): WebhookSubscription
+    private function buildSingleWebhook(array $data): SquareWebhookSubscription
     {
         $builder = WebhookSubscriptionBuilder::init()
             ->id($data['id'])
@@ -527,16 +604,16 @@ trait MocksSquareConfigDependency
             ->enabled($data['enabled'])
             ->eventTypes($data['eventTypes'])
             ->notificationUrl($data['notificationUrl']);
-        
+
         // Optional fields with defaults
         if (isset($data['apiVersion'])) {
             $builder->apiVersion($data['apiVersion']);
         }
-        
+
         if (isset($data['signatureKey'])) {
             $builder->signatureKey($data['signatureKey']);
         }
-        
+
         return $builder->build();
     }
 }

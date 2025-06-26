@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square;
 
+use Illuminate\Http\Request;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
@@ -19,6 +20,7 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Nikolag\Square\Utils\WebhookVerifier;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\TestWebhookSubscriptionRequestBuilder;
@@ -728,6 +730,34 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         return $result;
     }
 
+    /**
+     * Process a webhook event payload.
+     *
+     * @param Request $request The incoming request containing the webhook payload.
+     *
+     * @throws InvalidSquareSignatureException
+     *
+     * @return WebhookEvent
+     */
+    public function processWebhook(Request $request): WebhookEvent
+    {
+        $headers = $request->headers->all();
+        $payload = $request->getContent();
+
+        $subscriptionId = $headers['square-subscription-id'] ?? $headers['Square-Subscription-Id'] ?? null;
+
+        if (!$subscriptionId) {
+            throw new InvalidSquareSignatureException('Missing Square webhook subscription ID in headers');
+        }
+
+        $subscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
+
+        if (!$subscription) {
+            throw new InvalidSquareSignatureException('No webhook subscription found for verification');
+        }
+
+        return WebhookVerifier::verifyAndProcess($headers, $payload, $subscription);
+    }
 
     /**
      * Get a webhook builder instance.

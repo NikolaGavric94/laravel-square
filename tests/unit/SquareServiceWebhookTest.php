@@ -463,7 +463,41 @@ class SquareServiceWebhookTest extends TestCase
      */
     public function test_process_webhook_success(): void
     {
-        // Create a webhook subscription
+        // Create a webhook subscription with consistent notification URL
+        $subscription = factory(WebhookSubscription::class)->create([
+            'notification_url' => $this->testWebhookUrl,
+        ]);
+
+        // Generate realistic webhook data with proper signature using factory patterns
+        $request = $this->mockWebhookSubscriptionResponse($subscription, 'order.created');
+
+        $event = Square::processWebhook($request);
+
+        // Validate the webhook event was created correctly
+        $this->assertInstanceOf(WebhookEvent::class, $event);
+
+        // Parse the payload to get the event data for assertions
+        $payloadData = $request->json()->all();
+        $this->assertEquals($payloadData['event_id'], $event->square_event_id);
+        $this->assertEquals($payloadData['type'], $event->event_type);
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
+        $this->assertEquals($subscription->id, $event->webhook_subscription_id);
+
+        // Verify the event data structure contains expected Square webhook format
+        $this->assertIsArray($event->event_data);
+        $this->assertArrayHasKey('merchant_id', $event->event_data);
+        $this->assertArrayHasKey('data', $event->event_data);
+        $this->assertArrayHasKey('object', $event->event_data['data']);
+
+        // Verify it was stored in the database
+        $this->assertDatabaseHas('nikolag_webhook_events', [
+            'square_event_id' => $payloadData['event_id'],
+            'event_type' => 'order.created',
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => $subscription->id,
+        ]);
+    }
+
         $subscription = WebhookSubscription::create([
             'square_id' => 'test-subscription-id',
             'name' => 'Test Webhook',

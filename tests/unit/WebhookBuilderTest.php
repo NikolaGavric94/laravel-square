@@ -68,68 +68,6 @@ class WebhookBuilderTest extends TestCase
     }
 
     /**
-     * Test that the WebhookVerifier can verify valid signature.
-     *
-     * @return void
-     */
-    public function test_webhook_verifier_can_verify_valid_signature()
-    {
-        $payload = json_encode(['test' => 'data']);
-        $notificationUrl = 'https://example.com/webhook';
-        $signatureKey = 'test-signature-key';
-
-        $expectedSignature = hash_hmac('sha256', $notificationUrl . $payload, $signatureKey);
-
-        $result = WebhookVerifier::verify($payload, $expectedSignature, $signatureKey, $notificationUrl);
-
-        $this->assertTrue($result);
-    }
-
-    /**
-     * Test that the WebhookVerifier rejects invalid signature.
-     *
-     * @return void
-     */
-    public function test_webhook_verifier_rejects_invalid_signature()
-    {
-        $payload = json_encode(['test' => 'data']);
-        $notificationUrl = 'https://example.com/webhook';
-        $signatureKey = 'test-signature-key';
-        $invalidSignature = 'invalid-signature';
-
-        $result = WebhookVerifier::verify($payload, $invalidSignature, $signatureKey, $notificationUrl);
-
-        $this->assertFalse($result);
-    }
-
-    /**
-     * Test that the WebhookVerifier can generate test signature.
-     *
-     * @return void
-     */
-    public function test_webhook_verifier_can_generate_test_signature()
-    {
-        $signatureKey = 'test-signature-key';
-        $notificationUrl = 'https://example.com/webhook';
-
-        $testData = WebhookVerifier::generateTestSignature($signatureKey, $notificationUrl);
-
-        $this->assertArrayHasKey('payload', $testData);
-        $this->assertArrayHasKey('signature', $testData);
-        $this->assertArrayHasKey('headers', $testData);
-
-        // Verify the generated signature is valid
-        $isValid = WebhookVerifier::verify(
-            $testData['payload'],
-            $testData['signature'],
-            $signatureKey,
-            $notificationUrl
-        );
-
-        $this->assertTrue($isValid);
-    }
-
-    /**
      * Test that the WebhookVerifier validates order event structure.
      *
      * @return void

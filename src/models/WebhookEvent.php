@@ -133,9 +133,9 @@ class WebhookEvent extends Model
      *
      * @return string|null The object key for this event type, or null if unknown
      */
-    public function getObjectTypeKey(): ?string
+    public static function getObjectTypeKey(string $eventType): ?string
     {
-        return match($this->event_type) {
+        return match($eventType) {
             'order.created' => 'order_created',
             'order.fulfillment.updated' => 'order_fulfillment_updated',
             'order.updated' => 'order_updated',
@@ -153,7 +153,7 @@ class WebhookEvent extends Model
     public function getOrderId(): ?string
     {
         $eventObject = $this->getEventObject();
-        return $eventObject[$this->getObjectTypeKey()]['order_id'] ?? null;
+        return $eventObject[self::getObjectTypeKey($this->event_type)]['order_id'] ?? null;
     }
 
     /**
@@ -185,7 +185,7 @@ class WebhookEvent extends Model
     public function getLocationId(): ?string
     {
         $eventObject = $this->getEventObject();
-        return $eventObject[$this->getObjectTypeKey()]['location_id'] ?? null;
+        return $eventObject[self::getObjectTypeKey($this->event_type)]['location_id'] ?? null;
     }
 
     /**

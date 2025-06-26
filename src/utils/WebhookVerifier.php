@@ -5,7 +5,6 @@ namespace Nikolag\Square\Utils;
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
-use Square\Models\Event;
 use Square\Utils\WebhooksHelper;
 
 class WebhookVerifier
@@ -21,15 +20,10 @@ class WebhookVerifier
      *
      * @return WebhookEvent The created webhook event model
      */
-    public static function verifyAndProcess(
-        array $headers,
-        string $payload,
-        WebhookSubscription $subscription
-    ): WebhookEvent {
+    public static function verifyAndProcess(array $headers, string $payload, WebhookSubscription $subscription): WebhookEvent
+    {
         // Get the signature header
-        $signature = $headers['x-square-hmacsha256-signature'] ??
-            $headers['X-Square-HmacSha256-Signature'] ??
-            null;
+        $signature = $headers['x-square-hmacsha256-signature'][0] ?? $headers['X-Square-HmacSha256-Signature'][0] ?? null;
 
         if (!$signature) {
             throw new InvalidSquareSignatureException('Missing webhook signature header');
@@ -75,30 +69,45 @@ class WebhookVerifier
 
     /**
      * Test webhook signature verification with sample data.
+     * Generates signatures compatible with Square's WebhooksHelper::isValidWebhookEventSignature method.
      *
      * @param string $signatureKey    The webhook signature key.
      * @param string $notificationUrl The webhook notification URL.
-     * @param array  $payload         The payload to sign.
+     * @param string $requestBody     The raw JSON payload to sign.
      *
-     * @return array Test data for signature verification
+     * @return string
      */
-    public static function generateTestSignature(string $signatureKey, string $notificationUrl, Event $payload): array
+    public static function generateTestSignature(string $signatureKey, string $notificationUrl, ?string $requestBody = null): string
     {
+        // Generate default test payload if none provided
+        if ($requestBody === null) {
+            $testPayload = [
+                'merchant_id' => 'test-merchant',
+                'type' => 'test.webhook',
+                'event_id' => 'test-event-' . uniqid(),
+                'created_at' => now()->toISOString(),
+                'data' => [
+                    'type' => 'test',
+                    'id' => 'test-object-id',
+                    'object' => [
+                        'test' => true
+                    ]
+                ]
+            ];
+            $requestBody = json_encode($testPayload);
+        }
+
+        // Use Square's exact algorithm for signature generation
         // Perform UTF-8 encoding to bytes
-        $payload = $notificationUrl . json_encode($payload);
+        $payload = $notificationUrl . $requestBody;
         $payloadBytes = mb_convert_encoding($payload, 'UTF-8');
         $signatureKeyBytes = mb_convert_encoding($signatureKey, 'UTF-8');
 
+        // Compute the hash value (raw binary)
         $hash = hash_hmac('sha256', $payloadBytes, $signatureKeyBytes, true);
 
-        return [
-            'payload' => $payload,
-            'signature' => $hash,
-            'headers' => [
-                'X-Square-HmacSha256-Signature' => $hash,
-                'Content-Type' => 'application/json',
-            ]
-        ];
+        // Base64 encode the hash (Square's format)
+        return base64_encode($hash);
     }
 
     /**
