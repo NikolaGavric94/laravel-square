@@ -465,7 +465,7 @@ trait MocksSquareConfigDependency
         // Create the headers array with the signature
         $headers = [
             'Content-Type' => 'application/json',
-            'X-Square-HmacSha256-Signature' => $signature['signature'],
+            'X-Square-HmacSha256-Signature' => $signature,
             'square-subscription-id' => $webhookSubscription->square_id,
         ];
 
