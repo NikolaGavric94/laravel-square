@@ -2,6 +2,8 @@
 
 namespace Nikolag\Square\Tests\Traits;
 
+use InvalidArgumentException;
+use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\SquareConfig;
 use Square\Apis\WebhookSubscriptionsApi;
 use Square\Http\ApiResponse;
@@ -233,7 +235,8 @@ trait MocksSquareConfigDependency
      */
     private function buildTestWebhookResponse(?array $data = null): TestWebhookSubscriptionResponse
     {
-        // For now, create a basic response - the actual properties will depend on Square SDK
+        // Create a basic response - the actual properties will depend on Square SDK
+        // $data parameter is available for future enhancements if needed
         return TestWebhookSubscriptionResponseBuilder::init()->build();
     }
 
@@ -518,14 +521,22 @@ trait MocksSquareConfigDependency
      */
     private function buildSingleWebhook(array $data): WebhookSubscription
     {
-        return WebhookSubscriptionBuilder::init()
+        $builder = WebhookSubscriptionBuilder::init()
             ->id($data['id'])
             ->name($data['name'])
             ->enabled($data['enabled'])
             ->eventTypes($data['eventTypes'])
-            ->notificationUrl($data['notificationUrl'])
-            ->apiVersion($data['apiVersion'])
-            ->signatureKey($data['signatureKey'])
-            ->build();
+            ->notificationUrl($data['notificationUrl']);
+        
+        // Optional fields with defaults
+        if (isset($data['apiVersion'])) {
+            $builder->apiVersion($data['apiVersion']);
+        }
+        
+        if (isset($data['signatureKey'])) {
+            $builder->signatureKey($data['signatureKey']);
+        }
+        
+        return $builder->build();
     }
 }
