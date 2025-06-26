@@ -28,12 +28,12 @@ use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
  * @method static SquareServiceContract setOrder($order, string $locationId, string $currency = 'USD')
  * 
  * Webhook Management Methods
- * @method static WebhookSubscription createWebhook(WebhookBuilder $builder)
- * @method static WebhookSubscription updateWebhook(string $subscriptionId, WebhookBuilder $builder)
- * @method static bool deleteWebhook(string $subscriptionId)
- * @method static ListWebhookSubscriptionsResponse listWebhooks(string $cursor = null, bool $includeDisabled = false, string $sortOrder = null, int $limit = null)
+ * @method static WebhookSubscription createWebhookSubscription(WebhookBuilder $builder)
+ * @method static WebhookSubscription updateWebhookSubscription(string $subscriptionId, WebhookBuilder $builder)
+ * @method static bool deleteWebhookSubscription(string $subscriptionId)
+ * @method static ListWebhookSubscriptionsResponse listWebhookSubscriptions(string $cursor = null, bool $includeDisabled = false, string $sortOrder = null, int $limit = null)
  * @method static ListWebhookEventTypesResponse listWebhookEventTypes(string $apiVersion = null)
- * @method static TestWebhookSubscriptionResponse testWebhook(string $subscriptionId, array $eventData = null)
+ * @method static TestWebhookSubscriptionResponse testWebhookSubscription(string $subscriptionId, array $eventData = null)
  * @method static UpdateWebhookSubscriptionSignatureKeyResponse updateWebhookSignatureKey(string $subscriptionId)
  * @method static WebhookEvent processWebhook(Request $request)
  * @method static WebhookBuilder webhookBuilder()

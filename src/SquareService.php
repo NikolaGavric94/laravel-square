@@ -497,6 +497,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     // ========================================
 
     /**
+     * Get a webhook builder instance.
+     *
+     * @return WebhookBuilder
+     */
+    public function webhookBuilder(): WebhookBuilder
+    {
+        return new WebhookBuilder();
+    }
+
+    /**
      * Create a new webhook subscription.
      *
      * @param WebhookBuilder $builder The webhook builder instance.
@@ -506,7 +516,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @return WebhookSubscription
      */
-    public function createWebhook(WebhookBuilder $builder): WebhookSubscription
+    public function createWebhookSubscription(WebhookBuilder $builder): WebhookSubscription
     {
         $request = $builder->buildCreateRequest();
 
@@ -541,7 +551,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @return SquareWebhookSubscription
      */
-    public function retrieveWebhook(string $subscriptionId): SquareWebhookSubscription
+    public function retrieveWebhookSubscription(string $subscriptionId): SquareWebhookSubscription
     {
         $response = $this->config->webhooksAPI()->retrieveWebhookSubscription($subscriptionId);
         $result = $response->getResult();
@@ -563,7 +573,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      *
      * @return WebhookSubscription
      */
-    public function updateWebhook(string $subscriptionId, WebhookBuilder $builder): WebhookSubscription
+    public function updateWebhookSubscription(string $subscriptionId, WebhookBuilder $builder): WebhookSubscription
     {
         $request = $builder->buildUpdateRequest();
 
@@ -592,7 +602,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             return $localSubscription;
         } else {
             // If not found locally, fetch and create it (necessary as the signature key might have changed)
-            $subscription = self::retrieveWebhook($subscriptionId);
+            $subscription = self::retrieveWebhookSubscription($subscriptionId);
 
             // Store the webhook subscription locally
             return WebhookSubscription::create([
@@ -614,7 +624,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @return bool
      * @throws ApiException
      */
-    public function deleteWebhook(string $subscriptionId): bool
+    public function deleteWebhookSubscription(string $subscriptionId): bool
     {
         $response = $this->config->webhooksAPI()->deleteWebhookSubscription($subscriptionId);
 
@@ -638,7 +648,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @return ListWebhookSubscriptionsResponse
      * @throws ApiException
      */
-    public function listWebhooks(
+    public function listWebhookSubscriptions(
         ?string $cursor = null,
         bool $includeDisabled = false,
         ?string $sortOrder = null,
@@ -684,7 +694,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @return TestWebhookSubscriptionResponse
      * @throws ApiException
      */
-    public function testWebhook(string $subscriptionId, string $eventType): TestWebhookSubscriptionResponse
+    public function testWebhookSubscription(string $subscriptionId, string $eventType): TestWebhookSubscriptionResponse
     {
         $request = TestWebhookSubscriptionRequestBuilder::init()
             ->eventType($eventType)
@@ -732,6 +742,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         return $result;
     }
 
+    // ========================================
+    // Webhook Processing Methods
+    // ========================================
+
     /**
      * Process a webhook event payload.
      *
@@ -759,16 +773,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return WebhookProcessor::verifyAndProcess($headers, $payload, $subscription);
-    }
-
-    /**
-     * Get a webhook builder instance.
-     *
-     * @return WebhookBuilder
-     */
-    public function webhookBuilder(): WebhookBuilder
-    {
-        return new WebhookBuilder();
     }
 
     // ========================================

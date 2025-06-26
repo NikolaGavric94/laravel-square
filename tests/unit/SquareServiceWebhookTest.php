@@ -50,7 +50,7 @@ class SquareServiceWebhookTest extends TestCase
             ->eventTypes($this->testEventTypes)
             ->enabled();
 
-        $webhook = Square::createWebhook($builder);
+        $webhook = Square::createWebhookSubscription($builder);
 
         $this->assertInstanceOf(WebhookSubscription::class, $webhook);
         $this->assertEquals('Test Webhook', $webhook->name);
@@ -81,7 +81,7 @@ class SquareServiceWebhookTest extends TestCase
             ->enabled();
 
         $this->expectException(Exception::class);
-        Square::createWebhook($builder);
+        Square::createWebhookSubscription($builder);
     }
 
     /**
@@ -107,13 +107,13 @@ class SquareServiceWebhookTest extends TestCase
             ->eventTypes($this->testEventTypes)
             ->enabled();
 
-        $webhookSubscription = Square::createWebhook($builder);
+        $webhookSubscription = Square::createWebhookSubscription($builder);
 
         // Now mock the delete operation
         $this->mockDeleteWebhookSuccess();
 
         // Delete the webhook
-        $result = Square::deleteWebhook($webhookSubscription->square_id);
+        $result = Square::deleteWebhookSubscription($webhookSubscription->square_id);
 
         $this->assertTrue($result);
 
@@ -134,7 +134,7 @@ class SquareServiceWebhookTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Delete webhook failed');
 
-        Square::deleteWebhook('non_existent_webhook_id');
+        Square::deleteWebhookSubscription('non_existent_webhook_id');
     }
 
     /**
@@ -155,7 +155,7 @@ class SquareServiceWebhookTest extends TestCase
             'enabled' => true
         ]);
 
-        $webhookSubscription = Square::retrieveWebhook('webhook_to_fetch_123');
+        $webhookSubscription = Square::retrieveWebhookSubscription('webhook_to_fetch_123');
 
         $this->assertInstanceOf(SquareWebhookSubscription::class, $webhookSubscription);
         $this->assertEquals('Fetched Webhook', $webhookSubscription->getName());
@@ -187,7 +187,7 @@ class SquareServiceWebhookTest extends TestCase
             ->eventTypes($this->testEventTypes)
             ->enabled();
 
-        $webhookSubscription = Square::createWebhook($builder);
+        $webhookSubscription = Square::createWebhookSubscription($builder);
 
         // Now mock the update operation - same structure, different endpoint
         $this->mockUpdateWebhookSuccess([
@@ -203,7 +203,7 @@ class SquareServiceWebhookTest extends TestCase
         $builder = $webhookSubscription->getWebhookBuilder();
         $builder->name('Updated Webhook Name');
 
-        $webhookSubscription = Square::updateWebhook($webhookSubscription->square_id, $builder);
+        $webhookSubscription = Square::updateWebhookSubscription($webhookSubscription->square_id, $builder);
 
         $this->assertInstanceOf(WebhookSubscription::class, $webhookSubscription);
         $this->assertEquals('Updated Webhook Name', $webhookSubscription->name);
@@ -251,7 +251,7 @@ class SquareServiceWebhookTest extends TestCase
             ->eventTypes($this->testEventTypes)
             ->enabled();
 
-        $webhookSubscription = Square::createWebhook($builder);
+        $webhookSubscription = Square::createWebhookSubscription($builder);
 
         // Verify webhook was created locally
         $this->assertInstanceOf(WebhookSubscription::class, $webhookSubscription);
@@ -295,7 +295,7 @@ class SquareServiceWebhookTest extends TestCase
         $builder->notificationUrl('https://updated.example.com/webhook');
         $builder->eventTypes(['order.created']);
 
-        $updatedWebhook = Square::updateWebhook($webhookSubscription->square_id, $builder);
+        $updatedWebhook = Square::updateWebhookSubscription($webhookSubscription->square_id, $builder);
 
         // Step 5: Verify the WebhookSubscription model was recreated locally
         $this->assertInstanceOf(WebhookSubscription::class, $updatedWebhook);
@@ -343,7 +343,7 @@ class SquareServiceWebhookTest extends TestCase
             ]
         ]);
 
-        $response = Square::listWebhooks();
+        $response = Square::listWebhookSubscriptions();
 
         $this->assertInstanceOf(ListWebhookSubscriptionsResponse::class, $response);
         $this->assertIsArray($response->getSubscriptions());
@@ -357,7 +357,7 @@ class SquareServiceWebhookTest extends TestCase
         // Step 1: Mock and create webhook via Square API
         $this->mockListWebhookSuccess(null);
 
-        $response = Square::listWebhooks();
+        $response = Square::listWebhookSubscriptions();
 
         $this->assertInstanceOf(ListWebhookSubscriptionsResponse::class, $response);
         $this->assertNull($response->getSubscriptions());
@@ -391,7 +391,7 @@ class SquareServiceWebhookTest extends TestCase
         // Mock successful test webhook response
         $this->mockTestWebhookSuccess();
 
-        $response = Square::testWebhook('fake_id', 'order.created');
+        $response = Square::testWebhookSubscription('fake_id', 'order.created');
 
         $this->assertInstanceOf(TestWebhookSubscriptionResponse::class, $response);
         // Note: The actual properties available depend on the Square SDK implementation
@@ -409,7 +409,7 @@ class SquareServiceWebhookTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Test webhook failed - invalid subscription');
 
-        Square::testWebhook('fake_id', 'order.created');
+        Square::testWebhookSubscription('fake_id', 'order.created');
     }
 
     /**
