@@ -36,6 +36,9 @@ class WebhookEvent extends Model
         'processed_at',
         'error_message',
         'webhook_subscription_id',
+        'retry_reason',
+        'retry_number',
+        'initial_delivery_timestamp',
     ];
 
     /**
@@ -47,6 +50,7 @@ class WebhookEvent extends Model
         'event_data' => 'array',
         'event_time' => 'datetime',
         'processed_at' => 'datetime',
+        'initial_delivery_timestamp' => 'datetime',
     ];
 
     /**
@@ -258,6 +262,56 @@ class WebhookEvent extends Model
     }
 
     /**
+     * Check if this webhook event is a retry attempt.
+     *
+     * @return bool
+     */
+    public function isRetry(): bool
+    {
+        return !is_null($this->retry_number) && $this->retry_number > 0;
+    }
+
+    /**
+     * Get retry information for this webhook event.
+     *
+     * @return array|null
+     */
+    public function getRetryInfo(): ?array
+    {
+        if (!$this->isRetry()) {
+            return null;
+        }
+
+        return [
+            'reason' => $this->retry_reason,
+            'number' => $this->retry_number,
+            'initial_delivery_timestamp' => $this->initial_delivery_timestamp,
+        ];
+    }
+
+    /**
+     * Scope a query to only include retry events.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeRetries($query): Builder
+    {
+        return $query->whereNotNull('retry_number')->where('retry_number', '>', 0);
+    }
+
+    /**
+     * Scope a query to only include original (non-retry) events.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeOriginal($query): Builder
+    {
+        return $query->whereNull('retry_number');
+    }
+
+    /**
      * Get a human-readable description of the event.
      *
      * @return string
@@ -265,17 +319,22 @@ class WebhookEvent extends Model
     public function getDescription(): string
     {
         $eventType = $this->event_type;
+        $description = '';
 
         if ($this->isOrderEvent()) {
             $orderId = $this->getOrderId();
-            return "Order event ({$eventType}) for order {$orderId}";
-        }
-
-        if ($this->isPaymentEvent()) {
+            $description = "Order event ({$eventType}) for order {$orderId}";
+        } elseif ($this->isPaymentEvent()) {
             $paymentId = $this->getPaymentId();
-            return "Payment event ({$eventType}) for payment {$paymentId}";
+            $description = "Payment event ({$eventType}) for payment {$paymentId}";
+        } else {
+            $description = "Webhook event ({$eventType})";
         }
 
-        return "Webhook event ({$eventType})";
+        if ($this->isRetry()) {
+            $description .= " (retry #{$this->retry_number})";
+        }
+
+        return $description;
     }
 }
