@@ -21,13 +21,14 @@ use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
+use Square\Models\Builders\TestWebhookSubscriptionRequestBuilder;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
-use Square\Models\Error;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use Square\Models\UpdateCustomerRequest;
 use stdClass;
@@ -661,6 +662,29 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function listWebhookEventTypes(?string $apiVersion = null): ListWebhookEventTypesResponse
     {
         $response = $this->config->webhooksAPI()->listWebhookEventTypes($apiVersion);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $response->getResult();
+    }
+
+    /**
+     * Test a webhook subscription.
+     *
+     * @param string $subscriptionId
+     * @param string $eventType
+     * @return TestWebhookSubscriptionResponse
+     * @throws ApiException
+     */
+    public function testWebhook(string $subscriptionId, string $eventType): TestWebhookSubscriptionResponse
+    {
+        $request = TestWebhookSubscriptionRequestBuilder::init()
+            ->eventType($eventType)
+            ->build();
+
+        $response = $this->config->webhooksAPI()->testWebhookSubscription($subscriptionId, $request);
 
         if ($response->isError()) {
             throw $this->_handleApiResponseErrors($response);

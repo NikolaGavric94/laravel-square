@@ -11,6 +11,7 @@ use Nikolag\Square\SquareService;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\TestWebhookSubscriptionResponse;
 
 /**
  * @method static SquareService save()
@@ -30,6 +31,7 @@ use Square\Models\ListWebhookSubscriptionsResponse;
  * @method static bool deleteWebhook(string $subscriptionId)
  * @method static ListWebhookSubscriptionsResponse listWebhooks(string $cursor = null, bool $includeDisabled = false, string $sortOrder = null, int $limit = null)
  * @method static ListWebhookEventTypesResponse listWebhookEventTypes(string $apiVersion = null)
+ * @method static TestWebhookSubscriptionResponse testWebhook(string $subscriptionId, array $eventData = null)
  * @method static WebhookBuilder webhookBuilder()
  * @method static bool markWebhookEventProcessed(string $eventId)
  * @method static bool markWebhookEventFailed(string $eventId)
