@@ -5,31 +5,11 @@ namespace Nikolag\Square\Utils;
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
+use Square\Models\Event;
+use Square\Utils\WebhooksHelper;
 
 class WebhookVerifier
 {
-    /**
-     * Verify the webhook signature from Square.
-     *
-     * @param string $payload The raw webhook payload
-     * @param string $signature The signature header from Square
-     * @param string $signatureKey The webhook signature key
-     * @param string $notificationUrl The webhook notification URL
-     * @return bool
-     */
-    public static function verify(
-        string $payload,
-        string $signature,
-        string $signatureKey,
-        string $notificationUrl
-    ): bool {
-        // Square uses HMAC-SHA256 for webhook signatures
-        // The signature is computed as: hash_hmac('sha256', $notificationUrl . $payload, $signatureKey)
-        $expectedSignature = hash_hmac('sha256', $notificationUrl . $payload, $signatureKey);
-
-        return hash_equals($expectedSignature, $signature);
-    }
-
     /**
      * Verify and process a webhook payload.
      *
@@ -56,7 +36,7 @@ class WebhookVerifier
         }
 
         // Verify the signature
-        if (!self::verify($payload, $signature, $subscription->signature_key, $subscription->notification_url)) {
+        if (!WebhooksHelper::isValidWebhookEventSignature($payload, $signature, $subscription->signature_key, $subscription->notification_url)) {
             throw new InvalidSquareSignatureException('Invalid webhook signature');
         }
 
@@ -96,35 +76,26 @@ class WebhookVerifier
     /**
      * Test webhook signature verification with sample data.
      *
-     * @param string $signatureKey The webhook signature key
-     * @param string $notificationUrl The webhook notification URL
+     * @param string $signatureKey    The webhook signature key.
+     * @param string $notificationUrl The webhook notification URL.
+     * @param array  $payload         The payload to sign.
+     *
      * @return array Test data for signature verification
      */
-    public static function generateTestSignature(
-        string $signatureKey,
-        string $notificationUrl
-    ): array {
-        $testPayload = json_encode([
-            'merchant_id' => 'test-merchant',
-            'type' => 'test.webhook',
-            'event_id' => 'test-event-' . uniqid(),
-            'created_at' => now()->toISOString(),
-            'data' => [
-                'type' => 'test',
-                'id' => 'test-object-id',
-                'object' => [
-                    'test' => true
-                ]
-            ]
-        ]);
+    public static function generateTestSignature(string $signatureKey, string $notificationUrl, Event $payload): array
+    {
+        // Perform UTF-8 encoding to bytes
+        $payload = $notificationUrl . json_encode($payload);
+        $payloadBytes = mb_convert_encoding($payload, 'UTF-8');
+        $signatureKeyBytes = mb_convert_encoding($signatureKey, 'UTF-8');
 
-        $signature = hash_hmac('sha256', $notificationUrl . $testPayload, $signatureKey);
+        $hash = hash_hmac('sha256', $payloadBytes, $signatureKeyBytes, true);
 
         return [
-            'payload' => $testPayload,
-            'signature' => $signature,
+            'payload' => $payload,
+            'signature' => $hash,
             'headers' => [
-                'X-Square-HmacSha256-Signature' => $signature,
+                'X-Square-HmacSha256-Signature' => $hash,
                 'Content-Type' => 'application/json',
             ]
         ];
