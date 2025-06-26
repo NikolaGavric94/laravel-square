@@ -588,6 +588,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 // 'signature_key' => $subscription->getSignatureKey(), // The signature key is not returned on update
                 'is_enabled' => $subscription->getEnabled(),
             ]);
+
+            return $localSubscription;
         } else {
             // If not found locally, fetch and create it (necessary as the signature key might have changed)
             $subscription = self::retrieveWebhook($subscriptionId);

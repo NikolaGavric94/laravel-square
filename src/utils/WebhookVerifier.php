@@ -2,6 +2,8 @@
 
 namespace Nikolag\Square\Utils;
 
+use Carbon\Carbon;
+use Exception;
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
@@ -50,21 +52,65 @@ class WebhookVerifier
             throw new InvalidSquareSignatureException('Missing required event fields');
         }
 
-        // Check if this event already exists (idempotency)
-        $existingEvent = WebhookEvent::where('square_event_id', $eventId)->first();
-        if ($existingEvent) {
-            return $existingEvent;
-        }
-
-        // Create and return the webhook event
-        return WebhookEvent::create([
+        // Prepare webhook event data
+        $webhookEventData = [
             'square_event_id' => $eventId,
             'event_type' => $eventType,
             'event_data' => $eventData,
             'event_time' => $eventTime,
             'status' => WebhookEvent::STATUS_PENDING,
             'webhook_subscription_id' => $subscription->id,
-        ]);
+        ];
+
+        // Add retry data if present
+        $retryData = self::extractRetryData($headers);
+        if ($retryData) {
+            $webhookEventData['retry_reason'] = $retryData['retry_reason'];
+            $webhookEventData['retry_number'] = $retryData['retry_number'];
+            $webhookEventData['initial_delivery_timestamp'] = $retryData['initial_delivery_timestamp'];
+        }
+
+        $existingEvent = WebhookEvent::where('square_event_id', $eventId)->first();
+        if ($existingEvent) {
+            // If the event already exists, update it instead of creating a new one
+            $existingEvent->update($webhookEventData);
+            return $existingEvent;
+        }
+
+        // Create and return the webhook event
+        return WebhookEvent::create($webhookEventData);
+    }
+
+    /**
+     * Extract retry data from webhook headers.
+     *
+     * @param array $headers The webhook headers
+     * @return array|null
+     */
+    private static function extractRetryData(array $headers): ?array
+    {
+        // Check for Square retry headers (can be in different formats)
+        $retryReason = $headers['square-retry-reason'][0] ?? $headers['Square-Retry-Reason'][0] ?? null;
+        $retryNumber = $headers['square-retry-number'][0] ?? $headers['Square-Retry-Number'][0] ?? null;
+        $initialDeliveryTimestamp = $headers['square-initial-delivery-timestamp'][0] ?? $headers['Square-Initial-Delivery-Timestamp'][0] ?? null;
+
+        // If no retry headers are present, this is not a retry
+        if (!$retryReason || !$retryNumber || !$initialDeliveryTimestamp) {
+            return null;
+        }
+
+        try {
+            $parsedTimestamp = Carbon::parse($initialDeliveryTimestamp);
+        } catch (Exception $e) {
+            // If timestamp parsing fails, treat as non-retry
+            return null;
+        }
+
+        return [
+            'retry_reason' => $retryReason,
+            'retry_number' => (int) $retryNumber,
+            'initial_delivery_timestamp' => $parsedTimestamp,
+        ];
     }
 
     /**
