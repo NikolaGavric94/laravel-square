@@ -491,7 +491,7 @@ trait MocksSquareConfigDependency
 
         if (!empty($retryData)) {
             $request->headers->set('square-retry-reason', $retryData['reason']);
-            $request->headers->set('square-retry-number', $retryData['number']);
+            $request->headers->set('square-retry-number', (string) $retryData['number']);
             $request->headers->set('square-initial-delivery-timestamp', $retryData['initialDeliveryTimestamp']);
         }
 
