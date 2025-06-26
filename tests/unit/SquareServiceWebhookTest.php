@@ -458,4 +458,270 @@ class SquareServiceWebhookTest extends TestCase
         Square::updateWebhookSignatureKey($subscriptionId);
     }
 
+    /**
+     * Test processing a webhook with valid signature.
+     */
+    public function test_process_webhook_success(): void
+    {
+        // Create a webhook subscription
+        $subscription = WebhookSubscription::create([
+            'square_id' => 'test-subscription-id',
+            'name' => 'Test Webhook',
+            'notification_url' => $this->testWebhookUrl,
+            'event_types' => $this->testEventTypes,
+            'api_version' => '2023-10-18',
+            'signature_key' => 'test-signature-key',
+            'is_enabled' => true,
+        ]);
+
+        $payload = json_encode([
+            'event_id' => 'test-event-id',
+            'event_type' => 'order.created',
+            'data' => ['test' => 'data'],
+            'merchant_id' => 'test-merchant-id',
+            'location_id' => 'test-location-id',
+        ]);
+
+        // Mock headers with valid signature
+        $headers = [
+            'x-square-hmacsha256-signature' => 'valid-signature',
+            'x-square-environment' => 'sandbox',
+        ];
+
+        $event = Square::processWebhook($headers, $payload, 'test-subscription-id');
+
+        $this->assertInstanceOf(WebhookEvent::class, $event);
+        $this->assertEquals('test-event-id', $event->square_event_id);
+        $this->assertEquals('order.created', $event->event_type);
+        $this->assertEquals(WebhookEvent::STATUS_PENDING, $event->status);
+    }
+
+    /**
+     * Test processing webhook without subscription.
+     */
+    public function test_process_webhook_no_subscription(): void
+    {
+        $payload = json_encode([
+            'event_id' => 'test-event-id',
+            'event_type' => 'order.created',
+            'data' => ['test' => 'data'],
+        ]);
+
+        $headers = [
+            'x-square-hmacsha256-signature' => 'valid-signature',
+        ];
+
+        $this->expectException(InvalidSquareSignatureException::class);
+        $this->expectExceptionMessage('No webhook subscription found for verification');
+
+        Square::processWebhook($headers, $payload);
+    }
+
+    /**
+     * Test creating a webhook builder instance.
+     */
+    public function test_webhook_builder_creation(): void
+    {
+        $builder = Square::webhookBuilder();
+
+        $this->assertInstanceOf(WebhookBuilder::class, $builder);
+    }
+
+    /**
+     * Test marking a webhook event as processed.
+     */
+    public function test_mark_webhook_event_processed(): void
+    {
+        // Create a webhook event
+        $event = WebhookEvent::create([
+            'square_event_id' => 'event_123',
+            'event_type' => 'order.created',
+            'event_time' => now(),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => 1
+        ]);
+
+        // Execute the test
+        $result = Square::markWebhookEventProcessed('event_123');
+
+        // Assertions
+        $this->assertTrue($result);
+
+        $event->refresh();
+        $this->assertEquals(WebhookEvent::STATUS_PROCESSED, $event->status);
+        $this->assertNotNull($event->processed_at);
+    }
+
+    /**
+     * Test marking a webhook event as failed.
+     */
+    public function test_mark_webhook_event_failed(): void
+    {
+        // Create a webhook event
+        $event = WebhookEvent::create([
+            'square_event_id' => 'event_123',
+            'event_type' => 'order.created',
+            'event_time' => now(),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => 1
+        ]);
+
+        // Execute the test
+        $result = Square::markWebhookEventFailed('event_123', 'Test error message');
+
+        // Assertions
+        $this->assertTrue($result);
+
+        $event->refresh();
+        $this->assertEquals(WebhookEvent::STATUS_FAILED, $event->status);
+        $this->assertEquals('Test error message', $event->error_message);
+        $this->assertNotNull($event->processed_at);
+    }
+
+    /**
+     * Test that non-existent webhook event methods return false.
+     */
+    public function test_webhook_event_methods_with_non_existent_events(): void
+    {
+        // Test marking non-existent event as processed
+        $result = Square::markWebhookEventProcessed('non_existent_event');
+        $this->assertFalse($result);
+
+        // Test marking non-existent event as failed
+        $result = Square::markWebhookEventFailed('non_existent_event', 'Error message');
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test cleaning up old webhook events.
+     */
+    public function test_cleanup_old_webhook_events(): void
+    {
+        // Create test webhook events with different ages
+        $oldEvent1 = new WebhookEvent([
+            'square_event_id' => 'old_event_1',
+            'event_type' => 'order.created',
+            'event_time' => now()->subDays(45),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PROCESSED,
+            'webhook_subscription_id' => 1,
+        ]);
+        $oldEvent1->created_at = now()->subDays(45);
+        $oldEvent1->save();
+
+        $oldEvent2 = new WebhookEvent([
+            'square_event_id' => 'old_event_2',
+            'event_type' => 'order.updated',
+            'event_time' => now()->subDays(35),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_FAILED,
+            'webhook_subscription_id' => 1,
+        ]);
+        $oldEvent2->created_at = now()->subDays(35);
+        $oldEvent2->save();
+
+        $oldPendingEvent = new WebhookEvent([
+            'square_event_id' => 'old_pending_event',
+            'event_type' => 'order.created',
+            'event_time' => now()->subDays(40),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PENDING,
+            'webhook_subscription_id' => 1,
+        ]);
+        $oldPendingEvent->created_at = now()->subDays(40);
+        $oldPendingEvent->save();
+
+        $recentEvent = new WebhookEvent([
+            'square_event_id' => 'recent_event',
+            'event_type' => 'order.created',
+            'event_time' => now()->subDays(10),
+            'event_data' => ['test' => 'data'],
+            'status' => WebhookEvent::STATUS_PROCESSED,
+            'webhook_subscription_id' => 1,
+        ]);
+        $recentEvent->created_at = now()->subDays(10);
+        $recentEvent->save();
+
+        // Execute the test - cleanup events older than 30 days
+        $deletedCount = Square::cleanupOldWebhookEvents(30);
+
+        // Assertions - should delete old processed/failed events but not pending ones
+        $this->assertEquals(2, $deletedCount);
+
+        // Verify remaining events
+        $remainingEvents = WebhookEvent::all();
+        $this->assertCount(2, $remainingEvents);
+
+        $remainingEventIds = $remainingEvents->pluck('square_event_id')->toArray();
+        $this->assertContains('old_pending_event', $remainingEventIds);
+        $this->assertContains('recent_event', $remainingEventIds);
+    }
+
+    /**
+     * Test webhook builder with fluent interface.
+     */
+    public function test_webhook_builder_fluent_interface(): void
+    {
+        $builder = Square::webhookBuilder()
+            ->name('Test Webhook')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->addEventType('customer.created')
+            ->apiVersion('2023-10-18')
+            ->enabled()
+            ->disabled();
+
+        $this->assertEquals('Test Webhook', $builder->getName());
+        $this->assertEquals($this->testWebhookUrl, $builder->getNotificationUrl());
+        $this->assertContains('customer.created', $builder->getEventTypes());
+        $this->assertEquals('2023-10-18', $builder->getApiVersion());
+    }
+
+    /**
+     * Test webhook builder validation for missing event types.
+     */
+    public function test_webhook_builder_missing_event_types(): void
+    {
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('At least one event type is required');
+
+        $builder = Square::webhookBuilder()
+            ->name('Test Webhook')
+            ->notificationUrl($this->testWebhookUrl);
+
+        $builder->buildCreateRequest();
+    }
+
+    /**
+     * Test webhook builder validation for missing notification URL.
+     */
+    public function test_webhook_builder_missing_notification_url(): void
+    {
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Notification URL is required');
+
+        $builder = Square::webhookBuilder()
+            ->name('Test Webhook')
+            ->eventTypes($this->testEventTypes);
+
+        $builder->buildCreateRequest();
+    }
+
+    /**
+     * Test webhook builder reset functionality.
+     */
+    public function test_webhook_builder_reset(): void
+    {
+        $builder = Square::webhookBuilder()
+            ->name('Test Webhook')
+            ->notificationUrl($this->testWebhookUrl)
+            ->eventTypes($this->testEventTypes)
+            ->reset();
+
+        $this->assertNull($builder->getName());
+        $this->assertNull($builder->getNotificationUrl());
+        $this->assertEmpty($builder->getEventTypes());
+    }
 }

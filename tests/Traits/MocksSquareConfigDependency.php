@@ -11,10 +11,14 @@ use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyResponseBuilder;
 use Square\Models\Builders\WebhookSubscriptionBuilder;
 use Square\Models\Builders\ErrorBuilder;
+use Square\Models\Builders\EventBuilder;
+use Square\Models\Builders\EventDataBuilder;
 use Square\Models\Builders\ListWebhookSubscriptionsResponseBuilder;
 use Square\Models\Builders\TestWebhookSubscriptionResponseBuilder;
 use Square\Models\CreateWebhookSubscriptionResponse;
 use Square\Models\DeleteWebhookSubscriptionResponse;
+use Square\Models\Event;
+use Square\Models\EventData;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\UpdateWebhookSubscriptionResponse;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
@@ -422,6 +426,87 @@ trait MocksSquareConfigDependency
     protected function mockUpdateWebhookSignatureKeyError(string $message = 'Update webhook signature key failed', int $code = 400): void
     {
         $this->mockSquareWebhookEndpoint('updateWebhookSubscriptionSignatureKey', [], true, $message, $code);
+    }
+
+    /**
+     * Generate webhook payload data based on event type using factory patterns.
+     *
+     * @param string $eventType The webhook event type
+     * @param array|null $customData Custom data to override defaults
+     *
+     * @return Event
+     */
+    private function generateWebhookPayload(string $eventType, ?array $customData = null): Event
+    {
+        // Generate event-specific data based on factory patterns
+        switch ($eventType) {
+            case 'order.created':
+                [$event, $eventData] = $this->generateOrderCreatedEventData($customData);
+                break;
+
+            case 'payment.created':
+            case 'payment.updated':
+                [$event, $eventData] = $this->generatePaymentEventData($customData);
+                break;
+
+            default:
+                throw new InvalidArgumentException("Unsupported test event type: $eventType");
+        }
+
+        return EventBuilder::init()
+            ->type($event->event_type)
+            ->eventId($event->square_event_id)
+            ->merchantId($event->getMerchantId())
+            ->locationId($event->getLocationId()) // TODO: Does location id get sent back in the webhook?
+            ->createdAt($event->event_time)
+            ->data($eventData)
+            ->build();
+    }
+
+    /**
+     * Generate order.created event data using factory pattern.
+     *
+     * @param array|null $customData Custom data to override defaults
+     *
+     * @return array
+     */
+    private function generateOrderCreatedEventData(?array $customData = null): array
+    {
+        /** @var WebhookEvent */
+        $event = factory(WebhookEvent::class)->states('ORDER_CREATED_EVENT')->make();
+        $eventData = EventDataBuilder::init()
+            ->type($event->event_type)
+            ->id($event->getOrderId())
+            ->object($event->getEventObject())
+            ->build();
+
+        return [
+            $event,
+            $eventData
+        ];
+    }
+
+    /**
+     * Generate payment event data using factory pattern.
+     *
+     * @param array|null $customData Custom data to override defaults
+     *
+     * @return array
+     */
+    private function generatePaymentEventData(?array $customData = null): array
+    {
+        /** @var WebhookEvent */
+        $event = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->make();
+        $eventData = EventDataBuilder::init()
+            ->type($event->event_type)
+            ->id($event->getOrderId())
+            ->object($event->getEventObject())
+            ->build();
+
+        return [
+            $event,
+            $eventData
+        ];
     }
 
     /**
