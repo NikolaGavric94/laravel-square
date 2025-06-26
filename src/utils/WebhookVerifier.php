@@ -26,7 +26,7 @@ class WebhookVerifier
         // Square uses HMAC-SHA256 for webhook signatures
         // The signature is computed as: hash_hmac('sha256', $notificationUrl . $payload, $signatureKey)
         $expectedSignature = hash_hmac('sha256', $notificationUrl . $payload, $signatureKey);
-        
+
         return hash_equals($expectedSignature, $signature);
     }
 
@@ -170,14 +170,14 @@ class WebhookVerifier
     private static function hasNestedKey(array $array, string $key): bool
     {
         $keys = explode('.', $key);
-        
+
         foreach ($keys as $k) {
             if (!is_array($array) || !array_key_exists($k, $array)) {
                 return false;
             }
             $array = $array[$k];
         }
-        
+
         return true;
     }
 
