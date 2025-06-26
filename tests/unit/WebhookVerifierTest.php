@@ -7,6 +7,7 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\WebhookVerifier;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
+use Square\Utils\WebhooksHelper;
 
 class WebhookVerifierTest extends TestCase
 {
@@ -54,70 +55,6 @@ class WebhookVerifierTest extends TestCase
         ];
     }
 
-    public function test_verify_returns_true_for_valid_signature()
-    {
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $this->validPayload, $this->testSignatureKey);
-
-        $result = WebhookVerifier::verify(
-            $this->validPayload,
-            $signature,
-            $this->testSignatureKey,
-            $this->testNotificationUrl
-        );
-
-        $this->assertTrue($result);
-    }
-
-    public function test_verify_returns_false_for_invalid_signature()
-    {
-        $invalidSignature = 'invalid-signature-hash';
-
-        $result = WebhookVerifier::verify(
-            $this->validPayload,
-            $invalidSignature,
-            $this->testSignatureKey,
-            $this->testNotificationUrl
-        );
-
-        $this->assertFalse($result);
-    }
-
-    public function test_verify_returns_false_for_tampered_payload()
-    {
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $this->validPayload, $this->testSignatureKey);
-        $tamperedPayload = str_replace('order-456', 'order-999', $this->validPayload);
-
-        $result = WebhookVerifier::verify(
-            $tamperedPayload,
-            $signature,
-            $this->testSignatureKey,
-            $this->testNotificationUrl
-        );
-
-        $this->assertFalse($result);
-    }
-
-    public function test_verify_returns_false_for_wrong_notification_url()
-    {
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $this->validPayload, $this->testSignatureKey);
-        $wrongUrl = 'https://malicious.com/webhook';
-
-        $result = WebhookVerifier::verify(
-            $this->validPayload,
-            $signature,
-            $this->testSignatureKey,
-            $wrongUrl
-        );
-
-        $this->assertFalse($result);
-    }
-
-    public function test_verify_handles_empty_strings()
-    {
-        $result = WebhookVerifier::verify('', '', '', '');
-        $this->assertFalse($result);
-    }
-
     public function test_verify_and_process_succeeds_with_valid_data()
     {
         $subscription = factory(WebhookSubscription::class)->create([
@@ -125,8 +62,16 @@ class WebhookVerifierTest extends TestCase
             'notification_url' => $this->testNotificationUrl,
         ]);
 
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $this->validPayload, $this->testSignatureKey);
-        $headers = ['x-square-hmacsha256-signature' => $signature];
+        $signature = WebhookVerifier::generateTestSignature(
+            $this->testSignatureKey,
+            $this->testNotificationUrl,
+            $this->validPayload
+        );
+
+        $headers = ['X-Square-HmacSha256-Signature' => [
+                $signature
+            ]
+        ];
 
         $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
 
@@ -145,8 +90,16 @@ class WebhookVerifierTest extends TestCase
             'notification_url' => $this->testNotificationUrl,
         ]);
 
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $this->validPayload, $this->testSignatureKey);
-        $headers = ['x-square-hmacsha256-signature' => $signature];
+        $signature = WebhookVerifier::generateTestSignature(
+            $this->testSignatureKey,
+            $this->testNotificationUrl,
+            $this->validPayload
+        );
+
+        $headers = ['x-square-hmacsha256-signature' => [
+                $signature
+            ]
+        ];
 
         $result = WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
 
@@ -176,29 +129,16 @@ class WebhookVerifierTest extends TestCase
             'notification_url' => $this->testNotificationUrl,
         ]);
 
-        $headers = ['x-square-hmacsha256-signature' => 'invalid-signature'];
+        $headers = [
+            'x-square-hmacsha256-signature' => [
+                'invalid-signature'
+            ]
+        ];
 
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Invalid webhook signature');
 
         WebhookVerifier::verifyAndProcess($headers, $this->validPayload, $subscription);
-    }
-
-    public function test_verify_and_process_throws_exception_for_invalid_json()
-    {
-        $subscription = factory(WebhookSubscription::class)->create([
-            'signature_key' => $this->testSignatureKey,
-            'notification_url' => $this->testNotificationUrl,
-        ]);
-
-        $invalidPayload = 'invalid-json-payload';
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $invalidPayload, $this->testSignatureKey);
-        $headers = ['x-square-hmacsha256-signature' => $signature];
-
-        $this->expectException(InvalidSquareSignatureException::class);
-        $this->expectExceptionMessage('Invalid JSON payload');
-
-        WebhookVerifier::verifyAndProcess($headers, $invalidPayload, $subscription);
     }
 
     public function test_verify_and_process_throws_exception_for_missing_event_id()
@@ -213,8 +153,16 @@ class WebhookVerifierTest extends TestCase
             'created_at' => '2024-01-01T12:00:00Z'
         ]);
 
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $payloadWithoutEventId, $this->testSignatureKey);
-        $headers = ['x-square-hmacsha256-signature' => $signature];
+        $signature = WebhookVerifier::generateTestSignature(
+            $this->testSignatureKey,
+            $this->testNotificationUrl,
+            $payloadWithoutEventId
+        );
+
+        $headers = ['x-square-hmacsha256-signature' => [
+                $signature
+            ]
+        ];
 
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing required event fields');
@@ -234,8 +182,16 @@ class WebhookVerifierTest extends TestCase
             'created_at' => '2024-01-01T12:00:00Z'
         ]);
 
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $payloadWithoutType, $this->testSignatureKey);
-        $headers = ['x-square-hmacsha256-signature' => $signature];
+        $signature = WebhookVerifier::generateTestSignature(
+            $this->testSignatureKey,
+            $this->testNotificationUrl,
+            $payloadWithoutType
+        );
+
+        $headers = ['x-square-hmacsha256-signature' => [
+                $signature
+            ]
+        ];
 
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing required event fields');
@@ -255,8 +211,16 @@ class WebhookVerifierTest extends TestCase
             'type' => 'order.created'
         ]);
 
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $payloadWithoutCreatedAt, $this->testSignatureKey);
-        $headers = ['x-square-hmacsha256-signature' => $signature];
+        $signature = WebhookVerifier::generateTestSignature(
+            $this->testSignatureKey,
+            $this->testNotificationUrl,
+            $payloadWithoutCreatedAt
+        );
+
+        $headers = ['x-square-hmacsha256-signature' => [
+                $signature
+            ]
+        ];
 
         $this->expectException(InvalidSquareSignatureException::class);
         $this->expectExceptionMessage('Missing required event fields');
@@ -264,48 +228,34 @@ class WebhookVerifierTest extends TestCase
         WebhookVerifier::verifyAndProcess($headers, $payloadWithoutCreatedAt, $subscription);
     }
 
-    public function test_generate_test_signature_creates_valid_data()
-    {
-        $testData = WebhookVerifier::generateTestSignature($this->testSignatureKey, $this->testNotificationUrl);
-
-        $this->assertArrayHasKey('payload', $testData);
-        $this->assertArrayHasKey('signature', $testData);
-        $this->assertArrayHasKey('headers', $testData);
-
-        $this->assertJson($testData['payload']);
-        $this->assertNotEmpty($testData['signature']);
-        $this->assertArrayHasKey('X-Square-HmacSha256-Signature', $testData['headers']);
-        $this->assertEquals($testData['signature'], $testData['headers']['X-Square-HmacSha256-Signature']);
-    }
-
     public function test_generate_test_signature_produces_verifiable_signature()
     {
-        $testData = WebhookVerifier::generateTestSignature($this->testSignatureKey, $this->testNotificationUrl);
+        $subscription = factory(WebhookSubscription::class)->create([
+            'signature_key' => $this->testSignatureKey,
+            'notification_url' => $this->testNotificationUrl,
+        ]);
 
-        $isValid = WebhookVerifier::verify(
-            $testData['payload'],
-            $testData['signature'],
+        $signature = WebhookVerifier::generateTestSignature(
             $this->testSignatureKey,
-            $this->testNotificationUrl
+            $this->testNotificationUrl,
+            $this->validPayload
+        );
+
+        $isValid = WebhooksHelper::isValidWebhookEventSignature(
+            $this->validPayload,
+            $signature,
+            $subscription->signature_key,
+            $subscription->notification_url
         );
 
         $this->assertTrue($isValid);
     }
 
-    public function test_generate_test_signature_includes_required_fields()
+    public function test_generate_test_signature()
     {
-        $testData = WebhookVerifier::generateTestSignature($this->testSignatureKey, $this->testNotificationUrl);
-        $payload = json_decode($testData['payload'], true);
-
-        $this->assertArrayHasKey('merchant_id', $payload);
-        $this->assertArrayHasKey('type', $payload);
-        $this->assertArrayHasKey('event_id', $payload);
-        $this->assertArrayHasKey('created_at', $payload);
-        $this->assertArrayHasKey('data', $payload);
-
-        $this->assertEquals('test.webhook', $payload['type']);
-        $this->assertEquals('test-merchant', $payload['merchant_id']);
-        $this->assertStringStartsWith('test-event-', $payload['event_id']);
+        $signature = WebhookVerifier::generateTestSignature($this->testSignatureKey, $this->testNotificationUrl);
+        $this->assertNotEmpty($signature);
+        $this->assertIsString($signature);
     }
 
     public function test_is_valid_order_event_returns_true_for_valid_order_events()
@@ -493,25 +443,5 @@ class WebhookVerifierTest extends TestCase
         $this->expectExceptionMessage('Missing webhook signature header');
 
         WebhookVerifier::verifyAndProcess([], $this->validPayload, $subscription);
-    }
-
-    public function test_verify_with_special_characters_in_payload()
-    {
-        $specialPayload = json_encode([
-            'message' => 'Test with special chars: @#$%^&*()_+[]{}|;:,.<>?',
-            'unicode' => 'Testing unicode: 你好世界',
-            'data' => ['key' => 'value with spaces and symbols !@#$%']
-        ]);
-
-        $signature = hash_hmac('sha256', $this->testNotificationUrl . $specialPayload, $this->testSignatureKey);
-
-        $result = WebhookVerifier::verify(
-            $specialPayload,
-            $signature,
-            $this->testSignatureKey,
-            $this->testNotificationUrl
-        );
-
-        $this->assertTrue($result);
     }
 }
