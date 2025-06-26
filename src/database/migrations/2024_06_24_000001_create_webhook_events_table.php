@@ -20,6 +20,9 @@ return new class extends Migration
             $table->enum('status', ['pending', 'processed', 'failed'])->default('pending');
             $table->timestamp('processed_at')->nullable();
             $table->text('error_message')->nullable();
+            $table->string('retry_reason')->nullable();
+            $table->integer('retry_number')->nullable();
+            $table->timestamp('initial_delivery_timestamp')->nullable();
             $table->unsignedBigInteger('webhook_subscription_id')->nullable();
             $table->timestamps();
 
