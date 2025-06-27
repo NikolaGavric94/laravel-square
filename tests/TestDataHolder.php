@@ -38,8 +38,7 @@ class TestDataHolder
             factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make(),
             factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make(),
             factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make(),
-            factory(Recipient::class)->make(),
-        );
+            factory(Recipient::class)->make());
     }
 
     public static function create(): self
@@ -54,8 +53,7 @@ class TestDataHolder
             factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make(),
             factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make(),
             factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make(),
-            factory(Recipient::class)->create(),
-        );
+            factory(Recipient::class)->create());
     }
 
     public function modify(string $prodFac = 'create',
