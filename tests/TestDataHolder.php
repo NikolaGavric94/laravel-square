@@ -14,24 +14,22 @@ use Square\Models\FulfillmentType;
 
 class TestDataHolder
 {
-    public function __construct(
-        public ?Order $order,
-        public ?Product $product,
-        public ?Customer $customer,
-        public ?User $merchant,
-        public ?Tax $tax,
-        public ?Discount $discount,
-        public ?Fulfillment $fulfillmentWithDeliveryDetails,
-        public ?Fulfillment $fulfillmentWithPickupDetails,
-        public ?Fulfillment $fulfillmentWithShipmentDetails,
-        public ?Recipient $fulfillmentRecipient,
-    ) {
+    public function __construct(public ?Order $order,
+                                public ?Product $product,
+                                public ?Customer $customer,
+                                public ?User $merchant,
+                                public ?Tax $tax,
+                                public ?Discount $discount,
+                                public ?Fulfillment $fulfillmentWithDeliveryDetails,
+                                public ?Fulfillment $fulfillmentWithPickupDetails,
+                                public ?Fulfillment $fulfillmentWithShipmentDetails,
+                                public ?Recipient $fulfillmentRecipient)
+    {
     }
 
     public static function make(): self
     {
-        return new static(
-            factory(Order::class)->make(),
+        return new static(factory(Order::class)->make(),
             factory(Product::class)->make(),
             factory(Customer::class)->make(),
             factory(User::class)->make(),
@@ -46,8 +44,7 @@ class TestDataHolder
 
     public static function create(): self
     {
-        return new static(
-            factory(Order::class)->create(),
+        return new static(factory(Order::class)->create(),
             factory(Product::class)->create(),
             factory(Customer::class)->create(),
             factory(User::class)->create(),

@@ -735,7 +735,6 @@ class SquareServiceTest extends TestCase
             ->setCustomer($this->data->customer)
             ->setOrder($this->data->order, env('SQUARE_LOCATION'))
             ->save();
-
         $calculatedCost = Util::calculateTotalOrderCostByModel($square->getOrder());
 
         $this->assertEquals(707, $calculatedCost);
@@ -767,21 +766,12 @@ class SquareServiceTest extends TestCase
         $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
         $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
         $this->assertContains(Product::find(1)->id, $transaction->order->products->pluck('id'), 'Product is not part of the order.');
-        $this->assertEquals(
-            Constants::DEDUCTIBLE_SCOPE_PRODUCT,
-            $transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope,
-            'Discount scope is not \'LINE_ITEM\''
-        );
-        $this->assertEquals(
-            Constants::DEDUCTIBLE_SCOPE_PRODUCT,
-            $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope,
-            'Tax scope is not \'LINE_ITEM\''
-        );
-        $this->assertEquals(
-            Constants::DEDUCTIBLE_SCOPE_ORDER,
-            $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope,
-            'Discount scope is not \'ORDER\''
-        );
+        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_PRODUCT,
+            $transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope, 'Discount scope is not \'LINE_ITEM\'');
+        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_PRODUCT,
+            $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope, 'Tax scope is not \'LINE_ITEM\'');
+        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_ORDER,
+            $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope, 'Discount scope is not \'ORDER\'');
     }
 
     /**
