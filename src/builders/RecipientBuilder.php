@@ -19,10 +19,10 @@ class RecipientBuilder
     /**
      * Find or create a recipient.
      *
-     * @param  array  $data
-     * @return Recipient $temp
+     * @param array $recipientData The recipient data array.
+     * @return Recipient
      *
-     * @throws MissingPropertyException
+     * @throws MissingPropertyException When required recipient data is invalid.
      */
     public function load(array $recipientData): Recipient
     {
@@ -51,10 +51,10 @@ class RecipientBuilder
     /**
      * Validate the recipient data.
      *
-     * @param  array  $data
-     * @return bool
+     * @param array $recipientData The recipient data array to validate.
+     * @return boolean
      *
-     * @throws ValidationException
+     * @throws ValidationException When validation fails for recipient data.
      */
     public function validate(array $recipientData): bool
     {

@@ -86,7 +86,7 @@ class ShipmentDetails extends Model
     /**
      * Prepare a date for array / JSON serialization.
      *
-     * @param  \DateTimeInterface  $date
+     * @param \DateTimeInterface $date The date to serialize.
      * @return string
      */
     protected function serializeDate(DateTimeInterface $date)

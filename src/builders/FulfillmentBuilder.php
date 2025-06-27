@@ -30,6 +30,9 @@ class FulfillmentBuilder
     /** @var string */
     private string $shipmentDetailsKey = 'shipment_details';
 
+    /**
+     * Create a new FulfillmentBuilder instance.
+     */
     public function __construct()
     {
         $this->recipientBuilder = new RecipientBuilder();
@@ -38,10 +41,11 @@ class FulfillmentBuilder
     /**
      * Checks if the fulfillment details are already set.
      *
-     * @param  mixed  $fulfillmentModel
+     * @param mixed $fulfillmentModel The fulfillment model to check.
+     *
      * @return void
      *
-     * @throws InvalidSquareOrderException
+     * @throws InvalidSquareOrderException When fulfillment already has details set.
      */
     private function checkFulfillmentDetails(mixed $fulfillmentModel): void
     {
@@ -55,11 +59,11 @@ class FulfillmentBuilder
     /**
      * Add a fulfillment to the order from model as source.
      *
-     * @param  Model  $fulfillment
-     * @param  Model  $order
+     * @param Model $fulfillment The fulfillment model.
+     * @param Model $order       The order model.
      * @return Fulfillment|stdClass
      *
-     * @throws InvalidSquareOrderException
+     * @throws InvalidSquareOrderException When fulfillment type does not match details.
      */
     public function createFulfillmentFromModel(Model $fulfillment, Model $order): Fulfillment|stdClass
     {
@@ -101,19 +105,15 @@ class FulfillmentBuilder
     /**
      * Add a fulfillment to the order from array as source.
      *
-     * @param  array  $fulfillment
-     * @param  Model  $order
-     * @return Fulfillment|stdClass
+     * @param array      $fulfillment The fulfillment data array.
+     * @param Model|null $order       The order model.
+     * @return Model|stdClass
      *
-     * @throws MissingPropertyException
-     * @throws InvalidSquareOrderException
+     * @throws MissingPropertyException    When required type property is missing.
+     * @throws InvalidSquareOrderException When fulfillment type is invalid.
      */
-    public function createFulfillmentFromArray(
-        array $fulfillment,
-        Model $order = null
-    ): Model|stdClass {
-        $fulfillmentObj = new stdClass();
-
+    public function createFulfillmentFromArray(array $fulfillment, ?Model $order = null): Model|stdClass
+    {
         // If fulfillment doesn't have a type in the array throw new exception - every fulfillment should have a type.
         if (! Arr::has($fulfillment, 'type') || $fulfillment['type'] == null) {
             throw new MissingPropertyException('"type" property for object Fulfillment is missing', 500);
@@ -151,11 +151,11 @@ class FulfillmentBuilder
     /**
      * Create delivery details from array.
      *
-     * @param  array  $fulfillment
-     * @param  Model  $order
+     * @param array $fulfillment      The fulfillment data array.
+     * @param mixed $fulfillmentModel The fulfillment model instance.
      * @return DeliveryDetails
      *
-     * @throws MissingPropertyException
+     * @throws MissingPropertyException When delivery_details property is missing.
      */
     public function createDeliveryDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): DeliveryDetails
     {
@@ -177,11 +177,11 @@ class FulfillmentBuilder
     /**
      * Create pickup details from array.
      *
-     * @param  array  $fulfillment
-     * @param  Model  $order
+     * @param array $fulfillment      The fulfillment data array.
+     * @param mixed $fulfillmentModel The fulfillment model instance.
      * @return PickupDetails
      *
-     * @throws MissingPropertyException
+     * @throws MissingPropertyException When pickup_details property is missing.
      */
     public function createPickupDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): PickupDetails
     {
@@ -203,11 +203,11 @@ class FulfillmentBuilder
     /**
      * Create shipment details from array.
      *
-     * @param  array  $fulfillment
-     * @param  Model  $order
+     * @param array $fulfillment      The fulfillment data array.
+     * @param mixed $fulfillmentModel The fulfillment model instance.
      * @return ShipmentDetails
      *
-     * @throws MissingPropertyException
+     * @throws MissingPropertyException When shipment_details property is missing.
      */
     public function createShipmentDetailsFromArray(array $fulfillment, mixed $fulfillmentModel): ShipmentDetails
     {
@@ -229,9 +229,11 @@ class FulfillmentBuilder
     /**
      * Get recipient data from fulfillment.
      *
-     * @param  array  $fulfillment  The fulfillment data.
-     * @param  string  $type  The type of the fulfillment.
+     * @param array  $fulfillment The fulfillment data.
+     * @param string $type        The type of the fulfillment.
      * @return Recipient|null
+     *
+     * @throws InvalidSquareOrderException When fulfillment type is invalid.
      */
     private function getRecipientFromFulfillmentArray(array $fulfillment, string $type): Recipient|null
     {

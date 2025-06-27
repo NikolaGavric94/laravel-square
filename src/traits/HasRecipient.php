@@ -26,8 +26,8 @@ trait HasRecipient
     /**
      * Retrieve recipient if they exist, otherwise return false.
      *
-     * @param  mixed  $recipient  The recipient to search for
-     * @return bool
+     * @param mixed $recipient The recipient to search for.
+     * @return boolean
      */
     public function hasRecipient(mixed $recipient): bool
     {
