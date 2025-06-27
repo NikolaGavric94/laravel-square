@@ -1,4 +1,4 @@
-[![Test Coverage](https://api.codeclimate.com/v1/badges/4b0db75125acf7f4bdfb/test_coverage)](https://codeclimate.com/github/Mrkbingham/laravel-square/test_coverage)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/7b6c53096c35381463c5/test_coverage)](https://codeclimate.com/github/NikolaGavric94/laravel-square/test_coverage)
 [![Build and test PHP 8.x](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
@@ -160,6 +160,7 @@ inquiries send an email to nikola.gavric94@gmail.com
 | [@PaulJulio](https://github.com/PaulJulio) | Cap square/connect version to resolve deprecation exceptions [pull request #27](https://github.com/NikolaGavric94/laravel-square/pull/27) | 2019-09-20 |
 | [@Alex Oleynik](https://github.com/alexoleynik0) | Fixes TypeError when updating customers [pull request #71](https://github.com/NikolaGavric94/laravel-square/pull/71) | 2022-06-28 |
 | [@qooplmao](https://github.com/qooplmao) | Adds support for 3DS/SCA [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/74) | 2023-01-13 |
+| [@mrkbingham](https://github.com/mrkbingham) | Adds support for Fulfillments [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/88) | 2025-06-27 |
 
 Special thanks to all of the contributors!
 
