@@ -2,23 +2,16 @@
 
 namespace Nikolag\Square\Builders;
 
-use Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nikolag\Square\Builders\SquareRequestBuilders\FulfillmentRequestBuilder;
-use Nikolag\Square\Builders\Validate;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
-use Square\Models\BatchDeleteCatalogObjectsRequest;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
-use Square\Models\CatalogPricingType;
 use Square\Models\CreatePaymentRequest;
-use Square\Models\CatalogObject;
-use Square\Models\CatalogObjectType;
-use Square\Models\CreateCatalogImageRequest;
 use Square\Models\Money;
 use Square\Models\Order;
 use Square\Models\OrderLineItem;
@@ -26,18 +19,7 @@ use Square\Models\OrderLineItemAppliedDiscount;
 use Square\Models\OrderLineItemAppliedTax;
 use Square\Models\OrderLineItemDiscount;
 use Square\Models\OrderLineItemTax;
-use Square\Models\TaxCalculationPhase;
-use Square\Models\TaxInclusionType;
 use Square\Models\UpdateCustomerRequest;
-use Square\Models\Builders\BatchDeleteCatalogObjectsRequestBuilder;
-use Square\Models\Builders\CatalogCategoryBuilder;
-use Square\Models\Builders\CatalogImageBuilder;
-use Square\Models\Builders\CatalogItemBuilder;
-use Square\Models\Builders\CatalogItemVariationBuilder;
-use Square\Models\Builders\CatalogObjectBuilder;
-use Square\Models\Builders\CatalogTaxBuilder;
-use Square\Models\Builders\CreateCatalogImageRequestBuilder;
-use Square\Models\Builders\MoneyBuilder;
 
 class SquareRequestBuilder
 {
@@ -69,235 +51,6 @@ class SquareRequestBuilder
         $this->productDiscounts = collect([]);
 
         $this->fulfillmentRequestBuilder = new FulfillmentRequestBuilder();
-    }
-
-    /**
-     * Builds a batch delete category objects request
-     *
-     * @param array<string> $catalogObjectIds The catalog object IDs to delete.
-     *
-     * @return BatchDeleteCatalogObjectsRequest
-     */
-    public function buildBatchDeleteCategoryObjectsRequest(array $catalogObjectIds): BatchDeleteCatalogObjectsRequest
-    {
-        return BatchDeleteCatalogObjectsRequestBuilder::init()
-                ->objectIds($catalogObjectIds)
-                ->build();
-    }
-
-    /**
-     * Builds a category catalog object item.
-     *
-     * @param array $data
-     *
-     * @return CatalogObject
-     */
-    public function buildCategoryCatalogObject(array $data): CatalogObject
-    {
-        // Get the required fields
-        Validate::validateRequiredFields($data, ['id', 'name']);
-        $id   = $data['id'];
-        $name = $data['name'];
-
-        // Get the optional fields
-        $allLocations = $data['all_locations'] ?? true;
-
-        return CatalogObjectBuilder::init(
-            CatalogObjectType::CATEGORY,
-            $id
-        )
-            ->presentAtAllLocations($allLocations)
-            ->categoryData(
-                CatalogCategoryBuilder::init()
-                    ->name($name)
-                    ->build()
-            )
-            ->build();
-    }
-
-    /**
-     * Builds an item catalog object item.
-     *
-     * @param array $data
-     *
-     * @return CatalogObject
-     */
-    public function buildItemCatalogObject(array $data): CatalogObject
-    {
-        // Get the required fields
-        Validate::validateRequiredFields($data, ['name', 'tax_ids', 'description', 'variations']);
-        $name        = $data['name'];
-        $taxIDs      = $data['tax_ids'];
-        $description = $data['description'];
-        $variations  = $data['variations'];
-
-        // Get the optional fields
-        $categoryID   = $data['category_id'] ?? null;
-        $allLocations = $data['all_locations'] ?? true;
-
-        // Create a catalog item builder
-        $catalogItemBuilder = CatalogItemBuilder::init()
-            ->name($name)
-            ->taxIds($taxIDs)
-            ->variations($variations);
-
-        // Add the category ID to the catalog item builder
-        if (!empty($categoryID)) {
-            $catalogItemBuilder->categoryId($categoryID);
-        }
-
-        // Add the description to the catalog item builder
-        if (!empty($description)) {
-            if ($description != strip_tags($description)) {
-                $catalogItemBuilder->descriptionHtml($description);
-            } else {
-                $catalogItemBuilder->description($description);
-            }
-        }
-
-        return CatalogObjectBuilder::init(CatalogObjectType::ITEM, '#' . $name)
-            ->presentAtAllLocations($allLocations)
-            ->itemData($catalogItemBuilder->build())
-            ->build();
-    }
-
-    /**
-     * Builds a tax catalog object item.
-     *
-     * @param array $data
-     *
-     * @return CatalogObject
-     */
-    public function buildTaxCatalogObject(array $data): CatalogObject
-    {
-        // Get the required fields
-        Validate::validateRequiredFields($data, ['name', 'percentage']);
-        $name       = $data['name'];
-        $percentage = $data['percentage'];
-
-        // Get the optional fields
-        $calculationPhase       = $data['calculation_phase'] ?? TaxCalculationPhase::TAX_TOTAL_PHASE;
-        $inclusionType          = $data['inclusion_type'] ?? TaxInclusionType::ADDITIVE;
-        $appliesToCustomAmounts = $data['applies_to_custom_amounts'] ?? true;
-        $enabled                = $data['enabled'] ?? true;
-        $allLocations           = $data['all_locations'] ?? true;
-
-        return CatalogObjectBuilder::init(
-            CatalogObjectType::TAX,
-            '#' . $name
-        )
-            ->presentAtAllLocations($allLocations)
-            ->taxData(
-                CatalogTaxBuilder::init()
-                    ->name($name)
-                    ->calculationPhase($calculationPhase)
-                    ->inclusionType($inclusionType)
-                    ->percentage($percentage)
-                    ->appliesToCustomAmounts($appliesToCustomAmounts)
-                    ->enabled($enabled)
-                    ->build()
-            )
-            ->build();
-    }
-
-    /**
-     * Builds a money object.
-     *
-     * @param array $data
-     *
-     * @return Money
-     */
-    public function buildMoney(array $data): Money
-    {
-        // Get the required fields
-        Validate::validateRequiredFields($data, ['amount', 'currency']);
-        $amount   = $data['amount'];
-        $currency = $data['currency'];
-
-        return MoneyBuilder::init()
-            ->amount($amount)
-            ->currency($currency)
-            ->build();
-    }
-
-    /**
-     * Builds a variation catalog object item.
-     *
-     * @param array $data
-     *
-     * @return CatalogObject
-     */
-    public function buildVariationCatalogObject(array $data): CatalogObject
-    {
-        // Get the required fields
-        Validate::validateRequiredFields($data, ['name', 'variation_id', 'item_id', 'price_money']);
-        $name        = $data['name'];
-        $variationID = $data['variation_id'];
-        $itemID      = $data['item_id'];
-        $priceMoney  = $data['price_money'];
-        if (!$priceMoney instanceof Money) {
-            throw new MissingPropertyException('The price_money field must be an instance of Money', 500);
-        }
-
-        // Get the optional fields
-        $pricingType  = $data['pricing_type'] ?? CatalogPricingType::FIXED_PRICING;
-        $allLocations = $data['all_locations'] ?? true;
-
-        return CatalogObjectBuilder::init(
-            CatalogObjectType::ITEM_VARIATION,
-            $variationID
-        )
-            ->presentAtAllLocations($allLocations)
-            ->itemVariationData(
-                CatalogItemVariationBuilder::init()
-                    ->itemId($itemID)
-                    ->name($name)
-                    ->pricingType($pricingType)
-                    ->priceMoney($priceMoney)
-                    ->build()
-            )
-            ->build();
-    }
-
-    /**
-     * Uploads an image file to be represented by a CatalogImage object that can be linked to an existing CatalogObject
-     * instance. The resulting CatalogImage is unattached to any CatalogObject if the object_id is not specified.
-     *
-     * This CreateCatalogImage endpoint accepts HTTP multipart/form-data requests with a JSON part and an image file
-     * part in JPEG, PJPEG, PNG, or GIF format. The maximum file size is 15MB.
-     *
-     * @param array $data
-     *
-     * @return CreateCatalogImageRequest
-     */
-    public function buildCatalogImageRequest(array $data): CreateCatalogImageRequest
-    {
-        // Get the required fields
-        Validate::validateRequiredFields($data, ['catalog_object_id' ]);
-        $catalogObjectId = $data['catalog_object_id'];
-
-        // Get the optional fields
-        $caption   = $data['caption'] ?? null;
-        $isPrimary = $data['is_primary'] ?? true;
-
-        // Create the catalog image request builder
-        $builder =  CreateCatalogImageRequestBuilder::init(
-            (string) Str::uuid(), // Generate an idempotencyKey
-            CatalogObjectBuilder::init(
-                CatalogObjectType::IMAGE,
-                '#TEMP_ID'
-            )
-                ->imageData(
-                    CatalogImageBuilder::init()
-                        ->caption($caption)
-                        ->build()
-                )
-                ->build()
-        )
-        ->isPrimary($isPrimary)
-        ->objectId($catalogObjectId);
-
-        return $builder->build();
     }
 
     /**
@@ -412,7 +165,6 @@ class SquareRequestBuilder
                 $tempDiscount->setUid(Util::uid());
                 $tempDiscount->setName($discount->name);
                 $tempDiscount->setScope($discount->pivot->scope);
-                $tempDiscount->setCatalogObjectId($discount->square_catalog_object_id);
 
                 // If it's LINE ITEM then assign proper UID
                 if ($discount->pivot->scope === Constants::DEDUCTIBLE_SCOPE_PRODUCT) {
@@ -489,7 +241,6 @@ class SquareRequestBuilder
                 $tempTax->setUid(Util::uid());
                 $tempTax->setName($tax->name);
                 $tempTax->setType($tax->type);
-                $tempTax->setCatalogObjectId($tax->square_catalog_object_id);
                 $tempTax->setPercentage((string) $percentage);
                 $tempTax->setScope($tax->pivot->scope);
 
@@ -573,7 +324,6 @@ class SquareRequestBuilder
                 $tempProduct->setName($product->name);
                 $tempProduct->setBasePriceMoney($money);
                 $tempProduct->setQuantity((string) $quantity);
-                $tempProduct->setCatalogObjectId($product->square_catalog_object_id);
                 $tempProduct->setVariationName($product->variation_name);
                 $tempProduct->setNote($product->note);
                 $tempProduct->setAppliedDiscounts($this->buildAppliedDiscounts($discounts));

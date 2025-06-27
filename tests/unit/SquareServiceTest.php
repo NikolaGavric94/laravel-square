@@ -3,7 +3,6 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Str;
-use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
@@ -44,287 +43,6 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Tests the batchUpsertCatalogObjectsRequest
-     *
-     * @return void
-     */
-    public function test_batch_delete_catalog_objects()
-    {
-        // The request below will be invalid, so make sure it throws an exception.
-        $this->expectException(Exception::class);
-
-        // Call the method we're testing
-        Square::batchDeleteCatalogObjects([]);
-    }
-
-    /**
-     * Tests the batchUpsertCatalogObjectsRequest
-     *
-     * @return void
-     */
-    public function test_batch_upsert_catalog()
-    {
-        // Use the BatchUpsertCatalogObjectsRequestBuilder to create the request.
-        $request = \Square\Models\Builders\BatchUpsertCatalogObjectsRequestBuilder::init(
-            (string) Str::uuid(),
-            [\Square\Models\Builders\CatalogObjectBatchBuilder::init([])->build()]
-        )->build();
-
-        // The request below will be invalid, so make sure it throws an exception.
-        $this->expectException(Exception::class);
-
-        // Call the method we're testing
-        Square::batchUpsertCatalog($request);
-    }
-
-    /**
-     * Tests the buildBatchDeleteCategoryObjectsRequest method.
-     *
-     * @return void
-     */
-    public function test_build_batch_delete_category_objects_request(): void
-    {
-        $catalogObjectID = 'Catalog Object ID';
-
-        // Build the image request
-        $batchDeleteRequest = Square::getSquareBuilder()->buildBatchDeleteCategoryObjectsRequest([
-            $catalogObjectID
-        ]);
-
-        $this->assertNotNull($batchDeleteRequest);
-        $this->assertInstanceOf(\Square\Models\BatchDeleteCatalogObjectsRequest::class, $batchDeleteRequest);
-
-        $this->assertEquals([$catalogObjectID], $batchDeleteRequest->getObjectIds());
-    }
-
-    /**
-     * Tests the buildCatalogImageRequest method.
-     *
-     * @return void
-     */
-    public function test_build_catalog_image_request(): void
-    {
-        // Set up the variables
-        $catalogObjectID = 'Catalog Object ID';
-        $caption         = 'Test Caption';
-
-        // Build the image request
-        $imageRequest = Square::getSquareBuilder()->buildCatalogImageRequest([
-            'catalog_object_id' => $catalogObjectID,
-            'caption'           => $caption
-        ]);
-
-        $this->assertNotNull($imageRequest);
-        $this->assertInstanceOf(\Square\Models\CreateCatalogImageRequest::class, $imageRequest);
-
-        $this->assertNotNull($imageRequest->getIdempotencyKey());
-        $this->assertEquals($catalogObjectID, $imageRequest->getObjectId());
-        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $imageRequest->getImage());
-        $this->assertEquals($caption, $imageRequest->getImage()->getImageData()->getCaption());
-        $this->assertTrue($imageRequest->getIsPrimary());
-    }
-
-    /**
-     * Tests the buildCategoryCatalogObject method.
-     *
-     * @return void
-     */
-    public function test_build_category_catalog_object(): void
-    {
-        // Set up the variables
-        $id   = 1;
-        $name = 'Test Category Description';
-
-        // Build the category object
-        $category = Square::getSquareBuilder()->buildCategoryCatalogObject([
-            'id'   => $id,
-            'name' => $name
-        ]);
-
-        $this->assertNotNull($category);
-        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $category);
-        $this->assertEquals('CATEGORY', $category->getType());
-        $this->assertEquals($id, $category->getId());
-        $this->assertEquals($name, $category->getCategoryData()->getName());
-    }
-
-    /**
-     * Tests the buildItemCatalogObject method.
-     *
-     * @return void
-     */
-    public function test_build_item_catalog_object(): void
-    {
-        // Set up the variables
-        $name        = 'Test Item Name';
-        $taxIDs      = [1, 2, 3];
-        $description = 'Test Item Description';
-        $money       = Square::getSquareBuilder()->buildMoney([
-            'amount'   => 1000,
-            'currency' => Square::getCurrency()
-        ]);
-
-        // First, create the default variation and category objects
-        $variation = Square::getSquareBuilder()->buildVariationCatalogObject([
-            'name'         => 'Variation Name',
-            'variation_id' => 'Variation #1',
-            'item_id'      => 'Item ID',
-            'price_money'  => $money
-        ]);
-        $category  = Square::getSquareBuilder()->buildCategoryCatalogObject([
-            'id'   => 1,
-            'name' => 'Category Name',
-        ]);
-
-        // Build the item object
-        $item = Square::getSquareBuilder()->buildItemCatalogObject([
-            'name'        => $name,
-            'tax_ids'     => $taxIDs,
-            'description' => $description,
-            'variations'  => [$variation],
-            'category_id' => $category->getId()
-        ]);
-
-        $this->assertNotNull($item);
-        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
-        $this->assertEquals('ITEM', $item->getType());
-        // Make sure the ID is the name with a preceding "#" character
-        $this->assertEquals('#' . $name, $item->getId());
-        $this->assertEquals($name, $item->getItemData()->getName());
-        $this->assertEquals($taxIDs, $item->getItemData()->getTaxIds());
-        $this->assertEquals($description, $item->getItemData()->getDescription());
-        $this->assertEquals($variation, $item->getItemData()->getVariations()[0]);
-        $this->assertEquals($category->getId(), $item->getItemData()->getCategoryId());
-    }
-
-    /**
-     * Tests the buildTaxCatalogObject method.
-     *
-     * @return void
-     */
-    public function test_build_tax_catalog_object(): void
-    {
-        // Set up the variables
-        $name = 'Test Tax Description';
-        $rate = 0.1;
-
-        // Build the tax object
-        $tax = Square::getSquareBuilder()->buildTaxCatalogObject([
-            'name'       => $name,
-            'percentage' => $rate
-        ]);
-
-        $this->assertNotNull($tax);
-        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $tax);
-        $this->assertEquals('TAX', $tax->getType());
-        $this->assertEquals($name, $tax->getTaxData()->getName());
-        $this->assertEquals($rate, $tax->getTaxData()->getPercentage());
-    }
-
-    /**
-     * Tests the buildVariationCatalogObject method.
-     *
-     * @return void
-     */
-    public function test_build_variation_catalog_object(): void
-    {
-        // Set up the variables
-        $id     = 'Variation #1';
-        $name   = 'Test Item Description';
-        $itemID = 'Item #1';
-        $money       = Square::getSquareBuilder()->buildMoney([
-            'amount'   => 1000,
-            'currency' => Square::getCurrency()
-        ]);
-
-        // Build the item object
-        $item = Square::getSquareBuilder()->buildVariationCatalogObject([
-            'name'         => $name,
-            'variation_id' => $id,
-            'item_id'      => $itemID,
-            'price_money'  => $money
-        ]);
-
-        $this->assertNotNull($item);
-        $this->assertInstanceOf(\Square\Models\CatalogObject::class, $item);
-        $this->assertEquals('ITEM_VARIATION', $item->getType());
-        $this->assertEquals($id, $item->getId());
-        $this->assertEquals($name, $item->getItemVariationData()->getName());
-        $this->assertEquals($itemID, $item->getItemVariationData()->getItemId());
-        $this->assertEquals($money, $item->getItemVariationData()->getPriceMoney());
-    }
-
-    /**
-     * Tests the buildMoney method.
-     *
-     * @return void
-     */
-    public function test_build_money(): void
-    {
-        $amount   = 1000;
-        $currency = 'USD';
-        $money    = Square::getSquareBuilder()->buildMoney([
-            'amount'   => $amount,
-            'currency' => $currency
-        ]);
-
-        $this->assertNotNull($money);
-        $this->assertInstanceOf(\Square\Models\Money::class, $money);
-        $this->assertEquals($amount, $money->getAmount());
-        $this->assertEquals($currency, $money->getCurrency());
-    }
-
-    /**
-     * Tests the createCatalogImage method.
-     *
-     * @return void
-     */
-    public function test_create_catalog_image(): void
-    {
-        // Create a mocked file
-        $fileName = 'image.jpg';
-        $file     = \Illuminate\Http\UploadedFile::fake()->create($fileName, 100);
-        $filePath = $file->getPathname();
-
-        $request = Square::getSquareBuilder()->buildCatalogImageRequest([
-            'catalog_object_id' => 'Fake ID',
-            'caption'           => 'Test caption'
-        ]);
-
-        // The request below will be invalid, so make sure it throws an exception.
-        $this->expectException(Exception::class);
-
-        // Call the method we're testing
-        $result = Square::createCatalogImage($request, $filePath);
-    }
-
-    /**
-     * Tests the getCurrency method.
-     *
-     * @return void
-     */
-    public function test_get_currency(): void
-    {
-        $currency = Square::getCurrency();
-
-        $this->assertNotNull($currency);
-        $this->assertEquals('USD', $currency);
-    }
-
-    /**
-     * Returns the square request builder.
-     *
-     * @return void
-     */
-    public function test_get_square_builder(): void
-    {
-        $builder = Square::getSquareBuilder();
-
-        $this->assertNotNull($builder);
-        $this->assertInstanceOf('\Nikolag\Square\Builders\SquareRequestBuilder', $builder);
-    }
-
-    /**
      * Charge OK.
      *
      * @return void
@@ -361,7 +79,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_cvv(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/' . Constants::VERIFY_CVV . '/i');
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
@@ -375,7 +93,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_postal(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/' . Constants::VERIFY_POSTAL_CODE . '/i');
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_POSTAL_CODE.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
@@ -389,7 +107,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_expiration_date(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/' . Constants::INVALID_EXPIRATION . '/i');
+        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
@@ -403,7 +121,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_declined(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/' . Constants::INVALID_EXPIRATION . '/i');
+        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
@@ -417,7 +135,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_used_nonce(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/' . Constants::VERIFY_CVV . '/i');
+        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
@@ -791,143 +509,6 @@ class SquareServiceTest extends TestCase
 
         $this->assertNotNull($transactions);
         $this->assertInstanceOf('\Square\Models\ListLocationsResponse', $transactions);
-    }
-
-    /**
-     * Tests retrieving a specific location.
-     *
-     * @return void
-     */
-    public function test_square_list_catalog(): void
-    {
-        $catalog = Square::listCatalog();
-
-        $this->assertNotNull($catalog);
-        $this->assertIsArray($catalog);
-        foreach ($catalog as $item) {
-            $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
-        }
-
-        $catalogItems = Square::listCatalog('ITEM');
-
-        $this->assertNotNull($catalogItems);
-        $this->assertIsArray($catalogItems);
-        foreach ($catalogItems as $item) {
-            $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
-            $this->assertEquals('ITEM', $item->getType());
-        }
-    }
-
-    /**
-     * Test the syncing of the product catalog for discounts.
-     *
-     * @return void
-     */
-    public function test_square_sync_discounts(): void
-    {
-        // Delete all discounts from the database
-        Discount::truncate();
-        $this->assertCount(0, Discount::all(), 'There are discount in the database after truncating');
-
-        // Sync the products
-        Square::syncDiscounts();
-
-        // Make sure there are products
-        $discounts = Discount::all();
-        $this->assertGreaterThan(0, $discounts->count(), 'There are no discounts in the database');
-
-        foreach ($discounts as $discount) {
-            // Make sure every reference_type is set to square
-            $this->assertNotEmpty(
-                $discount->square_catalog_object_id,
-                'Catalog Object ID not synced for product: ' . $discount->toJson()
-            );
-
-            // Make sure every discount has a percentage or amount
-            $this->assertNotNull(
-                $discount->percentage || $discount->amount,
-                'Discount has no percentage or amount. Discount: ' . $discount->toJson()
-            );
-        }
-    }
-
-    /**
-     * Test the syncing of the product catalog.
-     *
-     * @return void
-     */
-    public function test_square_sync_products(): void
-    {
-        // Delete all products from the database
-        Product::truncate();
-        $this->assertCount(0, Product::all(), 'There are products in the database after truncating');
-
-        // Sync the products
-        Square::syncProducts();
-
-        // Make sure there are products
-        $products = Product::all();
-        $this->assertGreaterThan(0, $products->count(), 'There are no products in the database');
-
-        foreach ($products as $product) {
-            // Make sure every reference_type is set to square
-            $this->assertNotEmpty(
-                $product->square_catalog_object_id,
-                'Catalog Object ID not synced for product: ' . $product->toJson()
-            );
-
-            // Make sure every product has a price
-            $this->assertNotNull($product->price, 'Product has no price. Product: ' . $product->toJson());
-
-            // Make sure every product has a name
-            $this->assertNotNull($product->name, 'Product has no name. Product: ' . $product->toJson());
-        }
-    }
-
-    /**
-     * Test the syncing of the product catalog for discounts.
-     *
-     * @return void
-     */
-    public function test_square_sync_taxes(): void
-    {
-        // Delete all discounts from the database
-        Tax::truncate();
-        $this->assertCount(0, Tax::all(), 'There are taxes in the database after truncating');
-
-        // Sync the products
-        Square::syncTaxes();
-
-        // Make sure there are products
-        $taxes = Tax::all();
-        $this->assertGreaterThan(0, $taxes->count(), 'There are no taxes in the database');
-
-        foreach ($taxes as $tax) {
-            // Make sure every reference_type is set to square
-            $this->assertNotEmpty(
-                $tax->square_catalog_object_id,
-                'Catalog Object ID not synced for product: ' . $tax->toJson()
-            );
-
-            // Make sure every product has a percentage or amount
-            $this->assertNotNull(
-                $tax->percentage || $tax->amount,
-                'Discount has no percentage or amount. Discount: ' . $taxes->toJson()
-            );
-        }
-    }
-
-    /**
-     * Tests retrieving a specific location.
-     *
-     * @return void
-     */
-    public function test_square_retrieve_location(): void
-    {
-        $transactions = Square::retrieveLocation('main');
-
-        $this->assertNotNull($transactions);
-        $this->assertInstanceOf('\Square\Models\RetrieveLocationResponse', $transactions);
     }
 
     /**

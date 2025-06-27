@@ -9,15 +9,6 @@ use Nikolag\Square\Utils\Constants;
 class Discount extends CoreDiscount
 {
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name', 'amount', 'percentage', 'reference_id', 'square_catalog_object_id'
-    ];
-
-    /**
      * Return a list of orders which use this discount.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany

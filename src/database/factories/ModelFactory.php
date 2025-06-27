@@ -131,13 +131,6 @@ $factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
 });
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(Constants::DISCOUNT_NAMESPACE, function (Faker\Generator $faker) {
-    return [
-        'name' => $faker->unique()->company,
-    ];
-});
-
-/* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Fulfillment::class, function (Faker\Generator $faker) {
     return [
         'state' => FulfillmentState::PROPOSED,
