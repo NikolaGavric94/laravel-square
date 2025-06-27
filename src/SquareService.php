@@ -420,7 +420,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         // Validate the order exists
         if (! $this->getOrder()) {
-            throw new InvalidSquareOrderException('Fulfillment cannot be set without an order.', 500);
+            throw new InvalidSquareOrderException('Fulfillment cannot be set without an order', 500);
         }
 
         if (is_a($fulfillment, $fulfillmentClass)) {
@@ -473,7 +473,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         if (! $this->getFulfillmentDetails()->recipient) {
             $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->getFulfillmentRecipient();
         } else {
-            throw new Exception('This order\'s fulfillment details already has a recipient', 500);
+            throw new InvalidSquareOrderException('Fulfillment details already has a recipient', 500);
         }
 
         return $this;
