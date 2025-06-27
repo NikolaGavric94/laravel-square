@@ -287,13 +287,13 @@ class Util
     /**
      * Check if source has fulfillment.
      *
-     * @param  stdClass  $order
+     * @param \Illuminate\Database\Eloquent\Collection|Collection  $source
+     * @param  Fulfillment|int|array|null  $fulfillment
+     *
      * @return bool
      */
-    public static function hasFulfillment(
-        \Illuminate\Database\Eloquent\Collection|Collection $source,
-        Fulfillment|int|array|null $fulfillment
-    ): bool {
+    public static function hasFulfillment(\Illuminate\Database\Eloquent\Collection|Collection $source, Fulfillment|int|array|null $fulfillment): bool
+    {
         // Check if $fulfillment is either int, Model or array
         if (is_a($fulfillment, Fulfillment::class)) {
             return $source->contains($fulfillment);
