@@ -6,7 +6,6 @@ use Nikolag\Core\CoreConfig;
 use Nikolag\Core\Exceptions\InvalidConfigurationException;
 use Square\Apis\CatalogApi;
 use Square\Apis\CustomersApi;
-use Square\Apis\CatalogApi;
 use Square\Apis\LocationsApi;
 use Square\Apis\OrdersApi;
 use Square\Apis\PaymentsApi;
@@ -57,16 +56,6 @@ class SquareConfig extends CoreConfig
     public function locationsAPI(): LocationsApi
     {
         return $this->squareClient->getLocationsApi();
-    }
-
-    /**
-     * Api for catalog.
-     *
-     * @return CatalogApi
-     */
-    public function catalogAPI(): CatalogApi
-    {
-        return $this->squareClient->getCatalogApi();
     }
 
     /**
