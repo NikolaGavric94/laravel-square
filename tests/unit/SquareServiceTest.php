@@ -27,6 +27,8 @@ use Square\Models\FulfillmentType;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Utils\FileWrapper;
+use Square\Models\CatalogObject;
+use Square\Models\CatalogObjectType;
 
 class SquareServiceTest extends TestCase
 {
@@ -359,7 +361,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_cvv(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
+        $this->expectExceptionMessageMatches('/' . Constants::VERIFY_CVV . '/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
@@ -373,7 +375,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_postal(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_POSTAL_CODE.'/i');
+        $this->expectExceptionMessageMatches('/' . Constants::VERIFY_POSTAL_CODE . '/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-postalcode', 'location_id' => env('SQUARE_LOCATION')]);
@@ -387,7 +389,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_wrong_expiration_date(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
+        $this->expectExceptionMessageMatches('/' . Constants::INVALID_EXPIRATION . '/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
@@ -401,7 +403,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_declined(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/'.Constants::INVALID_EXPIRATION.'/i');
+        $this->expectExceptionMessageMatches('/' . Constants::INVALID_EXPIRATION . '/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-expiration', 'location_id' => env('SQUARE_LOCATION')]);
@@ -415,7 +417,7 @@ class SquareServiceTest extends TestCase
     public function test_square_charge_used_nonce(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageMatches('/'.Constants::VERIFY_CVV.'/i');
+        $this->expectExceptionMessageMatches('/' . Constants::VERIFY_CVV . '/i');
         $this->expectExceptionCode(400);
 
         Square::charge(['amount' => 5000, 'source_id' => 'cnon:card-nonce-rejected-cvv', 'location_id' => env('SQUARE_LOCATION')]);
@@ -1184,11 +1186,67 @@ class SquareServiceTest extends TestCase
         $this->assertEquals(User::find(1), $transaction->merchant, 'Merchant is not the same as in order.');
         $this->assertEquals(Customer::find(1), $transaction->customer, 'Customer is not the same as in order.');
         $this->assertContains(Product::find(1)->id, $transaction->order->products->pluck('id'), 'Product is not part of the order.');
-        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_PRODUCT,
-            $transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope, 'Discount scope is not \'LINE_ITEM\'');
-        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_PRODUCT,
-            $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope, 'Tax scope is not \'LINE_ITEM\'');
-        $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_ORDER,
-            $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope, 'Discount scope is not \'ORDER\'');
+        $this->assertEquals(
+            Constants::DEDUCTIBLE_SCOPE_PRODUCT,
+            $transaction->order->discounts->where('name', $productDiscount->name)->first()->pivot->scope,
+            'Discount scope is not \'LINE_ITEM\''
+        );
+        $this->assertEquals(
+            Constants::DEDUCTIBLE_SCOPE_PRODUCT,
+            $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope,
+            'Tax scope is not \'LINE_ITEM\''
+        );
+        $this->assertEquals(
+            Constants::DEDUCTIBLE_SCOPE_ORDER,
+            $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope,
+            'Discount scope is not \'ORDER\''
+        );
+    }
+
+    /**
+     * Tests retrieving catalog information.
+     *
+     * @return void
+     */
+    public function test_square_list_catalog(): void
+    {
+        $catalog = Square::listCatalog();
+
+        $this->assertNotNull($catalog);
+        $this->assertIsArray($catalog);
+        foreach ($catalog as $item) {
+            $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
+        }
+    }
+
+    /**
+     * Ensures filtering the catalog by type is supported
+     *
+     * @return void
+     */
+    public function test_square_list_catalog_by_type(): void
+    {
+        $catalogItems = Square::listCatalog([CatalogObjectType::ITEM]);
+
+        $this->assertNotNull($catalogItems);
+        $this->assertIsArray($catalogItems);
+        foreach ($catalogItems as $item) {
+            $this->assertInstanceOf(CatalogObject::class, $item);
+            $this->assertEquals('ITEM', $item->getType());
+        }
+    }
+
+    /**
+     * Ensures an exception is thrown when retrieving non-standard catalog information.
+     *
+     * @return void
+     */
+    public function test_square_list_catalog_unsupported_type(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Unknown object type "UNSUPPORTED_ITEM"');
+        $this->expectExceptionCode(400);
+
+        Square::listCatalog(['unsupported_item']);
     }
 }

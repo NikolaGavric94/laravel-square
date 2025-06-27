@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square;
 
+use Illuminate\Support\Arr;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\FulfillmentBuilder;
@@ -230,34 +231,20 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Retrieves a specific location.
-     *
-     * @param string $locationId The location ID.
-     *
-     * @return RetrieveLocationResponse
-     *
-     * @throws ApiException
-     */
-    public function retrieveLocation(string $locationId): RetrieveLocationResponse
-    {
-        return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
-    }
-
-    /**
      * Lists the entire catalog.
      *
-     * @param string $types The types of objects to list.
+     * @param array<\Square\Models\CatalogObjectType> $types The types of objects to list.
      *
      * @return array<\Square\Models\CatalogObject> The catalog items.
      *
      * @throws ApiException
      */
-    public function listCatalog(?string $types = null): array
+    public function listCatalog(array $typesFilter = []): array
     {
-        $catalogItems   = [];
-        $cursor         = null;
-        $pagesRetrieved = 0;
+        $types = !empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
 
+        $catalogItems = [];
+        $cursor       = null;
         do {
             $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
 
@@ -267,97 +254,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
                 $cursor       = $results->getCursor();
             } else {
-                throw $this->handleApiResponseErrors($apiResponse);
+                throw $this->_handleApiResponseErrors($apiResponse);
             }
-
-            // Increment the pages retrieved
-            $pagesRetrieved++;
         } while ($cursor);
 
         return $catalogItems;
-    }
-
-    /**
-     * Sync all discounts to the discount table.
-     *
-     * @return void
-     */
-    public function syncDiscounts(): void
-    {
-        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
-        /** @var array<CatalogObject> */
-        $discountCatalogObjects = self::listCatalog('DISCOUNT');
-
-        foreach ($discountCatalogObjects as $discountObject) {
-            $discountData = $discountObject->getDiscountData();
-            $itemData = [
-                'name' => $discountData->getName(),
-                'percentage' => $discountData->getPercentage(),
-                'amount' => $discountData->getAmountMoney()?->getAmount(),
-            ];
-
-            $squareID = $discountObject->getId();
-
-            // Create or update the product
-            Discount::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
-        }
-    }
-
-    /**
-     * Sync all products and their variations to the products table.
-     *
-     * @return void
-     */
-    public function syncProducts(): void
-    {
-        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
-        /** @var array<CatalogObject> */
-        $itemCatalogObjects = self::listCatalog('ITEM');
-
-        foreach ($itemCatalogObjects as $itemObject) {
-            // Sync the variations to the database
-            foreach ($itemObject->getItemData()->getVariations() as $variation) {
-                $itemData = [
-                    'name'           => $itemObject->getItemData()->getName(),
-                    'description'    => $itemObject->getItemData()->getDescriptionHtml(),
-                    'variation_name' => $variation->getItemVariationData()->getName(),
-                    'description'    => $itemObject->getItemData()->getDescription(),
-                    'price'          => $variation->getItemVariationData()->getPriceMoney()->getAmount(),
-                ];
-
-                $squareID = $variation->getId();
-
-                // Create or update the product
-                Product::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
-            }
-        }
-    }
-
-    /**
-     * Sync all taxes to the taxes table.
-     *
-     * @return void
-     */
-    public function syncTaxes(): void
-    {
-        // Retrieve the main location (since we're seeding for tests, just base it on the main location)
-        /** @var array<CatalogObject> */
-        $taxCatalogObjects = self::listCatalog('TAX');
-
-        foreach ($taxCatalogObjects as $taxObject) {
-            $taxData = $taxObject->getTaxData();
-
-            $itemData = [
-                'name'       => $taxData->getName(),
-                'type'       => $taxData->getInclusionType(),
-                'percentage' => $taxData->getPercentage(),
-            ];
-
-            $squareID = $taxObject->getId();
-
-            // Create or update the product
-            Tax::updateOrCreate(['square_catalog_object_id' => $squareID], $itemData);
-        }
     }
 
     /**
@@ -424,7 +325,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         //local order
         $property = config('nikolag.connections.square.order.service_identifier');
         if (! $this->getOrder()->hasColumn($property)) {
-            throw new InvalidSquareOrderException('Table orders is missing a required column: '.$property, 500);
+            throw new InvalidSquareOrderException('Table orders is missing a required column: ' . $property, 500);
         }
         $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->locationId, $this->currency);
         $this->setCreateOrderRequest($orderRequest);
@@ -448,8 +349,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         $errors = $response->getErrors();
         $firstError = array_shift($errors);
-        $mapFunc = fn ($error) => new Exception($error->getCategory().': '.$error->getDetail(), $response->getStatusCode());
-        $exception = new Exception($firstError->getCategory().': '.$firstError->getDetail(), $response->getStatusCode());
+        $mapFunc = fn($error) => new Exception($error->getCategory() . ': ' . $error->getDetail(), $response->getStatusCode());
+        $exception = new Exception($firstError->getCategory() . ': ' . $firstError->getDetail(), $response->getStatusCode());
 
         return $exception->setAdditionalExceptions(array_map($mapFunc, $errors));
     }
@@ -471,13 +372,13 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (MissingPropertyException $e) {
-            $message = 'Required fields are missing: '.$e->getMessage();
+            $message = 'Required fields are missing: ' . $e->getMessage();
             throw new MissingPropertyException($message, 500, $e);
         } catch (InvalidSquareOrderException $e) {
             throw new MissingPropertyException('Invalid order data', 500, $e);
-        } catch (Exception|ApiException $e) {
+        } catch (Exception | ApiException $e) {
             $apiErrorMessage = $e->getMessage();
-            throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
+            throw new Exception('There was an error with the api request: ' . $apiErrorMessage, 500, $e);
         }
 
         return $this;
@@ -531,7 +432,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveCustomer();
             } catch (Exception $e) {
                 $apiErrorMessage = $e->getMessage();
-                throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
+                throw new Exception('There was an error with the api request: ' . $apiErrorMessage, 500, $e);
             }
             // Save customer into the table for further use
             $transaction->customer()->associate($this->getCustomer());
@@ -561,7 +462,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 throw new MissingPropertyException('Invalid order data', 500, $e);
             } catch (Exception $e) {
                 $apiErrorMessage = $e->getMessage();
-                throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
+                throw new Exception('There was an error with the api request: ' . $apiErrorMessage, 500, $e);
             }
         }
         $transaction->save();
@@ -617,7 +518,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $options['location_id'] ?? $this->locationId,
             $options['total'],
             $options['last_4'],
-            $options['card_brand'])->getResult();
+            $options['card_brand']
+        )->getResult();
     }
 
     /**
@@ -854,7 +756,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $this->order = $this->orderBuilder->buildOrderModelFromArray($order, new $orderClass());
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
         } else {
-            throw new InvalidSquareOrderException('Order must be an instance of '.$orderClass.' or an array', 500);
+            throw new InvalidSquareOrderException('Order must be an instance of ' . $orderClass . ' or an array', 500);
         }
 
         return $this;
