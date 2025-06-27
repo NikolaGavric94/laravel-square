@@ -4,6 +4,7 @@ namespace Nikolag\Square\Traits;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Utils\Constants;
 
 trait HasRecipient
@@ -25,10 +26,10 @@ trait HasRecipient
     /**
      * Retrieve recipient if they exist, otherwise return false.
      *
-     * @param  mixed  $recipient  The recipient to search for.
+     * @param  mixed  $recipient  The recipient to search for
      * @return bool
      */
-    public function hasRecipient(mixed $recipient): mixed
+    public function hasRecipient(mixed $recipient): bool
     {
         if (is_array($recipient) && array_key_exists('id', $recipient)) {
             $val = Recipient::find($recipient['id']);
@@ -36,7 +37,7 @@ trait HasRecipient
             $val = $recipient;
         }
 
-        return $this->products()->get()->contains($val);
+        return $this->recipient && $this->recipient->is($val);
     }
 
     /**
