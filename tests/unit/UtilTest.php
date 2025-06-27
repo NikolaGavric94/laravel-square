@@ -3,9 +3,11 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Exception;
+use Illuminate\Support\Collection;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
 use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
@@ -15,6 +17,7 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\FulfillmentType;
 
 class UtilTest extends TestCase
 {
@@ -279,5 +282,27 @@ class UtilTest extends TestCase
         $this->assertCount(2, $user->failedTransactions, 'Failed transactions count tied with User is not 2.');
         $this->assertCount(1, $user->passedTransactions, 'Passed transactions count tied with User is not 1.');
         $this->assertCount(8, $user->transactions, 'Transactions count tied with User is not 8.');
+    }
+
+    /**
+     * Test hasFulfillment with Fulfillment model instance.
+     *
+     * @return void
+     */
+    public function test_has_fulfillment(): void
+    {
+        $fulfillment1 = factory(Fulfillment::class)->make(['id' => 1, 'type' => 'PICKUP']);
+        $fulfillment2 = factory(Fulfillment::class)->make(['id' => 2, 'type' => 'DELIVERY']);
+        $fulfillment3 = factory(Fulfillment::class)->make(['id' => 3, 'type' => 'SHIPMENT']);
+
+        $collection = collect([$fulfillment1, $fulfillment2]);
+
+        // Test fulfillment exists in collection
+        $result = Util::hasFulfillment($collection, $fulfillment1);
+        $this->assertTrue($result, 'hasFulfillment should return true when fulfillment exists in collection');
+
+        // Test fulfillment does not exist in collection
+        $result = Util::hasFulfillment($collection, $fulfillment3);
+        $this->assertFalse($result, 'hasFulfillment should return false when fulfillment does not exist in collection');
     }
 }
