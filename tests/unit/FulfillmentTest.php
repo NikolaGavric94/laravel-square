@@ -202,7 +202,7 @@ class FulfillmentTest extends TestCase
         foreach ($fulfillmentDetails as $fulfillmentType => $fulfillment) {
             // Retrieve the fulfillment with Shipment Details
             $this->expectException(InvalidSquareOrderException::class);
-            $this->expectExceptionMessage('Fulfillment cannot be set without an order.');
+            $this->expectExceptionMessage('Fulfillment cannot be set without an order');
             $this->expectExceptionCode(500);
 
             Square::setFulfillment($fulfillment);
