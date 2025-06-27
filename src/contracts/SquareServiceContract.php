@@ -17,38 +17,41 @@ interface SquareServiceContract extends PaymentServiceContract
     public function addProduct(mixed $product, int $quantity = 1, string $currency = 'USD'): SquareServiceContract;
 
     /**
-     * Getter for fulfillment.
+     * Get the current fulfillment for the order.
      *
-     * @return mixed
+     * @return mixed The fulfillment object or null if none set.
      */
     public function getFulfillment(): mixed;
 
     /**
-     * @return mixed
+     * Get the fulfillment details for the current fulfillment.
+     *
+     * @return mixed The fulfillment details object or null if none set.
      */
     public function getFulfillmentDetails(): mixed;
 
     /**
-     * Getter for fulfillment recipient.
+     * Get the fulfillment recipient for the current fulfillment.
      *
-     * @param  mixed  $recipient
-     * @return self
+     * @return mixed The recipient object or null if none set.
      */
     public function getFulfillmentRecipient(): mixed;
 
     /**
-     * Sets the fulfillment for the order.
+     * Set the fulfillment for the order.
      *
-     * @param  mixed  $fulfillment
-     * @return self
+     * Note: Orders can only have one fulfillment as per Square API limitations.
+     *
+     * @param mixed $fulfillment The fulfillment model or array data.
+     * @return SquareServiceContract
      */
     public function setFulfillment(mixed $fulfillment): SquareServiceContract;
 
     /**
-     * Add a fulfillment recipient to the order.
+     * Set the recipient for the fulfillment details.
      *
-     * @param  mixed  $recipient
-     * @return self
+     * @param mixed $recipient The recipient model or array data.
+     * @return SquareServiceContract
      */
     public function setFulfillmentRecipient(mixed $recipient): SquareServiceContract;
 
