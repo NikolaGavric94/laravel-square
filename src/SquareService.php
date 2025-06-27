@@ -100,16 +100,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Retrieves the Square API request builder.
-     *
-     * @return SquareRequestBuilder
-     */
-    public function getSquareBuilder(): SquareRequestBuilder
-    {
-        return $this->squareBuilder;
-    }
-
-    /**
      * List locations.
      *
      * @return ListLocationsResponse
@@ -240,7 +230,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         $errors = $response->getErrors();
         $firstError = array_shift($errors);
-        $mapFunc = fn($error) => new Exception($error->getCategory().': '.$error->getDetail(), $response->getStatusCode());
+        $mapFunc = fn ($error) => new Exception($error->getCategory().': '.$error->getDetail(), $response->getStatusCode());
         $exception = new Exception($firstError->getCategory().': '.$firstError->getDetail(), $response->getStatusCode());
 
         return $exception->setAdditionalExceptions(array_map($mapFunc, $errors));
@@ -267,7 +257,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             throw new MissingPropertyException($message, 500, $e);
         } catch (InvalidSquareOrderException $e) {
             throw new MissingPropertyException('Invalid order data', 500, $e);
-        } catch (Exception | ApiException $e) {
+        } catch (Exception|ApiException $e) {
             $apiErrorMessage = $e->getMessage();
             throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
         }
@@ -409,8 +399,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $options['location_id'] ?? $this->locationId,
             $options['total'],
             $options['last_4'],
-            $options['card_brand']
-        )->getResult();
+            $options['card_brand'])->getResult();
     }
 
     /**
