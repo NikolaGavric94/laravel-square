@@ -4,7 +4,6 @@ namespace Nikolag\Square\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Nikolag\Square\Contracts\SquareServiceContract;
-use Nikolag\Square\Builders\SquareRequestBuilder;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareService;
 use Square\Models\ListPaymentsResponse;
