@@ -15,29 +15,17 @@ use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
-use Nikolag\Square\Models\Discount;
-use Nikolag\Square\Models\Product;
-use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
-use Square\Models\BatchDeleteCatalogObjectsResponse;
-use Square\Models\BatchUpsertCatalogObjectsRequest;
-use Square\Models\BatchUpsertCatalogObjectsResponse;
-use Square\Models\CatalogObject;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
-use Square\Models\CreateCatalogImageRequest;
-use Square\Models\CreateCatalogImageResponse;
-use Square\Models\ListCatalogResponse;
 use Square\Models\ListLocationsResponse;
-use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\UpdateCustomerRequest;
-use Square\Utils\FileWrapper;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -112,105 +100,6 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Batch deletes catalog objects.
-     *
-     * @param array<string> $catalogObjectIds The catalog object IDs to delete.
-     *
-     * @throws Exception When an error occurs.
-     *
-     * @return BatchDeleteCatalogObjectsResponse
-     */
-    public function batchDeleteCatalogObjects(array $catalogObjectIds)
-    {
-        $request = $this->getSquareBuilder()->buildBatchDeleteCategoryObjectsRequest($catalogObjectIds);
-
-        // Call the Catalog API function batchDeleteCatalogObjects to delete all our items at once.
-        $apiResponse = $this->config->catalogAPI()->batchDeleteCatalogObjects($request);
-
-        if ($apiResponse->isSuccess()) {
-            /** @var BatchDeleteCatalogObjectsResponse $results */
-            $results = $apiResponse->getResult();
-
-            return $results;
-        } else {
-            throw $this->_handleApiResponseErrors($apiResponse);
-        }
-    }
-
-    /**
-     * Uploads the items, and adds images, when creating new items for the catalog.
-     *
-     * @param BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest The request to upload the items.
-     *
-     * @throws Exception When an error occurs.
-     *
-     * @return BatchUpsertCatalogObjectsResponse
-     */
-    public function batchUpsertCatalog(BatchUpsertCatalogObjectsRequest $batchUpsertCatalogRequest)
-    {
-        // We call the Catalog API function batchUpsertCatalogObjects to upload all our
-        // items at once.
-        $apiResponse = $this->config->catalogAPI()->batchUpsertCatalogObjects($batchUpsertCatalogRequest);
-
-        if ($apiResponse->isSuccess()) {
-            /** @var BatchUpsertCatalogObjectsResponse $results */
-            $results = $apiResponse->getResult();
-
-            return $results;
-        } else {
-            throw $this->_handleApiResponseErrors($apiResponse);
-        }
-    }
-
-    /**
-     * Creates a catalog image.
-     *
-     * @param CreateCatalogImageRequest $createCatalogImageRequest The request to create the image.
-     * @param string                    $filePath                  The image to upload.
-     *
-     * @throws Exception When an error occurs.
-     *
-     * @return CreateCatalogImageResponse
-     */
-    public function createCatalogImage(
-        CreateCatalogImageRequest $createCatalogImageRequest,
-        string $filePath
-    ) {
-        // Check to see if the file exists
-        if (!file_exists($filePath)) {
-            throw new Exception('The file does not exist');
-        }
-        // Create a file wrapper
-        $fileWrapper = FileWrapper::createFromPath($filePath);
-
-        // Call the Catalog API function createCatalogImage to upload the image
-        $apiResponse = $this->config->catalogAPI()->createCatalogImage($createCatalogImageRequest, $fileWrapper);
-
-        if ($apiResponse->isSuccess()) {
-            /** @var CreateCatalogImageResponse $results */
-            $results = $apiResponse->getResult();
-
-            return $results;
-        } else {
-            throw $this->_handleApiResponseErrors($apiResponse);
-        }
-    }
-
-    /**
-     * Helper function to get the appropriate currency to be used based on the location ID provided.
-     *
-     * @param string|null $locationId The location ID.
-     *
-     *
-     * @return string The currency code
-     */
-    public function getCurrency($locationId = 'main')
-    {
-        // Get the currency for the location
-        return $this->retrieveLocation($locationId)->getLocation()->getCurrency();
-    }
-
-    /**
      * Retrieves the Square API request builder.
      *
      * @return SquareRequestBuilder
@@ -224,6 +113,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * List locations.
      *
      * @return ListLocationsResponse
+     *
+     * @throws ApiException
      */
     public function locations(): ListLocationsResponse
     {
@@ -325,7 +216,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         //local order
         $property = config('nikolag.connections.square.order.service_identifier');
         if (! $this->getOrder()->hasColumn($property)) {
-            throw new InvalidSquareOrderException('Table orders is missing a required column: ' . $property, 500);
+            throw new InvalidSquareOrderException('Table orders is missing a required column: '.$property, 500);
         }
         $orderRequest = $this->squareBuilder->buildOrderRequest($this->getOrder(), $this->locationId, $this->currency);
         $this->setCreateOrderRequest($orderRequest);
@@ -349,8 +240,8 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     {
         $errors = $response->getErrors();
         $firstError = array_shift($errors);
-        $mapFunc = fn($error) => new Exception($error->getCategory() . ': ' . $error->getDetail(), $response->getStatusCode());
-        $exception = new Exception($firstError->getCategory() . ': ' . $firstError->getDetail(), $response->getStatusCode());
+        $mapFunc = fn($error) => new Exception($error->getCategory().': '.$error->getDetail(), $response->getStatusCode());
+        $exception = new Exception($firstError->getCategory().': '.$firstError->getDetail(), $response->getStatusCode());
 
         return $exception->setAdditionalExceptions(array_map($mapFunc, $errors));
     }
@@ -372,13 +263,13 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveOrder();
             }
         } catch (MissingPropertyException $e) {
-            $message = 'Required fields are missing: ' . $e->getMessage();
+            $message = 'Required fields are missing: '.$e->getMessage();
             throw new MissingPropertyException($message, 500, $e);
         } catch (InvalidSquareOrderException $e) {
             throw new MissingPropertyException('Invalid order data', 500, $e);
         } catch (Exception | ApiException $e) {
             $apiErrorMessage = $e->getMessage();
-            throw new Exception('There was an error with the api request: ' . $apiErrorMessage, 500, $e);
+            throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
         }
 
         return $this;
@@ -432,7 +323,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 $this->_saveCustomer();
             } catch (Exception $e) {
                 $apiErrorMessage = $e->getMessage();
-                throw new Exception('There was an error with the api request: ' . $apiErrorMessage, 500, $e);
+                throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
             }
             // Save customer into the table for further use
             $transaction->customer()->associate($this->getCustomer());
@@ -462,7 +353,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
                 throw new MissingPropertyException('Invalid order data', 500, $e);
             } catch (Exception $e) {
                 $apiErrorMessage = $e->getMessage();
-                throw new Exception('There was an error with the api request: ' . $apiErrorMessage, 500, $e);
+                throw new Exception('There was an error with the api request: '.$apiErrorMessage, 500, $e);
             }
         }
         $transaction->save();
@@ -756,7 +647,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $this->order = $this->orderBuilder->buildOrderModelFromArray($order, new $orderClass());
             $this->orderCopy = $this->orderBuilder->buildOrderCopyFromArray($order);
         } else {
-            throw new InvalidSquareOrderException('Order must be an instance of ' . $orderClass . ' or an array', 500);
+            throw new InvalidSquareOrderException('Order must be an instance of '.$orderClass.' or an array', 500);
         }
 
         return $this;
