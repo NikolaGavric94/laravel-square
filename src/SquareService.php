@@ -114,7 +114,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Lists the entire catalog.
      *
-     * @param array<\Square\Models\CatalogObjectType> $types The types of objects to list.
+     * @param array<\Square\Models\CatalogObjectType> $typesFilter The types of objects to list.
      *
      * @return array<\Square\Models\CatalogObject> The catalog items.
      *
