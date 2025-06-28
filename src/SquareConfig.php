@@ -6,11 +6,11 @@ use Nikolag\Core\CoreConfig;
 use Nikolag\Core\Exceptions\InvalidConfigurationException;
 use Square\Apis\CatalogApi;
 use Square\Apis\CustomersApi;
-use Square\Apis\CatalogApi;
 use Square\Apis\LocationsApi;
 use Square\Apis\OrdersApi;
 use Square\Apis\PaymentsApi;
 use Square\Apis\TransactionsApi;
+use Square\Apis\WebhookSubscriptionsApi;
 use Square\SquareClient;
 
 class SquareConfig extends CoreConfig
@@ -60,16 +60,6 @@ class SquareConfig extends CoreConfig
     }
 
     /**
-     * Api for catalog.
-     *
-     * @return CatalogApi
-     */
-    public function catalogAPI(): CatalogApi
-    {
-        return $this->squareClient->getCatalogApi();
-    }
-
-    /**
      * Api for customers.
      *
      * @return CustomersApi
@@ -110,6 +100,16 @@ class SquareConfig extends CoreConfig
     public function paymentsAPI(): PaymentsApi
     {
         return $this->squareClient->getPaymentsApi();
+    }
+
+    /**
+     * Api for webhook subscriptions.
+     *
+     * @return WebhookSubscriptionsApi
+     */
+    public function webhooksAPI(): WebhookSubscriptionsApi
+    {
+        return $this->squareClient->getWebhookSubscriptionsApi();
     }
 
     /**

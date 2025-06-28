@@ -987,31 +987,6 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Tests retrieving a specific location.
-     *
-     * @return void
-     */
-    public function test_square_list_catalog(): void
-    {
-        $catalog = Square::listCatalog();
-
-        $this->assertNotNull($catalog);
-        $this->assertIsArray($catalog);
-        foreach ($catalog as $item) {
-            $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
-        }
-
-        $catalogItems = Square::listCatalog('ITEM');
-
-        $this->assertNotNull($catalogItems);
-        $this->assertIsArray($catalogItems);
-        foreach ($catalogItems as $item) {
-            $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
-            $this->assertEquals('ITEM', $item->getType());
-        }
-    }
-
-    /**
      * Test the syncing of the product catalog for discounts.
      *
      * @return void
