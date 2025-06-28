@@ -5,6 +5,7 @@ namespace Nikolag\Square\Utils;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\Product;
 use stdClass;
 
@@ -281,6 +282,32 @@ class Util
     public static function calculateTotalOrderCostByModel(Model $order): float|int
     {
         return self::_calculateTotalCost($order->discounts, $order->taxes, $order->products);
+    }
+
+    /**
+     * Check if source has fulfillment.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection|Collection  $source
+     * @param  Fulfillment|int|array|null  $fulfillment
+     *
+     * @return bool
+     */
+    public static function hasFulfillment(\Illuminate\Database\Eloquent\Collection|Collection $source, Fulfillment|int|array|null $fulfillment): bool
+    {
+        // Check if $fulfillment is either int, Model or array
+        if (is_a($fulfillment, Fulfillment::class)) {
+            return $source->contains($fulfillment);
+        } elseif (is_array($fulfillment)) {
+            if (array_key_exists('id', $fulfillment)) {
+                return $source->contains(Fulfillment::find($fulfillment['id']));
+            } elseif (array_key_exists('name', $fulfillment)) {
+                return $source->contains(Fulfillment::where('name', $fulfillment['name'])->first());
+            }
+        } elseif (is_int($fulfillment)) {
+            return $source->contains(Fulfillment::find($fulfillment));
+        }
+
+        return false;
     }
 
     /**
