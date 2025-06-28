@@ -29,6 +29,8 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\CatalogObject;
+use Square\Models\CatalogObjectType;
 use Square\Models\FulfillmentType;
 use Square\Models\BatchUpsertCatalogObjectsRequest;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
@@ -1533,5 +1535,52 @@ class SquareServiceTest extends TestCase
             $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope, 'Tax scope is not \'LINE_ITEM\'');
         $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_ORDER,
             $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope, 'Discount scope is not \'ORDER\'');
+    }
+
+    /**
+     * Tests retrieving catalog information.
+     *
+     * @return void
+     */
+    public function test_square_list_catalog(): void
+    {
+        $catalog = Square::listCatalog();
+
+        $this->assertNotNull($catalog);
+        $this->assertIsArray($catalog);
+        foreach ($catalog as $item) {
+            $this->assertInstanceOf('\Square\Models\CatalogObject', $item);
+        }
+    }
+
+    /**
+     * Ensures filtering the catalog by type is supported
+     *
+     * @return void
+     */
+    public function test_square_list_catalog_by_type(): void
+    {
+        $catalogItems = Square::listCatalog([CatalogObjectType::ITEM]);
+
+        $this->assertNotNull($catalogItems);
+        $this->assertIsArray($catalogItems);
+        foreach ($catalogItems as $item) {
+            $this->assertInstanceOf(CatalogObject::class, $item);
+            $this->assertEquals('ITEM', $item->getType());
+        }
+    }
+
+    /**
+     * Ensures an exception is thrown when retrieving non-standard catalog information.
+     *
+     * @return void
+     */
+    public function test_square_list_catalog_unsupported_type(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('INVALID_REQUEST_ERROR: Unknown object type "UNSUPPORTED_ITEM"');
+        $this->expectExceptionCode(400);
+
+        Square::listCatalog(['unsupported_item']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square;
 
+use Illuminate\Support\Arr;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\FulfillmentBuilder;
@@ -237,34 +238,20 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * Retrieves a specific location.
-     *
-     * @param string $locationId The location ID.
-     *
-     * @return RetrieveLocationResponse
-     *
-     * @throws ApiException
-     */
-    public function retrieveLocation(string $locationId): RetrieveLocationResponse
-    {
-        return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
-    }
-
-    /**
      * Lists the entire catalog.
      *
-     * @param string $types The types of objects to list.
+     * @param array<\Square\Models\CatalogObjectType> $types The types of objects to list.
      *
      * @return array<\Square\Models\CatalogObject> The catalog items.
      *
      * @throws ApiException
      */
-    public function listCatalog(?string $types = null): array
+    public function listCatalog(array $typesFilter = []): array
     {
-        $catalogItems   = [];
-        $cursor         = null;
-        $pagesRetrieved = 0;
+        $types = !empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
 
+        $catalogItems = [];
+        $cursor       = null;
         do {
             $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
 
@@ -276,12 +263,23 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             } else {
                 throw $this->_handleApiResponseErrors($apiResponse);
             }
-
-            // Increment the pages retrieved
-            $pagesRetrieved++;
         } while ($cursor);
 
         return $catalogItems;
+    }
+
+    /**
+     * Retrieves a specific location.
+     *
+     * @param string $locationId The location ID.
+     *
+     * @return RetrieveLocationResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveLocation(string $locationId): RetrieveLocationResponse
+    {
+        return $this->config->locationsAPI()->retrieveLocation($locationId)->getResult();
     }
 
     /**
