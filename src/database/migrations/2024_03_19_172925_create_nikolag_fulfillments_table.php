@@ -20,8 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id');
 
             // Square-specific fields
-            $table->string('uid', 60)->nullable();
-            $table->enum('type', [FulfillmentType::PICKUP,FulfillmentType::SHIPMENT,FulfillmentType::DELIVERY]);
+            $table->string('uid', 60)->unique()->nullable();
+            $table->enum('type', [FulfillmentType::PICKUP, FulfillmentType::SHIPMENT, FulfillmentType::DELIVERY]);
             $table->enum('state', [
                 FulfillmentState::PROPOSED,
                 FulfillmentState::RESERVED,
