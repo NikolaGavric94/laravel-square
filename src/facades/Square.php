@@ -12,6 +12,7 @@ use Nikolag\Square\SquareService;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\RetrieveOrderResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 
@@ -19,14 +20,16 @@ use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
  * @method static SquareService save()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)
+ * @method static RetrieveOrderResponse retrieveOrder(string $orderId)
  * @method static mixed getCustomer()
  * @method static SquareServiceContract setCustomer($customer)
  * @method static mixed getMerchant()
  * @method static SquareServiceContract setMerchant($merchant)
  * @method static mixed getOrder()
+ * @method static SquareService listCatalog(array $types = [])
  * @method static SquareServiceContract addProduct($product, int $quantity, string $currency = 'USD')
  * @method static SquareServiceContract setOrder($order, string $locationId, string $currency = 'USD')
- * 
+ *
  * Webhook Management Methods
  * @method static WebhookSubscription createWebhookSubscription(WebhookBuilder $builder)
  * @method static WebhookSubscription updateWebhookSubscription(string $subscriptionId, WebhookBuilder $builder)

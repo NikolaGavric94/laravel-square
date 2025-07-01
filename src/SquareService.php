@@ -3,6 +3,7 @@
 namespace Nikolag\Square;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
@@ -31,6 +32,7 @@ use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\RetrieveOrderResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use Square\Models\UpdateCustomerRequest;
@@ -96,6 +98,37 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     public function locations(): ListLocationsResponse
     {
         return $this->config->locationsAPI()->listLocations()->getResult();
+    }
+
+    /**
+     * Lists the entire catalog.
+     *
+     * @param array<\Square\Models\CatalogObjectType> $types The types of objects to list.
+     *
+     * @return array<\Square\Models\CatalogObject> The catalog items.
+     *
+     * @throws ApiException
+     */
+    public function listCatalog(array $typesFilter = []): array
+    {
+        $types = !empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
+
+        $catalogItems = [];
+        $cursor       = null;
+        do {
+            $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
+
+            if ($apiResponse->isSuccess()) {
+                /** @var ListCatalogResponse $results */
+                $results      = $apiResponse->getResult();
+                $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
+                $cursor       = $results->getCursor();
+            } else {
+                throw $this->_handleApiResponseErrors($apiResponse);
+            }
+        } while ($cursor);
+
+        return $catalogItems;
     }
 
     /**
@@ -321,6 +354,25 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return $transaction;
+    }
+
+    /**
+     * Retrieve an order by ID.
+     *
+     * @param  string  $orderId
+     * @return RetrieveOrderResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveOrder(string $orderId): RetrieveOrderResponse
+    {
+        $response = $this->config->ordersAPI()->retrieveOrder($orderId);
+
+        if ($response->isSuccess()) {
+            return $response->getResult();
+        } else {
+            throw $this->_handleApiResponseErrors($response);
+        }
     }
 
     /**
