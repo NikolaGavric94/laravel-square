@@ -194,6 +194,8 @@ class WebhookEvent extends Model
             'order.updated' => 'order_updated',
             'payment.created' => 'payment',
             'payment.updated' => 'payment',
+            'refund.created' => 'refund',
+            'refund.updated' => 'refund',
             default => null,
         };
     }
