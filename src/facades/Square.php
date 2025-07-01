@@ -15,9 +15,9 @@ use Square\Models\CreateCatalogImageResponse;
 use Square\Models\BatchUpsertCatalogObjectsResponse;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
-use Square\Models\RetrieveLocationResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\RetrieveOrderResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 
@@ -44,6 +44,7 @@ use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
  * @method static void syncTaxes()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)
+ * @method static RetrieveOrderResponse retrieveOrder(string $orderId)
  * @method static mixed getCustomer()
  * @method static SquareServiceContract setCustomer($customer)
  * @method static mixed getMerchant()
