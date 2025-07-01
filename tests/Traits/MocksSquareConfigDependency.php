@@ -7,9 +7,12 @@ use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\SquareConfig;
 use Nikolag\Square\Utils\WebhookProcessor;
+use Square\Apis\OrdersApi;
 use Square\Apis\WebhookSubscriptionsApi;
 use Square\Http\ApiResponse;
 use Square\Models\Builders\CreateWebhookSubscriptionResponseBuilder;
+use Square\Models\Builders\RetrieveOrderResponseBuilder;
+use Square\Models\Builders\OrderBuilder;
 use Square\Models\Builders\DeleteWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionResponseBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyResponseBuilder;
@@ -21,6 +24,7 @@ use Square\Models\Builders\TestWebhookSubscriptionResponseBuilder;
 use Square\Models\CreateWebhookSubscriptionResponse;
 use Square\Models\DeleteWebhookSubscriptionResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\RetrieveOrderResponse;
 use Square\Models\UpdateWebhookSubscriptionResponse;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
@@ -37,6 +41,7 @@ trait MocksSquareConfigDependency
      * Persistent mock instances to avoid service container conflicts.
      */
     private $mockWebhooksApi;
+    private $mockOrdersApi;
     private $mockSquareConfig;
 
     /**
@@ -615,5 +620,183 @@ trait MocksSquareConfigDependency
         }
 
         return $builder->build();
+    }
+
+    // ========================================
+    // Orders API Mocking Methods
+    // ========================================
+
+    /**
+     * Mock the SquareConfig dependency for orders operations.
+     *
+     * @param string  $endpoint     The orders endpoint to mock.
+     * @param array|null   $responseData The data to include in successful responses.
+     * @param boolean $shouldFail   Whether to simulate an API error.
+     * @param string  $errorMessage Error message if shouldFail is true.
+     * @param int     $errorCode    HTTP error code if shouldFail is true.
+     */
+    protected function mockSquareOrdersEndpoint(
+        string $endpoint,
+        ?array $responseData = null,
+        bool $shouldFail = false,
+        string $errorMessage = 'API Error',
+        int $errorCode = 400
+    ): void {
+        if ($shouldFail) {
+            $this->mockSquareOrdersError($endpoint, $errorMessage, $errorCode);
+        } else {
+            $this->mockSquareOrdersSuccess($endpoint, $responseData);
+        }
+    }
+
+    /**
+     * Mock a successful orders API response.
+     *
+     * @param string $endpoint The orders endpoint to mock.
+     * @param array|null  $responseData The data to include in the response.
+     *
+     * @return void
+     */
+    private function mockSquareOrdersSuccess(string $endpoint, ?array $responseData = null): void
+    {
+        // Build the appropriate response based on endpoint
+        $mockResult = $this->buildOrdersResponseForEndpoint($endpoint, $responseData);
+
+        // Create mock API response
+        $mockApiResponse = $this->createMock(ApiResponse::class);
+        $mockApiResponse->method('isError')->willReturn(false);
+        $mockApiResponse->method('isSuccess')->willReturn(true);
+        $mockApiResponse->method('getResult')->willReturn($mockResult);
+        $mockApiResponse->method('getErrors')->willReturn([]);
+
+        $this->bindMockOrdersToServiceContainer($endpoint, $mockApiResponse);
+    }
+
+    /**
+     * Mock an error orders API response.
+     *
+     * @param string $endpoint The orders endpoint to mock.
+     * @param string $errorMessage The error message to return.
+     * @param int    $errorCode The HTTP status code to return.
+     *
+     * @return void
+     */
+    private function mockSquareOrdersError(string $endpoint, string $errorMessage, int $errorCode): void
+    {
+        // Create error object using Square's builder
+        $error = ErrorBuilder::init('INVALID_REQUEST_ERROR', 'GENERIC_ERROR')
+            ->detail($errorMessage)
+            ->field(null)
+            ->build();
+
+        // Create mock API response for error
+        $mockApiResponse = $this->createMock(ApiResponse::class);
+        $mockApiResponse->method('isError')->willReturn(true);
+        $mockApiResponse->method('isSuccess')->willReturn(false);
+        $mockApiResponse->method('getResult')->willReturn(null);
+        $mockApiResponse->method('getErrors')->willReturn([$error]);
+        $mockApiResponse->method('getStatusCode')->willReturn($errorCode);
+
+        $this->bindMockOrdersToServiceContainer($endpoint, $mockApiResponse);
+    }
+
+    /**
+     * Build the appropriate response object based on the orders endpoint.
+     */
+    private function buildOrdersResponseForEndpoint(string $endpoint, ?array $data): mixed
+    {
+        switch ($endpoint) {
+            case 'retrieveOrder':
+                return $this->buildRetrieveOrderResponse($data);
+            default:
+                return $this->buildRetrieveOrderResponse($data);
+        }
+    }
+
+    /**
+     * Build a retrieve order response.
+     *
+     * @param array|null $data The data to include in the response.
+     *
+     * @return RetrieveOrderResponse
+     */
+    private function buildRetrieveOrderResponse(?array $data = null): RetrieveOrderResponse
+    {
+        $orderData = $data ?? [
+            'id' => 'test-order-123',
+            'locationId' => 'test-location-123',
+            'state' => 'OPEN',
+            'version' => 1,
+            'createdAt' => '2023-10-18T10:00:00Z',
+            'updatedAt' => '2023-10-18T10:00:00Z'
+        ];
+
+        $order = OrderBuilder::init($orderData['locationId'])
+            ->id($orderData['id'])
+            ->state($orderData['state'])
+            ->version($orderData['version'])
+            ->createdAt($orderData['createdAt'])
+            ->updatedAt($orderData['updatedAt'])
+            ->build();
+
+        return RetrieveOrderResponseBuilder::init()
+            ->order($order)
+            ->build();
+    }
+
+    /**
+     * Bind the orders mock to the service container using dependency injection.
+     *
+     * @param string      $endpoint        The orders endpoint to mock.
+     * @param ApiResponse $mockApiResponse The mock API response to return.
+     *
+     * @return void
+     */
+    private function bindMockOrdersToServiceContainer(string $endpoint, ApiResponse $mockApiResponse): void
+    {
+        // Get or create a persistent mock orders API
+        if (!isset($this->mockOrdersApi)) {
+            $this->mockOrdersApi = $this->createMock(OrdersApi::class);
+        }
+
+        // Configure the specific endpoint on the existing mock
+        $this->mockOrdersApi->method($endpoint)->willReturn($mockApiResponse);
+
+        // Get or create a persistent mock SquareConfig
+        if (!isset($this->mockSquareConfig)) {
+            $this->mockSquareConfig = $this->createMock(SquareConfig::class);
+            $this->mockSquareConfig->method('ordersAPI')->willReturn($this->mockOrdersApi);
+
+            // Bind once to the service container
+            $this->app->instance(SquareConfig::class, $this->mockSquareConfig);
+        } else {
+            // Update existing mock config to include orders API
+            $this->mockSquareConfig->method('ordersAPI')->willReturn($this->mockOrdersApi);
+        }
+    }
+
+    /**
+     * Mock the ordersAPI()->retrieveOrder($orderId) method in the SquareService class.
+     *
+     * @param array $responseData Data to include in the successful response.
+     *
+     * @return void
+     */
+    protected function mockRetrieveOrderSuccess(array $responseData = []): void
+    {
+        $this->mockSquareOrdersEndpoint('retrieveOrder', $responseData);
+    }
+
+    /**
+     * Mock the ordersAPI()->retrieveOrder($orderId) method with error in the SquareService class.
+     *
+     * @param string $message Error message to return.
+     * @param int $code HTTP error code to return.
+     *
+     * @return void
+     */
+    protected function mockRetrieveOrderError(string $message = 'Order not found', int $code = 404): void
+    {
+        $this->mockSquareOrdersEndpoint('retrieveOrder', [], true, $message, $code);
     }
 }
