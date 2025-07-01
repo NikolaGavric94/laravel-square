@@ -7,11 +7,13 @@ use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\SquareService;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\RetrieveOrderResponse;
 
 /**
  * @method static SquareService save()
  * @method static Transaction charge(array $data)
  * @method static ListPaymentsResponse payments(array $options)
+ * @method static RetrieveOrderResponse retrieveOrder(string $orderId)
  * @method static mixed getCustomer()
  * @method static SquareServiceContract setCustomer($customer)
  * @method static mixed getMerchant()

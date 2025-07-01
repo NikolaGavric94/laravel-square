@@ -23,6 +23,7 @@ use Square\Models\CreateOrderRequest;
 use Square\Models\Error;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\RetrieveOrderResponse;
 use Square\Models\UpdateCustomerRequest;
 use stdClass;
 
@@ -341,6 +342,25 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return $transaction;
+    }
+
+    /**
+     * Retrieve an order by ID.
+     *
+     * @param  string  $orderId
+     * @return RetrieveOrderResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveOrder(string $orderId): RetrieveOrderResponse
+    {
+        $response = $this->config->ordersAPI()->retrieveOrder($orderId);
+
+        if ($response->isSuccess()) {
+            return $response->getResult();
+        } else {
+            throw $this->_handleApiResponseErrors($response);
+        }
     }
 
     /**
