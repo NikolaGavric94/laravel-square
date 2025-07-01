@@ -109,13 +109,62 @@ class WebhookEvent extends Model
     }
 
     /**
+     * Check if this is an catalog-related event.
+     *
+     * @return bool
+     */
+    public function isCatalogEvent(): bool {
+        return str_starts_with($this->event_type, 'catalog.');
+    }
+
+    /**
+     * Check if this is an customer-related event.
+     *
+     * @return bool
+     */
+    public function isCustomerEvent(): bool {
+        return str_starts_with($this->event_type, 'customer.');
+    }
+    /**
+     * Check if this is an invoice-related event.
+     *
+     * @return bool
+     */
+    public function isInvoiceEvent(): bool {
+        return str_starts_with($this->event_type, 'invoice.');
+    }
+    /**
+     * Check if this is an location-related event.
+     *
+     * @return bool
+     */
+    public function isLocationEvent(): bool {
+        return str_starts_with($this->event_type, 'location.');
+    }
+
+    /**
+     * Check if this is an oauth-related event.
+     *
+     * @return bool
+     */
+    public function isOAuthEvent(): bool {
+        return str_starts_with($this->event_type, 'oauth.');
+    }
+    /**
      * Check if this is an order-related event.
      *
      * @return bool
      */
-    public function isOrderEvent(): bool
-    {
+    public function isOrderEvent(): bool {
         return str_starts_with($this->event_type, 'order.');
+    }
+    /**
+     * Check if this is an refund-related event.
+     *
+     * @return bool
+     */
+    public function isRefundEvent(): bool {
+        return str_starts_with($this->event_type, 'refund.');
     }
 
     /**
