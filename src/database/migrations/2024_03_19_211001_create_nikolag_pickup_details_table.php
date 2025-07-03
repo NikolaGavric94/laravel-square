@@ -14,8 +14,7 @@ return new class extends Migration
     {
         Schema::create('nikolag_pickup_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('nikolag_fulfillment_id')->nullable()
-                ->constrained('nikolag_fulfillments')->cascadeOnDelete();
+            $table->foreignId('fulfillment_id')->nullable()->constrained('nikolag_fulfillments')->cascadeOnDelete();
 
             // Square Order Fulfillment Pickup Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
