@@ -243,8 +243,9 @@ class OrderBuilder
                     $fulfillment->fulfillmentDetails->recipient()->associate($recipient);
 
                     // Create the fulfillment details
-                    $fulfillment->fulfillmentDetails->save();
-                    $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
+                    $fulfillmentDetails = $fulfillment->fulfillmentDetails;
+                    $fulfillmentDetails->save();
+                    $fulfillment->fulfillmentDetails()->associate($fulfillmentDetails);
 
                     // Associate order with the fulfillment
                     $fulfillment->order()->associate($order);
@@ -252,6 +253,11 @@ class OrderBuilder
                     // Save the fulfillment details after saving the fulfillment
                     unset($fulfillment->fulfillmentDetails);
                     $fulfillment->save();
+
+                    // Now that the fulfillment has an id, add it to the fulfillment details
+                    $fulfillmentDetails->update([
+                        'fulfillment_id' => $fulfillment->id,
+                    ]);
 
                     // Add the fulfillment to the order
                     $order->fulfillments->add($fulfillment);
