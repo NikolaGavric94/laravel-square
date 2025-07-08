@@ -6,10 +6,11 @@ use Illuminate\Support\Collection;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Utils\Constants;
-use Square\Models\Fulfillment;
+use Square\Models\Fulfillment as SquareFulfillment;
 use Square\Models\FulfillmentType;
 use Square\Models\FulfillmentDeliveryDetails;
 use Square\Models\FulfillmentPickupDetails;
@@ -61,7 +62,7 @@ class FulfillmentRequestBuilder
         $tempFulfillment = null;
         if ($fulfillments->isNotEmpty()) {
             foreach ($fulfillments as $fulfillment) {
-                $tempFulfillment = new Fulfillment();
+                $tempFulfillment = new SquareFulfillment();
 
                 // Set the state
                 $tempFulfillment->setState($fulfillment->state);
@@ -72,19 +73,19 @@ class FulfillmentRequestBuilder
                 // Based on the type, set the appropriate details
                 if ($fulfillment->type == FulfillmentType::DELIVERY) {
                     // Build the delivery details
-                    $tempDeliveryDetails = $this->buildDeliveryDetails($fulfillment->fulfillmentDetails);
+                    $tempDeliveryDetails = $this->buildDeliveryDetails($fulfillment);
 
                     // Set the delivery details
                     $tempFulfillment->setDeliveryDetails($tempDeliveryDetails);
                 } elseif ($fulfillment->type == FulfillmentType::PICKUP) {
                     // Build the pickup details
-                    $tempPickupDetails = $this->buildPickupDetails($fulfillment->fulfillmentDetails);
+                    $tempPickupDetails = $this->buildPickupDetails($fulfillment);
 
                     // Set the pickup details
                     $tempFulfillment->setPickupDetails($tempPickupDetails);
                 } elseif ($fulfillment->type == FulfillmentType::SHIPMENT) {
                     // Build the shipment details
-                    $tempShipmentDetails = $this->buildShipmentDetails($fulfillment->fulfillmentDetails);
+                    $tempShipmentDetails = $this->buildShipmentDetails($fulfillment);
 
                     // Set the shipment details
                     $tempFulfillment->setShipmentDetails($tempShipmentDetails);
@@ -104,22 +105,25 @@ class FulfillmentRequestBuilder
     /**
      * Builds the fulfillment details for delivery fulfillment types.
      *
-     * @param DeliveryDetails $deliveryDetails The delivery details model.
+     * @param Fulfillment $fulfillment The fulfillment model.
      * @return FulfillmentDeliveryDetails
      *
      * @throws InvalidSquareOrderException When delivery configuration is invalid.
      * @throws MissingPropertyException    When required delivery properties are missing.
      */
-    public function buildDeliveryDetails(DeliveryDetails $deliveryDetails): FulfillmentDeliveryDetails
+    public function buildDeliveryDetails(Fulfillment $fulfillment): FulfillmentDeliveryDetails
     {
+        /** @var DeliveryDetails $deliveryDetails */
+        $deliveryDetails = $fulfillment->fulfillmentDetails;
+
         $fulfillmentDeliveryDetails = new FulfillmentDeliveryDetails();
 
-        // Set the recipient
+        // Set the recipient from the fulfillment
         $recipient = new FulfillmentRecipient();
-        $recipient->setDisplayName($deliveryDetails->recipient->display_name);
-        $recipient->setEmailAddress($deliveryDetails->recipient->email_address);
-        $recipient->setPhoneNumber($deliveryDetails->recipient->phone_number);
-        $recipient->setAddress($deliveryDetails->recipient->getSquareRequestAddress());
+        $recipient->setDisplayName($fulfillment->recipient->display_name);
+        $recipient->setEmailAddress($fulfillment->recipient->email_address);
+        $recipient->setPhoneNumber($fulfillment->recipient->phone_number);
+        $recipient->setAddress($fulfillment->recipient->getSquareRequestAddress());
         $fulfillmentDeliveryDetails->setRecipient($recipient);
 
         // Time-based details
@@ -164,25 +168,28 @@ class FulfillmentRequestBuilder
     /**
      * Builds the fulfillment details for pickup fulfillment types.
      *
-     * @param PickupDetails $pickupDetails The pickup details model.
+     * @param Fulfillment $fulfillment The fulfillment model.
      * @return FulfillmentPickupDetails
      *
      * @throws InvalidSquareOrderException When pickup configuration is invalid.
      * @throws MissingPropertyException    When required pickup properties are missing.
      */
-    public function buildPickupDetails(PickupDetails $pickupDetails): FulfillmentPickupDetails
+    public function buildPickupDetails(Fulfillment $fulfillment): FulfillmentPickupDetails
     {
+        /** @var PickupDetails $pickupDetails */
+        $pickupDetails = $fulfillment->fulfillmentDetails;
+
         // Create the square request fulfillment pick
         $fulfillmentPickupDetails = new FulfillmentPickupDetails();
 
-        // Set the recipient
+        // Set the recipient from the fulfillment
         $recipient = new FulfillmentRecipient();
-        $recipient->setDisplayName($pickupDetails->recipient->display_name);
-        $recipient->setEmailAddress($pickupDetails->recipient->email_address);
-        $recipient->setPhoneNumber($pickupDetails->recipient->phone_number);
+        $recipient->setDisplayName($fulfillment->recipient->display_name);
+        $recipient->setEmailAddress($fulfillment->recipient->email_address);
+        $recipient->setPhoneNumber($fulfillment->recipient->phone_number);
         // Address is optional for pickup orders
-        if ($pickupDetails->recipient->address) {
-            $recipient->setAddress($pickupDetails->recipient->getSquareRequestAddress());
+        if ($fulfillment->recipient->address) {
+            $recipient->setAddress($fulfillment->recipient->getSquareRequestAddress());
         }
         $fulfillmentPickupDetails->setRecipient($recipient);
 
@@ -220,22 +227,25 @@ class FulfillmentRequestBuilder
     /**
      * Builds the fulfillment details for shipment fulfillment types.
      *
-     * @param ShipmentDetails $shipmentDetails The shipment details model.
+     * @param Fulfillment $fulfillment The fulfillment model.
      * @return FulfillmentShipmentDetails
      *
      * @throws InvalidSquareOrderException When shipment configuration is invalid.
      * @throws MissingPropertyException    When required shipment properties are missing.
      */
-    public function buildShipmentDetails(ShipmentDetails $shipmentDetails): FulfillmentShipmentDetails
+    public function buildShipmentDetails(Fulfillment $fulfillment): FulfillmentShipmentDetails
     {
+        /** @var ShipmentDetails $shipmentDetails */
+        $shipmentDetails = $fulfillment->fulfillmentDetails;
+
         $fulfillmentShipmentDetails = new FulfillmentShipmentDetails();
 
-        // Set the recipient
+        // Set the recipient from the fulfillment
         $recipient = new FulfillmentRecipient();
-        $recipient->setDisplayName($shipmentDetails->recipient->display_name);
-        $recipient->setEmailAddress($shipmentDetails->recipient->email_address);
-        $recipient->setPhoneNumber($shipmentDetails->recipient->phone_number);
-        $recipient->setAddress($shipmentDetails->recipient->getSquareRequestAddress());
+        $recipient->setDisplayName($fulfillment->recipient->display_name);
+        $recipient->setEmailAddress($fulfillment->recipient->email_address);
+        $recipient->setPhoneNumber($fulfillment->recipient->phone_number);
+        $recipient->setAddress($fulfillment->recipient->getSquareRequestAddress());
         $fulfillmentShipmentDetails->setRecipient($recipient);
 
         // Time-based details

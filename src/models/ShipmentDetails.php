@@ -4,15 +4,10 @@ namespace Nikolag\Square\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
-use Nikolag\Square\Traits\HasRecipient;
 use Nikolag\Square\Utils\Constants;
 
 class ShipmentDetails extends Model
 {
-    /**
-     * Traits.
-     */
-    use HasRecipient;
 
     /**
      * The table associated with the model.

@@ -3,6 +3,7 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
@@ -58,22 +59,22 @@ class PickupDetailsTest extends TestCase
      */
     public function test_pickup_create_with_recipient(): void
     {
-        // Retrieve the fulfillment with pickup details
+        // Create pickup details
+        $pickupDetails = factory(PickupDetails::class)->create();
+
+        // Create a fulfillment and associate with pickup details and recipient
         $fulfillment = $this->data->fulfillmentWithPickupDetails;
-
-        // Add the recipient to the fulfillment details
-        $fulfillment->fulfillmentDetails->recipient()->associate($this->data->fulfillmentRecipient);
-        $fulfillment->fulfillmentDetails->save();
-
-        // Create the fulfillment details and associate it with the fulfillment
-        $fulfillment->fulfillmentDetails->save();
-        $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
+        $fulfillment->fulfillmentDetails()->associate($pickupDetails);
 
         // Associate order with the fulfillment
         $fulfillment->order()->associate($this->data->order);
         $fulfillment->save();
 
+        $this->data->fulfillmentRecipient->fulfillment()->associate($fulfillment);
+        $this->data->fulfillmentRecipient->save();
+
         $this->assertInstanceOf(PickupDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+        $this->assertInstanceOf(Recipient::class, $fulfillment->recipient);
     }
 
     /**

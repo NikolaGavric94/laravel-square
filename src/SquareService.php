@@ -469,11 +469,13 @@ class SquareService extends CorePaymentService implements SquareServiceContract
             $this->fulfillmentRecipient = $this->recipientBuilder->load($recipient);
         }
 
-        // Check if this order's fulfillment details already has a recipient
-        if (! $this->getFulfillmentDetails()->recipient) {
-            $this->orderCopy->fulfillments->first()->fulfillmentDetails->recipient = $this->getFulfillmentRecipient();
+        // Check if this order's fulfillment already has a recipient
+        $fulfillment = $this->orderCopy->fulfillments->first();
+        if (! $fulfillment->recipient) {
+            // Store the recipient object temporarily - it will be properly associated in OrderBuilder
+            $fulfillment->recipient = $this->getFulfillmentRecipient();
         } else {
-            throw new InvalidSquareOrderException('Fulfillment details already has a recipient', 500);
+            throw new InvalidSquareOrderException('Fulfillment already has a recipient', 500);
         }
 
         return $this;

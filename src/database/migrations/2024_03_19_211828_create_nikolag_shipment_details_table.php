@@ -17,7 +17,6 @@ return new class extends Migration
 
             // Square Order Fulfillment Shipment Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->string('carrier', 50)->nullable();
             $table->string('shipping_note', 500)->nullable();
             $table->string('shipping_type', 50)->nullable();

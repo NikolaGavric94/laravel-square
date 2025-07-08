@@ -8,6 +8,7 @@ use Nikolag\Square\Models\DeliveryDetails;
 use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
@@ -84,7 +85,7 @@ class FulfillmentTest extends TestCase
         // Create the pickup
         $pickup = factory(PickupDetails::class)->create();
 
-        // Create the fulfillment - associate the pickup before saving!
+        // Create the fulfillment - associate the pickup and recipient before saving!
         /** @var Fulfillment $fulfillment */
         $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make();
         $fulfillment->fulfillmentDetails()->associate($pickup);
@@ -92,10 +93,15 @@ class FulfillmentTest extends TestCase
         // Make an order and associate it with the fulfillment
         $order = factory(Order::class)->create();
         $fulfillment->order()->associate($order);
-
         $fulfillment->save();
 
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+
         $this->assertInstanceOf(PickupDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+        $this->assertInstanceOf(Recipient::class, $fulfillment->fresh()->recipient);
     }
 
     /**
@@ -108,7 +114,7 @@ class FulfillmentTest extends TestCase
         // Create the delivery
         $delivery = factory(DeliveryDetails::class)->create();
 
-        // Create the fulfillment - associate the delivery before saving!
+        // Create the fulfillment - associate the delivery and recipient before saving!
         /** @var Fulfillment $fulfillment */
         $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make();
         $fulfillment->fulfillmentDetails()->associate($delivery);
@@ -116,10 +122,15 @@ class FulfillmentTest extends TestCase
         // Make an order and associate it with the fulfillment
         $order = factory(Order::class)->create();
         $fulfillment->order()->associate($order);
-
         $fulfillment->save();
 
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+
         $this->assertInstanceOf(DeliveryDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+        $this->assertInstanceOf(Recipient::class, $fulfillment->fresh()->recipient);
     }
 
     /**
@@ -132,7 +143,7 @@ class FulfillmentTest extends TestCase
         // Create the shipment
         $shipment = factory(ShipmentDetails::class)->create();
 
-        // Create the fulfillment - associate the shipment before saving!
+        // Create the fulfillment - associate the shipment and recipient before saving!
         /** @var Fulfillment $fulfillment */
         $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make();
         $fulfillment->fulfillmentDetails()->associate($shipment);
@@ -140,10 +151,15 @@ class FulfillmentTest extends TestCase
         // Make an order and associate it with the fulfillment
         $order = factory(Order::class)->create();
         $fulfillment->order()->associate($order);
-
         $fulfillment->save();
 
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+
         $this->assertInstanceOf(ShipmentDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+        $this->assertInstanceOf(Recipient::class, $fulfillment->fresh()->recipient);
     }
 
     /**
@@ -165,12 +181,16 @@ class FulfillmentTest extends TestCase
         $fulfillment->order()->associate($order);
         $fulfillment->save();
 
-        $fulfillment->order()->associate($order);
-
         // Save the order
         $order->save();
 
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+
         $this->assertInstanceOf(Order::class, $fulfillment->order);
+        $this->assertInstanceOf(Recipient::class, $fulfillment->fresh()->recipient);
     }
 
     /**
@@ -226,5 +246,69 @@ class FulfillmentTest extends TestCase
             ->addProduct($product, 2)
             ->setFulfillment($this->data->fulfillmentWithPickupDetails)
             ->setFulfillment($this->data->fulfillmentWithPickupDetails);
+    }
+
+    /**
+     * Test one-to-one recipient constraint.
+     *
+     * @return void
+     */
+    public function test_recipient_one_to_one_constraint(): void
+    {
+        // Create first fulfillment with pickup details
+        $pickup1 = factory(PickupDetails::class)->create();
+        $fulfillment1 = factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make();
+        $fulfillment1->fulfillmentDetails()->associate($pickup1);
+
+        $order1 = factory(Order::class)->create();
+        $fulfillment1->order()->associate($order1);
+        $fulfillment1->save();
+
+        // Create a recipient associated with the fulfillment
+        $recipient = factory(Recipient::class)->create(['fulfillment_id' => $fulfillment1->id]);
+
+        // Create second fulfillment with delivery details
+        $delivery2 = factory(DeliveryDetails::class)->create();
+        $fulfillment2 = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make();
+        $fulfillment2->fulfillmentDetails()->associate($delivery2);
+
+        $order2 = factory(Order::class)->create();
+        $fulfillment2->order()->associate($order2);
+        $fulfillment2->save();
+
+        // This should fail due to unique constraint on fulfillment_id when trying to create a second recipient for the same fulfillment
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessageMatches('/Integrity constraint violation/');
+
+        // Try to create a second recipient for the first fulfillment (should fail due to unique constraint)
+        $recipient2 = factory(Recipient::class)->create(['fulfillment_id' => $fulfillment1->id]);
+    }
+
+    /**
+     * Test recipient relationships work correctly.
+     *
+     * @return void
+     */
+    public function test_recipient_fulfillment_relationships(): void
+    {
+        // Create fulfillment with pickup details
+        $pickup = factory(PickupDetails::class)->create();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make();
+        $fulfillment->fulfillmentDetails()->associate($pickup);
+
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
+        $fulfillment->save();
+
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+
+        // Test relationships
+        $this->assertInstanceOf(Recipient::class, $fulfillment->recipient);
+        $this->assertInstanceOf(Fulfillment::class, $recipient->fulfillment);
+        $this->assertEquals($fulfillment->id, $recipient->fulfillment->id);
+        $this->assertEquals($recipient->id, $fulfillment->recipient->id);
     }
 }

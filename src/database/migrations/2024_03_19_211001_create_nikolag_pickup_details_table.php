@@ -18,7 +18,6 @@ return new class extends Migration
 
             // Square Order Fulfillment Pickup Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->timestamp('expires_at')->nullable();
             $table->string('auto_complete_duration')->nullable();
             $table->enum('schedule_type', [PickupScheduleType::SCHEDULED, PickupScheduleType::ASAP]);

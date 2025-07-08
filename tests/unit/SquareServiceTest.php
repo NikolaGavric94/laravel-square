@@ -226,8 +226,8 @@ class SquareServiceTest extends TestCase
         $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
 
         $this->assertTrue(
-            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
-            'Fulfillment details recipient is not Recipient'
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
         );
     }
 
@@ -257,8 +257,8 @@ class SquareServiceTest extends TestCase
         );
 
         $this->assertTrue(
-            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
-            'Fulfillment details recipient is not Recipient'
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
         );
     }
 
@@ -290,8 +290,8 @@ class SquareServiceTest extends TestCase
         $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
 
         $this->assertTrue(
-            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
-            'Fulfillment details recipient is not Recipient'
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
         );
     }
 
@@ -321,8 +321,8 @@ class SquareServiceTest extends TestCase
         );
 
         $this->assertTrue(
-            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
-            'Fulfillment details recipient is not Recipient'
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
         );
     }
 
@@ -415,8 +415,8 @@ class SquareServiceTest extends TestCase
         $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
 
         $this->assertTrue(
-            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
-            'Fulfillment details recipient is not Recipient'
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
         );
     }
 
@@ -446,8 +446,8 @@ class SquareServiceTest extends TestCase
         );
 
         $this->assertTrue(
-            $square->getOrder()->fulfillments->first()->fulfillmentDetails->recipient instanceof Recipient,
-            'Fulfillment details recipient is not Recipient'
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
         );
     }
 

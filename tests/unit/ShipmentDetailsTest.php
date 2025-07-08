@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
@@ -58,22 +59,23 @@ class ShipmentDetailsTest extends TestCase
      */
     public function test_shipment_create_with_recipient(): void
     {
-        // Retrieve the fulfillment with shipment details
+        // Create shipment details
+        $shipmentDetails = factory(ShipmentDetails::class)->create();
+
+        // Create a fulfillment and associate with shipment details and recipient
         $fulfillment = $this->data->fulfillmentWithShipmentDetails;
-
-        // Add the recipient to the fulfillment details
-        $fulfillment->fulfillmentDetails->recipient()->associate($this->data->fulfillmentRecipient);
-        $fulfillment->fulfillmentDetails->save();
-
-        // Create the fulfillment details and associate it with the fulfillment
-        $fulfillment->fulfillmentDetails->save();
-        $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
+        $fulfillment->fulfillmentDetails()->associate($shipmentDetails);
 
         // Associate order with the fulfillment
         $fulfillment->order()->associate($this->data->order);
         $fulfillment->save();
 
+        // Create a recipient and associate it with the fulfillment
+        $this->data->fulfillmentRecipient->fulfillment()->associate($fulfillment);
+        $this->data->fulfillmentRecipient->save();
+
         $this->assertInstanceOf(ShipmentDetails::class, $fulfillment->fresh()->fulfillmentDetails);
+        $this->assertInstanceOf(Recipient::class, $fulfillment->recipient);
     }
 
     /**

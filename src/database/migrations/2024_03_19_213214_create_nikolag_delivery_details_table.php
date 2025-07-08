@@ -18,7 +18,6 @@ return new class extends Migration
 
             // Square Order Fulfillment Delivery Details
             $table->string('fulfillment_uid', 60)->nullable()->unique();
-            $table->foreignID('recipient_id')->nullable()->constrained('nikolag_recipients');
             $table->enum('schedule_type', [DeliveryScheduleType::SCHEDULED, DeliveryScheduleType::ASAP]);
             $table->timestamp('placed_at')->nullable();
             $table->timestamp('deliver_at')->nullable();

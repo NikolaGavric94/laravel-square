@@ -2,9 +2,14 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Models\Recipient;
+use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Square\Models\Address;
+use Square\Models\FulfillmentType;
 
 class RecipientTest extends TestCase
 {
@@ -49,5 +54,62 @@ class RecipientTest extends TestCase
         $this->assertEquals($squareAddress->getCountry(), $originalAddress['country'] ?? null);
         $this->assertEquals($squareAddress->getFirstName(), $originalAddress['first_name'] ?? null);
         $this->assertEquals($squareAddress->getLastName(), $originalAddress['last_name'] ?? null);
+    }
+
+    /**
+     * Test recipient fulfillment relationship.
+     *
+     * @return void
+     */
+    public function test_recipient_fulfillment_relationship(): void
+    {
+        // Create fulfillment with delivery details
+        $delivery = factory(DeliveryDetails::class)->create();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make();
+        $fulfillment->fulfillmentDetails()->associate($delivery);
+
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
+        $fulfillment->save();
+
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+
+        // Test the relationship
+        $this->assertInstanceOf(Fulfillment::class, $recipient->fulfillment);
+        $this->assertEquals($fulfillment->id, $recipient->fulfillment->id);
+        $this->assertEquals($recipient->id, $fulfillment->recipient->id);
+    }
+
+    /**
+     * Tests the recipient is deleted when the fulfillment is deleted.
+     *
+     * @return void
+     */
+    public function test_recipient_deleted_with_fulfillment(): void
+    {
+        // Create fulfillment with delivery details first
+        $delivery = factory(DeliveryDetails::class)->create();
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make();
+        $fulfillment->fulfillmentDetails()->associate($delivery);
+
+        $order = factory(Order::class)->create();
+        $fulfillment->order()->associate($order);
+        $fulfillment->save();
+
+        // Create a recipient and associate it with the fulfillment
+        $recipient = factory(Recipient::class)->make();
+        $recipient->fulfillment()->associate($fulfillment);
+        $recipient->save();
+        $this->assertInstanceOf(Recipient::class, $fulfillment->recipient);
+
+        // Delete the fulfillment
+        $fulfillment->delete();
+        $this->assertNull($fulfillment->fresh());
+
+        // Test the recipient is also deleted
+        $this->assertNull($recipient->fresh());
     }
 }
