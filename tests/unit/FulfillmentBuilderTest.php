@@ -374,27 +374,31 @@ class FulfillmentBuilderTest extends TestCase
     }
 
     /**
-     * Test creating fulfillment from array without recipient.
+     * Test creating fulfillment from model without recipient succeeds (recipient is optional).
      *
      * @return void
      */
     public function test_create_fulfillment_from_model_without_recipient(): void
     {
+        $deliveryDetails = factory(DeliveryDetails::class)->create();
         $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make([
             'type' => FulfillmentType::DELIVERY,
         ]);
+        $fulfillment->fulfillmentDetails()->associate($deliveryDetails);
 
         // No recipient is set
         $fulfillment->recipient = null;
 
-        $this->expectException(InvalidSquareOrderException::class);
-        $this->expectExceptionMessage('Recipient is missing for fulfillment');
+        $result = $this->builder->createFulfillmentFromModel($fulfillment, $this->data->order);
 
-        $this->builder->createFulfillmentFromModel($fulfillment, $this->data->order);
+        $this->assertInstanceOf(Fulfillment::class, $result);
+        $this->assertEquals(FulfillmentType::DELIVERY, $result->type);
+        $this->assertInstanceOf(DeliveryDetails::class, $result->fulfillmentDetails);
+        $this->assertNull($result->recipient);
     }
 
     /**
-     * Test creating fulfillment from array without recipient.
+     * Test creating fulfillment from array without recipient succeeds (recipient is optional).
      *
      * @return void
      */
@@ -410,10 +414,12 @@ class FulfillmentBuilderTest extends TestCase
             ],
         ];
 
-        $this->expectException(InvalidSquareOrderException::class);
-        $this->expectExceptionMessage('Recipient is missing for fulfillment');
+        $result = $this->builder->createFulfillmentFromArray($fulfillmentArray, $this->data->order);
 
-        $this->builder->createFulfillmentFromArray($fulfillmentArray, $this->data->order);
+        $this->assertInstanceOf(Fulfillment::class, $result);
+        $this->assertEquals(FulfillmentType::DELIVERY, $result->type);
+        $this->assertInstanceOf(DeliveryDetails::class, $result->fulfillmentDetails);
+        $this->assertNull($result->recipient);
     }
 
     /**
