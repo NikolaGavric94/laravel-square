@@ -160,6 +160,7 @@ inquiries send an email to nikola.gavric94@gmail.com
 | [@PaulJulio](https://github.com/PaulJulio) | Cap square/connect version to resolve deprecation exceptions [pull request #27](https://github.com/NikolaGavric94/laravel-square/pull/27) | 2019-09-20 |
 | [@Alex Oleynik](https://github.com/alexoleynik0) | Fixes TypeError when updating customers [pull request #71](https://github.com/NikolaGavric94/laravel-square/pull/71) | 2022-06-28 |
 | [@qooplmao](https://github.com/qooplmao) | Adds support for 3DS/SCA [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/74) | 2023-01-13 |
+| [@mrkbingham](https://github.com/mrkbingham) | Adds support for Fulfillments [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/88) | 2025-06-27 |
 
 Special thanks to all of the contributors!
 
