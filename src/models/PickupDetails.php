@@ -28,6 +28,7 @@ class PickupDetails extends Model
      * @var array
      */
     protected $fillable = [
+        'fulfillment_id',
         'expires_at',
         'auto_complete_duration',
         'schedule_type',

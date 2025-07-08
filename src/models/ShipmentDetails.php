@@ -28,6 +28,7 @@ class ShipmentDetails extends Model
      * @var array
      */
     protected $fillable = [
+        'fulfillment_id',
         'carrier',
         'shipping_note',
         'shipping_type',
