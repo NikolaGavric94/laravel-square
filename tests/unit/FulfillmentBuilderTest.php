@@ -378,6 +378,26 @@ class FulfillmentBuilderTest extends TestCase
      *
      * @return void
      */
+    public function test_create_fulfillment_from_model_without_recipient(): void
+    {
+        $fulfillment = factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make([
+            'type' => FulfillmentType::DELIVERY,
+        ]);
+
+        // No recipient is set
+        $fulfillment->recipient = null;
+
+        $this->expectException(InvalidSquareOrderException::class);
+        $this->expectExceptionMessage('Recipient is missing for fulfillment');
+
+        $this->builder->createFulfillmentFromModel($fulfillment, $this->data->order);
+    }
+
+    /**
+     * Test creating fulfillment from array without recipient.
+     *
+     * @return void
+     */
     public function test_create_fulfillment_from_array_without_recipient(): void
     {
         $fulfillmentArray = [
@@ -390,12 +410,10 @@ class FulfillmentBuilderTest extends TestCase
             ],
         ];
 
-        $result = $this->builder->createFulfillmentFromArray($fulfillmentArray, $this->data->order);
+        $this->expectException(InvalidSquareOrderException::class);
+        $this->expectExceptionMessage('Recipient is missing for fulfillment');
 
-        $this->assertInstanceOf(Fulfillment::class, $result);
-        $this->assertEquals(FulfillmentType::DELIVERY, $result->type);
-        $this->assertInstanceOf(DeliveryDetails::class, $result->fulfillmentDetails);
-        $this->assertNull($result->recipient);
+        $this->builder->createFulfillmentFromArray($fulfillmentArray, $this->data->order);
     }
 
     /**
@@ -431,7 +449,7 @@ class FulfillmentBuilderTest extends TestCase
 
         $this->assertInstanceOf(Fulfillment::class, $result);
         $this->assertInstanceOf(Recipient::class, $result->recipient);
-        
+
         // Verify the one-to-one relationship is properly established
         $this->assertEquals($result->id, $result->recipient->fulfillment_id);
     }

@@ -100,9 +100,10 @@ class FulfillmentBuilder
         $fulfillmentObj->fulfillmentDetails = $fulfillment->fulfillmentDetails;
 
         // Handle recipient relationship for model-based fulfillments
-        if ($fulfillment->recipient) {
-            $fulfillmentObj->recipient = $fulfillment->recipient;
+        if (!$fulfillment->recipient) {
+            throw new InvalidSquareOrderException('Recipient is missing for fulfillment', 500);
         }
+        $fulfillmentObj->recipient = $fulfillment->recipient;
 
         return $fulfillmentObj;
     }
@@ -149,11 +150,13 @@ class FulfillmentBuilder
 
         // Check for recipient and create the one-to-one relationship
         $recipient = $this->getRecipientFromFulfillmentArray($fulfillment, $type);
-        if ($recipient) {
-            // Set the fulfillment_id for the one-to-one relationship
-            $recipient->fulfillment_id = $tempFulfillment->id;
-            $tempFulfillment->recipient = $recipient;
+        if (!$recipient) {
+            throw new InvalidSquareOrderException('Recipient is missing for fulfillment', 500);
         }
+
+        // Set the fulfillment_id for the one-to-one relationship
+        $recipient->fulfillment_id = $tempFulfillment->id;
+        $tempFulfillment->recipient = $recipient;
 
         return $tempFulfillment;
     }
