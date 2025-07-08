@@ -152,9 +152,7 @@ $factory->afterCreating(Fulfillment::class, function ($fulfillment, $faker) {
     $fulfillment->recipient()->associate(factory(Recipient::class)->create());
 });
 
-$factory->afterMaking(Fulfillment::class, function ($fulfillment, $faker) {
-    // Make a recipient we can attach
-    $recipient = factory(Recipient::class)->make();
+$factory->afterMaking(Fulfillment::class, function ($fulfillment) {
     // Determine the state of the factory
     $fulfillmentDetails = null;
     if ($fulfillment->type === FulfillmentType::DELIVERY) {

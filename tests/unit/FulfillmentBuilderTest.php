@@ -10,7 +10,6 @@ use Nikolag\Square\Models\Fulfillment;
 use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Recipient;
 use Nikolag\Square\Models\ShipmentDetails;
-use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Square\Models\FulfillmentType;
