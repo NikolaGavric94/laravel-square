@@ -14,6 +14,7 @@ use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Utils\WebhookProcessor;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\Traits\CreatesWebhookSubscription;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
@@ -23,7 +24,7 @@ use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 
 class SquareServiceWebhookTest extends TestCase
 {
-    use RefreshDatabase, MocksSquareConfigDependency;
+    use RefreshDatabase, MocksSquareConfigDependency, CreatesWebhookSubscription;
 
     private string $testWebhookUrl = 'https://example.com/webhook';
     private array $testEventTypes = ['order.created', 'payment.updated'];
@@ -770,6 +771,9 @@ class SquareServiceWebhookTest extends TestCase
      */
     public function test_mark_webhook_event_processed(): void
     {
+        // Create required webhook subscription
+        $subscription = $this->createTestWebhookSubscription();
+
         // Create a webhook event
         $event = WebhookEvent::create([
             'square_event_id' => 'event_123',
@@ -777,7 +781,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now(),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PENDING,
-            'webhook_subscription_id' => 1
+            'webhook_subscription_id' => $subscription->id
         ]);
 
         // Execute the test
@@ -796,6 +800,9 @@ class SquareServiceWebhookTest extends TestCase
      */
     public function test_mark_webhook_event_failed(): void
     {
+        // Create required webhook subscription
+        $subscription = $this->createTestWebhookSubscription();
+
         // Create a webhook event
         $event = WebhookEvent::create([
             'square_event_id' => 'event_123',
@@ -803,7 +810,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now(),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PENDING,
-            'webhook_subscription_id' => 1
+            'webhook_subscription_id' => $subscription->id
         ]);
 
         // Execute the test
@@ -837,6 +844,9 @@ class SquareServiceWebhookTest extends TestCase
      */
     public function test_cleanup_old_webhook_events(): void
     {
+        // Create required webhook subscription
+        $subscription = $this->createTestWebhookSubscription();
+
         // Create test webhook events with different ages
         $oldEvent1 = new WebhookEvent([
             'square_event_id' => 'old_event_1',
@@ -844,7 +854,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now()->subDays(45),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PROCESSED,
-            'webhook_subscription_id' => 1,
+            'webhook_subscription_id' => $subscription->id,
         ]);
         $oldEvent1->created_at = now()->subDays(45);
         $oldEvent1->save();
@@ -855,7 +865,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now()->subDays(35),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_FAILED,
-            'webhook_subscription_id' => 1,
+            'webhook_subscription_id' => $subscription->id,
         ]);
         $oldEvent2->created_at = now()->subDays(35);
         $oldEvent2->save();
@@ -866,7 +876,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now()->subDays(40),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PENDING,
-            'webhook_subscription_id' => 1,
+            'webhook_subscription_id' => $subscription->id,
         ]);
         $oldPendingEvent->created_at = now()->subDays(40);
         $oldPendingEvent->save();
@@ -877,7 +887,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now()->subDays(10),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PROCESSED,
-            'webhook_subscription_id' => 1,
+            'webhook_subscription_id' => $subscription->id,
         ]);
         $recentEvent->created_at = now()->subDays(10);
         $recentEvent->save();

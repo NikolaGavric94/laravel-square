@@ -8,29 +8,11 @@ use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Tests\TestCase;
+use Nikolag\Square\Tests\Traits\CreatesWebhookSubscription;
 
 class SquareServiceWebhookEventTest extends TestCase
 {
-    use RefreshDatabase;
-
-    /**
-     * Create a test webhook subscription for testing purposes.
-     *
-     * @return WebhookSubscription
-     */
-    protected function createTestWebhookSubscription(): WebhookSubscription
-    {
-        return WebhookSubscription::create([
-            'square_id' => 'test_webhook_subscription',
-            'name' => 'Test Webhook Subscription',
-            'notification_url' => 'https://example.com/webhook',
-            'event_types' => ['order.created', 'order.updated', 'payment.created'],
-            'api_version' => '2023-10-18',
-            'signature_key' => 'test_signature_key',
-            'is_enabled' => true,
-            'is_active' => true,
-        ]);
-    }
+    use RefreshDatabase, CreatesWebhookSubscription;
 
     /**
      * Test creating a webhook builder instance.
@@ -49,7 +31,7 @@ class SquareServiceWebhookEventTest extends TestCase
     {
         // Create required webhook subscription
         $subscription = $this->createTestWebhookSubscription();
-        
+
         // Create a webhook event
         $event = WebhookEvent::create([
             'square_event_id' => 'event_123',
@@ -78,7 +60,7 @@ class SquareServiceWebhookEventTest extends TestCase
     {
         // Create required webhook subscription
         $subscription = $this->createTestWebhookSubscription();
-        
+
         // Create a webhook event
         $event = WebhookEvent::create([
             'square_event_id' => 'event_123',
@@ -122,7 +104,7 @@ class SquareServiceWebhookEventTest extends TestCase
     {
         // Create required webhook subscription
         $subscription = $this->createTestWebhookSubscription();
-        
+
         // Create test webhook events with different ages
         $oldEvent1 = new WebhookEvent([
             'square_event_id' => 'old_event_1',
