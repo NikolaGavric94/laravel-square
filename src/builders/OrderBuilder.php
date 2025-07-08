@@ -229,29 +229,34 @@ class OrderBuilder
                 // If order doesn't have fulfillment
                 if (! $order->hasFulfillment($fulfillment)) {
                     // A fulfillment cannot exist without a recipient - make sure it's present
-                    if (! $fulfillment->fulfillmentDetails->recipient) {
-                        throw new MissingPropertyException('Recipient is missing from fulfillment details');
+                    if (! $fulfillment->recipient) {
+                        throw new MissingPropertyException('Recipient is missing from fulfillment');
                     }
-                    // Create the recipient
-                    $recipient = $fulfillment->fulfillmentDetails->recipient;
-                    $recipient->save();
+                    $recipient = $fulfillment->recipient;
 
-                    // Unset the recipient from the fulfillment details (due to many-to-one relationship)
-                    unset($fulfillment->fulfillmentDetails->recipient);
-
-                    // Associate the recipient with the fulfillment details
-                    $fulfillment->fulfillmentDetails->recipient()->associate($recipient);
-
-                    // Create the fulfillment details
-                    $fulfillment->fulfillmentDetails->save();
-                    $fulfillment->fulfillmentDetails()->associate($fulfillment->fulfillmentDetails);
+                    // Create the fulfillment details first
+                    $fulfillmentDetails = $fulfillment->fulfillmentDetails;
+                    // Clear any recipient attribute from the details (it should only be on fulfillment now)
+                    unset($fulfillmentDetails->recipient);
+                    $fulfillmentDetails->save();
+                    $fulfillment->fulfillmentDetails()->associate($fulfillmentDetails);
 
                     // Associate order with the fulfillment
                     $fulfillment->order()->associate($order);
 
-                    // Save the fulfillment details after saving the fulfillment
+                    // Clear the recipient attribute to prevent it from being saved as an attribute
+                    unset($fulfillment->recipient);
                     unset($fulfillment->fulfillmentDetails);
                     $fulfillment->save();
+
+                    // Create a recipient and associate it with the fulfillment
+                    $recipient->fulfillment()->associate($fulfillment);
+                    $recipient->save();
+
+                    // Now that the fulfillment has an id, add it to the fulfillment details
+                    $fulfillmentDetails->update([
+                        'fulfillment_id' => $fulfillment->id,
+                    ]);
 
                     // Add the fulfillment to the order
                     $order->fulfillments->add($fulfillment);

@@ -52,6 +52,7 @@ return new class extends Migration
         Schema::table('nikolag_modifier_product_pivot', function (Blueprint $table) {
             $table->index(['product_id', 'modifier_id'], 'modifier_product_index');
         });
+    }
 
     /**
      * Reverse the migrations.

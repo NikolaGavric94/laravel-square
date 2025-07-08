@@ -63,7 +63,7 @@ class TestDataHolder
             factory(Fulfillment::class)->states(FulfillmentType::DELIVERY)->make(),
             factory(Fulfillment::class)->states(FulfillmentType::PICKUP)->make(),
             factory(Fulfillment::class)->states(FulfillmentType::SHIPMENT)->make(),
-            factory(Recipient::class)->create(),
+            factory(Recipient::class)->make(),
             self::buildMockOrderReturn()
         );
     }

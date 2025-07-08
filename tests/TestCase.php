@@ -69,6 +69,7 @@ class TestCase extends BaseTestCase
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
+            'foreign_key_constraints' => true,
         ]);
 //        $app['config']->set('database.default', 'square_test');
 //        $app['config']->set('database.connections.square_test', [

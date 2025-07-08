@@ -2,7 +2,7 @@
 
 namespace Nikolag\Square\Models;
 
-use Carbon\Carbon;
+use Nikolag\Square\Models\Recipient;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 
@@ -77,6 +77,16 @@ class Fulfillment extends Model
     public function fulfillmentDetails()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Return the recipient associated with this fulfillment.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function recipient()
+    {
+        return $this->hasOne(Recipient::class, 'fulfillment_id', 'id');
     }
 
     /**

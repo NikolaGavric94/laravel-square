@@ -3,6 +3,8 @@
 namespace Nikolag\Square\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Models\Fulfillment;
 use Square\Models\Address;
 
 class Recipient extends Model
@@ -27,11 +29,12 @@ class Recipient extends Model
      * @var array
      */
     protected $fillable = [
-        'square_customer_id',
         'display_name',
         'email_address',
         'phone_number',
         'address',
+        'customer_id',
+        'fulfillment_id',
     ];
 
     /**
@@ -78,5 +81,25 @@ class Recipient extends Model
         $address->setLastName($this->address['last_name'] ?? null);
 
         return $address;
+    }
+
+    /**
+     * Return the fulfillment associated with this recipient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function fulfillment()
+    {
+        return $this->belongsTo(Fulfillment::class, 'fulfillment_id', 'id');
+    }
+
+    /**
+     * Return the customer associated with this recipient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 }
