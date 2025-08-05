@@ -132,6 +132,16 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
+     * Returns the Square configuration.
+     *
+     * @return SquareConfig
+     */
+    public function getConfig(): SquareConfig
+    {
+        return $this->config;
+    }
+
+    /**
      * Batch deletes catalog objects.
      *
      * @param array<string> $catalogObjectIds The catalog object IDs to delete.
