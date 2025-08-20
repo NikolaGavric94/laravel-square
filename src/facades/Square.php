@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Facades;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Facade;
 use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
