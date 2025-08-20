@@ -259,10 +259,14 @@ class SquareServiceWebhookTest extends TestCase
         $this->assertEquals('wh_recreate_test_789', $webhookSubscription->square_id);
         $this->assertEquals($signatureKey, $webhookSubscription->signature_key);
 
+        // Verify encryption
+        $encryptedKey = $webhookSubscription->getRawOriginal('signature_key');
+        $this->assertNotEquals($encryptedKey, $webhookSubscription->signature_key);
+
         $this->assertDatabaseHas('nikolag_webhook_subscriptions', [
             'square_id' => $webhookSubscription->square_id,
             'name' => 'Webhook for Recreate Test',
-            'signature_key' => $signatureKey
+            'signature_key' => $encryptedKey
         ]);
 
         // Step 2: Delete the local WebhookSubscription record from database

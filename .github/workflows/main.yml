@@ -70,10 +70,16 @@ jobs:
           composer install --no-interaction --no-cache
           composer dump-autoload
 
+      # Generate application key
+      - name: Generate APP_KEY
+        run: |
+          echo "APP_KEY=$(php artisan key:generate --show)" >> $GITHUB_ENV
+
       # Run phpunit tests
       - name: Run tests
         run: vendor/bin/phpunit --migrate-configuration && vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
         env:
+          APP_KEY: ${{ env.APP_KEY }}
           SQUARE_ORDER_NAMESPACE: ${{ secrets.SQUARE_ORDER_NAMESPACE }}
           SQUARE_USER_NAMESPACE: ${{ secrets.SQUARE_USER_NAMESPACE }}
           SQUARE_APPLICATION_ID: ${{ secrets.SQUARE_APPLICATION_ID }}
