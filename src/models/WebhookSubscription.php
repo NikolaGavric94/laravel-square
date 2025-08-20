@@ -42,6 +42,7 @@ class WebhookSubscription extends Model
      */
     protected $casts = [
         'event_types' => 'array',
+        'signature_key' => 'encrypted',
         'is_enabled' => 'boolean',
         'is_active' => 'boolean',
         'last_tested_at' => 'datetime',
