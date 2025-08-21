@@ -3,10 +3,10 @@
 namespace Nikolag\Square\Tests\Unit;
 
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
+use Nikolag\Square\Models\WebhookEvent;
+use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Utils\WebhookProcessor;
-use Nikolag\Square\Models\WebhookSubscription;
-use Nikolag\Square\Models\WebhookEvent;
 use Square\Utils\WebhooksHelper;
 
 class WebhookProcessorTest extends TestCase
@@ -31,10 +31,10 @@ class WebhookProcessorTest extends TestCase
                 'object' => [
                     'order' => [
                         'id' => 'order-456',
-                        'location_id' => 'location-789'
-                    ]
-                ]
-            ]
+                        'location_id' => 'location-789',
+                    ],
+                ],
+            ],
         ]);
 
         $this->validEventData = [
@@ -48,10 +48,10 @@ class WebhookProcessorTest extends TestCase
                 'object' => [
                     'order' => [
                         'id' => 'order-456',
-                        'location_id' => 'location-789'
-                    ]
-                ]
-            ]
+                        'location_id' => 'location-789',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -69,8 +69,8 @@ class WebhookProcessorTest extends TestCase
         );
 
         $headers = ['X-Square-HmacSha256-Signature' => [
-                $signature
-            ]
+            $signature,
+        ],
         ];
 
         $result = WebhookProcessor::verifyAndProcess($headers, $this->validPayload, $subscription);
@@ -97,8 +97,8 @@ class WebhookProcessorTest extends TestCase
         );
 
         $headers = ['x-square-hmacsha256-signature' => [
-                $signature
-            ]
+            $signature,
+        ],
         ];
 
         $result = WebhookProcessor::verifyAndProcess($headers, $this->validPayload, $subscription);
@@ -131,8 +131,8 @@ class WebhookProcessorTest extends TestCase
 
         $headers = [
             'x-square-hmacsha256-signature' => [
-                'invalid-signature'
-            ]
+                'invalid-signature',
+            ],
         ];
 
         $this->expectException(InvalidSquareSignatureException::class);
@@ -150,7 +150,7 @@ class WebhookProcessorTest extends TestCase
 
         $payloadWithoutEventId = json_encode([
             'type' => 'order.created',
-            'created_at' => '2024-01-01T12:00:00Z'
+            'created_at' => '2024-01-01T12:00:00Z',
         ]);
 
         $signature = WebhookProcessor::generateTestSignature(
@@ -160,8 +160,8 @@ class WebhookProcessorTest extends TestCase
         );
 
         $headers = ['x-square-hmacsha256-signature' => [
-                $signature
-            ]
+            $signature,
+        ],
         ];
 
         $this->expectException(InvalidSquareSignatureException::class);
@@ -179,7 +179,7 @@ class WebhookProcessorTest extends TestCase
 
         $payloadWithoutType = json_encode([
             'event_id' => 'event-123',
-            'created_at' => '2024-01-01T12:00:00Z'
+            'created_at' => '2024-01-01T12:00:00Z',
         ]);
 
         $signature = WebhookProcessor::generateTestSignature(
@@ -189,8 +189,8 @@ class WebhookProcessorTest extends TestCase
         );
 
         $headers = ['x-square-hmacsha256-signature' => [
-                $signature
-            ]
+            $signature,
+        ],
         ];
 
         $this->expectException(InvalidSquareSignatureException::class);
@@ -208,7 +208,7 @@ class WebhookProcessorTest extends TestCase
 
         $payloadWithoutCreatedAt = json_encode([
             'event_id' => 'event-123',
-            'type' => 'order.created'
+            'type' => 'order.created',
         ]);
 
         $signature = WebhookProcessor::generateTestSignature(
@@ -218,8 +218,8 @@ class WebhookProcessorTest extends TestCase
         );
 
         $headers = ['x-square-hmacsha256-signature' => [
-                $signature
-            ]
+            $signature,
+        ],
         ];
 
         $this->expectException(InvalidSquareSignatureException::class);
@@ -278,7 +278,7 @@ class WebhookProcessorTest extends TestCase
             'payment.created',
             'customer.created',
             'inventory.updated',
-            'booking.created'
+            'booking.created',
         ];
 
         foreach ($nonOrderEvents as $eventType) {
@@ -295,39 +295,39 @@ class WebhookProcessorTest extends TestCase
                 'type' => 'order.created',
                 'data' => [
                     'id' => 'test-id',
-                    'object' => ['order' => ['id' => 'order-123']]
-                ]
+                    'object' => ['order' => ['id' => 'order-123']],
+                ],
             ],
             'missing_data_id' => [
                 'type' => 'order.created',
                 'data' => [
                     'type' => 'order',
-                    'object' => ['order' => ['id' => 'order-123']]
-                ]
+                    'object' => ['order' => ['id' => 'order-123']],
+                ],
             ],
             'missing_order_id' => [
                 'type' => 'order.created',
                 'data' => [
                     'type' => 'order',
                     'id' => 'test-id',
-                    'object' => ['order' => []]
-                ]
+                    'object' => ['order' => []],
+                ],
             ],
             'missing_data_object' => [
                 'type' => 'order.created',
                 'data' => [
                     'type' => 'order',
-                    'id' => 'test-id'
-                ]
+                    'id' => 'test-id',
+                ],
             ],
             'missing_order_object' => [
                 'type' => 'order.created',
                 'data' => [
                     'type' => 'order',
                     'id' => 'test-id',
-                    'object' => []
-                ]
-            ]
+                    'object' => [],
+                ],
+            ],
         ];
 
         foreach ($testCases as $testName => $eventData) {
@@ -347,9 +347,9 @@ class WebhookProcessorTest extends TestCase
         $eventDataWithoutOrderId = [
             'data' => [
                 'object' => [
-                    'order' => []
-                ]
-            ]
+                    'order' => [],
+                ],
+            ],
         ];
 
         $orderId = WebhookProcessor::extractOrderId($eventDataWithoutOrderId);
@@ -360,8 +360,8 @@ class WebhookProcessorTest extends TestCase
     {
         $malformedData = [
             'data' => [
-                'object' => 'not-an-array'
-            ]
+                'object' => 'not-an-array',
+            ],
         ];
 
         $orderId = WebhookProcessor::extractOrderId($malformedData);
@@ -377,7 +377,7 @@ class WebhookProcessorTest extends TestCase
     public function test_extract_merchant_id_returns_null_for_missing_id()
     {
         $eventDataWithoutMerchantId = [
-            'type' => 'order.created'
+            'type' => 'order.created',
         ];
 
         $merchantId = WebhookProcessor::extractMerchantId($eventDataWithoutMerchantId);
@@ -395,9 +395,9 @@ class WebhookProcessorTest extends TestCase
         $eventDataWithoutLocationId = [
             'data' => [
                 'object' => [
-                    'order' => []
-                ]
-            ]
+                    'order' => [],
+                ],
+            ],
         ];
 
         $locationId = WebhookProcessor::extractLocationId($eventDataWithoutLocationId);
@@ -407,7 +407,7 @@ class WebhookProcessorTest extends TestCase
     public function test_extract_location_id_returns_null_for_malformed_data()
     {
         $malformedData = [
-            'data' => 'not-an-array'
+            'data' => 'not-an-array',
         ];
 
         $locationId = WebhookProcessor::extractLocationId($malformedData);
@@ -423,10 +423,10 @@ class WebhookProcessorTest extends TestCase
                 'id' => 'test-id',
                 'object' => [
                     'order' => [
-                        'id' => 'order-123'
-                    ]
-                ]
-            ]
+                        'id' => 'order-123',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertTrue(WebhookProcessor::isValidOrderEvent($validOrderEvent));
