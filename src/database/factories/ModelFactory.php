@@ -135,9 +135,9 @@ $factory->define(User::class, function (Faker\Generator $faker) {
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'square_id' => 'wh_' . $faker->unique()->uuid,
-        'name' => $faker->words(3, true) . ' Webhook',
-        'notification_url' => 'https://' . $faker->domainName . '/webhook/' . $faker->uuid,
+        'square_id' => 'wh_'.$faker->unique()->uuid,
+        'name' => $faker->words(3, true).' Webhook',
+        'notification_url' => 'https://'.$faker->domainName.'/webhook/'.$faker->uuid,
         'event_types' => Arr::random([
             ['order.created'],
             ['order.updated'],
@@ -146,7 +146,7 @@ $factory->define(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, function (Faker\Gene
             ['order.created', 'order.updated', 'order.fulfillment.updated'],
         ]),
         'api_version' => '2024-06-04',
-        'signature_key' => 'wh_key_' . $faker->sha256,
+        'signature_key' => 'wh_key_'.$faker->sha256,
         'is_enabled' => $faker->boolean(80), // 80% chance of being enabled
         'is_active' => $faker->boolean(90), // 90% chance of being active
     ];
@@ -176,7 +176,7 @@ $factory->state(Constants::WEBHOOK_SUBSCRIPTION_NAMESPACE, 'ORDER_EVENTS', [
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Constants::WEBHOOK_EVENT_NAMESPACE, function (Faker\Generator $faker) {
     return [
-        'square_event_id' => 'event_' . $faker->unique()->uuid,
+        'square_event_id' => 'event_'.$faker->unique()->uuid,
         'event_type' => Arr::random([
             'order.created',
             'order.updated',
@@ -185,21 +185,21 @@ $factory->define(Constants::WEBHOOK_EVENT_NAMESPACE, function (Faker\Generator $
             'payment.updated',
         ]),
         'event_data' => [
-            'merchant_id' => 'merchant_' . $faker->uuid,
+            'merchant_id' => 'merchant_'.$faker->uuid,
             'type' => 'order.created',
-            'event_id' => 'event_' . $faker->uuid,
+            'event_id' => 'event_'.$faker->uuid,
             'created_at' => $faker->iso8601,
             'data' => [
                 'type' => 'order',
-                'id' => 'order_data_' . $faker->uuid,
+                'id' => 'order_data_'.$faker->uuid,
                 'object' => [
                     'order' => [
-                        'id' => 'order_' . $faker->uuid,
-                        'location_id' => 'location_' . $faker->uuid,
+                        'id' => 'order_'.$faker->uuid,
+                        'location_id' => 'location_'.$faker->uuid,
                         'state' => Arr::random(['DRAFT', 'OPEN', 'COMPLETED', 'CANCELED']),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ],
         'event_time' => $faker->dateTimeBetween('-1 month', 'now'),
         'status' => Arr::random(['pending', 'processed', 'failed']),
@@ -252,9 +252,9 @@ $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'ORDER_CREATED_EVENT', [
                     'order_id' => 'order-456',
                     'state' => 'OPEN',
                     'version' => 1,
-                ]
-            ]
-        ]
+                ],
+            ],
+        ],
     ],
     'status' => 'pending',
 ]);
@@ -264,13 +264,13 @@ $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PAYMENT_CREATED_EVENT', fun
     return [
         'event_type' => 'payment.created',
         'event_data' => [
-            'merchant_id' => 'merchant_' . $faker->uuid,
+            'merchant_id' => 'merchant_'.$faker->uuid,
             'type' => 'payment.created',
-            'event_id' => 'event_' . $faker->uuid,
-            'created_at' =>  now()->toIso8601String(),
+            'event_id' => 'event_'.$faker->uuid,
+            'created_at' => now()->toIso8601String(),
             'data' => [
                 'type' => 'payment',
-                'id' => 'payment_data_id_' . $faker->uuid,
+                'id' => 'payment_data_id_'.$faker->uuid,
                 'object' => [
                     'payment' => [
                         'id' => 'payment_id_444',
@@ -278,7 +278,7 @@ $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PAYMENT_CREATED_EVENT', fun
                         'updated_at' => '2020-11-22T21:16:51.198Z',
                         'amount_money' => [
                             'amount' => 100,
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'status' => 'APPROVED',
                         'delay_duration' => 'PT168H',
@@ -293,42 +293,42 @@ $factory->state(Constants::WEBHOOK_EVENT_NAMESPACE, 'PAYMENT_CREATED_EVENT', fun
                                 'fingerprint' => 'sq-1-Tvruf3vPQxlvI6n0IcKYfBukrcv6IqWr8UyBdViWXU2yzGn5VMJvrsHMKpINMhPmVg',
                                 'card_type' => 'CREDIT',
                                 'prepaid_type' => 'NOT_PREPAID',
-                                'bin' => '540988'
+                                'bin' => '540988',
                             ],
                             'entry_method' => 'KEYED',
                             'cvv_status' => 'CVV_ACCEPTED',
                             'avs_status' => 'AVS_ACCEPTED',
                             'statement_description' => 'SQ *DEFAULT TEST ACCOUNT',
                             'card_payment_timeline' => [
-                                'authorized_at' => '2020-11-22T21:16:51.198Z'
-                            ]
+                                'authorized_at' => '2020-11-22T21:16:51.198Z',
+                            ],
                         ],
                         'location_id' => 'location-242',
                         'order_id' => '03O3USaPaAaFnI6kkwB1JxGgBsUZY',
                         'risk_evaluation' => [
                             'created_at' => '2020-11-22T21:16:51.198Z',
-                            'risk_level' => 'NORMAL'
+                            'risk_level' => 'NORMAL',
                         ],
                         'total_money' => [
                             'amount' => 100,
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'approved_money' => [
                             'amount' => 100,
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'capabilities' => [
                             'EDIT_TIP_AMOUNT',
                             'EDIT_TIP_AMOUNT_UP',
-                            'EDIT_TIP_AMOUNT_DOWN'
+                            'EDIT_TIP_AMOUNT_DOWN',
                         ],
                         'receipt_number' => 'hYy9',
                         'delay_action' => 'CANCEL',
                         'delayed_until' => '2020-11-29T21:16:51.086Z',
-                        'version_token' => 'FfQhQJf9r3VSQIgyWBk1oqhIwiznLwVwJbVVA0bdyEv6o'
-                    ]
-                ]
-            ]
-        ]
+                        'version_token' => 'FfQhQJf9r3VSQIgyWBk1oqhIwiznLwVwJbVVA0bdyEv6o',
+                    ],
+                ],
+            ],
+        ],
     ];
 });

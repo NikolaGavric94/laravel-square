@@ -142,7 +142,7 @@ class ProductBuilder
      *
      * @throws MissingPropertyException
      */
-    public function createProductFromArray(array $product, Model $order = null): Product|stdClass
+    public function createProductFromArray(array $product, ?Model $order = null): Product|stdClass
     {
         $productObj = new stdClass();
         //If product doesn't have quantity in pivot table
@@ -180,7 +180,7 @@ class ProductBuilder
      *
      * @throws MissingPropertyException
      */
-    public function createProductFromModel(Model $product, Model $order = null, int $quantity = null): Product|stdClass
+    public function createProductFromModel(Model $product, ?Model $order = null, ?int $quantity = null): Product|stdClass
     {
         $productObj = new stdClass();
         //If product doesn't have quantity in pivot table

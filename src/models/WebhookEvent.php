@@ -66,7 +66,7 @@ class WebhookEvent extends Model
     /**
      * Scope a query to only include pending events.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopePending($query): Builder
@@ -77,7 +77,7 @@ class WebhookEvent extends Model
     /**
      * Scope a query to only include processed events.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeProcessed($query): Builder
@@ -88,7 +88,7 @@ class WebhookEvent extends Model
     /**
      * Scope a query to only include failed events.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeFailed($query): Builder
@@ -99,8 +99,8 @@ class WebhookEvent extends Model
     /**
      * Scope a query to only include events of a specific type.
      *
-     * @param Builder $query
-     * @param string $eventType
+     * @param  Builder  $query
+     * @param  string  $eventType
      * @return Builder
      */
     public function scopeForEventType($query, string $eventType): Builder
@@ -139,7 +139,7 @@ class WebhookEvent extends Model
      */
     public static function getObjectTypeKey(string $eventType): ?string
     {
-        return match($eventType) {
+        return match ($eventType) {
             'order.created' => 'order_created',
             'order.fulfillment.updated' => 'order_fulfillment_updated',
             'order.updated' => 'order_updated',
@@ -157,6 +157,7 @@ class WebhookEvent extends Model
     public function getOrderId(): ?string
     {
         $eventObject = $this->getEventObject();
+
         return $eventObject[self::getObjectTypeKey($this->event_type)]['order_id'] ?? null;
     }
 
@@ -168,6 +169,7 @@ class WebhookEvent extends Model
     public function getPaymentId(): ?string
     {
         $eventObject = $this->getEventObject();
+
         return $eventObject['payment']['id'] ?? null;
     }
 
@@ -189,6 +191,7 @@ class WebhookEvent extends Model
     public function getLocationId(): ?string
     {
         $eventObject = $this->getEventObject();
+
         return $eventObject[self::getObjectTypeKey($this->event_type)]['location_id'] ?? null;
     }
 
@@ -209,7 +212,7 @@ class WebhookEvent extends Model
     /**
      * Mark the event as failed with an error message.
      *
-     * @param string $errorMessage
+     * @param  string  $errorMessage
      * @return bool
      */
     public function markAsFailed(string $errorMessage): bool
@@ -268,7 +271,7 @@ class WebhookEvent extends Model
      */
     public function isRetry(): bool
     {
-        return !is_null($this->retry_number) && $this->retry_number > 0;
+        return ! is_null($this->retry_number) && $this->retry_number > 0;
     }
 
     /**
@@ -278,7 +281,7 @@ class WebhookEvent extends Model
      */
     public function getRetryInfo(): ?array
     {
-        if (!$this->isRetry()) {
+        if (! $this->isRetry()) {
             return null;
         }
 
@@ -292,7 +295,7 @@ class WebhookEvent extends Model
     /**
      * Scope a query to only include retry events.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeRetries($query): Builder
@@ -303,7 +306,7 @@ class WebhookEvent extends Model
     /**
      * Scope a query to only include original (non-retry) events.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeOriginal($query): Builder
