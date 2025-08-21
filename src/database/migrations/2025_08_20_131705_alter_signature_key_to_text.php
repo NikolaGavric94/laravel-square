@@ -2,10 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -29,7 +29,7 @@ return new class extends Migration
             if ($record->signature_key) {
                 // Only encrypt if it's not already encrypted
                 // Laravel's encrypted cast produces base64 strings that start with specific patterns
-                if (!$this->isAlreadyEncrypted($record->signature_key)) {
+                if (! $this->isAlreadyEncrypted($record->signature_key)) {
                     $encryptedKey = Crypt::encryptString($record->signature_key);
 
                     DB::table('nikolag_webhook_subscriptions')
@@ -67,7 +67,7 @@ return new class extends Migration
                     }
                 } catch (Exception $e) {
                     // Log decryption failure but continue migration
-                    Log::warning("Failed to decrypt signature key for webhook subscription ID {$record->id}: " . $e->getMessage());
+                    Log::warning("Failed to decrypt signature key for webhook subscription ID {$record->id}: ".$e->getMessage());
                 }
             }
         }
@@ -81,7 +81,7 @@ return new class extends Migration
     /**
      * Check if a value appears to be already encrypted by Laravel's Crypt class.
      *
-     * @param string $value
+     * @param  string  $value
      * @return bool
      */
     private function isAlreadyEncrypted(string $value): bool
@@ -99,6 +99,7 @@ return new class extends Migration
         }
 
         $json = json_decode($decoded, true);
+
         return $json !== null && isset($json['iv']) && isset($json['value']) && isset($json['mac']);
     }
 };

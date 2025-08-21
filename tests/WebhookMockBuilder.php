@@ -26,21 +26,22 @@ class WebhookMockBuilder
     /**
      * Configure success response data.
      *
-     * @param array $data Data to include in the success response
+     * @param  array  $data  Data to include in the success response
      * @return $this
      */
     public function withSuccess(array $data = []): self
     {
         $this->successData = $data;
         $this->errorMessage = null;
+
         return $this;
     }
 
     /**
      * Configure error response.
      *
-     * @param string $message Error message
-     * @param int $code HTTP status code
+     * @param  string  $message  Error message
+     * @param  int  $code  HTTP status code
      * @return $this
      */
     public function withError(string $message, int $code = 400): self
@@ -48,6 +49,7 @@ class WebhookMockBuilder
         $this->errorMessage = $message;
         $this->errorCode = $code;
         $this->successData = [];
+
         return $this;
     }
 

@@ -26,7 +26,7 @@ use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
  * @method static mixed getOrder()
  * @method static SquareServiceContract addProduct($product, int $quantity, string $currency = 'USD')
  * @method static SquareServiceContract setOrder($order, string $locationId, string $currency = 'USD')
- * 
+ *
  * Webhook Management Methods
  * @method static WebhookSubscription createWebhookSubscription(WebhookBuilder $builder)
  * @method static WebhookSubscription updateWebhookSubscription(string $subscriptionId, WebhookBuilder $builder)
