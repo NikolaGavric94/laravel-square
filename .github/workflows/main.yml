@@ -34,7 +34,7 @@ jobs:
       matrix:
         include:
           - php-version: "8.2"
-            illuminate: "11.*"
+            illuminate: "12.*"
             orchestra: "9.*"
             phpunit: "11.*"
     # Steps represent a sequence of tasks that will be executed as part of the job
