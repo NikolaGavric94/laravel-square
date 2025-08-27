@@ -34,6 +34,7 @@ class DeliveryDetails extends Model
         'prep_time_duration',
         'delivery_window_duration',
         'note',
+        'deliver_at',
         'canceled_at',
         'cancel_reason',
         'courier_pickup_window_duration',
