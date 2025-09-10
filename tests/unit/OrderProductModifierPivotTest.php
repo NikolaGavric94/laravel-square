@@ -214,4 +214,49 @@ class OrderProductModifierPivotTest extends TestCase
             ->addProduct($product, 1, modifiers: [$modifier])
             ->save();
     }
+
+    /**
+     * Test that the unique constraint prevents duplicate modifiers per order product.
+     * This validates our database-level integrity constraint.
+     *
+     * @return void
+     */
+    public function test_unique_constraint_prevents_duplicate_modifiers(): void
+    {
+        // Create order, product, and order product pivot
+        $order = factory(Order::class)->create();
+        $product = factory(Product::class)->create();
+        $orderProduct = factory(OrderProductPivot::class)->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+        ]);
+
+        // Create a modifier option to use
+        $modifierOption = factory(ModifierOption::class)->create();
+
+        // Create the first modifier relationship
+        $firstModifier = OrderProductModifierPivot::create([
+            'order_product_id' => $orderProduct->id,
+            'modifiable_id' => $modifierOption->id,
+            'modifiable_type' => ModifierOption::class,
+            'quantity' => 1,
+        ]);
+
+        $this->assertDatabaseHas('nikolag_product_order_modifier', [
+            'order_product_id' => $orderProduct->id,
+            'modifiable_id' => $modifierOption->id,
+            'modifiable_type' => ModifierOption::class,
+        ]);
+
+        // Attempt to create a duplicate modifier relationship should fail
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectExceptionMessageMatches('/UNIQUE constraint failed|Duplicate entry/i');
+
+        OrderProductModifierPivot::create([
+            'order_product_id' => $orderProduct->id,
+            'modifiable_id' => $modifierOption->id,  // Same modifier option
+            'modifiable_type' => ModifierOption::class,  // Same type
+            'quantity' => 1,
+        ]);
+    }
 }
