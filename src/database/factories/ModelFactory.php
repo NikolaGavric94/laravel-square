@@ -150,12 +150,21 @@ $factory->define(ModifierOption::class, function (Faker\Generator $faker) {
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(OrderProductModifierPivot::class, function (Faker\Generator $faker, array $data) {
+    $modifier = null;
     if (!isset($data['modifiable_id']) || !isset($data['modifiable_type'])) {
         $modifier = factory(ModifierOption::class)->create();
+        return [
+            'modifiable_id' => $modifier->id,
+            'modifiable_type' => get_class($modifier),
+            // Always assume the tests will associate the following fields prior to saving, generating orders and products
+            // on the fly will likely cause issues that will be uncommon in production scenarios:
+            // 'product_order_id'
+        ];
     }
+
     return [
-        'modifiable_id' => $modifier->id,
-        'modifiable_type' => get_class($modifier),
+        'modifiable_id' => $data['modifiable_id'],
+        'modifiable_type' => $data['modifiable_type'],
         // Always assume the tests will associate the following fields prior to saving, generating orders and products
         // on the fly will likely cause issues that will be uncommon in production scenarios:
         // 'product_order_id'
