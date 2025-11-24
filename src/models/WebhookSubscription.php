@@ -62,8 +62,7 @@ class WebhookSubscription extends Model
     /**
      * Scope a query to only include enabled webhooks.
      *
-     * @param Builder $query
-     *
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeEnabled($query): Builder
@@ -74,8 +73,8 @@ class WebhookSubscription extends Model
     /**
      * Scope a query to only include webhooks for a specific event type.
      *
-     * @param Builder $query
-     * @param string $eventType
+     * @param  Builder  $query
+     * @param  string  $eventType
      * @return Builder
      */
     public function scopeForEventType($query, string $eventType): Builder
@@ -86,7 +85,7 @@ class WebhookSubscription extends Model
     /**
      * Check if this subscription handles a specific event type.
      *
-     * @param string $eventType
+     * @param  string  $eventType
      * @return bool
      */
     public function handlesEventType(string $eventType): bool
@@ -97,8 +96,7 @@ class WebhookSubscription extends Model
     /**
      * Scope a query to only include active webhooks.
      *
-     * @param Builder $query
-     *
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeActive($query): Builder
@@ -122,7 +120,7 @@ class WebhookSubscription extends Model
     /**
      * Mark the webhook subscription as failed with an error.
      *
-     * @param string $error
+     * @param  string  $error
      * @return bool
      */
     public function markAsFailed(string $error): bool
