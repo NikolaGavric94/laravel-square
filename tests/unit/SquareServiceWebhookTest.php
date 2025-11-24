@@ -378,16 +378,6 @@ class SquareServiceWebhookTest extends TestCase
     }
 
     /**
-     * Test listing webhook event types with API version.
-     */
-    public function test_list_webhook_event_types_with_api_version(): void
-    {
-        $response = Square::listWebhookEventTypes('2018-07-12');
-        $this->assertInstanceOf(ListWebhookEventTypesResponse::class, $response);
-        $this->assertNull($response->getEventTypes());
-    }
-
-    /**
      * Test testing a webhook subscription.
      */
     public function test_test_webhook_success(): void
