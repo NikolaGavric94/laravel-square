@@ -30,7 +30,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.13",
-        "orchestra/testbench": "9.x",
+        "orchestra/testbench": "10.x",
         "phpunit/phpunit": "11.x",
         "laravel/legacy-factories": "^1.3"
     },
