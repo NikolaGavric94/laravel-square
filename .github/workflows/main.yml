@@ -66,6 +66,7 @@ jobs:
       - name: Copy config and build
         run: |
           cp .env.testing .env
+          php artisan key:generate
           composer self-update
           composer install --no-interaction --no-cache
           composer dump-autoload
