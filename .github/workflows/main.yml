@@ -66,7 +66,6 @@ jobs:
       - name: Copy config and build
         run: |
           cp .env.testing .env
-          php artisan key:generate
           composer self-update
           composer install --no-interaction --no-cache
           composer dump-autoload
@@ -81,6 +80,7 @@ jobs:
           SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
           SQUARE_LOCATION: ${{ secrets.SQUARE_LOCATION }}
           SQUARE_SANDBOX: ${{ secrets.SQUARE_SANDBOX }}
+          APP_KEY: ${{ secrets.APP_KEY }}
 
       # Upload test coverage to qlty
       - name: Publish code coverage
