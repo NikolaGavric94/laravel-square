@@ -18,14 +18,14 @@
     "require": {
         "php": ">=8.2",
         "doctrine/dbal": "^3.5",
-        "illuminate/config": "11.x",
-        "illuminate/console": "11.x",
-        "illuminate/container": "11.x",
-        "illuminate/contracts": "11.x",
-        "illuminate/database": "11.x",
-        "illuminate/filesystem": "11.x",
-        "illuminate/support": "11.x",
-        "nikolag/core": "2.9.x",
+        "illuminate/config": "12.x",
+        "illuminate/console": "12.x",
+        "illuminate/container": "12.x",
+        "illuminate/contracts": "12.x",
+        "illuminate/database": "12.x",
+        "illuminate/filesystem": "12.x",
+        "illuminate/support": "12.x",
+        "nikolag/core": "3.0.x",
         "square/square": "40.0.0.20250123"
     },
     "require-dev": {
@@ -65,7 +65,7 @@
     "scripts": {
         "test:coverage": [
             "@putenv XDEBUG_MODE=coverage",
-            "phpunit --color=always --coverage-clover=\"build/clover.xml\""
+            "phpunit --color=always --coverage-clover=\"build/logs/clover.xml\""
         ],
         "test:coverage-html": [
             "@putenv XDEBUG_MODE=coverage",
@@ -74,7 +74,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.3.x-dev"
+            "dev-master": "3.5.x-dev"
         },
         "laravel": {
             "providers": [
