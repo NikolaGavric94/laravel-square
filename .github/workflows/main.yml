@@ -12,6 +12,7 @@ on:
       - '3.2.**'
       - '3.3.**'
       - '3.4.**'
+      - '3.5.**'
   push:
     branches:
       - 'master'
@@ -19,6 +20,7 @@ on:
       - '3.2.**'
       - '3.3.**'
       - '3.4.**'
+      - '3.5.**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,9 +36,9 @@ jobs:
       matrix:
         include:
           - php-version: "8.2"
-            illuminate: "11.*"
-            orchestra: "9.*"
-            phpunit: "11.*"
+            illuminate: "12.*"
+            orchestra: "10.*"
+            phpunit: "12.*"
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: sandbox
     steps:
