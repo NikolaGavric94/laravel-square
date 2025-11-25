@@ -12,6 +12,7 @@ on:
       - '3.2.**'
       - '3.3.**'
       - '3.4.**'
+      - '3.5.**'
   push:
     branches:
       - 'master'
@@ -19,6 +20,7 @@ on:
       - '3.2.**'
       - '3.3.**'
       - '3.4.**'
+      - '3.5.**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,8 +36,8 @@ jobs:
       matrix:
         include:
           - php-version: "8.2"
-            illuminate: "11.*"
-            orchestra: "9.*"
+            illuminate: "12.*"
+            orchestra: "10.*"
             phpunit: "11.*"
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: sandbox
@@ -80,9 +82,11 @@ jobs:
           SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
           SQUARE_LOCATION: ${{ secrets.SQUARE_LOCATION }}
           SQUARE_SANDBOX: ${{ secrets.SQUARE_SANDBOX }}
+          APP_KEY: ${{ secrets.APP_KEY }}
 
-      # Upload test coverage to code climate
+      # Upload test coverage to qlty
       - name: Publish code coverage
-        uses: paambaati/codeclimate-action@v3.2.0
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_TOKEN }}
+        uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: build/logs/clover.xml

@@ -25,7 +25,7 @@ class DiscountBuilder
      * @throws InvalidSquareOrderException
      * @throws MissingPropertyException
      */
-    public function createDiscounts(array $discounts, string $scope, Model $parent = null): Collection
+    public function createDiscounts(array $discounts, string $scope, ?Model $parent = null): Collection
     {
         $temp = collect([]);
         foreach ($discounts as $discount) {

@@ -1,4 +1,5 @@
-[![Test Coverage](https://api.codeclimate.com/v1/badges/7b6c53096c35381463c5/test_coverage)](https://codeclimate.com/github/NikolaGavric94/laravel-square/test_coverage)
+[![Code Coverage](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square/coverage.svg)](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square)
+[![Maintainability](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square/maintainability.svg)](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square)
 [![Build and test PHP 8.x](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml)
 [![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
@@ -40,6 +41,7 @@ Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://gith
 | [3.3.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.2.1...v3.3.0) |  &nbsp; >= 10.x   | [29.0.0.20230720](https://github.com/square/square-php-sdk/tree/29.0.0.20230720)   |
 | [3.4.0](https://github.com/NikolaGavric94/laravel-square/compare/v3.3.0...v3.4.0) |  &nbsp; >= 11.x   | [29.0.0.20230720](https://github.com/square/square-php-sdk/tree/29.0.0.20230720)   |
 | [3.4.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.4.0...master) |  &nbsp; >= 11.x   | [40.0.0.20250123](https://github.com/square/square-php-sdk/tree/40.0.0.20250123)   |
+| [3.5.x](https://github.com/NikolaGavric94/laravel-square/compare/v3.5.0...master) |  &nbsp; >= 12.x   | [40.0.0.20250123](https://github.com/square/square-php-sdk/tree/40.0.0.20250123)   |
 
 **If you are updating from versions below 3.0 then you need to execute: `php artisan migrate`. This will add some columns required by the library into the tables created by the library, your own tables won't be affected.**
 
@@ -160,6 +162,7 @@ inquiries send an email to nikola.gavric94@gmail.com
 | [@PaulJulio](https://github.com/PaulJulio) | Cap square/connect version to resolve deprecation exceptions [pull request #27](https://github.com/NikolaGavric94/laravel-square/pull/27) | 2019-09-20 |
 | [@Alex Oleynik](https://github.com/alexoleynik0) | Fixes TypeError when updating customers [pull request #71](https://github.com/NikolaGavric94/laravel-square/pull/71) | 2022-06-28 |
 | [@qooplmao](https://github.com/qooplmao) | Adds support for 3DS/SCA [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/74) | 2023-01-13 |
+| [@Mrkbingham](https://github.com/Mrkbingham) | For his continous support over the years and helping tremendously in keeping this library afloat | ~ |
 
 Special thanks to all of the contributors!
 
