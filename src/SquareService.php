@@ -2,8 +2,8 @@
 
 namespace Nikolag\Square;
 
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
@@ -102,26 +102,25 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Lists the entire catalog.
      *
-     * @param array<\Square\Models\CatalogObjectType> $types The types of objects to list.
-     *
+     * @param  array<\Square\Models\CatalogObjectType>  $types  The types of objects to list.
      * @return array<\Square\Models\CatalogObject> The catalog items.
      *
      * @throws ApiException
      */
     public function listCatalog(array $typesFilter = []): array
     {
-        $types = !empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
+        $types = ! empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
 
         $catalogItems = [];
-        $cursor       = null;
+        $cursor = null;
         do {
             $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
 
             if ($apiResponse->isSuccess()) {
                 /** @var ListCatalogResponse $results */
-                $results      = $apiResponse->getResult();
+                $results = $apiResponse->getResult();
                 $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
-                $cursor       = $results->getCursor();
+                $cursor = $results->getCursor();
             } else {
                 throw $this->_handleApiResponseErrors($apiResponse);
             }
