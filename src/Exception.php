@@ -22,7 +22,7 @@ class Exception extends BaseException
      * @param  mixed  $code
      * @param  PhpException|null  $previous
      */
-    public function __construct($message = null, $code = 0, PhpException $previous = null)
+    public function __construct($message = null, $code = 0, ?PhpException $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

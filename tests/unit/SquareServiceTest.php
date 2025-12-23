@@ -791,7 +791,7 @@ class SquareServiceTest extends TestCase
     }
 
     /**
-     * Ensures filtering the catalog by type is supported
+     * Ensures filtering the catalog by type is supported.
      *
      * @return void
      */

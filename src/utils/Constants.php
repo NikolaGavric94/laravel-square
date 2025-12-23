@@ -33,6 +33,9 @@ class Constants extends CoreConstants
     //Tax info
     const TAX_NAMESPACE = 'Nikolag\Square\Models\Tax';
     const TAX_IDENTIFIER = 'id';
+    //Webhook info
+    const WEBHOOK_SUBSCRIPTION_NAMESPACE = 'Nikolag\Square\Models\WebhookSubscription';
+    const WEBHOOK_EVENT_NAMESPACE = 'Nikolag\Square\Models\WebhookEvent';
 
     //Exceptions
     //INVALID_REQUEST_ERROR

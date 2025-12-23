@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
@@ -10,22 +11,33 @@ use Nikolag\Square\Builders\OrderBuilder;
 use Nikolag\Square\Builders\ProductBuilder;
 use Nikolag\Square\Builders\RecipientBuilder;
 use Nikolag\Square\Builders\SquareRequestBuilder;
+use Nikolag\Square\Builders\WebhookBuilder;
 use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Exceptions\AlreadyUsedSquareProductException;
 use Nikolag\Square\Exceptions\InvalidSquareAmountException;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
+use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Transaction;
+use Nikolag\Square\Models\WebhookEvent;
+use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Nikolag\Square\Utils\WebhookProcessor;
 use Square\Exceptions\ApiException;
 use Square\Http\ApiResponse;
+use Square\Models\Builders\TestWebhookSubscriptionRequestBuilder;
+use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyRequestBuilder;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
-use Square\Models\Error;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
+use Square\Models\ListWebhookEventTypesResponse;
+use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\UpdateCustomerRequest;
+use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
+use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -114,26 +126,25 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Lists the entire catalog.
      *
-     * @param array<\Square\Models\CatalogObjectType> $typesFilter The types of objects to list.
-     *
+     * @param  array<\Square\Models\CatalogObjectType>  $typesFilter  The types of objects to list.
      * @return array<\Square\Models\CatalogObject> The catalog items.
      *
      * @throws ApiException
      */
     public function listCatalog(array $typesFilter = []): array
     {
-        $types = !empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
+        $types = ! empty($typesFilter) ? Arr::join($typesFilter, ',') : null;
 
         $catalogItems = [];
-        $cursor       = null;
+        $cursor = null;
         do {
             $apiResponse = $this->config->catalogApi()->listCatalog($cursor, $types);
 
             if ($apiResponse->isSuccess()) {
                 /** @var ListCatalogResponse $results */
-                $results      = $apiResponse->getResult();
+                $results = $apiResponse->getResult();
                 $catalogItems = array_merge($catalogItems, $results->getObjects() ?? []);
-                $cursor       = $results->getCursor();
+                $cursor = $results->getCursor();
             } else {
                 throw $this->_handleApiResponseErrors($apiResponse);
             }
@@ -640,5 +651,341 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return $this;
+    }
+
+    // ========================================
+    // Webhook Management Methods
+    // ========================================
+
+    /**
+     * Get a webhook builder instance.
+     *
+     * @return WebhookBuilder
+     */
+    public function webhookBuilder(): WebhookBuilder
+    {
+        return new WebhookBuilder();
+    }
+
+    /**
+     * Create a new webhook subscription.
+     *
+     * @param  WebhookBuilder  $builder  The webhook builder instance.
+     * @return WebhookSubscription
+     *
+     * @throws ApiException
+     * @throws MissingPropertyException
+     */
+    public function createWebhookSubscription(WebhookBuilder $builder): WebhookSubscription
+    {
+        $request = $builder->buildCreateRequest();
+
+        $response = $this->config->webhooksAPI()->createWebhookSubscription($request);
+        $result = $response->getResult();
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        $subscription = $result->getSubscription();
+
+        // Store the webhook subscription locally
+        return WebhookSubscription::create([
+            'square_id' => $subscription->getId(),
+            'name' => $subscription->getName(),
+            'notification_url' => $subscription->getNotificationUrl(),
+            'event_types' => $subscription->getEventTypes(),
+            'api_version' => $subscription->getApiVersion(),
+            'signature_key' => $subscription->getSignatureKey(),
+            'is_enabled' => $subscription->getEnabled(),
+        ]);
+    }
+
+    /**
+     * Create a new webhook subscription.
+     *
+     * @param  WebhookBuilder  $builder  The webhook builder instance.
+     * @return SquareWebhookSubscription
+     *
+     * @throws ApiException
+     * @throws MissingPropertyException
+     */
+    public function retrieveWebhookSubscription(string $subscriptionId): SquareWebhookSubscription
+    {
+        $response = $this->config->webhooksAPI()->retrieveWebhookSubscription($subscriptionId);
+        $result = $response->getResult();
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $result->getSubscription();
+    }
+
+    /**
+     * Update an existing webhook subscription.
+     *
+     * @param  string  $subscriptionId  The ID of the webhook subscription to update.
+     * @param  WebhookBuilder  $builder  The webhook builder instance with updated data.
+     * @return WebhookSubscription
+     *
+     * @throws ApiException
+     */
+    public function updateWebhookSubscription(string $subscriptionId, WebhookBuilder $builder): WebhookSubscription
+    {
+        $request = $builder->buildUpdateRequest();
+
+        $response = $this->config->webhooksAPI()->updateWebhookSubscription($subscriptionId, $request);
+        $result = $response->getResult();
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        $subscription = $result->getSubscription();
+
+        // Update the local webhook subscription
+        $localSubscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
+
+        if ($localSubscription) {
+            $localSubscription->update([
+                'name' => $subscription->getName(),
+                'notification_url' => $subscription->getNotificationUrl(),
+                'event_types' => $subscription->getEventTypes(),
+                'api_version' => $subscription->getApiVersion(),
+                // 'signature_key' => $subscription->getSignatureKey(), // The signature key is not returned on update
+                'is_enabled' => $subscription->getEnabled(),
+            ]);
+
+            return $localSubscription;
+        } else {
+            // If not found locally, fetch and create it (necessary as the signature key might have changed)
+            $subscription = self::retrieveWebhookSubscription($subscriptionId);
+
+            // Store the webhook subscription locally
+            return WebhookSubscription::create([
+                'square_id' => $subscription->getId(),
+                'name' => $subscription->getName(),
+                'notification_url' => $subscription->getNotificationUrl(),
+                'event_types' => $subscription->getEventTypes(),
+                'api_version' => $subscription->getApiVersion(),
+                'signature_key' => $subscription->getSignatureKey(),
+                'is_enabled' => $subscription->getEnabled(),
+            ]);
+        }
+    }
+
+    /**
+     * Delete a webhook subscription.
+     *
+     * @param  string  $subscriptionId
+     * @return bool
+     *
+     * @throws ApiException
+     */
+    public function deleteWebhookSubscription(string $subscriptionId): bool
+    {
+        $response = $this->config->webhooksAPI()->deleteWebhookSubscription($subscriptionId);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        // Delete the local webhook subscription
+        WebhookSubscription::where('square_id', $subscriptionId)->delete();
+
+        return true;
+    }
+
+    /**
+     * List all webhook subscriptions.
+     *
+     * @param  string|null  $cursor
+     * @param  bool  $includeDisabled
+     * @param  string|null  $sortOrder
+     * @param  int|null  $limit
+     * @return ListWebhookSubscriptionsResponse
+     *
+     * @throws ApiException
+     */
+    public function listWebhookSubscriptions(
+        ?string $cursor = null,
+        bool $includeDisabled = false,
+        ?string $sortOrder = null,
+        ?int $limit = null
+    ): ListWebhookSubscriptionsResponse {
+        $response = $this->config->webhooksAPI()->listWebhookSubscriptions(
+            $cursor,
+            $includeDisabled,
+            $sortOrder,
+            $limit
+        );
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $response->getResult();
+    }
+
+    /**
+     * List all available webhook event types.
+     *
+     * @param  string|null  $apiVersion
+     * @return ListWebhookEventTypesResponse
+     *
+     * @throws ApiException
+     */
+    public function listWebhookEventTypes(?string $apiVersion = null): ListWebhookEventTypesResponse
+    {
+        $response = $this->config->webhooksAPI()->listWebhookEventTypes($apiVersion);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $response->getResult();
+    }
+
+    /**
+     * Test a webhook subscription.
+     *
+     * @param  string  $subscriptionId
+     * @param  string  $eventType
+     * @return TestWebhookSubscriptionResponse
+     *
+     * @throws ApiException
+     */
+    public function testWebhookSubscription(string $subscriptionId, string $eventType): TestWebhookSubscriptionResponse
+    {
+        $request = TestWebhookSubscriptionRequestBuilder::init()
+            ->eventType($eventType)
+            ->build();
+
+        $response = $this->config->webhooksAPI()->testWebhookSubscription($subscriptionId, $request);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        return $response->getResult();
+    }
+
+    /**
+     * Update the signature key for a webhook subscription.
+     *
+     * @param  string  $subscriptionId
+     * @return UpdateWebhookSubscriptionSignatureKeyResponse
+     *
+     * @throws ApiException
+     */
+    public function updateWebhookSignatureKey(string $subscriptionId): UpdateWebhookSubscriptionSignatureKeyResponse
+    {
+        $request = UpdateWebhookSubscriptionSignatureKeyRequestBuilder::init()
+            ->idempotencyKey(uniqid())
+            ->build();
+
+        $response = $this->config->webhooksAPI()->updateWebhookSubscriptionSignatureKey($subscriptionId, $request);
+
+        if ($response->isError()) {
+            throw $this->_handleApiResponseErrors($response);
+        }
+
+        $result = $response->getResult();
+
+        // Update the local webhook subscription with the new signature key
+        $localSubscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
+
+        if ($localSubscription) {
+            $localSubscription->update([
+                'signature_key' => $result->getSignatureKey(),
+            ]);
+        }
+
+        return $result;
+    }
+
+    // ========================================
+    // Webhook Processing Methods
+    // ========================================
+
+    /**
+     * Process a webhook event payload.
+     *
+     * @param  Request  $request  The incoming request containing the webhook payload.
+     * @return WebhookEvent
+     *
+     * @throws InvalidSquareSignatureException
+     */
+    public function processWebhook(Request $request): WebhookEvent
+    {
+        $headers = $request->headers->all();
+        $payload = $request->getContent();
+
+        $subscriptionId = $headers['square-subscription-id'] ?? $headers['Square-Subscription-Id'] ?? null;
+
+        if (! $subscriptionId) {
+            throw new InvalidSquareSignatureException('Missing Square webhook subscription ID in headers');
+        }
+
+        $subscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
+
+        if (! $subscription) {
+            throw new InvalidSquareSignatureException('No webhook subscription found for verification');
+        }
+
+        return WebhookProcessor::verifyAndProcess($headers, $payload, $subscription);
+    }
+
+    // ========================================
+    // Webhook Event Management Methods
+    // ========================================
+
+    /**
+     * Mark a webhook event as processed.
+     *
+     * @param  string  $eventId  The Square event ID
+     * @return bool
+     */
+    public function markWebhookEventProcessed(string $eventId): bool
+    {
+        $event = WebhookEvent::where('square_event_id', $eventId)->first();
+
+        if (! $event) {
+            return false;
+        }
+
+        return $event->markAsProcessed();
+    }
+
+    /**
+     * Mark a webhook event as failed with an error message.
+     *
+     * @param  string  $eventId  The Square event ID
+     * @param  string  $errorMessage  The error message
+     * @return bool
+     */
+    public function markWebhookEventFailed(string $eventId, string $errorMessage): bool
+    {
+        $event = WebhookEvent::where('square_event_id', $eventId)->first();
+
+        if (! $event) {
+            return false;
+        }
+
+        return $event->markAsFailed($errorMessage);
+    }
+
+    /**
+     * Clean up old webhook events.
+     *
+     * @param  int  $daysOld  Number of days old events to keep
+     * @return int Number of events deleted
+     */
+    public function cleanupOldWebhookEvents(int $daysOld = 30): int
+    {
+        return WebhookEvent::where('created_at', '<', now()->subDays($daysOld))
+            ->where('status', '!=', WebhookEvent::STATUS_PENDING)
+            ->delete();
     }
 }
