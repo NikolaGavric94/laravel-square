@@ -17,8 +17,8 @@ use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Models\Transaction;
-use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
+use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
 use Nikolag\Square\Utils\WebhookProcessor;
@@ -34,9 +34,9 @@ use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\RetrieveOrderResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
-use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use Square\Models\UpdateCustomerRequest;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
+use Square\Models\WebhookSubscription as SquareWebhookSubscription;
 use stdClass;
 
 class SquareService extends CorePaymentService implements SquareServiceContract
@@ -561,12 +561,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Create a new webhook subscription.
      *
-     * @param WebhookBuilder $builder The webhook builder instance.
+     * @param  WebhookBuilder  $builder  The webhook builder instance.
+     * @return WebhookSubscription
      *
      * @throws ApiException
      * @throws MissingPropertyException
-     *
-     * @return WebhookSubscription
      */
     public function createWebhookSubscription(WebhookBuilder $builder): WebhookSubscription
     {
@@ -596,12 +595,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Create a new webhook subscription.
      *
-     * @param WebhookBuilder $builder The webhook builder instance.
+     * @param  WebhookBuilder  $builder  The webhook builder instance.
+     * @return SquareWebhookSubscription
      *
      * @throws ApiException
      * @throws MissingPropertyException
-     *
-     * @return SquareWebhookSubscription
      */
     public function retrieveWebhookSubscription(string $subscriptionId): SquareWebhookSubscription
     {
@@ -618,12 +616,11 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Update an existing webhook subscription.
      *
-     * @param string         $subscriptionId The ID of the webhook subscription to update.
-     * @param WebhookBuilder $builder        The webhook builder instance with updated data.
+     * @param  string  $subscriptionId  The ID of the webhook subscription to update.
+     * @param  WebhookBuilder  $builder  The webhook builder instance with updated data.
+     * @return WebhookSubscription
      *
      * @throws ApiException
-     *
-     * @return WebhookSubscription
      */
     public function updateWebhookSubscription(string $subscriptionId, WebhookBuilder $builder): WebhookSubscription
     {
@@ -672,8 +669,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Delete a webhook subscription.
      *
-     * @param string $subscriptionId
+     * @param  string  $subscriptionId
      * @return bool
+     *
      * @throws ApiException
      */
     public function deleteWebhookSubscription(string $subscriptionId): bool
@@ -693,11 +691,12 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * List all webhook subscriptions.
      *
-     * @param string|null $cursor
-     * @param bool $includeDisabled
-     * @param string|null $sortOrder
-     * @param int|null $limit
+     * @param  string|null  $cursor
+     * @param  bool  $includeDisabled
+     * @param  string|null  $sortOrder
+     * @param  int|null  $limit
      * @return ListWebhookSubscriptionsResponse
+     *
      * @throws ApiException
      */
     public function listWebhookSubscriptions(
@@ -723,8 +722,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * List all available webhook event types.
      *
-     * @param string|null $apiVersion
+     * @param  string|null  $apiVersion
      * @return ListWebhookEventTypesResponse
+     *
      * @throws ApiException
      */
     public function listWebhookEventTypes(?string $apiVersion = null): ListWebhookEventTypesResponse
@@ -741,9 +741,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Test a webhook subscription.
      *
-     * @param string $subscriptionId
-     * @param string $eventType
+     * @param  string  $subscriptionId
+     * @param  string  $eventType
      * @return TestWebhookSubscriptionResponse
+     *
      * @throws ApiException
      */
     public function testWebhookSubscription(string $subscriptionId, string $eventType): TestWebhookSubscriptionResponse
@@ -764,8 +765,9 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Update the signature key for a webhook subscription.
      *
-     * @param string $subscriptionId
+     * @param  string  $subscriptionId
      * @return UpdateWebhookSubscriptionSignatureKeyResponse
+     *
      * @throws ApiException
      */
     public function updateWebhookSignatureKey(string $subscriptionId): UpdateWebhookSubscriptionSignatureKeyResponse
@@ -801,11 +803,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Process a webhook event payload.
      *
-     * @param Request $request The incoming request containing the webhook payload.
+     * @param  Request  $request  The incoming request containing the webhook payload.
+     * @return WebhookEvent
      *
      * @throws InvalidSquareSignatureException
-     *
-     * @return WebhookEvent
      */
     public function processWebhook(Request $request): WebhookEvent
     {
@@ -814,13 +815,13 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         $subscriptionId = $headers['square-subscription-id'] ?? $headers['Square-Subscription-Id'] ?? null;
 
-        if (!$subscriptionId) {
+        if (! $subscriptionId) {
             throw new InvalidSquareSignatureException('Missing Square webhook subscription ID in headers');
         }
 
         $subscription = WebhookSubscription::where('square_id', $subscriptionId)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             throw new InvalidSquareSignatureException('No webhook subscription found for verification');
         }
 
@@ -834,14 +835,14 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Mark a webhook event as processed.
      *
-     * @param string $eventId The Square event ID
+     * @param  string  $eventId  The Square event ID
      * @return bool
      */
     public function markWebhookEventProcessed(string $eventId): bool
     {
         $event = WebhookEvent::where('square_event_id', $eventId)->first();
 
-        if (!$event) {
+        if (! $event) {
             return false;
         }
 
@@ -851,15 +852,15 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Mark a webhook event as failed with an error message.
      *
-     * @param string $eventId The Square event ID
-     * @param string $errorMessage The error message
+     * @param  string  $eventId  The Square event ID
+     * @param  string  $errorMessage  The error message
      * @return bool
      */
     public function markWebhookEventFailed(string $eventId, string $errorMessage): bool
     {
         $event = WebhookEvent::where('square_event_id', $eventId)->first();
 
-        if (!$event) {
+        if (! $event) {
             return false;
         }
 
@@ -869,7 +870,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     /**
      * Clean up old webhook events.
      *
-     * @param int $daysOld Number of days old events to keep
+     * @param  int  $daysOld  Number of days old events to keep
      * @return int Number of events deleted
      */
     public function cleanupOldWebhookEvents(int $daysOld = 30): int

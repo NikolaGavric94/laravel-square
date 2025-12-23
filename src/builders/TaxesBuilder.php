@@ -23,7 +23,7 @@ class TaxesBuilder
      *
      * @throws MissingPropertyException
      */
-    public function createTaxes(array $taxes, string $scope, Model $parent = null): Collection
+    public function createTaxes(array $taxes, string $scope, ?Model $parent = null): Collection
     {
         $temp = collect([]);
         foreach ($taxes as $tax) {

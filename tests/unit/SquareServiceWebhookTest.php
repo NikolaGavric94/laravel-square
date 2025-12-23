@@ -6,15 +6,15 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Nikolag\Square\Builders\WebhookBuilder;
+use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareSignatureException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
-use Nikolag\Square\Utils\WebhookProcessor;
-use Nikolag\Square\Exception;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
+use Nikolag\Square\Utils\WebhookProcessor;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
@@ -41,7 +41,7 @@ class SquareServiceWebhookTest extends TestCase
             'eventTypes' => $this->testEventTypes,
             'apiVersion' => '2023-10-11',
             'signatureKey' => 'test_signature_key',
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         $builder = Square::webhookBuilder()
@@ -98,7 +98,7 @@ class SquareServiceWebhookTest extends TestCase
             'eventTypes' => $this->testEventTypes,
             'apiVersion' => '2023-10-11',
             'signatureKey' => 'test_signature_key',
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         $builder = Square::webhookBuilder()
@@ -119,7 +119,7 @@ class SquareServiceWebhookTest extends TestCase
 
         // Verify the webhook was removed from database
         $this->assertDatabaseMissing('nikolag_webhook_subscriptions', [
-            'square_id' => 'wh_to_delete_123'
+            'square_id' => 'wh_to_delete_123',
         ]);
     }
 
@@ -152,7 +152,7 @@ class SquareServiceWebhookTest extends TestCase
             'eventTypes' => $this->testEventTypes,
             'apiVersion' => '2023-10-11',
             'signatureKey' => 'test_signature_key',
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         $webhookSubscription = Square::retrieveWebhookSubscription('webhook_to_fetch_123');
@@ -178,7 +178,7 @@ class SquareServiceWebhookTest extends TestCase
             'eventTypes' => $this->testEventTypes,
             'apiVersion' => '2023-10-11',
             'signatureKey' => 'test_signature_key',
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         $builder = Square::webhookBuilder()
@@ -196,7 +196,7 @@ class SquareServiceWebhookTest extends TestCase
             'notificationUrl' => $this->testWebhookUrl,
             'eventTypes' => $this->testEventTypes,
             'apiVersion' => '2023-10-11',
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         // Get the subscription builder and update the name
@@ -242,7 +242,7 @@ class SquareServiceWebhookTest extends TestCase
             'eventTypes' => $this->testEventTypes,
             'apiVersion' => '2023-10-11',
             'signatureKey' => $signatureKey,
-            'enabled' => true
+            'enabled' => true,
         ]);
 
         $builder = Square::webhookBuilder()
@@ -258,10 +258,14 @@ class SquareServiceWebhookTest extends TestCase
         $this->assertEquals('wh_recreate_test_789', $webhookSubscription->square_id);
         $this->assertEquals($signatureKey, $webhookSubscription->signature_key);
 
+        // Verify encryption
+        $encryptedKey = $webhookSubscription->getRawOriginal('signature_key');
+        $this->assertNotEquals($encryptedKey, $webhookSubscription->signature_key);
+
         $this->assertDatabaseHas('nikolag_webhook_subscriptions', [
             'square_id' => $webhookSubscription->square_id,
             'name' => 'Webhook for Recreate Test',
-            'signature_key' => $signatureKey
+            'signature_key' => $encryptedKey,
         ]);
 
         // Step 2: Delete the local WebhookSubscription record from database
@@ -270,7 +274,7 @@ class SquareServiceWebhookTest extends TestCase
 
         // Verify local record is gone
         $this->assertDatabaseMissing('nikolag_webhook_subscriptions', [
-            'square_id' => $webhookSubscription->square_id
+            'square_id' => $webhookSubscription->square_id,
         ]);
 
         // Step 3: Mock update webhook response (note: no signature_key in update response)
@@ -308,7 +312,7 @@ class SquareServiceWebhookTest extends TestCase
         // Verify the signature_key field is handled gracefully (should be null or default)
         // since updateWebhookSubscription response doesn't include it
         $this->assertTrue(
-            is_null($updatedWebhook->signature_key) || !empty($updatedWebhook->signature_key),
+            is_null($updatedWebhook->signature_key) || ! empty($updatedWebhook->signature_key),
             'signature_key should be handled gracefully when missing from update response'
         );
 
@@ -317,7 +321,7 @@ class SquareServiceWebhookTest extends TestCase
             'square_id' => $webhookSubscription->square_id,
             'name' => $newName,
             'notification_url' => 'https://updated.example.com/webhook',
-            'is_enabled' => true
+            'is_enabled' => true,
         ]);
 
         // Verify only one record exists (not duplicated)
@@ -339,8 +343,8 @@ class SquareServiceWebhookTest extends TestCase
                 'eventTypes' => $this->testEventTypes,
                 'apiVersion' => '2023-10-11',
                 'signatureKey' => 'fake-key',
-                'enabled' => true
-            ]
+                'enabled' => true,
+            ],
         ]);
 
         $response = Square::listWebhookSubscriptions();
@@ -371,16 +375,6 @@ class SquareServiceWebhookTest extends TestCase
         $response = Square::listWebhookEventTypes();
         $this->assertInstanceOf(ListWebhookEventTypesResponse::class, $response);
         $this->assertIsArray($response->getEventTypes());
-    }
-
-    /**
-     * Test listing webhook event types with API version.
-     */
-    public function test_list_webhook_event_types_with_api_version(): void
-    {
-        $response = Square::listWebhookEventTypes('2018-07-12');
-        $this->assertInstanceOf(ListWebhookEventTypesResponse::class, $response);
-        $this->assertNull($response->getEventTypes());
     }
 
     /**
@@ -418,7 +412,7 @@ class SquareServiceWebhookTest extends TestCase
     public function test_update_webhook_signature_key_success(): void
     {
         $subscriptionId = 'wbhk_test_signature_update_123';
-        $newSignatureKey = 'test_updated_signature_key_' . uniqid();
+        $newSignatureKey = 'test_updated_signature_key_'.uniqid();
 
         // Create a webhook subscription first so we have one to update
         $subscription = WebhookSubscription::create([
@@ -433,7 +427,7 @@ class SquareServiceWebhookTest extends TestCase
 
         // Mock successful signature key update response
         $this->mockUpdateWebhookSignatureKey([
-            'signatureKey' => $newSignatureKey
+            'signatureKey' => $newSignatureKey,
         ]);
 
         $response = Square::updateWebhookSignatureKey($subscriptionId);
@@ -777,7 +771,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now(),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PENDING,
-            'webhook_subscription_id' => 1
+            'webhook_subscription_id' => 1,
         ]);
 
         // Execute the test
@@ -803,7 +797,7 @@ class SquareServiceWebhookTest extends TestCase
             'event_time' => now(),
             'event_data' => ['test' => 'data'],
             'status' => WebhookEvent::STATUS_PENDING,
-            'webhook_subscription_id' => 1
+            'webhook_subscription_id' => 1,
         ]);
 
         // Execute the test

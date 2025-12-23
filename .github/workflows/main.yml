@@ -80,9 +80,11 @@ jobs:
           SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
           SQUARE_LOCATION: ${{ secrets.SQUARE_LOCATION }}
           SQUARE_SANDBOX: ${{ secrets.SQUARE_SANDBOX }}
+          APP_KEY: ${{ secrets.APP_KEY }}
 
-      # Upload test coverage to code climate
+      # Upload test coverage to qlty
       - name: Publish code coverage
-        uses: paambaati/codeclimate-action@v3.2.0
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_TOKEN }}
+        uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: build/logs/clover.xml

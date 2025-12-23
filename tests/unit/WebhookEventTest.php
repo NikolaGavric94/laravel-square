@@ -261,7 +261,7 @@ class WebhookEventTest extends TestCase
     public function test_webhook_event_get_order_id_returns_null_for_missing_data()
     {
         $event = factory(WebhookEvent::class)->create([
-            'event_data' => ['some' => 'other_data']
+            'event_data' => ['some' => 'other_data'],
         ]);
 
         $this->assertNull($event->getOrderId());
@@ -294,11 +294,11 @@ class WebhookEventTest extends TestCase
     {
         $eventData = [
             'merchant_id' => 'merchant-123',
-            'type' => 'order.created'
+            'type' => 'order.created',
         ];
 
         $event = factory(WebhookEvent::class)->create([
-            'event_data' => $eventData
+            'event_data' => $eventData,
         ]);
 
         $this->assertEquals('merchant-123', $event->getMerchantId());
@@ -387,13 +387,13 @@ class WebhookEventTest extends TestCase
     public function test_webhook_event_status_checking_methods()
     {
         $pendingEvent = factory(WebhookEvent::class)->create([
-            'status' => WebhookEvent::STATUS_PENDING
+            'status' => WebhookEvent::STATUS_PENDING,
         ]);
         $processedEvent = factory(WebhookEvent::class)->create([
-            'status' => WebhookEvent::STATUS_PROCESSED
+            'status' => WebhookEvent::STATUS_PROCESSED,
         ]);
         $failedEvent = factory(WebhookEvent::class)->create([
-            'status' => WebhookEvent::STATUS_FAILED
+            'status' => WebhookEvent::STATUS_FAILED,
         ]);
 
         // Test pending event
@@ -439,7 +439,7 @@ class WebhookEventTest extends TestCase
         $paymentEvent = factory(WebhookEvent::class)->states('PAYMENT_CREATED_EVENT')->create();
 
         $otherEvent = factory(WebhookEvent::class)->create([
-            'event_type' => 'customer.created'
+            'event_type' => 'customer.created',
         ]);
 
         $this->assertEquals('Order event (order.created) for order order-456', $orderEvent->getDescription());
@@ -517,7 +517,7 @@ class WebhookEventTest extends TestCase
     {
         // Create multiple events
         $events = factory(WebhookEvent::class, 5)->create([
-            'status' => WebhookEvent::STATUS_PENDING
+            'status' => WebhookEvent::STATUS_PENDING,
         ]);
 
         $this->assertCount(5, $events);

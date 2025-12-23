@@ -5,8 +5,8 @@ namespace Nikolag\Square\Tests\Unit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Nikolag\Square\Builders\WebhookBuilder;
-use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Models\WebhookEvent;
+use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\Tests\TestCase;
 
 class WebhookSubscriptionTest extends TestCase
@@ -184,13 +184,13 @@ class WebhookSubscriptionTest extends TestCase
     public function test_webhook_subscription_for_event_type_scope()
     {
         factory(WebhookSubscription::class)->create([
-            'event_types' => ['order.created', 'order.updated']
+            'event_types' => ['order.created', 'order.updated'],
         ]);
         factory(WebhookSubscription::class)->create([
-            'event_types' => ['order.fulfillment.updated']
+            'event_types' => ['order.fulfillment.updated'],
         ]);
         factory(WebhookSubscription::class)->create([
-            'event_types' => ['order.created', 'customer.created']
+            'event_types' => ['order.created', 'customer.created'],
         ]);
 
         $orderCreatedSubscriptions = WebhookSubscription::forEventType('order.created')->get();
@@ -210,7 +210,7 @@ class WebhookSubscriptionTest extends TestCase
     public function test_webhook_subscription_handles_event_type_method()
     {
         $subscription = factory(WebhookSubscription::class)->create([
-            'event_types' => ['order.created', 'order.updated', 'order.fulfillment.updated']
+            'event_types' => ['order.created', 'order.updated', 'order.fulfillment.updated'],
         ]);
 
         $this->assertTrue($subscription->handlesEventType('order.created'));

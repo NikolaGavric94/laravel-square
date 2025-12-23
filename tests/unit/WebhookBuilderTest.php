@@ -82,10 +82,10 @@ class WebhookBuilderTest extends TestCase
                 'object' => [
                     'order' => [
                         'id' => 'order-123',
-                        'location_id' => 'location-456'
-                    ]
-                ]
-            ]
+                        'location_id' => 'location-456',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertTrue(WebhookProcessor::isValidOrderEvent($validOrderEvent));
@@ -95,7 +95,7 @@ class WebhookBuilderTest extends TestCase
             'data' => [
                 'type' => 'order',
                 // Missing required fields
-            ]
+            ],
         ];
 
         $this->assertFalse(WebhookProcessor::isValidOrderEvent($invalidOrderEvent));
@@ -115,10 +115,10 @@ class WebhookBuilderTest extends TestCase
                 'object' => [
                     'order' => [
                         'id' => 'order-456',
-                        'location_id' => 'location-789'
-                    ]
-                ]
-            ]
+                        'location_id' => 'location-789',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertEquals('order-456', WebhookProcessor::extractOrderId($eventData));
