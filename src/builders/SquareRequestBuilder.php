@@ -4,6 +4,7 @@ namespace Nikolag\Square\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Nikolag\Square\Builders\SquareRequestBuilders\FulfillmentRequestBuilder;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Utils\Constants;
@@ -34,6 +35,12 @@ class SquareRequestBuilder
      * @var Collection
      */
     private Collection $productDiscounts;
+    /**
+     * Fulfillment request helper builder.
+     *
+     * @var FulfillmentRequestBuilder
+     */
+    private FulfillmentRequestBuilder $fulfillmentRequestBuilder;
 
     /**
      * SquareRequestBuilder constructor.
@@ -42,6 +49,8 @@ class SquareRequestBuilder
     {
         $this->productTaxes = collect([]);
         $this->productDiscounts = collect([]);
+
+        $this->fulfillmentRequestBuilder = new FulfillmentRequestBuilder();
     }
 
     /**
@@ -61,6 +70,11 @@ class SquareRequestBuilder
         $request->setLocationId($prepData['location_id']);
         $request->setNote($prepData['note']);
         $request->setReferenceId($prepData['reference_id']);
+
+        // Set an order id (this, along with a fulfillment is required for Orders to appear in the Square Dashboard)
+        if (array_key_exists('order_id', $prepData)) {
+            $request->setOrderId($prepData['order_id']);
+        }
 
         if (array_key_exists('verification_token', $prepData)) {
             $request->setVerificationToken($prepData['verification_token']);
@@ -112,6 +126,7 @@ class SquareRequestBuilder
         $squareOrder->setLineItems($this->buildProducts($order->products, $currency));
         $squareOrder->setDiscounts($this->buildDiscounts($order->discounts, $currency));
         $squareOrder->setTaxes($this->buildTaxes($order->taxes));
+        $squareOrder->setFulfillments($this->fulfillmentRequestBuilder->buildFulfillments($order->fulfillments));
         $request = new CreateOrderRequest();
         $request->setOrder($squareOrder);
         $request->setIdempotencyKey(uniqid());

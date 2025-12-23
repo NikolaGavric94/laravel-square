@@ -1,7 +1,7 @@
 [![Code Coverage](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square/coverage.svg)](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square)
 [![Maintainability](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square/maintainability.svg)](https://qlty.sh/gh/NikolaGavric94/projects/laravel-square)
 [![Build and test PHP 8.x](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikolaGavric94/laravel-square/actions/workflows/main.yml)
-[![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square) 
+[![Latest Stable Version](https://poser.pugx.org/nikolag/laravel-square/v/stable)](https://packagist.org/packages/nikolag/laravel-square)
 [![License](https://poser.pugx.org/nikolag/laravel-square/license)](https://packagist.org/packages/nikolag/laravel-square)
 <p><a href="https://medium.com/square-corner-blog/square-implementation-with-laravel-22a4ad3fe1ec">
     <img src="https://miro.medium.com/max/1920/1*84QaUM_X3hvpO8qe9b_5jw.png" title="Nikolag Laravel Package" />
@@ -12,12 +12,12 @@
 Square integration with Laravel/Lumen >=5.5 built on [nikolag/core](https://github.com/NikolaGavric94/nikolag-core/)
 
 1. [Version Compatibility](#version-compatibility)
-2. [Installation guide](#installation-guide) 
-3. [Customer System](#customers-system) 
-4. [Order System](#orders-system) 
-5. [Examples](#examples) 
-6. [Available methods](#all-traits-and-their-methods)  
-7. [Contributing](#contributing) 
+2. [Installation guide](#installation-guide)
+3. [Customer System](#customers-system)
+4. [Order System](#orders-system)
+5. [Examples](#examples)
+6. [Available methods](#all-traits-and-their-methods)
+7. [Contributing](#contributing)
 8. [License](#license)
 
 
@@ -162,7 +162,7 @@ inquiries send an email to nikola.gavric94@gmail.com
 | [@PaulJulio](https://github.com/PaulJulio) | Cap square/connect version to resolve deprecation exceptions [pull request #27](https://github.com/NikolaGavric94/laravel-square/pull/27) | 2019-09-20 |
 | [@Alex Oleynik](https://github.com/alexoleynik0) | Fixes TypeError when updating customers [pull request #71](https://github.com/NikolaGavric94/laravel-square/pull/71) | 2022-06-28 |
 | [@qooplmao](https://github.com/qooplmao) | Adds support for 3DS/SCA [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/74) | 2023-01-13 |
-| [@Mrkbingham](https://github.com/Mrkbingham) | For his continous support over the years and helping tremendously in keeping this library afloat | ~ |
+| [@mrkbingham](https://github.com/mrkbingham) | Adds support for Fulfillments [pull request #74](https://github.com/NikolaGavric94/laravel-square/pull/88) | 2025-06-27 |
 
 Special thanks to all of the contributors!
 

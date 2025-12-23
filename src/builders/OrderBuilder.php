@@ -20,6 +20,10 @@ class OrderBuilder
      */
     private DiscountBuilder $discountBuilder;
     /**
+     * @var FulfillmentBuilder
+     */
+    private FulfillmentBuilder $fulfillmentBuilder;
+    /**
      * @var TaxesBuilder
      */
     private TaxesBuilder $taxesBuilder;
@@ -31,6 +35,7 @@ class OrderBuilder
     {
         $this->productBuilder = new ProductBuilder();
         $this->discountBuilder = new DiscountBuilder();
+        $this->fulfillmentBuilder = new FulfillmentBuilder();
         $this->taxesBuilder = new TaxesBuilder();
     }
 
@@ -157,6 +162,51 @@ class OrderBuilder
         // Eagerly load products, for future use
         $order->load('products', 'taxes', 'discounts');
 
+        // Check if order has fulfillments
+        if (
+            property_exists($orderCopy, 'fulfillments')
+            && $orderCopy->fulfillments->isNotEmpty()
+        ) {
+            // For each fulfillment in order
+            foreach ($orderCopy->fulfillments as $fulfillment) {
+                // If order doesn't have fulfillment
+                if (! $order->hasFulfillment($fulfillment)) {
+                    // A fulfillment cannot exist without a recipient - make sure it's present
+                    if (! $fulfillment->recipient) {
+                        throw new MissingPropertyException('Recipient is missing from fulfillment');
+                    }
+                    $recipient = $fulfillment->recipient;
+
+                    // Create the fulfillment details first
+                    $fulfillmentDetails = $fulfillment->fulfillmentDetails;
+                    // Clear any recipient attribute from the details (it should only be on fulfillment now)
+                    unset($fulfillmentDetails->recipient);
+                    $fulfillmentDetails->save();
+                    $fulfillment->fulfillmentDetails()->associate($fulfillmentDetails);
+
+                    // Associate order with the fulfillment
+                    $fulfillment->order()->associate($order);
+
+                    // Clear the recipient attribute to prevent it from being saved as an attribute
+                    unset($fulfillment->recipient);
+                    unset($fulfillment->fulfillmentDetails);
+                    $fulfillment->save();
+
+                    // Create a recipient and associate it with the fulfillment
+                    $recipient->fulfillment()->associate($fulfillment);
+                    $recipient->save();
+
+                    // Now that the fulfillment has an id, add it to the fulfillment details
+                    $fulfillmentDetails->update([
+                        'fulfillment_id' => $fulfillment->id,
+                    ]);
+
+                    // Add the fulfillment to the order
+                    $order->fulfillments->add($fulfillment);
+                }
+            }
+        }
+
         // Return order model, ready for use
         return $order;
     }
@@ -225,6 +275,17 @@ class OrderBuilder
                         }
                     }
                     $orderCopy->products->push($productTemp);
+                }
+            }
+
+            // Create fulfillments Collection
+            $orderCopy->fulfillments = collect([]);
+            // Fulfillments
+            if ($order->fulfillments->isNotEmpty()) {
+                foreach ($order->fulfillments as $fulfillment) {
+                    // Create fulfillment
+                    $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromModel($fulfillment, $order);
+                    $orderCopy->fulfillments->push($fulfillmentTemp);
                 }
             }
 
@@ -298,6 +359,17 @@ class OrderBuilder
                         }
                     }
                     $orderCopy->products->push($productTemp);
+                }
+            }
+            // Create fulfillments Collection
+            $orderCopy->fulfillments = collect([]);
+            //Fulfillments
+            if (Arr::has($order, 'fulfillments') && $order['fulfillments'] != null) {
+                foreach ($order['fulfillments'] as $fulfillment) {
+                    // Create fulfillment from array
+                    $fulfillmentTemp = $this->fulfillmentBuilder->createFulfillmentFromArray($fulfillment);
+
+                    $orderCopy->fulfillments->push($fulfillmentTemp);
                 }
             }
 

@@ -4,11 +4,11 @@ namespace Nikolag\Square\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Nikolag\Square\Builders\WebhookBuilder;
-use Nikolag\Square\Contracts\SquareServiceContract;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Models\WebhookEvent;
 use Nikolag\Square\Models\WebhookSubscription;
 use Nikolag\Square\SquareService;
+use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
@@ -17,16 +17,22 @@ use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
 
 /**
  * @method static SquareService save()
- * @method static Transaction charge(array $data)
+ * @method static Transaction charge(array $options)
  * @method static ListPaymentsResponse payments(array $options)
+ * @method static ListLocationsResponse locations()
+ * @method static array listCatalog(array $typesFilter = [])
  * @method static mixed getCustomer()
- * @method static SquareServiceContract setCustomer($customer)
+ * @method static SquareService setCustomer(mixed $customer)
  * @method static mixed getMerchant()
- * @method static SquareServiceContract setMerchant($merchant)
+ * @method static SquareService setMerchant(mixed $merchant)
  * @method static mixed getOrder()
- * @method static SquareService listCatalog(array $types = [])
- * @method static SquareServiceContract addProduct($product, int $quantity, string $currency = 'USD')
- * @method static SquareServiceContract setOrder($order, string $locationId, string $currency = 'USD')
+ * @method static SquareService addProduct(mixed $product, int $quantity = 1, string $currency = 'USD')
+ * @method static SquareService setOrder(mixed $order, string $locationId, string $currency = 'USD')
+ * @method static SquareService setFulfillment(mixed $fulfillment)
+ * @method static SquareService setFulfillmentRecipient(mixed $recipient)
+ * @method static mixed getFulfillment()
+ * @method static mixed getFulfillmentDetails()
+ * @method static mixed getFulfillmentRecipient()
  *
  * Webhook Management Methods
  * @method static WebhookSubscription createWebhookSubscription(WebhookBuilder $builder)

@@ -3,9 +3,17 @@
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Fulfillment;
+use Nikolag\Square\Models\PickupDetails;
+use Nikolag\Square\Models\Recipient;
+use Nikolag\Square\Models\ShipmentDetails;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
+use Nikolag\Square\Utils\Util;
+use Square\Models\FulfillmentState;
+use Square\Models\FulfillmentType;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,10 +121,118 @@ $factory->state(Constants::TRANSACTION_NAMESPACE, 'FAILED', [
 ]);
 
 /* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(DeliveryDetails::class, function (Faker\Generator $faker) {
+    return [
+        'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+        'placed_at' => now(),
+        'deliver_at' => $faker->dateTimeBetween('now', '+1 month'),
+        'note' => $faker->realText(50),
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Fulfillment::class, function (Faker\Generator $faker) {
+    return [
+        'state' => FulfillmentState::PROPOSED,
+        'uid' => Util::uid(),
+    ];
+});
+
+$factory->afterCreating(Fulfillment::class, function ($fulfillment, $faker) {
+    // Determine the state of the factory
+    if ($fulfillment->type === FulfillmentType::DELIVERY) {
+        $fulfillment->fulfillmentDetails()->associate(factory(DeliveryDetails::class)->create());
+    } elseif ($fulfillment->type === FulfillmentType::PICKUP) {
+        $fulfillment->fulfillmentDetails()->associate(factory(PickupDetails::class)->create());
+    } elseif ($fulfillment->type === FulfillmentType::SHIPMENT) {
+        $fulfillment->fulfillmentDetails()->associate(factory(ShipmentDetails::class)->create());
+    }
+
+    // Add a recipient
+    $fulfillment->recipient()->associate(factory(Recipient::class)->create());
+});
+
+$factory->afterMaking(Fulfillment::class, function ($fulfillment) {
+    // Determine the state of the factory
+    $fulfillmentDetails = null;
+    if ($fulfillment->type === FulfillmentType::DELIVERY) {
+        $fulfillmentDetails = factory(DeliveryDetails::class)->make();
+    } elseif ($fulfillment->type === FulfillmentType::PICKUP) {
+        $fulfillmentDetails = factory(PickupDetails::class)->make();
+    } elseif ($fulfillment->type === FulfillmentType::SHIPMENT) {
+        $fulfillmentDetails = factory(ShipmentDetails::class)->make();
+    }
+
+    // Associate the fulfillmentDetails with the fulfillment
+    $fulfillment->fulfillmentDetails()->associate($fulfillmentDetails);
+});
+
+/* DELIVERY fulfillment state */
+$factory->state(Fulfillment::class, FulfillmentType::DELIVERY, function () {
+    return [
+        'type' => FulfillmentType::DELIVERY,
+    ];
+});
+
+/* PICKUP fulfillment state */
+$factory->state(Fulfillment::class, FulfillmentType::PICKUP, function () {
+    return [
+        'type' => FulfillmentType::PICKUP,
+    ];
+});
+
+/* SHIPMENT fulfillment state */
+$factory->state(Fulfillment::class, FulfillmentType::SHIPMENT, function () {
+    return [
+        'type' => FulfillmentType::SHIPMENT,
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(Order::class, function (Faker\Generator $faker) {
     return [
         'payment_service_type' => 'square',
-        'location_id' => env('SQUARE_LOCATION'),
+        'location_id'          => env('SQUARE_LOCATION'),
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(PickupDetails::class, function (Faker\Generator $faker) {
+    return [
+        'expires_at' => $faker->dateTimeBetween('now', '+1 day'),
+        'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+        'pickup_at' => now(),
+        'note' => $faker->realText(50),
+        'placed_at' => now(),
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Recipient::class, function (Faker\Generator $faker) {
+    return [
+        'display_name' => $faker->name,
+        'email_address' => $faker->unique()->safeEmail,
+        'phone_number' => $faker->unique()->tollFreePhoneNumber,
+        'address' => [
+            'address_line_1' => $faker->streetAddress,
+            'address_line_2' => $faker->secondaryAddress,
+            'locality' => $faker->city,
+            'administrative_district_level_1' => $faker->state,
+            'postal_code' => $faker->postcode,
+            'country' => $faker->country,
+        ],
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(ShipmentDetails::class, function (Faker\Generator $faker) {
+    return [
+        'carrier' => $faker->company,
+        'placed_at' => now(),
+        'shipping_note' => $faker->realText(50),
+        'shipping_type' => Arr::random(['First Class', 'Priority', 'Express']),
+        'tracking_number' => $faker->unique()->randomNumber(9),
+        'tracking_url' => $faker->url,
     ];
 });
 

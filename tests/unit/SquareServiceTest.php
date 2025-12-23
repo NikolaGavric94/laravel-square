@@ -2,12 +2,19 @@
 
 namespace Nikolag\Square\Tests\Unit;
 
+use Str;
 use Nikolag\Square\Exception;
 use Nikolag\Square\Exceptions\InvalidSquareOrderException;
 use Nikolag\Square\Exceptions\MissingPropertyException;
 use Nikolag\Square\Facades\Square;
 use Nikolag\Square\Models\Customer;
+use Nikolag\Square\Models\DeliveryDetails;
+use Nikolag\Square\Models\Discount;
+use Nikolag\Square\Models\PickupDetails;
 use Nikolag\Square\Models\Product;
+use Nikolag\Square\Models\Recipient;
+use Nikolag\Square\Models\ShipmentDetails;
+use Nikolag\Square\Models\Tax;
 use Nikolag\Square\Models\Transaction;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
@@ -15,6 +22,10 @@ use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\FulfillmentType;
+use Square\Models\BatchUpsertCatalogObjectsRequest;
+use Square\Models\BatchUpsertCatalogObjectsResponse;
+use Square\Utils\FileWrapper;
 use Square\Models\CatalogObject;
 use Square\Models\CatalogObjectType;
 
@@ -186,6 +197,288 @@ class SquareServiceTest extends TestCase
         $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))->addProduct($this->data->product, 1)->addProduct($product2, 2)->save();
 
         $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+    }
+
+    /**
+     * Add product and delivery fulfillment for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_delivery_fulfillment(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment([
+                'type' => FulfillmentType::DELIVERY,
+                'state' => 'PROPOSED',
+                'delivery_details' => [
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                ],
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
+        );
+    }
+
+    /**
+     * Add product and delivery fulfillment for order, from model.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_delivery_fulfillment_from_model(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment($this->data->fulfillmentWithDeliveryDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof DeliveryDetails,
+            'Fulfillment details are not DeliveryDetails'
+        );
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
+        );
+    }
+
+    /**
+     * Add product and pickup fulfillment for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_pickup_fulfillment(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment([
+                'type' => FulfillmentType::PICKUP,
+                'state' => 'PROPOSED',
+                'pickup_details' => [
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now()->format(Constants::DATE_FORMAT),
+                ],
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        // Make sure the fulfillment exists on the order
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
+        );
+    }
+
+    /**
+     * Add product and pickup fulfillment for order, from model.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_pickup_fulfillment_from_model(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment($this->data->fulfillmentWithPickupDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof PickupDetails,
+            'Fulfillment details are not PickupDetails'
+        );
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
+        );
+    }
+
+    /**
+     * Add product and pickup fulfillment with curbside pickup details for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_pickup_fulfillment_width_curbside_pickup_details(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment([
+                'type' => FulfillmentType::PICKUP,
+                'state' => 'PROPOSED',
+                'pickup_details' => [
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                    'is_curbside_pickup' => true,
+                    'curbside_pickup_details' => [
+                        'curbside_details' => 'Mazda CX5, Black, License Plate: 1234567',
+                        'buyer_arrived_at' => null,
+                    ],
+                ],
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        // Make sure the fulfillment exists on the order
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'Fulfillment is missing from order');
+
+        // Make sure the fulfillment details are PickupDetails
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof PickupDetails,
+            'Fulfillment details are not PickupDetails'
+        );
+
+        // Make sure the curbside pickup data flag is set to true
+        $this->assertTrue(
+            ! empty($square->getOrder()->fulfillments->first()->fulfillmentDetails->is_curbside_pickup),
+            'Curbside pickup flag is not set to true'
+        );
+
+        // Make sure the curbside data is present
+        $this->assertNotNull(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->curbside_pickup_details,
+            'Curbside pickup details are not set'
+        );
+
+        $this->assertNull(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->curbside_pickup_details->buyer_arrived_at,
+            'Buyer arrived at is not null'
+        );
+
+        $this->assertEquals(
+            'Mazda CX5, Black, License Plate: 1234567',
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails->curbside_pickup_details->curbside_details,
+            'Curbside details are not the same'
+        );
+    }
+
+    /**
+     * Add product and shipment fulfillment for order.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_shipment_fulfillment(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment([
+                'type' => FulfillmentType::SHIPMENT,
+                'state' => 'PROPOSED',
+                'shipment_details' => [
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                ],
+            ])->setFulfillmentRecipient(TestDataHolder::buildRecipientArray())
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
+        );
+    }
+
+    /**
+     * Add product and shipment fulfillment for order, from model.
+     *
+     * @return void
+     */
+    public function test_square_order_add_product_and_delivery_shipment_from_model(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        $square = Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment($this->data->fulfillmentWithShipmentDetails)
+            ->setFulfillmentRecipient($this->data->fulfillmentRecipient)
+            ->save();
+
+        $this->assertCount(2, $square->getOrder()->products, 'There is not enough products');
+
+        $this->assertCount(1, $square->getOrder()->fulfillments, 'There is not enough fulfillments');
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->fulfillmentDetails instanceof ShipmentDetails,
+            'Fulfillment details are not ShipmentDetails'
+        );
+
+        $this->assertTrue(
+            $square->getOrder()->fulfillments->first()->recipient instanceof Recipient,
+            'Fulfillment recipient is not Recipient'
+        );
+    }
+
+    /**
+     * Makes sure the Square Order throws an error when a fulfillment is present but no recipient is set.
+     *
+     * @return void
+     */
+    public function test_square_order_fulfillment_with_no_recipient(): void
+    {
+        $product2 = factory(Product::class)->create();
+
+        // Set up the error expectations
+        $this->expectException(MissingPropertyException::class);
+        $this->expectExceptionMessage('Required fields are missing');
+        $this->expectExceptionCode(500);
+
+        Square::setOrder($this->data->order, env('SQUARE_LOCATION'))
+            ->addProduct($this->data->product, 1)
+            ->addProduct($product2, 2)
+            ->setFulfillment([
+                'type' => FulfillmentType::DELIVERY,
+                'state' => 'PROPOSED',
+                'delivery_details' => [
+                    'schedule_type' => Constants::SCHEDULE_TYPE_ASAP,
+                    'placed_at' => now(),
+                    'carrier' => 'USPS',
+                ],
+            ])
+            // ->setFulfillmentRecipient(TestDataHolder::buildRecipientArray()) // Commented out to test the error
+            ->save();
     }
 
     /**
