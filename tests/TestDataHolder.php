@@ -2,6 +2,7 @@
 
 namespace Nikolag\Square\Tests;
 
+use Nikolag\Square\Models\Address;
 use Nikolag\Square\Models\Customer;
 use Nikolag\Square\Models\Discount;
 use Nikolag\Square\Models\Product;
@@ -16,7 +17,8 @@ class TestDataHolder
                                 public ?Customer $customer,
                                 public ?User $merchant,
                                 public ?Tax $tax,
-                                public ?Discount $discount)
+                                public ?Discount $discount,
+                                public ?Address $address)
     {
     }
 
@@ -27,7 +29,8 @@ class TestDataHolder
             factory(Customer::class)->make(),
             factory(User::class)->make(),
             factory(Tax::class)->make(),
-            factory(Discount::class)->states('AMOUNT_ONLY')->make());
+            factory(Discount::class)->states('AMOUNT_ONLY')->make(),
+            factory(Address::class)->make());
     }
 
     public static function create(): self
@@ -37,7 +40,8 @@ class TestDataHolder
             factory(Customer::class)->create(),
             factory(User::class)->create(),
             factory(Tax::class)->create(),
-            factory(Discount::class)->states('AMOUNT_ONLY')->create());
+            factory(Discount::class)->states('AMOUNT_ONLY')->create(),
+            factory(Address::class)->create());
     }
 
     public function modify(string $prodFac = 'create',
@@ -45,7 +49,8 @@ class TestDataHolder
                            string $orderDisFac = 'create',
                            string $orderDiscFixFac = 'create',
                            string $taxAddFac = 'create',
-                           string $taxIncFac = 'create')
+                           string $taxIncFac = 'create',
+                           string $addressFac = 'create')
     {
         $product = factory(Product::class)->{$prodFac}([
             'price' => 1000,
@@ -65,7 +70,8 @@ class TestDataHolder
         $taxInclusive = factory(Tax::class)->states('INCLUSIVE')->{$taxIncFac}([
             'percentage' => 15.0,
         ]);
+        $address = factory(Address::class)->{$addressFac}();
 
-        return compact('product', 'productDiscount', 'orderDiscount', 'orderDiscountFixed', 'taxAdditive', 'taxInclusive');
+        return compact('product', 'productDiscount', 'orderDiscount', 'orderDiscountFixed', 'taxAdditive', 'taxInclusive', 'address');
     }
 }

@@ -91,6 +91,11 @@ class SquareRequestBuilder
         $request->setReferenceId($customer->owner_id);
         $request->setNote($customer->note);
 
+        // Add address if customer has an address relationship
+        if ($customer->hasAddress()) {
+            $request->setAddress($customer->address->toSquareAddress());
+        }
+
         return $request;
     }
 
