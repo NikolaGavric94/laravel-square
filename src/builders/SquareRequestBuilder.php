@@ -88,11 +88,16 @@ class SquareRequestBuilder
         $request->setNickname($customer->nickname);
         $request->setEmailAddress($customer->email);
         $request->setPhoneNumber($customer->phone);
-        $request->setReferenceId($customer->owner_id);
+        $request->setReferenceId($customer->reference_id ?? $customer->owner_id);
         $request->setNote($customer->note);
 
+        // Add birthday if present
+        if ($customer->birthday) {
+            $request->setBirthday($customer->birthday->format('Y-m-d'));
+        }
+
         // Add address if customer has an address relationship
-        if ($customer->hasAddress()) {
+        if ($customer->address) {
             $request->setAddress($customer->address->toSquareAddress());
         }
 
