@@ -5,6 +5,7 @@ namespace Nikolag\Square\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Square\Models\Address as SquareAddress;
+use Square\Models\Builders\AddressBuilder;
 
 class Address extends Model
 {
@@ -59,31 +60,30 @@ class Address extends Model
     /**
      * Convert address fields to Square Address object.
      *
-     * @return \Square\Models\Address
+     * @return SquareAddress
      */
     public function toSquareAddress(): SquareAddress
     {
-        $address = new SquareAddress();
-        $address->setAddressLine1($this->address_line_1);
-        $address->setAddressLine2($this->address_line_2);
-        $address->setAddressLine3($this->address_line_3);
-        $address->setLocality($this->locality);
-        $address->setAdministrativeDistrictLevel1($this->administrative_district_level_1);
-        $address->setAdministrativeDistrictLevel2($this->administrative_district_level_2);
-        $address->setAdministrativeDistrictLevel3($this->administrative_district_level_3);
-        $address->setSublocality($this->sublocality);
-        $address->setSublocality2($this->sublocality_2);
-        $address->setSublocality3($this->sublocality_3);
-        $address->setPostalCode($this->postal_code);
-        $address->setCountry($this->country);
-
-        return $address;
+        return AddressBuilder::init()
+        ->addressLine1($this->address_line_1)
+        ->addressLine2($this->address_line_2)
+        ->addressLine3($this->address_line_3)
+        ->locality($this->locality)
+        ->administrativeDistrictLevel1($this->administrative_district_level_1)
+        ->administrativeDistrictLevel2($this->administrative_district_level_2)
+        ->administrativeDistrictLevel3($this->administrative_district_level_3)
+        ->sublocality($this->sublocality)
+        ->sublocality2($this->sublocality_2)
+        ->sublocality3($this->sublocality_3)
+        ->postalCode($this->postal_code)
+        ->country($this->country)
+        ->build();
     }
 
     /**
      * Create an Address model from Square Address object.
      *
-     * @param  \Square\Models\Address  $squareAddress
+     * @param  SquareAddress  $squareAddress
      * @return static
      */
     public static function fromSquareAddress(SquareAddress $squareAddress): static
