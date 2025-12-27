@@ -3,6 +3,7 @@
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Nikolag\Square\Models\Address;
 use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Utils\Constants;
@@ -88,6 +89,24 @@ $factory->define(Constants::CUSTOMER_NAMESPACE, function (Faker\Generator $faker
         'email' => $faker->unique()->companyEmail,
         'phone' => $faker->unique()->tollFreePhoneNumber,
         'note' => $faker->unique()->paragraph(5),
+    ];
+});
+
+/* @var \Illuminate\Database\Eloquent\Factory $factory */
+$factory->define(Address::class, function (Faker\Generator $faker) {
+    return [
+        'address_line_1' => $faker->streetAddress,
+        'address_line_2' => $faker->optional(0.3)->secondaryAddress,
+        'address_line_3' => $faker->optional(0.1)->buildingNumber,
+        'locality' => $faker->city,
+        'administrative_district_level_1' => $faker->stateAbbr,
+        'administrative_district_level_2' => $faker->optional(0.2)->word,
+        'administrative_district_level_3' => $faker->optional(0.1)->word,
+        'sublocality' => $faker->optional(0.2)->streetName,
+        'sublocality_2' => $faker->optional(0.1)->word,
+        'sublocality_3' => $faker->optional(0.1)->word,
+        'postal_code' => $faker->postcode,
+        'country' => 'US',
     ];
 });
 

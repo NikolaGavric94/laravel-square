@@ -28,6 +28,7 @@ use Square\Models\Builders\TestWebhookSubscriptionRequestBuilder;
 use Square\Models\Builders\UpdateWebhookSubscriptionSignatureKeyRequestBuilder;
 use Square\Models\CreateCustomerRequest;
 use Square\Models\CreateOrderRequest;
+use Square\Models\Customer as SquareCustomer;
 use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
@@ -76,6 +77,10 @@ class SquareService extends CorePaymentService implements SquareServiceContract
      * @var CreateCustomerRequest
      */
     private CreateCustomerRequest $createCustomerRequest;
+    /**
+     * @var UpdateCustomerRequest
+     */
+    private UpdateCustomerRequest $updateCustomerRequest;
 
     public function __construct(SquareConfig $squareConfig)
     {
@@ -139,26 +144,102 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     private function _saveCustomer(): void
     {
         if (! $this->getCustomer()->payment_service_id) {
-            $response = $this->config->customersAPI()->createCustomer($this->getCreateCustomerRequest());
-
-            if ($response->isSuccess()) {
-                $this->getCustomer()->payment_service_id = $response->getResult()->getCustomer()->getId();
-            } else {
-                throw $this->_handleApiResponseErrors($response);
-            }
+            $this->_createCustomer();
         } else {
-            $response = $this->config->customersAPI()->updateCustomer($this->getCustomer()->payment_service_id, $this->getCreateCustomerRequest());
-
-            if ($response->isError()) {
-                throw $this->_handleApiResponseErrors($response);
-            }
+            $this->_updateCustomer();
         }
 
         $this->getCustomer()->save();
+
         // If merchant exists and if merchant doesn't have customer
         if ($this->getMerchant() && ! $this->getMerchant()->hasCustomer($this->getCustomer()->email)) {
             // Attach seller to the buyer
             $this->getCustomer()->merchants()->attach($this->getMerchant()->id);
+        }
+    }
+
+    /**
+     * Create a new customer in Square.
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function _createCustomer(): void
+    {
+        $response = $this->config->customersAPI()->createCustomer($this->getCreateCustomerRequest());
+
+        if ($response->isSuccess()) {
+            $squareCustomer = $response->getResult()->getCustomer();
+            $this->getCustomer()->payment_service_id = $squareCustomer->getId();
+
+            // Store creation source (only set on create)
+            if ($squareCustomer->getCreationSource()) {
+                $this->getCustomer()->creation_source = $squareCustomer->getCreationSource();
+            }
+
+            // Sync common fields from Square response
+            $this->_syncCustomerFromSquareResponse($squareCustomer);
+        } else {
+            throw $this->_handleApiResponseErrors($response);
+        }
+    }
+
+    /**
+     * Update an existing customer in Square.
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function _updateCustomer(): void
+    {
+        $response = $this->config->customersAPI()->updateCustomer(
+            $this->getCustomer()->payment_service_id,
+            $this->getUpdateCustomerRequest()
+        );
+
+        if ($response->isSuccess()) {
+            $squareCustomer = $response->getResult()->getCustomer();
+
+            // Sync common fields from Square response
+            $this->_syncCustomerFromSquareResponse($squareCustomer);
+        } else {
+            throw $this->_handleApiResponseErrors($response);
+        }
+    }
+
+    /**
+     * Sync customer data from Square API response.
+     *
+     * @param  SquareCustomer  $squareCustomer
+     * @return void
+     */
+    private function _syncCustomerFromSquareResponse(SquareCustomer $squareCustomer): void
+    {
+        // Update version
+        if ($squareCustomer->getVersion()) {
+            $this->getCustomer()->payment_service_version = $squareCustomer->getVersion();
+        }
+
+        // Sync address from response
+        if ($squareCustomer->getAddress()) {
+            $address = $this->getCustomer()->address()->firstOrNew([]);
+            $address->updateFromSquareAddress($squareCustomer->getAddress());
+            $this->getCustomer()->address()->save($address);
+        }
+
+        // Store read-only fields from response
+        if ($squareCustomer->getPreferences()) {
+            $this->getCustomer()->preferences = [
+                'email_unsubscribed' => $squareCustomer->getPreferences()->getEmailUnsubscribed(),
+            ];
+        }
+        if ($squareCustomer->getGroupIds()) {
+            $this->getCustomer()->group_ids = $squareCustomer->getGroupIds();
+        }
+        if ($squareCustomer->getSegmentIds()) {
+            $this->getCustomer()->segment_ids = $squareCustomer->getSegmentIds();
         }
     }
 
@@ -425,20 +506,32 @@ class SquareService extends CorePaymentService implements SquareServiceContract
     }
 
     /**
-     * @return CreateCustomerRequest|UpdateCustomerRequest
+     * @return CreateCustomerRequest
      */
-    public function getCreateCustomerRequest(): UpdateCustomerRequest|CreateCustomerRequest
+    public function getCreateCustomerRequest(): CreateCustomerRequest
     {
         return $this->createCustomerRequest;
     }
 
     /**
-     * @param  CreateCustomerRequest|UpdateCustomerRequest  $createCustomerRequest
+     * @return UpdateCustomerRequest
+     */
+    public function getUpdateCustomerRequest(): UpdateCustomerRequest
+    {
+        return $this->updateCustomerRequest;
+    }
+
+    /**
+     * @param  CreateCustomerRequest|UpdateCustomerRequest  $customerRequest
      * @return self
      */
-    public function setCreateCustomerRequest($createCustomerRequest): static
+    public function setCreateOrUpdateCustomerRequest($customerRequest): static
     {
-        $this->createCustomerRequest = $createCustomerRequest;
+        if ($customerRequest instanceof UpdateCustomerRequest) {
+            $this->updateCustomerRequest = $customerRequest;
+        } else {
+            $this->createCustomerRequest = $customerRequest;
+        }
 
         return $this;
     }
@@ -480,7 +573,7 @@ class SquareService extends CorePaymentService implements SquareServiceContract
 
         if ($customer) {
             $customerRequest = $this->squareBuilder->buildCustomerRequest($this->customer);
-            $this->setCreateCustomerRequest($customerRequest);
+            $this->setCreateOrUpdateCustomerRequest($customerRequest);
         }
 
         return $this;
