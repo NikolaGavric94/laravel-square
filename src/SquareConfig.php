@@ -113,6 +113,16 @@ class SquareConfig extends CoreConfig
     }
 
     /**
+     * Getter for client.
+     *
+     * @return SquareClient
+     */
+    public function getClient(): SquareClient
+    {
+        return $this->squareClient;
+    }
+
+    /**
      * Getter for config.
      *
      * @return array
