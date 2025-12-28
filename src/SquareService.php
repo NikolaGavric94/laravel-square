@@ -3,6 +3,7 @@
 namespace Nikolag\Square;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Nikolag\Core\Abstracts\CorePaymentService;
 use Nikolag\Square\Builders\CustomerBuilder;
 use Nikolag\Square\Builders\OrderBuilder;
@@ -31,6 +32,7 @@ use Square\Models\ListLocationsResponse;
 use Square\Models\ListPaymentsResponse;
 use Square\Models\ListWebhookEventTypesResponse;
 use Square\Models\ListWebhookSubscriptionsResponse;
+use Square\Models\RetrieveOrderResponse;
 use Square\Models\TestWebhookSubscriptionResponse;
 use Square\Models\UpdateCustomerRequest;
 use Square\Models\UpdateWebhookSubscriptionSignatureKeyResponse;
@@ -321,6 +323,25 @@ class SquareService extends CorePaymentService implements SquareServiceContract
         }
 
         return $transaction;
+    }
+
+    /**
+     * Retrieve an order by ID.
+     *
+     * @param  string  $orderId
+     * @return RetrieveOrderResponse
+     *
+     * @throws ApiException
+     */
+    public function retrieveOrder(string $orderId): RetrieveOrderResponse
+    {
+        $response = $this->config->ordersAPI()->retrieveOrder($orderId);
+
+        if ($response->isSuccess()) {
+            return $response->getResult();
+        } else {
+            throw $this->_handleApiResponseErrors($response);
+        }
     }
 
     /**

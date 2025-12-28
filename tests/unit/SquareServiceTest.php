@@ -13,11 +13,17 @@ use Nikolag\Square\Tests\Models\Order;
 use Nikolag\Square\Tests\Models\User;
 use Nikolag\Square\Tests\TestCase;
 use Nikolag\Square\Tests\TestDataHolder;
+use Nikolag\Square\Tests\Traits\MocksSquareConfigDependency;
 use Nikolag\Square\Utils\Constants;
 use Nikolag\Square\Utils\Util;
+use Square\Models\CatalogObject;
+use Square\Models\CatalogObjectType;
+use Square\Models\RetrieveOrderResponse;
 
 class SquareServiceTest extends TestCase
 {
+    use MocksSquareConfigDependency;
+
     private TestDataHolder $data;
 
     /**
@@ -477,5 +483,51 @@ class SquareServiceTest extends TestCase
             $transaction->order->taxes->where('name', $taxAdditive->name)->first()->pivot->scope, 'Tax scope is not \'LINE_ITEM\'');
         $this->assertEquals(Constants::DEDUCTIBLE_SCOPE_ORDER,
             $transaction->order->discounts->where('name', $orderDiscount->name)->first()->pivot->scope, 'Discount scope is not \'ORDER\'');
+    }
+
+    /**
+     * Test retrieving an order successfully.
+     *
+     * @return void
+     */
+    public function test_square_retrieve_order_success(): void
+    {
+        $orderId = 'test-square-order-123';
+        $locationId = 'test-location-456';
+
+        // Mock successful retrieve order response
+        $this->mockRetrieveOrderSuccess([
+            'id' => $orderId,
+            'locationId' => $locationId,
+            'state' => 'OPEN',
+            'version' => 1,
+            'createdAt' => '2023-10-18T10:00:00Z',
+            'updatedAt' => '2023-10-18T10:00:00Z'
+        ]);
+
+        $retrievedOrder = Square::retrieveOrder($orderId);
+
+        $this->assertNotNull($retrievedOrder);
+        $this->assertInstanceOf(RetrieveOrderResponse::class, $retrievedOrder);
+        $this->assertNotNull($retrievedOrder->getOrder());
+        $this->assertEquals($orderId, $retrievedOrder->getOrder()->getId());
+        $this->assertEquals($locationId, $retrievedOrder->getOrder()->getLocationId());
+        $this->assertEquals('OPEN', $retrievedOrder->getOrder()->getState());
+    }
+
+    /**
+     * Test retrieving a non-existent order using mocking.
+     *
+     * @return void
+     */
+    public function test_square_retrieve_order_not_found(): void
+    {
+        // Mock error response for non-existent order
+        $this->mockRetrieveOrderError('Order not found', 404);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionCode(404);
+
+        Square::retrieveOrder('non-existent-order-id');
     }
 }
